@@ -18,7 +18,7 @@ public:
 	virtual bool done() = 0;
 	virtual unique_ptr<state> next_state() = 0;
 
-	// Force implementation.
+	// Logic.
 	virtual void frame_logic(double dt) = 0;
 
 	// Optionally implementable.
@@ -27,5 +27,6 @@ public:
 };
 
 unique_ptr<state> create_game_state(const config& config, const resman& res);
+unique_ptr<state> create_test_state(const config& config, const resman& res);
 
 #endif

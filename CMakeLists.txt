@@ -1,13 +1,17 @@
 cmake_minimum_required (VERSION 2.6)
 project (shooter)
 
-set (CMAKE_CXX_FLAGS "-Wall --std=gnu++0x -g -o0")
 set (CMAKE_CXX_COMPILER "g++" )
+set (CMAKE_CXX_FLAGS "-Wall --std=gnu++0x -g -pg")
 
 add_executable(shooter
 ./src/game_state.cpp
+./src/test_state.cpp
 ./src/allegro.cpp
 ./src/resources/resman.cpp
+./src/cmp/components.cpp
+./src/cmp/systems.cpp
+./src/cmp/comm.cpp
 ./src/components/wellness/cmp_health_etc.cpp
 ./src/components/wellness/cmp_painmap.cpp
 ./src/components/wellness/cmp_smoke_when_hurt.cpp

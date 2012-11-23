@@ -9,13 +9,8 @@ using namespace std;
 
 /*
  * TODO:
- * - Health pickup.
- *   - Make the health collidable and implement picking up.
  * - Player shield bar and shield pickups.
  * - Use common random generator engine.
- *
- * FIXME:
- * - Bug freeze upon first collision detection.
  */
 
 class application {
@@ -38,7 +33,8 @@ public:
 	}
 
 	void loop() {
-		unique_ptr<state> current_state = create_game_state(_config, _resman);
+		// unique_ptr<state> current_state = create_game_state(_config, _resman);
+		unique_ptr<state> current_state = create_test_state(_config, _resman);
 		while(current_state) {
 
 			// Handle events.

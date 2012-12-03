@@ -14,8 +14,10 @@ using namespace std;
 enum class collision_class : uint32_t {
 	PLAYER_SHIP,
 	PLAYER_BULLET,
+	PLAYER_MISSILE,
 	ENEMY_SHIP,
 	ENEMY_BULLET,
+	ENEMY_MISSILE,
 	HEALTH_PICKUP,
 	ARMOR_PICKUP,
 };

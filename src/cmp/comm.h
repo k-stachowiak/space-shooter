@@ -1,13 +1,15 @@
 #ifndef COMM_H
 #define COMM_H
 
-#include "components.h"
+#include <stdint.h>
 
 namespace comm {
 
 enum class msg_t {
 	remove_entity,
-	spawn_bullet
+	spawn_bullet,
+	spawn_explosion,
+	spawn_smoke
 };
 
 struct message {
@@ -22,11 +24,21 @@ struct message {
 		double x, y;
 		double theta;
 		double vx, vy;
-		cmp::coll_class cc;
+		bool enemy;
 	} spawn_bullet;
+
+	struct {
+		double x, y;
+	} spawn_explosion;
+
+	struct {
+		double x, y;
+	} spawn_smoke;
 };
 
-message create_spawn_bullet( double x, double y, double theta, double vx, double vy, cmp::coll_class cc);
+message create_spawn_bullet(double x, double y, double theta, double vx, double vy, bool enemy);
+message create_spawn_explosion(double x, double y);
+message create_spawn_smoke(double x, double y);
 message create_remove_entity(uint64_t id);
 
 }

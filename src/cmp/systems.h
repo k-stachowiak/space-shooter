@@ -25,7 +25,14 @@ void remove_node(SYS& sys, uint64_t id) {
 	}
 }
 
-class drawing_system {
+class system {
+protected:
+	bool _debug_mode;
+public:
+	void set_debug_mode(bool debug_mode) { _debug_mode = debug_mode; }
+};
+
+class drawing_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::drawing_node> _nodes;
 public:
@@ -33,7 +40,15 @@ public:
 	void update(double dt);
 };
 
-class movement_system {
+class fx_system : public system {
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	vector<nd::fx_node> _nodes;
+public:
+	void add_node(nd::fx_node n) { _nodes.push_back(n); }
+	void update(double dt, vector<comm::message>& msgs);
+};
+
+class movement_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::movement_node> _nodes;
 	uint64_t _player_controlled;
@@ -47,7 +62,7 @@ public:
 	void update(double dt, vector<comm::message>& msgs);
 };
 
-class arms_system {
+class arms_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::arms_node> _nodes;
 	uint64_t _player_shooting;
@@ -55,6 +70,7 @@ class arms_system {
 	bool _player_trigger;
 	double _player_counter;
 	void handle_player(double dt, vector<comm::message>& msgs, double x, double y);
+	comm::message proc_msg(double x, double y, comm::message msg);
 public:
 	arms_system() : _player_counter(0.0) {}
 	void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
@@ -64,7 +80,7 @@ public:
 	void update(double dt, vector<comm::message>& msgs);
 };
 
-class collision_system {
+class collision_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::collision_node> _nodes;
 	void check_collision(nd::collision_node const& a, nd::collision_node const& b);
@@ -73,12 +89,20 @@ public:
 	void update();
 };
 
-class pain_system {
+class pain_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::pain_node> _nodes;
 public:
 	void add_node(nd::pain_node node) { _nodes.push_back(node); }
 	void update(vector<comm::message>& msgs);
+};
+
+class wellness_system : public system {
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	vector<nd::wellness_node> _nodes;
+public:
+	void add_node(nd::wellness_node node) { _nodes.push_back(node); }
+	void update(double dt, vector<comm::message>& msgs);
 };
 
 }

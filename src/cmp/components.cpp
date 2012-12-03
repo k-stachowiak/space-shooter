@@ -4,10 +4,39 @@ using std::array;
 #include <string>
 using std::string;
 
+#include <random>
+using std::uniform_real_distribution;
+
+#include <allegro5/allegro_primitives.h>
+
 #include "components.h"
+#include "comm.h"
+#include "rand.h"
 #include "../geometry/misc.h"
 
 namespace cmp {
+
+// Timer classes.
+// --------------
+
+class const_int_timer : public timer {
+	double _interval;
+public:
+	const_int_timer(double interval)
+	: _interval(interval)
+	{
+		_counter = interval;
+		_ticks = 0;
+	}
+
+	void update(double dt) {
+		_counter -= dt;
+		if(_counter < 0.0) {
+			++_ticks;
+			_counter += _interval;
+		}
+	}
+};
 
 // Appearance classes.
 // -------------------
@@ -199,6 +228,92 @@ public:
 	double get_vy() const { return _vy; }
 };
 
+// Weapon behavior classes.
+// ------------------------
+
+class period_bullet : public weapon_beh {
+	double _dt_min;
+	double _dt_max;
+	double _counter;
+
+	void init_counter(double remainder = 0.0) {
+		uniform_real_distribution<double> distr(_dt_min, _dt_max);
+		_counter = distr(rnd::engine) - remainder;
+	}
+
+public:
+	period_bullet(double dt_min, double dt_max)
+	: _dt_min(dt_min)
+	, _dt_max(dt_max) {
+		init_counter();
+	}
+
+	void update(double dt, double x, double y, vector<comm::message>& msgs) {
+		_counter -= dt;
+		if(_counter <= 0.0) {
+			init_counter(-_counter);
+			msgs.push_back(comm::create_spawn_bullet(
+						x, y, 1.57, 0.0, 800.0, true));
+		}
+	}
+};
+
+// FX classes.
+// -----------
+
+class smoke_when_hurt : public fx {
+	const_int_timer _timer;
+	double _pain_threshold;
+public:
+	smoke_when_hurt(double pain_threshold)
+	: _timer(0.5)
+	, _pain_threshold(pain_threshold)
+	{}
+
+	void update(double dt, 
+			double health_ratio,
+			double x, double y,
+			vector<comm::message>& msgs) {
+
+		if(health_ratio > _pain_threshold)
+			return;
+
+		_timer.update(dt);
+		for(uint32_t i = 0; i < _timer.get_ticks(); ++i)
+			msgs.push_back(comm::create_spawn_smoke(x, y));
+		_timer.clear();
+	}
+};
+
+class period_smoke : public fx {
+	double _dt_min;
+	double _dt_max;
+	double _counter;
+
+	void init_counter(double remainder = 0.0) {
+		uniform_real_distribution<double> distr(_dt_min, _dt_max);
+		_counter = distr(rnd::engine) - remainder;
+	}
+
+public:
+	period_smoke(double dt_min, double dt_max)
+	: _dt_min(dt_min)
+	, _dt_max(dt_max) {
+		init_counter();
+	}
+
+	void update(	double dt,
+			double health_ratio,
+			double x, double y,
+			vector<comm::message>& msgs) {
+		_counter -= dt;
+		if(_counter <= 0.0) {
+			init_counter(-_counter);
+			msgs.push_back(comm::create_spawn_smoke(x, y));
+		}
+	}
+};
+
 // Collision declarations.
 // -----------------------
 
@@ -228,6 +343,10 @@ public:
 	bool collides_with_circle(const circle& c) const {
 		return collide_circle_circle(*this, c);
 	}
+
+	void debug_draw() {
+		al_draw_circle(_x, _y, _r, al_map_rgb_f(1.0, 0.0, 0.0), 1.0);
+	}
 };
 
 // Collision implementations.
@@ -243,6 +362,8 @@ bool collide_circle_circle(const circle& a, const circle& b) {
 // Constructors.
 // -------------
 
+// Simple types.
+
 shared_ptr<orientation> create_orientation(double x, double y, double theta) {
 	return make_shared<orientation>(x, y, theta);
 }
@@ -251,6 +372,26 @@ shared_ptr<bounds> create_bounds(
 		double x_min, double y_min, double x_max, double y_max) {
 	return make_shared<bounds>(x_min, y_min, x_max, y_max);
 }
+
+shared_ptr<coll_queue> create_coll_queue() {
+	return make_shared<coll_queue>();
+}
+
+shared_ptr<painmap> create_painmap(map<coll_class, double> pain_map) {
+	return make_shared<painmap>(pain_map);
+}
+
+shared_ptr<wellness> create_wellness(double health) {
+	return make_shared<wellness>(health);
+}
+
+// Timer classes.
+
+shared_ptr<timer> create_const_int_timer(double interval) {
+	return shared_ptr<timer>(new const_int_timer(interval));
+}
+
+// Apperarance classes.
 
 shared_ptr<appearance> create_static_bmp(ALLEGRO_BITMAP* bmp) {
 	return shared_ptr<appearance>(new static_bmp(bmp));
@@ -271,6 +412,8 @@ shared_ptr<appearance> create_simple_anim(
 			rep_count));
 }
 
+// Dynamic classes.
+
 shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy) {
 	return shared_ptr<dynamics>(new const_velocity_dynamics(vx, vy));
 }
@@ -279,20 +422,26 @@ shared_ptr<dynamics> create_path_dynamics(vector<point> points) {
 	return shared_ptr<dynamics>(new path_dynamics(points));
 }
 
+// Shape classes.
+
 shared_ptr<shape> create_circle(double x, double y, double r) {
 	return shared_ptr<shape>(new circle(x, y, r));
 }
 
-shared_ptr<coll_queue> create_coll_queue() {
-	return make_shared<coll_queue>();
+// Weapon behavior classes.
+
+shared_ptr<weapon_beh> create_period_bullet(double dt_min, double dt_max) {
+	return shared_ptr<weapon_beh>(new period_bullet(dt_min, dt_max));
 }
 
-shared_ptr<painmap> create_painmap(map<coll_class, double> pain_map) {
-	return make_shared<painmap>(pain_map);
+// Fx classes.
+
+shared_ptr<fx> create_smoke_when_hurt(double pain_threshold) {
+	return shared_ptr<fx>(new smoke_when_hurt(pain_threshold));
 }
 
-shared_ptr<wellness> create_wellness(double health) {
-	return make_shared<wellness>(health);
+shared_ptr<fx> create_period_smoke(double dt_min, double dt_max) {
+	return shared_ptr<fx>(new period_smoke(dt_min, dt_max));
 }
 
 }

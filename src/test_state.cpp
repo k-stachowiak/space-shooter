@@ -1,10 +1,20 @@
+#include <functional>
+using std::bind;
+
 #include <random>
 using std::default_random_engine;
+using std::uniform_real_distribution;
 
 #include "state.h"
+#include "random_clock.h"
 #include "geometry/bezier.h"
 #include "cmp/systems.h"
 #include "cmp/comm.h"
+
+// TODO:
+// - Another enemy.
+// - Another weapon - HOMING MISSILES!
+// - Spawn debris upon collision.
 
 class test_state : public state {
 
@@ -23,6 +33,11 @@ class test_state : public state {
 	bool _done;
 	vector<comm::message> _messages;
 
+	// Generation processes.
+	// ---------------------
+	random_clock<uniform_real_distribution<double>> _eye_spawn_clk;
+	random_clock<uniform_real_distribution<double>> _bomber_spawn_clk;
+
 	// Systems.
 	// --------
 	sys::movement_system _ms;
@@ -30,6 +45,8 @@ class test_state : public state {
 	sys::arms_system _as;
 	sys::drawing_system _ds;
 	sys::pain_system _ps;
+	sys::wellness_system _ws;
+	sys::fx_system _fs;
 
 	// Factories.
 	// ----------
@@ -42,9 +59,10 @@ class test_state : public state {
 		
 		uint32_t frame_width = 70;
 		uint32_t num_frames = 16;
+		double frame_time = 0.05;
 		vector<cmp::frame_def> frame_defs;
 		for(uint32_t i = 0; i < num_frames; ++i)
-			frame_defs.emplace_back(i, 0.05);
+			frame_defs.emplace_back(i, frame_time);
 
 		auto appearance = cmp::create_simple_anim(
 				_resman.get_bitmap(res_id::EXPLOSION_1),
@@ -55,8 +73,54 @@ class test_state : public state {
 
 		auto orientation = cmp::create_orientation(x, y, 0.0);
 
+		shared_ptr<cmp::shape> shape;
+
+		shared_ptr<cmp::wellness> wellness;
+
+		auto ttl = cmp::create_const_int_timer(num_frames * frame_time);
+
+		bool explodes = false;
+
 		// Register nodes.
-		_ds.add_node({id, appearance, orientation});
+		_ds.add_node({ id, appearance, orientation, shape });
+		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+
+		// Feedback for the state.
+		return id;
+	}
+
+	uint64_t create_smoke(double x, double y) {
+
+		// Initialize components.
+		uint64_t id = ++_last_id;
+		
+		uint32_t frame_width = 32 * 3;
+		uint32_t num_frames = 25;
+		double frame_time = 0.075;
+		vector<cmp::frame_def> frame_defs;
+		for(uint32_t i = 0; i < num_frames; ++i)
+			frame_defs.emplace_back(i, frame_time);
+
+		auto appearance = cmp::create_simple_anim(
+				_resman.get_bitmap(res_id::SMOKE_1),
+				frame_width,
+				num_frames,
+				frame_defs,
+				1);
+
+		auto orientation = cmp::create_orientation(x, y, 0.0);
+
+		shared_ptr<cmp::shape> shape;
+
+		shared_ptr<cmp::wellness> wellness;
+
+		auto ttl = cmp::create_const_int_timer(num_frames * frame_time);
+
+		bool explodes = false;
+
+		// Register nodes.
+		_ds.add_node({ id, appearance, orientation, shape });
+		_ws.add_node({ id, explodes, orientation, wellness, ttl });
 
 		// Feedback for the state.
 		return id;
@@ -85,14 +149,24 @@ class test_state : public state {
 
 		auto coll_queue = cmp::create_coll_queue();
 
+		shared_ptr<cmp::weapon_beh> weapon_beh;
+
 		auto painmap = cmp::create_painmap({
 				{ cmp::coll_class::ENEMY_BULLET, 10.0 },
 				{ cmp::coll_class::ENEMY_SHIP, 25.0 } });
 
 		auto wellness = cmp::create_wellness(100.0);
 
+		shared_ptr<cmp::timer> ttl;
+
+		vector<shared_ptr<cmp::fx>> fxs {
+			cmp::create_smoke_when_hurt(0.5)
+		};
+
+		bool explodes = true;
+
 		// Register nodes.
-		_ds.add_node({id, appearance, orientation});
+		_ds.add_node({ id, appearance, orientation, shape });
 
 		_ms.set_player_controlled(id);
 		_ms.add_node({	id,
@@ -102,13 +176,87 @@ class test_state : public state {
 				movement_bounds,
 				life_bounds});
 
-		_as.add_node({id, orientation});
+		_as.add_node({id, orientation, weapon_beh});
 		_as.set_player_shooting(id);
 		_as.set_player_interval(0.125);
 
 		_cs.add_node({ id, cc, shape, coll_queue });
 
 		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
+
+		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+
+		_fs.add_node({ id, orientation, wellness, fxs });
+
+		return id;
+	}
+
+	uint64_t create_bomber() {
+
+		uniform_real_distribution<double> x_dist(
+				0.0, _config.get_screen_w());
+
+		double x = x_dist(_engine);
+		double y = 1.0;
+
+		// Initialize components.
+		
+		uint64_t id = ++_last_id;
+
+		auto appearance = cmp::create_static_bmp(
+				_resman.get_bitmap(res_id::ENEMY_BOMBER));
+
+		auto dynamics = cmp::create_const_velocity_dynamics(0.0, 60.0);
+
+		auto orientation = cmp::create_orientation(x, y, 1.57);
+
+		auto movement_bounds = shared_ptr<cmp::bounds>();
+
+		auto life_bounds = cmp::create_bounds(
+			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
+
+		auto cc = cmp::coll_class::ENEMY_SHIP;
+
+		auto shape = cmp::create_circle(x, y, 32.0);
+
+		auto coll_queue = cmp::create_coll_queue();
+
+		shared_ptr<cmp::weapon_beh> weapon_beh;
+
+		auto painmap = cmp::create_painmap({
+				{ cmp::coll_class::PLAYER_BULLET, 10.0 },
+				{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
+
+		auto wellness = cmp::create_wellness(100.0);
+
+		shared_ptr<cmp::timer> ttl;
+
+		vector<shared_ptr<cmp::fx>> fxs {
+			cmp::create_smoke_when_hurt(0.5)
+		};
+
+		bool explodes = true;
+
+		// Register the components.
+		// ------------------------
+		_ds.add_node({ id, appearance, orientation, shape });
+
+		_ms.add_node({	id,
+				dynamics,
+				orientation,
+				shape,
+				movement_bounds,
+				life_bounds});
+
+		_as.add_node({ id, orientation, weapon_beh });
+
+		_cs.add_node({ id, cc, shape, coll_queue });
+
+		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
+
+		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+
+		_fs.add_node({ id, orientation, wellness, fxs });
 
 		return id;
 	}
@@ -195,15 +343,26 @@ class test_state : public state {
 
 		auto coll_queue = cmp::create_coll_queue();
 
+		auto weapon_beh = cmp::create_period_bullet(
+				anim_period, anim_period);
+
 		auto painmap = cmp::create_painmap({
 				{ cmp::coll_class::PLAYER_BULLET, 10.0 },
 				{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
 
 		auto wellness = cmp::create_wellness(30.0);
 
+		shared_ptr<cmp::timer> ttl;
+
+		vector<shared_ptr<cmp::fx>> fxs {
+			cmp::create_smoke_when_hurt(0.5)
+		};
+
+		bool explodes = true;
+
 		// Register the components.
 		// ------------------------
-		_ds.add_node({id, appearance, orientation});
+		_ds.add_node({ id, appearance, orientation, shape });
 
 		_ms.add_node({	id,
 				dynamics,
@@ -212,28 +371,39 @@ class test_state : public state {
 				movement_bounds,
 				life_bounds});
 
+		_as.add_node({ id, orientation, weapon_beh });
+
 		_cs.add_node({ id, cc, shape, coll_queue });
 
 		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
 
+		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+
+		_fs.add_node({ id, orientation, wellness, fxs });
+
 		return id;
 	}
 
-	uint64_t create_bullet(
+	// TODO: compute the theta argument with atan2
+
+	uint64_t create_missile(
 			double x, double y,
 			double theta,
 			double vx, double vy,
-			cmp::coll_class cc) {
+			bool enemy) {
 
 		// Constants.
-		double bullet_health = 1.0;
+		// ----------
+		double missile_health = 1.0;
 
-		// Initialize components.
+		// Initialize Components.
+		// ----------------------
+
+		// Common components.
 
 		uint64_t id = ++_last_id;
 
-		auto appearance = cmp::create_static_bmp(
-				_resman.get_bitmap(res_id::PLAYER_BULLET));
+		auto appearance = cmp::create_static_bmp( _resman.get_bitmap(res_id::MISSILE));
 
 		auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 
@@ -248,24 +418,36 @@ class test_state : public state {
 
 		auto coll_queue = cmp::create_coll_queue();
 
+		auto wellness = cmp::create_wellness(missile_health);
+
+		shared_ptr<cmp::timer> ttl;
+
+		vector<shared_ptr<cmp::fx>> fxs {
+			cmp::create_period_smoke(0.25, 0.25)
+		};
+
+		bool explodes = true;
+
+		// Context dependent.
+
 		shared_ptr<cmp::painmap> painmap;
-		switch(cc) {
-		case cmp::coll_class::PLAYER_BULLET:
+		cmp::coll_class cc;
+		if(enemy) {
+			cc = cmp::coll_class::ENEMY_MISSILE;
 			painmap = cmp::create_painmap({
-				{ cmp::coll_class::ENEMY_SHIP, bullet_health } });
-			break;
-		case cmp::coll_class::ENEMY_BULLET:
+					{ cmp::coll_class::PLAYER_SHIP, missile_health },
+					{ cmp::coll_class::PLAYER_BULLET, missile_health } });
+		} else {
+			cc = cmp::coll_class::PLAYER_MISSILE;
 			painmap = cmp::create_painmap({
-				{ cmp::coll_class::PLAYER_SHIP, bullet_health } });
-			break;
-		default:
-			throw string("Illegal collision class for a bullet.");
+					{ cmp::coll_class::ENEMY_SHIP, missile_health },
+					{ cmp::coll_class::ENEMY_BULLET, missile_health } });
 		}
 
-		auto wellness = cmp::create_wellness(bullet_health);
-
 		// Register nodes.
-		_ds.add_node({id, appearance, orientation});
+		// ---------------
+
+		_ds.add_node({ id, appearance, orientation, shape });
 
 		_ms.add_node({	id,
 				dynamics,
@@ -277,6 +459,82 @@ class test_state : public state {
 		_cs.add_node({ id, cc, shape, coll_queue });
 
 		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
+
+		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+
+		_fs.add_node({ id, orientation, wellness, fxs });
+
+		return id;
+	}
+
+	uint64_t create_bullet(
+			double x, double y,
+			double theta,
+			double vx, double vy,
+			bool enemy) {
+
+		// Constants.
+		// ----------
+		double bullet_health = 1.0;
+
+		// Initialize components.
+		// ----------------------
+
+		// Common components.
+
+		uint64_t id = ++_last_id;
+
+		auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+
+		auto orientation = cmp::create_orientation(x, y, theta);
+
+		auto movement_bounds = shared_ptr<cmp::bounds>();
+
+		auto life_bounds = cmp::create_bounds(
+			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
+
+		auto shape = cmp::create_circle(x, y, 8.0);
+
+		auto coll_queue = cmp::create_coll_queue();
+
+		auto wellness = cmp::create_wellness(bullet_health);
+
+		shared_ptr<cmp::timer> ttl;
+
+		bool explodes = false;
+
+		// Context dependent.
+
+		shared_ptr<cmp::appearance> appearance;
+		shared_ptr<cmp::painmap> painmap;
+		cmp::coll_class cc;
+		if(enemy) {
+			appearance = cmp::create_static_bmp( _resman.get_bitmap(res_id::EYE_BULLET));
+			painmap = cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, bullet_health } });
+			cc = cmp::coll_class::ENEMY_BULLET;
+		} else {
+			appearance = cmp::create_static_bmp( _resman.get_bitmap(res_id::PLAYER_BULLET));
+			painmap = cmp::create_painmap({ { cmp::coll_class::ENEMY_SHIP, bullet_health } });
+			cc = cmp::coll_class::PLAYER_BULLET;
+		}
+
+		// Register nodes.
+		// ---------------
+
+		_ds.add_node({ id, appearance, orientation, shape });
+
+		_ms.add_node({	id,
+				dynamics,
+				orientation,
+				shape,
+				movement_bounds,
+				life_bounds});
+		
+		_cs.add_node({ id, cc, shape, coll_queue });
+
+		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
+
+		_ws.add_node({ id, explodes, orientation, wellness, ttl });
 
 		return id;
 	}
@@ -294,6 +552,8 @@ class test_state : public state {
 			sys::remove_node(_as, id);
 			sys::remove_node(_ds, id);
 			sys::remove_node(_ps, id);
+			sys::remove_node(_ws, id);
+			sys::remove_node(_fs, id);
 			break;
 
 		case comm::msg_t::spawn_bullet:
@@ -302,7 +562,16 @@ class test_state : public state {
 					msg.spawn_bullet.theta,
 					msg.spawn_bullet.vx,
 					msg.spawn_bullet.vy,
-					msg.spawn_bullet.cc);
+					msg.spawn_bullet.enemy);
+			break;
+
+		case comm::msg_t::spawn_explosion:
+			create_explosion(msg.spawn_explosion.x,
+					msg.spawn_explosion.y);
+			break;
+
+		case comm::msg_t::spawn_smoke:
+			create_smoke(msg.spawn_smoke.x, msg.spawn_smoke.y);
 			break;
 
 		default:
@@ -315,6 +584,12 @@ public:
 	: _config(config)
 	, _resman(resman)
 	, _done(false)
+	, _eye_spawn_clk(
+		uniform_real_distribution<double>(1.0, 2.0),
+		bind(&test_state::create_eye, this))
+	, _bomber_spawn_clk(
+		uniform_real_distribution<double>(5.0, 7.0),
+		bind(&test_state::create_bomber, this))
 	, _last_id(0)
 	{
 		_keys[ALLEGRO_KEY_UP] = false;
@@ -323,7 +598,7 @@ public:
 		_keys[ALLEGRO_KEY_RIGHT] = false;
 		_keys[ALLEGRO_KEY_LCTRL] = false;
 		create_player_ship(200.0, 200.0);
-		create_eye();
+		create_missile(100.0, 100.0, 1.57, 0.0, 200.0, true);
 	}
 
 	void sigkill() {
@@ -340,6 +615,10 @@ public:
 
 	void frame_logic(double dt) {
 
+		// Trigger the clocks.
+		_eye_spawn_clk.tick(dt);
+		_bomber_spawn_clk.tick(dt);
+
 		// Update the player's throttle.
 		double player_throttle_x = 0.0;
 	       	double player_throttle_y = 0.0;
@@ -353,12 +632,23 @@ public:
 		bool player_trigger = _keys[ALLEGRO_KEY_LCTRL];
 		_as.set_player_trigger(player_trigger);
 
+		// Manage the debug ouptut. 
+		_ms.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_cs.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_as.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_ds.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_ps.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_ws.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_fs.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+
 		// Update the systems.
 		_ms.update(dt, _messages);
 		_cs.update();
 		_as.update(dt, _messages);
 		_ds.update(dt);
 		_ps.update(_messages);
+		_ws.update(dt, _messages);
+		_fs.update(dt, _messages);
 
 		// Handle messages.
 		while(!_messages.empty()) {

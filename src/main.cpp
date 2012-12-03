@@ -7,12 +7,6 @@ using namespace std;
 #include "resources/resman.h"
 #include "state.h"
 
-/*
- * TODO:
- * - Player shield bar and shield pickups.
- * - Use common random generator engine.
- */
-
 class application {
 	config _config;
 

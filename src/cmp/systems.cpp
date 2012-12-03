@@ -1,3 +1,6 @@
+#include <string>
+using std::string;
+
 #include "systems.h"
 
 namespace sys {
@@ -22,6 +25,30 @@ namespace sys {
 			al_draw_rotated_bitmap(bmp, 
 					w >> 1, h >> 1,
 					x, y, theta, 0);
+			if(_debug_mode && n.shape) {
+				n.shape->debug_draw();
+			}
+		}
+	}
+
+	// FX system.
+	// ----------
+	
+	void fx_system::update(
+			double dt,
+			vector<comm::message>& msgs) {
+		double max_health;
+		double health;
+		double x, y;
+		for(auto const& n : _nodes) {
+			x = n.orientation->get_x();
+			y = n.orientation->get_y();
+			max_health = n.wellness->get_max_health();
+			health = n.wellness->get_health();
+			for(auto const& f : n.effects) {
+				f->update(dt, health / max_health,
+						x, y, msgs);
+			}
 		}
 	}
 
@@ -61,12 +88,12 @@ namespace sys {
 			if(n.movement_bounds) {
 				mini = n.movement_bounds->get_x_min();
 				maxi = n.movement_bounds->get_x_max();
-				if(between((x += vx * dt), mini, maxi))
+				if(between((x + vx * dt), mini, maxi))
 					dx = vx * dt;
 
 				mini = n.movement_bounds->get_y_min();
 				maxi = n.movement_bounds->get_y_max();
-				if(between((y += vy * dt), mini, maxi))
+				if(between((y + vy * dt), mini, maxi))
 					dy = vy * dt;
 
 			} else {
@@ -119,9 +146,7 @@ namespace sys {
 			return;
 
 		_player_counter += _player_interval;
-		msgs.push_back(comm::create_spawn_bullet(
-					x, y, -1.57, 0.0, -800.0,
-					cmp::coll_class::PLAYER_BULLET));
+		msgs.push_back(comm::create_spawn_bullet(x, y, -1.57, 0.0, -800.0, false));
 	}
 
 	void arms_system::update(double dt, vector<comm::message>& msgs) {
@@ -129,10 +154,14 @@ namespace sys {
 		for(auto const& n : _nodes) {
 			x = n.orientation->get_x();
 			y = n.orientation->get_y();
+
 			if(n.identity == _player_shooting) {
 				handle_player(dt, msgs, x, y);
-				return;
+				continue;
 			}
+
+			if(n.weapon_beh)
+				n.weapon_beh->update(dt, x, y, msgs);
 		}
 	}
 
@@ -162,7 +191,6 @@ namespace sys {
 		for(auto a = begin(_nodes); a != end(_nodes); ++a)
 			for(auto b = a + 1; b != end(_nodes); ++b)
 				check_collision(*a, *b);
-
 	}
 
 	// Pain system.
@@ -171,6 +199,7 @@ namespace sys {
 	void pain_system::update(vector<comm::message>& msgs) {
 		for(auto const& n : _nodes) {
 
+			// TODO: Turn this into a member function?
 			auto fun = [&n, &msgs](cmp::coll_report const& r) {
 
 				auto const& other_cc = (r.cc_a == n.cc)
@@ -179,14 +208,39 @@ namespace sys {
 
 				double pain = n.painmap->get_pain(other_cc);
 				n.wellness->deal_dmg(pain);
-				if(!n.wellness->is_alive())
-					msgs.push_back(comm::create_remove_entity(
-							n.identity));
-
-				// TODO: Move the death decision into the death system.
 			};
 
 			n.coll_queue->for_each_report(fun);
+		}
+	}
+
+	// Wellness system.
+	// -------------
+	
+	void wellness_system::update(double dt, vector<comm::message>& msgs) {
+		for(auto const& n : _nodes) {
+
+			bool died = false;
+			if(n.wellness) {
+				if(!n.wellness->is_alive())
+					died = true;
+			}
+			if(n.ttl) {
+				n.ttl->update(dt);
+				if(n.ttl->get_ticks() > 0)
+					died = true;
+			}
+
+			if(died) {
+				if(n.explodes) {
+					msgs.push_back(comm::create_spawn_explosion(
+								n.orientation->get_x(),
+								n.orientation->get_y()));
+				}
+				
+				msgs.push_back(comm::create_remove_entity(
+							n.identity));
+			}
 		}
 	}
 }

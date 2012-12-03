@@ -12,6 +12,7 @@ add_executable(shooter
 ./src/cmp/components.cpp
 ./src/cmp/systems.cpp
 ./src/cmp/comm.cpp
+./src/cmp/rand.cpp
 ./src/components/wellness/cmp_health_etc.cpp
 ./src/components/wellness/cmp_painmap.cpp
 ./src/components/wellness/cmp_smoke_when_hurt.cpp

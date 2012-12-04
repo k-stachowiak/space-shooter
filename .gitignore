@@ -2,14 +2,7 @@
 *.slo
 *.lo
 *.o
+*.d
 
-# Compiled Dynamic libraries
-*.so
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-
-# Build files
-build/*
+# Data files
+data/*

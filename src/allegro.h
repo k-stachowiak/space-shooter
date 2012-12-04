@@ -11,8 +11,8 @@ using namespace std;
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 
-#include "exceptions.h"
-#include "state.h"
+#include "misc/exceptions.h"
+#include "states/state.h"
 
 class allegro {
 

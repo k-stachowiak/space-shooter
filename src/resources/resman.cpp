@@ -26,7 +26,8 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	fade_frames(res_id::EXPLOSION_1, "data/explosion.png", 16);
 
 	// Load fonts.
-	add_font(res_id::FONT, "data/prstartk.ttf");
+	add_font(res_id::TINY_FONT, "data/prstartk.ttf", 10);
+	add_font(res_id::FONT, "data/prstartk.ttf", 24);
 }
 
 ALLEGRO_BITMAP* resman::get_bitmap(res_id id) const {
@@ -63,13 +64,13 @@ void resman::add_bitmap(res_id id, string path) {
 	_bitmaps[id] = move(bitmap);
 }
 
-void resman::add_font(res_id id, string path) {
+void resman::add_font(res_id id, string path, int size) {
 	if(_fonts.find(id) != end(_fonts)) {
 		throw initialization_error("Loading resource at duplicate id");
 	}
 
 	unique_ptr<ALLEGRO_FONT, font_deleter> font(al_load_font(
-		path.c_str(), -24, 0));
+		path.c_str(), -size, 0));
 
 	if(!font) {
 		stringstream msg;

@@ -1,7 +1,12 @@
 #include <string>
 using std::string;
 
+#include <random>
+using std::uniform_real_distribution;
+using std::bernoulli_distribution;
+
 #include "systems.h"
+#include "../misc/rand.h"
 
 namespace sys {
 
@@ -13,20 +18,36 @@ namespace sys {
 
 		ALLEGRO_BITMAP* bmp;
 		double x, y;
-		double theta;
+		double phi;
 		for(auto const& n : _nodes) {
 			n.appearance->update(dt);
 			bmp = n.appearance->bitmap();
 			x = n.orientation->get_x();
 			y = n.orientation->get_y();
-			theta = n.orientation->rotation();
+			phi = n.orientation->get_phi();
 			int w = al_get_bitmap_width(bmp);
 			int h = al_get_bitmap_height(bmp);
 			al_draw_rotated_bitmap(bmp, 
 					w >> 1, h >> 1,
-					x, y, theta, 0);
+					x, y, phi, 0);
+
 			if(_debug_mode && n.shape) {
 				n.shape->debug_draw();
+				double cur_x = x + 10.0;
+				double cur_y = y + 10.0;
+				auto color = al_map_rgb_f(1.0f, 1.0f, 1.0f);
+				for(auto const& d : n.dynamics) {
+					al_draw_textf(
+						_debug_font,
+						color,
+						cur_x, cur_y,
+						0,
+						"(%.1f, %.1f, %.1f),",
+							d->get_vx(),
+							d->get_vy(),
+							d->get_theta());
+					cur_y += 20.0;
+				}
 			}
 		}
 	}
@@ -54,76 +75,82 @@ namespace sys {
 
 	// Movement system.
 	// ----------------
-
+	
 	void movement_system::update(
 			double dt,
 			vector<comm::message>& msgs) {
-		double vx, vy;
-		double x, y;
-		double mini, maxi;
+
 		for(auto const& n : _nodes) {
 
-			// Determine the velocities.
+			// Determine velocities.
+			// ---------------------
+			double vx = 0, vy = 0;
+			double theta = 0;
+			
 			if(n.identity == _player_controlled) {
 				vx = _player_throttle_x * 400.0;
 				vy = _player_throttle_y * 300.0;
+
 			} else {
-				n.dynamics->update(dt);
-				vx = n.dynamics->get_vx();
-				vy = n.dynamics->get_vy();
+				for(auto const& d : n.dynamics) { 
+					d->update(dt);
+					vx += d->get_vx();
+					vy += d->get_vy();
+					theta += d->get_theta();
+				}
 			}
 
-			// Read current position.
-			x = n.orientation->get_x();
-			y = n.orientation->get_y();
+			// Check bounds.
+			// -------------
+			double x = n.orientation->get_x();
+			double y = n.orientation->get_y();
+			double phi = n.orientation->get_phi();
 
-			// Perform bounded or unbounded movement.
-			//
-			// Note that in both cases the x and y variables
-			// are updated even though it is not necessary in
-			// case of the unbounded movement. They are changed
-			// bacause they're used later in the life bounds check.
-			double dx = 0.0;
-			double dy = 0.0;
+			double dx = vx * dt;
+			double dy = vy * dt;
+			double dphi = theta * dt;
+
+			double mini, maxi;
+
 			if(n.movement_bounds) {
 				mini = n.movement_bounds->get_x_min();
 				maxi = n.movement_bounds->get_x_max();
-				if(between((x + vx * dt), mini, maxi))
-					dx = vx * dt;
+				if(!between((x + dx), mini, maxi))
+					dx = 0.0;
 
 				mini = n.movement_bounds->get_y_min();
 				maxi = n.movement_bounds->get_y_max();
-				if(between((y + vy * dt), mini, maxi))
-					dy = vy * dt;
+				if(!between((y + dy), mini, maxi))
+					dy = 0.0;
 
-			} else {
-				dx = vx * dt;
-				dy = vy * dt;
 			}
 
-			// Perform the actual move.
-			n.orientation->set_x(x += dx);
-			n.orientation->set_y(y += dy);
-
-			if(n.shape)
-				n.shape->shift(dx, dy);
-
-			// Check the life boundaries.
 			if(n.life_bounds) {
 				mini = n.life_bounds->get_x_min();
 				maxi = n.life_bounds->get_x_max();
-				if(!between(x, mini, maxi)) {
+				if(!between(x + dx, mini, maxi)) {
 					msgs.push_back(comm::create_remove_entity(
 								n.identity));
-					return;
+					continue;
 				}
 				mini = n.life_bounds->get_x_min();
 				maxi = n.life_bounds->get_y_max();
-				if(!between(y, mini, maxi)) {
+				if(!between(y + dy, mini, maxi)) {
 					msgs.push_back(comm::create_remove_entity(
 								n.identity));
-					return;
+					continue;
 				}
+			}
+
+			// Perform the actual move.
+			// ------------------------
+			n.orientation->set_x(x + dx);
+			n.orientation->set_y(y + dy);
+			n.orientation->set_phi(phi + dphi);
+
+			if(n.shape) {
+				n.shape->shift(dx, dy);
+				n.shape->rotate(dphi);
 			}
 		}
 	}
@@ -160,8 +187,8 @@ namespace sys {
 				continue;
 			}
 
-			if(n.weapon_beh)
-				n.weapon_beh->update(dt, x, y, msgs);
+			for(auto const& wb : n.weapon_beh)
+				wb->update(dt, x, y, msgs);
 		}
 	}
 
@@ -232,14 +259,34 @@ namespace sys {
 			}
 
 			if(died) {
-				if(n.explodes) {
+				if(n.explodes)
 					msgs.push_back(comm::create_spawn_explosion(
 								n.orientation->get_x(),
 								n.orientation->get_y()));
+
+				double vx = 0;
+				double vy = 0;
+				for(auto const& d : n.dynamics) {
+					vx += d->get_vx();
+					vy += d->get_vy();
+				}
+
+				uniform_real_distribution<double> base_dist(100.0, 300.0);
+				bernoulli_distribution dir_dist;
+
+				for(uint32_t i = 0; i < n.num_debris; ++i) {
+					double base_x = base_dist(rnd::engine);
+					double base_y = base_dist(rnd::engine);
+					double mul_x = dir_dist(rnd::engine) ? 1.0 : -1.0;
+					double mul_y = dir_dist(rnd::engine) ? 1.0 : -1.0;
+					msgs.push_back(comm::create_spawn_debris(
+								n.orientation->get_x(),
+								n.orientation->get_y(),
+								vx + base_x * mul_x,
+								vy + base_y * mul_y));
 				}
 				
-				msgs.push_back(comm::create_remove_entity(
-							n.identity));
+				msgs.push_back(comm::create_remove_entity(n.identity));
 			}
 		}
 	}

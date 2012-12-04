@@ -37,13 +37,14 @@ class circle;
 class shape {
 public:
 	virtual void shift(double dx, double dy) = 0;
+	virtual void rotate(double dphi) = 0;
 	virtual bool collides_with(shape const& shp) const = 0;
 	virtual bool collides_with_circle(circle const& c) const = 0;
 	virtual void debug_draw() {}
 };
 
-// Complex types.
-// --------------
+// Additional types.
+// -----------------
 
 // Collision class id.
 enum class coll_class {
@@ -83,17 +84,18 @@ struct frame_def {
 
 // The position and the rotation.
 class orientation {
-	double _x, _y, _theta;
+	double _x, _y, _phi;
 public:
-	orientation(double x, double y, double theta)
-	: _x(x), _y(y), _theta(theta)
+	orientation(double x, double y, double phi)
+	: _x(x), _y(y), _phi(phi)
 	{}
 
 	double get_x() const { return _x; }
 	double get_y() const { return _y; }
-	double rotation() const { return _theta; }
+	double get_phi() const { return _phi; }
 	void set_x(double x) { _x = x; }
 	void set_y(double y) { _y = y; }
+	void set_phi(double phi) { _phi = phi; }
 };
 
 // Universal type defining an AABB box.
@@ -181,11 +183,14 @@ class dynamics {
 protected:
 	double _vx;
 	double _vy;
+	double _theta;
 public:
+	dynamics() : _vx(0), _vy(0), _theta(0) {}
 	virtual ~dynamics() {}
 	virtual void update(double dt) = 0;
 	double get_vx() const { return _vx; }
 	double get_vy() const { return _vy; }
+	double get_theta() const { return _theta; }
 };
 
 // Weapon behavior base.
@@ -248,6 +253,8 @@ shared_ptr<appearance> create_simple_anim(
 
 shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy);
 
+shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta);
+
 shared_ptr<dynamics> create_path_dynamics(vector<point> points);
 
 // Shape classes.
@@ -258,7 +265,9 @@ shared_ptr<shape> create_circle(double x, double y, double r);
 
 shared_ptr<weapon_beh> create_period_bullet(double dt_min, double dt_max);
 
-// shared_ptr<weapon_beh> create_period_hommiss(double dt_min, double dt_max);
+shared_ptr<weapon_beh> create_period_missile(
+		double dt_min, double dt_max,
+		double x_off, double y_off);
 
 // Fx classes.
 

@@ -13,6 +13,17 @@ message create_spawn_bullet(
 	return msg;
 }
 
+message create_spawn_missile(
+		double x, double y,
+		double theta,
+		double vx, double vy,
+		bool enemy) {
+	message msg;
+	msg.type = msg_t::spawn_missile;
+	msg.spawn_missile = { x, y, theta, vx, vy, enemy };
+	return msg;
+}
+
 message create_spawn_explosion(double x, double y) {
 	message msg;
 	msg.type = msg_t::spawn_explosion;
@@ -24,6 +35,15 @@ message create_spawn_smoke(double x, double y) {
 	message msg;
 	msg.type = msg_t::spawn_smoke;
 	msg.spawn_smoke = { x, y };
+	return msg;
+}
+
+message create_spawn_debris(
+		double x, double y,
+		double vx, double vy) {
+	message msg;
+	msg.type = msg_t::spawn_debris;
+	msg.spawn_debris = { x, y, vx, vy };
 	return msg;
 }
 

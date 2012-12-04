@@ -5,6 +5,7 @@
 using std::vector;
 
 #include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
 
 #include "nodes.h"
 #include "comm.h"
@@ -35,7 +36,9 @@ public:
 class drawing_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::drawing_node> _nodes;
+	ALLEGRO_FONT* _debug_font;
 public:
+	drawing_system(ALLEGRO_FONT* debug_font) : _debug_font(debug_font) {}
 	void add_node(nd::drawing_node n) { _nodes.push_back(n); }
 	void update(double dt);
 };

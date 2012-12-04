@@ -6,21 +6,17 @@ using std::default_random_engine;
 using std::uniform_real_distribution;
 
 #include "state.h"
-#include "random_clock.h"
-#include "geometry/bezier.h"
-#include "cmp/systems.h"
-#include "cmp/comm.h"
+#include "../misc/random_clock.h"
+#include "../misc/rand.h"
+#include "../geometry/bezier.h"
+#include "../cmp/systems.h"
+#include "../cmp/comm.h"
 
 // TODO:
-// - Another enemy.
-// - Another weapon - HOMING MISSILES!
-// - Spawn debris upon collision.
+// - make smoke scalable: small smoke for rockets, big for bad health
+// - HUD
 
 class test_state : public state {
-
-	// Basic utilities.
-	// ----------------
-	default_random_engine _engine;
 
 	// External dependencies.
 	// ----------------------
@@ -71,6 +67,8 @@ class test_state : public state {
 				frame_defs,
 				1);
 
+		vector<shared_ptr<cmp::dynamics>> dynamics;
+
 		auto orientation = cmp::create_orientation(x, y, 0.0);
 
 		shared_ptr<cmp::shape> shape;
@@ -81,9 +79,11 @@ class test_state : public state {
 
 		bool explodes = false;
 
+		uint32_t num_debris = 0;
+
 		// Register nodes.
-		_ds.add_node({ id, appearance, orientation, shape });
-		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+		_ds.add_node({ id, appearance, orientation, shape, dynamics });
+		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
 		// Feedback for the state.
 		return id;
@@ -108,6 +108,8 @@ class test_state : public state {
 				frame_defs,
 				1);
 
+		vector<shared_ptr<cmp::dynamics>> dynamics;
+
 		auto orientation = cmp::create_orientation(x, y, 0.0);
 
 		shared_ptr<cmp::shape> shape;
@@ -118,9 +120,69 @@ class test_state : public state {
 
 		bool explodes = false;
 
+		uint32_t num_debris = 0;
+
 		// Register nodes.
-		_ds.add_node({ id, appearance, orientation, shape });
-		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+		_ds.add_node({ id, appearance, orientation, shape, dynamics });
+		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
+
+		// Feedback for the state.
+		return id;
+	}
+
+	uint64_t create_debris(double x, double y, double vx, double vy) {
+
+		// Prepare helpers.
+		vector<res_id> bitmaps {
+			res_id::DEBRIS1,
+			res_id::DEBRIS2,
+			res_id::DEBRIS3,
+			res_id::DEBRIS4,
+			res_id::DEBRIS5 };
+
+		uniform_int_distribution<int> bmp_dist(0, bitmaps.size() - 1);
+		uint32_t index = bmp_dist(rnd::engine);
+		res_id bmp = bitmaps[index];
+
+		uniform_real_distribution<double> ttl_dist(1.0, 3.0);
+		double ttl_time = ttl_dist(rnd::engine);
+
+		// Initialize components.
+		uint64_t id = ++_last_id;
+		
+		auto appearance = cmp::create_static_bmp(_resman.get_bitmap(bmp));
+
+		vector<shared_ptr<cmp::dynamics>> dynamics {
+			cmp::create_const_velocity_dynamics(vx, vy),
+			cmp::create_const_ang_vel_dynamics(1.5)
+		};
+
+		auto orientation = cmp::create_orientation(x, y, 0.0);
+
+		shared_ptr<cmp::shape> shape;
+
+		shared_ptr<cmp::wellness> wellness;
+		
+		auto movement_bounds = shared_ptr<cmp::bounds>();
+
+		auto life_bounds = cmp::create_bounds(
+			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
+
+		auto ttl = cmp::create_const_int_timer(ttl_time);
+
+		bool explodes = false;
+
+		uint32_t num_debris = 0;
+
+		// Register nodes.
+		_ds.add_node({ id, appearance, orientation, shape, dynamics });
+		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
+		_ms.add_node({	id,
+				dynamics,
+				orientation,
+				shape,
+				movement_bounds,
+				life_bounds });
 
 		// Feedback for the state.
 		return id;
@@ -134,7 +196,7 @@ class test_state : public state {
 		auto appearance = cmp::create_static_bmp(
 				_resman.get_bitmap(res_id::PLAYER_SHIP));
 
-		auto dynamics = shared_ptr<cmp::dynamics>();
+		vector<shared_ptr<cmp::dynamics>> dynamics;
 
 		auto orientation = cmp::create_orientation(x, y, -1.57);
 
@@ -149,11 +211,12 @@ class test_state : public state {
 
 		auto coll_queue = cmp::create_coll_queue();
 
-		shared_ptr<cmp::weapon_beh> weapon_beh;
+		vector<shared_ptr<cmp::weapon_beh>> weapon_beh;
 
 		auto painmap = cmp::create_painmap({
-				{ cmp::coll_class::ENEMY_BULLET, 10.0 },
-				{ cmp::coll_class::ENEMY_SHIP, 25.0 } });
+			{ cmp::coll_class::ENEMY_BULLET, 10.0 },
+			{ cmp::coll_class::ENEMY_SHIP, 25.0 }
+		});
 
 		auto wellness = cmp::create_wellness(100.0);
 
@@ -165,8 +228,10 @@ class test_state : public state {
 
 		bool explodes = true;
 
+		uint32_t num_debris = 10;
+
 		// Register nodes.
-		_ds.add_node({ id, appearance, orientation, shape });
+		_ds.add_node({ id, appearance, orientation, shape, dynamics });
 
 		_ms.set_player_controlled(id);
 		_ms.add_node({	id,
@@ -184,7 +249,7 @@ class test_state : public state {
 
 		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
 
-		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
 		_fs.add_node({ id, orientation, wellness, fxs });
 
@@ -196,7 +261,7 @@ class test_state : public state {
 		uniform_real_distribution<double> x_dist(
 				0.0, _config.get_screen_w());
 
-		double x = x_dist(_engine);
+		double x = x_dist(rnd::engine);
 		double y = 1.0;
 
 		// Initialize components.
@@ -206,7 +271,9 @@ class test_state : public state {
 		auto appearance = cmp::create_static_bmp(
 				_resman.get_bitmap(res_id::ENEMY_BOMBER));
 
-		auto dynamics = cmp::create_const_velocity_dynamics(0.0, 60.0);
+		vector<shared_ptr<cmp::dynamics>> dynamics {
+			cmp::create_const_velocity_dynamics(0.0, 60.0)
+		};
 
 		auto orientation = cmp::create_orientation(x, y, 1.57);
 
@@ -221,7 +288,10 @@ class test_state : public state {
 
 		auto coll_queue = cmp::create_coll_queue();
 
-		shared_ptr<cmp::weapon_beh> weapon_beh;
+		vector<shared_ptr<cmp::weapon_beh>> weapon_beh {
+			cmp::create_period_missile(3.0, 3.0, -15.0, 0.0),
+			cmp::create_period_missile(3.0, 3.0,  15.0, 0.0)
+		};
 
 		auto painmap = cmp::create_painmap({
 				{ cmp::coll_class::PLAYER_BULLET, 10.0 },
@@ -237,9 +307,11 @@ class test_state : public state {
 
 		bool explodes = true;
 
+		uint32_t num_debris = 7;
+
 		// Register the components.
 		// ------------------------
-		_ds.add_node({ id, appearance, orientation, shape });
+		_ds.add_node({ id, appearance, orientation, shape, dynamics });
 
 		_ms.add_node({	id,
 				dynamics,
@@ -254,7 +326,7 @@ class test_state : public state {
 
 		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
 
-		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
 		_fs.add_node({ id, orientation, wellness, fxs });
 
@@ -302,12 +374,12 @@ class test_state : public state {
 		bernoulli_distribution right_to_left(0.5);
 
 		vector<point> points;
-		points.emplace_back(from_to_dist(_engine), 0.0);
-		points.emplace_back(0.0, pan_dist(_engine));
-		points.emplace_back(_config.get_screen_w(), pan_dist(_engine));
+		points.emplace_back(from_to_dist(rnd::engine), 0.0);
+		points.emplace_back(0.0, pan_dist(rnd::engine));
+		points.emplace_back(_config.get_screen_w(), pan_dist(rnd::engine));
 		points.emplace_back(
-				from_to_dist(_engine), _config.get_screen_h() + 50);
-		if(right_to_left(_engine)) swap(points[2], points[1]);
+				from_to_dist(rnd::engine), _config.get_screen_h() + 50);
+		if(right_to_left(rnd::engine)) swap(points[2], points[1]);
 		
 		points = bezier(points, 50);
 
@@ -322,7 +394,9 @@ class test_state : public state {
 				frame_defs,
 				-1);
 
-		auto dynamics = cmp::create_path_dynamics(points);
+		vector<shared_ptr<cmp::dynamics>> dynamics {
+			cmp::create_path_dynamics(points)
+		};
 
 		auto orientation = cmp::create_orientation(
 				points.front().x,
@@ -343,8 +417,9 @@ class test_state : public state {
 
 		auto coll_queue = cmp::create_coll_queue();
 
-		auto weapon_beh = cmp::create_period_bullet(
-				anim_period, anim_period);
+		vector<shared_ptr<cmp::weapon_beh>> weapon_beh {
+			cmp::create_period_bullet(anim_period, anim_period)
+		};
 
 		auto painmap = cmp::create_painmap({
 				{ cmp::coll_class::PLAYER_BULLET, 10.0 },
@@ -360,9 +435,11 @@ class test_state : public state {
 
 		bool explodes = true;
 
+		uint32_t num_debris = 5;
+
 		// Register the components.
 		// ------------------------
-		_ds.add_node({ id, appearance, orientation, shape });
+		_ds.add_node({ id, appearance, orientation, shape, dynamics });
 
 		_ms.add_node({	id,
 				dynamics,
@@ -377,14 +454,12 @@ class test_state : public state {
 
 		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
 
-		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
 		_fs.add_node({ id, orientation, wellness, fxs });
 
 		return id;
 	}
-
-	// TODO: compute the theta argument with atan2
 
 	uint64_t create_missile(
 			double x, double y,
@@ -405,7 +480,9 @@ class test_state : public state {
 
 		auto appearance = cmp::create_static_bmp( _resman.get_bitmap(res_id::MISSILE));
 
-		auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+		vector<shared_ptr<cmp::dynamics>> dynamics {
+			cmp::create_const_velocity_dynamics(vx, vy)
+		};
 
 		auto orientation = cmp::create_orientation(x, y, theta);
 
@@ -428,6 +505,8 @@ class test_state : public state {
 
 		bool explodes = true;
 
+		uint32_t num_debris = 3;
+
 		// Context dependent.
 
 		shared_ptr<cmp::painmap> painmap;
@@ -447,7 +526,7 @@ class test_state : public state {
 		// Register nodes.
 		// ---------------
 
-		_ds.add_node({ id, appearance, orientation, shape });
+		_ds.add_node({ id, appearance, orientation, shape, dynamics });
 
 		_ms.add_node({	id,
 				dynamics,
@@ -460,7 +539,7 @@ class test_state : public state {
 
 		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
 
-		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
 		_fs.add_node({ id, orientation, wellness, fxs });
 
@@ -484,7 +563,9 @@ class test_state : public state {
 
 		uint64_t id = ++_last_id;
 
-		auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+		vector<shared_ptr<cmp::dynamics>> dynamics {
+			cmp::create_const_velocity_dynamics(vx, vy)
+		};
 
 		auto orientation = cmp::create_orientation(x, y, theta);
 
@@ -502,6 +583,8 @@ class test_state : public state {
 		shared_ptr<cmp::timer> ttl;
 
 		bool explodes = false;
+
+		uint32_t num_debris = 0;
 
 		// Context dependent.
 
@@ -521,7 +604,7 @@ class test_state : public state {
 		// Register nodes.
 		// ---------------
 
-		_ds.add_node({ id, appearance, orientation, shape });
+		_ds.add_node({ id, appearance, orientation, shape, dynamics });
 
 		_ms.add_node({	id,
 				dynamics,
@@ -534,7 +617,7 @@ class test_state : public state {
 
 		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
 
-		_ws.add_node({ id, explodes, orientation, wellness, ttl });
+		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
 		return id;
 	}
@@ -565,6 +648,15 @@ class test_state : public state {
 					msg.spawn_bullet.enemy);
 			break;
 
+		case comm::msg_t::spawn_missile:
+			create_missile(msg.spawn_missile.x,
+					msg.spawn_missile.y,
+					msg.spawn_missile.theta,
+					msg.spawn_missile.vx,
+					msg.spawn_missile.vy,
+					msg.spawn_missile.enemy);
+			break;
+
 		case comm::msg_t::spawn_explosion:
 			create_explosion(msg.spawn_explosion.x,
 					msg.spawn_explosion.y);
@@ -574,6 +666,13 @@ class test_state : public state {
 			create_smoke(msg.spawn_smoke.x, msg.spawn_smoke.y);
 			break;
 
+		case comm::msg_t::spawn_debris:
+			create_debris(msg.spawn_debris.x,
+					msg.spawn_debris.y,
+					msg.spawn_debris.vx,
+					msg.spawn_debris.vy);
+			break;
+			
 		default:
 			break;
 		}
@@ -590,6 +689,7 @@ public:
 	, _bomber_spawn_clk(
 		uniform_real_distribution<double>(5.0, 7.0),
 		bind(&test_state::create_bomber, this))
+	, _ds(resman.get_font(res_id::TINY_FONT))
 	, _last_id(0)
 	{
 		_keys[ALLEGRO_KEY_UP] = false;
@@ -598,7 +698,6 @@ public:
 		_keys[ALLEGRO_KEY_RIGHT] = false;
 		_keys[ALLEGRO_KEY_LCTRL] = false;
 		create_player_ship(200.0, 200.0);
-		create_missile(100.0, 100.0, 1.57, 0.0, 200.0, true);
 	}
 
 	void sigkill() {

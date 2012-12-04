@@ -5,7 +5,7 @@ using namespace std;
 #include "config.h"
 #include "allegro.h"
 #include "resources/resman.h"
-#include "state.h"
+#include "states/state.h"
 
 class application {
 	config _config;

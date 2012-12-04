@@ -15,7 +15,7 @@ using namespace std;
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 
-#include "../exceptions.h"
+#include "../misc/exceptions.h"
 
 enum class res_id : int {
 
@@ -28,6 +28,7 @@ enum class res_id : int {
 	MISSILE,
 	EXPLOSION,
 	SMOKE,
+	TINY_FONT,
 	FONT,
 	DEBRIS1,
 	DEBRIS2,
@@ -70,7 +71,7 @@ public:
 
 private:
 	void add_bitmap(res_id id, string path);
-	void add_font(res_id id, string path);
+	void add_font(res_id id, string path, int size);
 
 	void gen_expand_fade(
 			res_id id,

@@ -20,6 +20,7 @@ struct drawing_node {
 	shared_ptr<cmp::appearance> appearance;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::shape> shape;
+	vector<shared_ptr<cmp::dynamics>> dynamics;
 };
 
 struct fx_node {
@@ -31,7 +32,7 @@ struct fx_node {
 
 struct movement_node {
 	uint64_t identity;
-	shared_ptr<cmp::dynamics> dynamics;
+	vector<shared_ptr<cmp::dynamics>> dynamics;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::shape> shape;
 	shared_ptr<cmp::bounds> movement_bounds;
@@ -41,7 +42,7 @@ struct movement_node {
 struct arms_node {
 	uint64_t identity;
 	shared_ptr<cmp::orientation> orientation;
-	shared_ptr<cmp::weapon_beh> weapon_beh;
+	vector<shared_ptr<cmp::weapon_beh>> weapon_beh;
 };
 
 struct collision_node {
@@ -62,7 +63,9 @@ struct pain_node {
 struct wellness_node {
 	uint64_t identity;
 	bool explodes;
+	uint32_t num_debris;
 	shared_ptr<cmp::orientation> orientation;
+	vector<shared_ptr<cmp::dynamics>> dynamics;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::timer> ttl;
 };

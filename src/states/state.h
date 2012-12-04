@@ -4,8 +4,8 @@
 #include <memory>
 using namespace std;
 
-#include "config.h"
-#include "resources/resman.h"
+#include "../config.h"
+#include "../resources/resman.h"
 
 class resources;
 
@@ -26,7 +26,6 @@ public:
 	virtual void key_down(int k) {}
 };
 
-unique_ptr<state> create_game_state(const config& config, const resman& res);
 unique_ptr<state> create_test_state(const config& config, const resman& res);
 
 #endif

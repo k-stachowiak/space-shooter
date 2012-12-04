@@ -11,7 +11,7 @@ using std::uniform_real_distribution;
 
 #include "components.h"
 #include "comm.h"
-#include "rand.h"
+#include "../misc/rand.h"
 #include "../geometry/misc.h"
 
 namespace cmp {
@@ -156,6 +156,12 @@ public:
 	void update(double dt) {}
 };
 
+class const_ang_vel_dynamics : public dynamics {
+public:
+	const_ang_vel_dynamics(double theta) { _theta = theta; }
+	void update(double dt) {}
+};
+
 class path_dynamics : public dynamics {
 	// Configuration.
 	vector<point> _points;
@@ -244,7 +250,8 @@ class period_bullet : public weapon_beh {
 public:
 	period_bullet(double dt_min, double dt_max)
 	: _dt_min(dt_min)
-	, _dt_max(dt_max) {
+	, _dt_max(dt_max)
+       	, _counter(0) {
 		init_counter();
 	}
 
@@ -254,6 +261,40 @@ public:
 			init_counter(-_counter);
 			msgs.push_back(comm::create_spawn_bullet(
 						x, y, 1.57, 0.0, 800.0, true));
+		}
+	}
+};
+
+class period_missile : public weapon_beh {
+	double _dt_min;
+	double _dt_max;
+	double _x_offset;
+	double _y_offset;
+	double _counter;
+
+	void init_counter(double remainder = 0.0) {
+		uniform_real_distribution<double> distr(_dt_min, _dt_max);
+		_counter = distr(rnd::engine) - remainder;
+	}
+
+public:
+	period_missile(double dt_min, double dt_max, double x_offset, double y_offset)
+	: _dt_min(dt_min)
+	, _dt_max(dt_max)
+	, _x_offset(x_offset)
+	, _y_offset(y_offset)
+	, _counter(0) {
+		init_counter();
+	}
+
+	void update(double dt, double x, double y, vector<comm::message>& msgs) {
+		_counter -= dt;
+		if(_counter <= 0.0) {
+			init_counter(-_counter);
+			msgs.push_back(comm::create_spawn_missile(
+						x + _x_offset,
+						y + _y_offset,
+						1.57, 0.0, 150.0, true));
 		}
 	}
 };
@@ -335,6 +376,8 @@ public:
 	double get_r() const { return _r; }
 
 	void shift(double dx, double dy) { _x += dx; _y += dy; }
+
+	void rotate(double dphi) {}
 
 	bool collides_with(const shape& s) const {
 		return s.collides_with_circle(*this);
@@ -418,6 +461,10 @@ shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy) {
 	return shared_ptr<dynamics>(new const_velocity_dynamics(vx, vy));
 }
 
+shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta) {
+	return shared_ptr<dynamics>(new const_ang_vel_dynamics(theta));
+}
+
 shared_ptr<dynamics> create_path_dynamics(vector<point> points) {
 	return shared_ptr<dynamics>(new path_dynamics(points));
 }
@@ -432,6 +479,15 @@ shared_ptr<shape> create_circle(double x, double y, double r) {
 
 shared_ptr<weapon_beh> create_period_bullet(double dt_min, double dt_max) {
 	return shared_ptr<weapon_beh>(new period_bullet(dt_min, dt_max));
+}
+
+shared_ptr<weapon_beh> create_period_missile(
+		double dt_min,
+		double dt_max,
+		double x_off,
+		double y_off) {
+	return shared_ptr<weapon_beh>(new period_missile(
+				dt_min, dt_max, x_off, y_off));
 }
 
 // Fx classes.

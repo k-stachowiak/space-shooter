@@ -92,6 +92,7 @@ class arms_system : public system {
 	double _player_interval;
 	bool _player_trigger;
 	double _player_counter;
+	bool _player_prev_left;
 	void handle_player(double dt, vector<comm::message>& msgs, double x, double y);
 	comm::message proc_msg(double x, double y, comm::message msg);
 public:

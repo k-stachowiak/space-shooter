@@ -193,7 +193,17 @@ namespace sys {
 			return;
 
 		_player_counter += _player_interval;
-		msgs.push_back(comm::create_spawn_bullet(x, y, -1.57, 0.0, -800.0, false));
+		if(_player_prev_left) {
+			_player_prev_left = false;
+			msgs.push_back(comm::create_spawn_bullet(
+						x + 15.0, y,
+						-1.57, 0.0, -800.0, false));
+		} else {
+			_player_prev_left = true;
+			msgs.push_back(comm::create_spawn_bullet(
+						x - 15.0, y,
+						-1.57, 0.0, -800.0, false));
+		}
 	}
 
 	void arms_system::update(double dt, vector<comm::message>& msgs) {

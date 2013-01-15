@@ -35,8 +35,6 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Random smoke displacement.
-// - Left/right player shots.
 // - Score system/hack?
 // - Extract the entity creation code to an entity factory class.
 // - Health pickups.

@@ -39,6 +39,7 @@ using std::uniform_real_distribution;
 // - Left/right player shots.
 // - Score system/hack?
 // - Extract the entity creation code to an entity factory class.
+// - Health pickups.
 
 class test_state : public state {
 
@@ -92,18 +93,12 @@ class test_state : public state {
 				frame_defs,
 				1);
 
-		vector<shared_ptr<cmp::dynamics>> dynamics;
-
-		auto orientation = cmp::create_orientation(x, y, 0.0);
-
-		shared_ptr<cmp::shape> shape;
-
-		shared_ptr<cmp::wellness> wellness;
-
-		auto ttl = cmp::create_const_int_timer(num_frames * frame_time);
-
-		bool explodes = false;
-
+		vector<shared_ptr<cmp::dynamics>> dynamics; 
+		auto orientation = cmp::create_orientation(x, y, 0.0); 
+		shared_ptr<cmp::shape> shape; 
+		shared_ptr<cmp::wellness> wellness; 
+		auto ttl = cmp::create_const_int_timer(num_frames * frame_time); 
+		bool explodes = false; 
 		uint32_t num_debris = 0;
 
 		// Register nodes.
@@ -152,18 +147,12 @@ class test_state : public state {
 				frame_defs,
 				1);
 
-		vector<shared_ptr<cmp::dynamics>> dynamics;
-
-		auto orientation = cmp::create_orientation(x, y, 0.0);
-
-		shared_ptr<cmp::shape> shape;
-
-		shared_ptr<cmp::wellness> wellness;
-
-		auto ttl = cmp::create_const_int_timer(num_frames * frame_time);
-
-		bool explodes = false;
-
+		vector<shared_ptr<cmp::dynamics>> dynamics; 
+		auto orientation = cmp::create_orientation(x, y, 0.0); 
+		shared_ptr<cmp::shape> shape; 
+		shared_ptr<cmp::wellness> wellness; 
+		auto ttl = cmp::create_const_int_timer(num_frames * frame_time); 
+		bool explodes = false; 
 		uint32_t num_debris = 0;
 
 		// Register nodes.
@@ -219,21 +208,14 @@ class test_state : public state {
 					base_av * mul_av)
 		};
 
-		auto orientation = cmp::create_orientation(x, y, 0.0);
-
-		shared_ptr<cmp::shape> shape;
-
-		shared_ptr<cmp::wellness> wellness;
-		
-		auto movement_bounds = shared_ptr<cmp::bounds>();
-
+		auto orientation = cmp::create_orientation(x, y, 0.0); 
+		shared_ptr<cmp::shape> shape; 
+		shared_ptr<cmp::wellness> wellness; 
+		auto movement_bounds = shared_ptr<cmp::bounds>(); 
 		auto life_bounds = cmp::create_bounds(
-			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
-
-		auto ttl = cmp::create_const_int_timer(ttl_time);
-
-		bool explodes = false;
-
+			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
+		auto ttl = cmp::create_const_int_timer(ttl_time); 
+		bool explodes = false; 
 		uint32_t num_debris = 0;
 
 		// Register nodes.
@@ -253,38 +235,30 @@ class test_state : public state {
 		auto appearance = cmp::create_static_bmp(
 				_resman.get_bitmap(res_id::PLAYER_SHIP));
 
-		vector<shared_ptr<cmp::dynamics>> dynamics;
-
-		auto orientation = cmp::create_orientation(x, y, -1.57);
+		vector<shared_ptr<cmp::dynamics>> dynamics; 
+		auto orientation = cmp::create_orientation(x, y, -1.57); 
 
 		auto movement_bounds = cmp::create_bounds(
-			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
+			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
 
-		auto life_bounds = shared_ptr<cmp::bounds>();
-
-		auto cc = cmp::coll_class::PLAYER_SHIP;
-
-		auto shape = cmp::create_circle(x, y, 32.0);
-
-		auto coll_queue = cmp::create_coll_queue();
-
-		vector<shared_ptr<cmp::weapon_beh>> weapon_beh;
+		auto life_bounds = shared_ptr<cmp::bounds>(); 
+		auto cc = cmp::coll_class::PLAYER_SHIP; 
+		auto shape = cmp::create_circle(x, y, 32.0); 
+		auto coll_queue = cmp::create_coll_queue(); 
+		vector<shared_ptr<cmp::weapon_beh>> weapon_beh; 
 
 		auto painmap = cmp::create_painmap({
 			{ cmp::coll_class::ENEMY_BULLET, 10.0 },
 			{ cmp::coll_class::ENEMY_SHIP, 25.0 }
-		});
+		}); 
 
-		auto wellness = cmp::create_wellness(100.0);
-
-		shared_ptr<cmp::timer> ttl;
-
+		auto wellness = cmp::create_wellness(100.0); 
+		shared_ptr<cmp::timer> ttl; 
 		vector<shared_ptr<cmp::fx>> fxs {
-			cmp::create_smoke_when_hurt(0.5)
+			cmp::create_smoke_when_hurt(0.25)
 		};
 
-		bool explodes = true;
-
+		bool explodes = true; 
 		uint32_t num_debris = 10;
 
 		// Register nodes.
@@ -327,17 +301,14 @@ class test_state : public state {
 			cmp::create_const_velocity_dynamics(0.0, 60.0)
 		};
 
-		auto orientation = cmp::create_orientation(x, y, 1.57);
-
-		auto movement_bounds = shared_ptr<cmp::bounds>();
+		auto orientation = cmp::create_orientation(x, y, 1.57); 
+		auto movement_bounds = shared_ptr<cmp::bounds>(); 
 
 		auto life_bounds = cmp::create_bounds(
 			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
 
-		auto cc = cmp::coll_class::ENEMY_SHIP;
-
-		auto shape = cmp::create_circle(x, y, 32.0);
-
+		auto cc = cmp::coll_class::ENEMY_SHIP; 
+		auto shape = cmp::create_circle(x, y, 32.0); 
 		auto coll_queue = cmp::create_coll_queue();
 
 		vector<shared_ptr<cmp::weapon_beh>> weapon_beh {
@@ -349,16 +320,14 @@ class test_state : public state {
 				{ cmp::coll_class::PLAYER_BULLET, 10.0 },
 				{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
 
-		auto wellness = cmp::create_wellness(100.0);
-
+		auto wellness = cmp::create_wellness(100.0); 
 		shared_ptr<cmp::timer> ttl;
 
 		vector<shared_ptr<cmp::fx>> fxs {
-			cmp::create_smoke_when_hurt(0.5)
+			cmp::create_smoke_when_hurt(0.25)
 		};
 
-		bool explodes = true;
-
+		bool explodes = true; 
 		uint32_t num_debris = 7;
 
 		// Register the components.
@@ -466,16 +435,14 @@ class test_state : public state {
 				{ cmp::coll_class::PLAYER_BULLET, 10.0 },
 				{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
 
-		auto wellness = cmp::create_wellness(30.0);
-
+		auto wellness = cmp::create_wellness(30.0); 
 		shared_ptr<cmp::timer> ttl;
 
 		vector<shared_ptr<cmp::fx>> fxs {
-			cmp::create_smoke_when_hurt(0.5)
+			cmp::create_smoke_when_hurt(0.25)
 		};
 
-		bool explodes = true;
-
+		bool explodes = true; 
 		uint32_t num_debris = 5;
 
 		// Register the components.
@@ -514,27 +481,22 @@ class test_state : public state {
 			cmp::create_const_velocity_dynamics(vx, vy)
 		};
 
-		auto orientation = cmp::create_orientation(x, y, theta);
-
-		auto movement_bounds = shared_ptr<cmp::bounds>();
+		auto orientation = cmp::create_orientation(x, y, theta); 
+		auto movement_bounds = shared_ptr<cmp::bounds>(); 
 
 		auto life_bounds = cmp::create_bounds(
 			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
 
-		auto shape = cmp::create_circle(x, y, 8.0);
-
-		auto coll_queue = cmp::create_coll_queue();
-
-		auto wellness = cmp::create_wellness(missile_health);
-
+		auto shape = cmp::create_circle(x, y, 8.0); 
+		auto coll_queue = cmp::create_coll_queue(); 
+		auto wellness = cmp::create_wellness(missile_health); 
 		shared_ptr<cmp::timer> ttl;
 
 		vector<shared_ptr<cmp::fx>> fxs {
 			cmp::create_period_smoke(0.25, 0.25)
 		};
 
-		bool explodes = true;
-
+		bool explodes = true; 
 		uint32_t num_debris = 3;
 
 		// Context dependent.
@@ -586,23 +548,17 @@ class test_state : public state {
 			cmp::create_const_velocity_dynamics(vx, vy)
 		};
 
-		auto orientation = cmp::create_orientation(x, y, theta);
-
+		auto orientation = cmp::create_orientation(x, y, theta); 
 		auto movement_bounds = shared_ptr<cmp::bounds>();
 
 		auto life_bounds = cmp::create_bounds(
 			0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
 
-		auto shape = cmp::create_circle(x, y, 8.0);
-
-		auto coll_queue = cmp::create_coll_queue();
-
-		auto wellness = cmp::create_wellness(bullet_health);
-
-		shared_ptr<cmp::timer> ttl;
-
-		bool explodes = false;
-
+		auto shape = cmp::create_circle(x, y, 8.0); 
+		auto coll_queue = cmp::create_coll_queue(); 
+		auto wellness = cmp::create_wellness(bullet_health); 
+		shared_ptr<cmp::timer> ttl; 
+		bool explodes = false; 
 		uint32_t num_debris = 0;
 
 		// Context dependent.

@@ -327,7 +327,7 @@ class smoke_when_hurt : public fx {
 	double _pain_threshold;
 public:
 	smoke_when_hurt(double pain_threshold)
-	: _timer(0.5)
+	: _timer(0.125)
 	, _pain_threshold(pain_threshold)
 	{}
 
@@ -339,9 +339,16 @@ public:
 		if(health_ratio > _pain_threshold)
 			return;
 
+		static uniform_real_distribution<double> dist(-20.0, 20.0);
+
 		_timer.update(dt);
-		for(uint32_t i = 0; i < _timer.get_ticks(); ++i)
-			msgs.push_back(comm::create_spawn_smoke(x, y, comm::smoke_size::big));
+		for(uint32_t i = 0; i < _timer.get_ticks(); ++i) {
+			double dx = dist(rnd::engine);
+			double dy = dist(rnd::engine);
+			msgs.push_back(comm::create_spawn_smoke(
+						x + dx, y + dy,
+						comm::smoke_size::medium));
+		}
 		_timer.clear();
 	}
 };

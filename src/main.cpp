@@ -47,7 +47,6 @@ public:
 	}
 
 	void loop() {
-		// unique_ptr<state> current_state = create_game_state(_config, _resman);
 		unique_ptr<state> current_state = create_test_state(_config, _resman);
 		while(current_state) {
 

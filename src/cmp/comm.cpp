@@ -51,10 +51,10 @@ message create_spawn_explosion(double x, double y) {
 	return msg;
 }
 
-message create_spawn_smoke(double x, double y) {
+message create_spawn_smoke(double x, double y, smoke_size size) {
 	message msg;
 	msg.type = msg_t::spawn_smoke;
-	msg.spawn_smoke = { x, y };
+	msg.spawn_smoke = { x, y, size };
 	return msg;
 }
 

@@ -33,8 +33,6 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	add_bitmap(res_id::ENEMY_BOMBER, "data/enemy_bomber.png");
 	add_bitmap(res_id::EYE_BULLET, "data/eye_bullet.png");
 	add_bitmap(res_id::MISSILE, "data/missile.png");
-	add_bitmap(res_id::EXPLOSION, "data/explosion.png");
-	add_bitmap(res_id::SMOKE, "data/smoke.png");
 	add_bitmap(res_id::DEBRIS1, "data/debris1.png");
 	add_bitmap(res_id::DEBRIS2, "data/debris2.png");
 	add_bitmap(res_id::DEBRIS3, "data/debris3.png");
@@ -42,8 +40,10 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	add_bitmap(res_id::DEBRIS5, "data/debris5.png");
 	add_bitmap(res_id::HEALTH, "data/health.png");
 
-	gen_expand_fade(res_id::SMOKE_1, "data/smoke_single.png", 15, 3.0);
-	fade_frames(res_id::EXPLOSION_1, "data/explosion.png", 16);
+	expand_fade(res_id::SMOKE, "data/smoke_single.png", 15, 3.0);
+	scaled_copy(res_id::SMOKE_SMALL, res_id::SMOKE, 0.5);
+	scaled_copy(res_id::SMOKE_BIG, res_id::SMOKE, 2.0);
+	fade_frames(res_id::EXPLOSION, "data/explosion.png", 16);
 
 	// Load fonts.
 	add_font(res_id::TINY_FONT, "data/prstartk.ttf", 10);
@@ -101,7 +101,7 @@ void resman::add_font(res_id id, string path, int size) {
 	_fonts[id] = move(font);
 }
 
-void resman::gen_expand_fade(
+void resman::expand_fade(
 		res_id id,
 		string path,
 		uint32_t num_frames,
@@ -160,6 +160,39 @@ void resman::gen_expand_fade(
 	}
 	al_set_target_bitmap(al_get_backbuffer(_dpy));
 
+	_bitmaps[id] = move(result_bitmap);
+}
+
+void resman::scaled_copy(res_id id, res_id original, double scale) {
+
+	// Preconditions.
+	if(_bitmaps.find(id) != end(_bitmaps))
+		throw initialization_error("Loading resource at duplicate id");
+
+	if(_bitmaps.find(original) == end(_bitmaps))
+		throw initialization_error("Copying resource from nonexistent id");
+
+	// Base dimensions.
+	double orig_w = al_get_bitmap_width(_bitmaps[original].get()); 
+	double orig_h = al_get_bitmap_height(_bitmaps[original].get()); 
+
+	// Begin drawing to target.
+	p_bmp result_bitmap(al_create_bitmap(orig_w * scale, orig_h * scale));
+	al_set_target_bitmap(result_bitmap.get());
+	al_clear_to_color(al_map_rgba_f(0.0f, 0.0f, 0.0f, 0.0f));
+
+	// Draw.
+	al_draw_scaled_bitmap(
+			_bitmaps[original].get(),
+			0.0f, 0.0f,
+			orig_w, orig_h,
+			0.0, 0.0,
+			orig_w * scale,
+			orig_h * scale,
+			0);
+
+	// End drawing to target.
+	al_set_target_bitmap(al_get_backbuffer(_dpy));
 	_bitmaps[id] = move(result_bitmap);
 }
 

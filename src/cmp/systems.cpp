@@ -245,33 +245,34 @@ namespace sys {
 	
 	void pain_system::update(vector<comm::message>& msgs) {
 		for(auto const& n : _nodes) {
-
-			// TODO: Turn this into a member function?
-			auto fun = [&n, &msgs](cmp::coll_report const& r) {
-
+			n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
 				auto const& other_cc = (r.cc_a == n.cc)
 					? r.cc_b
 					: r.cc_a;
 
 				double pain = n.painmap->get_pain(other_cc);
 				n.wellness->deal_dmg(pain);
-			};
-
-			n.coll_queue->for_each_report(fun);
+			});
 		}
 	}
 
 	// Wellness system.
-	// -------------
+	// ----------------
 	
 	void wellness_system::update(double dt, vector<comm::message>& msgs) {
 		for(auto const& n : _nodes) {
+
+			if(n.wellness) {
+				_entity_health_map[n.identity] = n.wellness->get_health();
+				_entity_max_health_map[n.identity] = n.wellness->get_max_health();
+			}
 
 			bool died = false;
 			if(n.wellness) {
 				if(!n.wellness->is_alive())
 					died = true;
 			}
+
 			if(n.ttl) {
 				n.ttl->update(dt);
 				if(n.ttl->get_ticks() > 0)
@@ -283,7 +284,6 @@ namespace sys {
 					msgs.push_back(comm::create_spawn_explosion(
 								n.orientation->get_x(),
 								n.orientation->get_y()));
-
 				double vx = 0;
 				double vy = 0;
 				for(auto const& d : n.dynamics) {
@@ -291,19 +291,11 @@ namespace sys {
 					vy += d->get_vy();
 				}
 
-				uniform_real_distribution<double> base_dist(100.0, 300.0);
-				bernoulli_distribution dir_dist;
-
 				for(uint32_t i = 0; i < n.num_debris; ++i) {
-					double base_x = base_dist(rnd::engine);
-					double base_y = base_dist(rnd::engine);
-					double mul_x = dir_dist(rnd::engine) ? 1.0 : -1.0;
-					double mul_y = dir_dist(rnd::engine) ? 1.0 : -1.0;
 					msgs.push_back(comm::create_spawn_debris(
 								n.orientation->get_x(),
 								n.orientation->get_y(),
-								vx + base_x * mul_x,
-								vy + base_y * mul_y));
+								vx, vy));
 				}
 				
 				msgs.push_back(comm::create_remove_entity(n.identity));

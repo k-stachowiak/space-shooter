@@ -48,6 +48,7 @@ namespace comm {
 namespace cmp {
 
 // TODO: Move shapes and collision detection to another module.
+//       They will be associated with the physics/collision system.
 
 // Shape base.
 // -----------

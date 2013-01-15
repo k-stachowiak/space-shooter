@@ -32,9 +32,13 @@ using std::uniform_real_distribution;
 #include "../cmp/systems.h"
 #include "../cmp/comm.h"
 
+#include <allegro5/allegro_primitives.h>
+
 // TODO:
-// - make smoke scalable: small smoke for rockets, big for bad health
-// - HUD
+// - Random smoke displacement.
+// - Left/right player shots.
+// - Score system/hack?
+// - Extract the entity creation code to an entity factory class.
 
 class test_state : public state {
 
@@ -47,6 +51,7 @@ class test_state : public state {
 	// ------
 	map<int, bool> _keys;
 	bool _done;
+	uint64_t _player_id;
 	vector<comm::message> _messages;
 
 	// Generation processes.
@@ -56,13 +61,13 @@ class test_state : public state {
 
 	// Systems.
 	// --------
-	sys::movement_system _ms;
-	sys::collision_system _cs;
-	sys::arms_system _as;
-	sys::drawing_system _ds;
-	sys::pain_system _ps;
-	sys::wellness_system _ws;
-	sys::fx_system _fs;
+	sys::movement_system _movement_system;
+	sys::collision_system _collision_system;
+	sys::arms_system _arms_system;
+	sys::pain_system _pain_system;
+	sys::wellness_system _wellness_system;
+	sys::fx_system _fx_system;
+	sys::drawing_system _drawing_system;
 
 	// Factories.
 	// ----------
@@ -81,7 +86,7 @@ class test_state : public state {
 			frame_defs.emplace_back(i, frame_time);
 
 		auto appearance = cmp::create_simple_anim(
-				_resman.get_bitmap(res_id::EXPLOSION_1),
+				_resman.get_bitmap(res_id::EXPLOSION),
 				frame_width,
 				num_frames,
 				frame_defs,
@@ -102,19 +107,38 @@ class test_state : public state {
 		uint32_t num_debris = 0;
 
 		// Register nodes.
-		_ds.add_node({ id, appearance, orientation, shape, dynamics });
-		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
+		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
 		// Feedback for the state.
 		return id;
 	}
 
-	uint64_t create_smoke(double x, double y) {
+	uint64_t create_smoke(double x, double y, comm::smoke_size size) {
 
 		// Initialize components.
 		uint64_t id = ++_last_id;
+
+		res_id rid;
+		double scale;
+		switch(size) {
+			case comm::smoke_size::small:
+				rid = res_id::SMOKE_SMALL;
+				scale = 0.5;
+				break;
+			case comm::smoke_size::medium:
+				rid = res_id::SMOKE;
+				scale = 1.0;
+				break;
+			case comm::smoke_size::big:
+				rid = res_id::SMOKE_BIG;
+				scale = 2.0;
+				break;
+			default:
+				throw;
+		}
 		
-		uint32_t frame_width = 32 * 3;
+		uint32_t frame_width = 32 * 3 * scale;
 		uint32_t num_frames = 25;
 		double frame_time = 0.075;
 		vector<cmp::frame_def> frame_defs;
@@ -122,7 +146,7 @@ class test_state : public state {
 			frame_defs.emplace_back(i, frame_time);
 
 		auto appearance = cmp::create_simple_anim(
-				_resman.get_bitmap(res_id::SMOKE_1),
+				_resman.get_bitmap(rid),
 				frame_width,
 				num_frames,
 				frame_defs,
@@ -143,14 +167,14 @@ class test_state : public state {
 		uint32_t num_debris = 0;
 
 		// Register nodes.
-		_ds.add_node({ id, appearance, orientation, shape, dynamics });
-		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
+		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
 		// Feedback for the state.
 		return id;
 	}
 
-	uint64_t create_debris(double x, double y, double vx, double vy) {
+	uint64_t create_debris(double x, double y, double bvx, double bvy) {
 
 		// Prepare helpers.
 		vector<res_id> bitmaps {
@@ -160,12 +184,27 @@ class test_state : public state {
 			res_id::DEBRIS4,
 			res_id::DEBRIS5 };
 
-		uniform_int_distribution<int> bmp_dist(0, bitmaps.size() - 1);
+		// Bitmap selection.
+		static uniform_int_distribution<int> bmp_dist(0, bitmaps.size() - 1);
 		uint32_t index = bmp_dist(rnd::engine);
 		res_id bmp = bitmaps[index];
 
-		uniform_real_distribution<double> ttl_dist(1.0, 3.0);
+		// TTL generation.
+		static uniform_real_distribution<double> ttl_dist(1.0, 3.0);
 		double ttl_time = ttl_dist(rnd::engine);
+
+		// Random movement.
+		bernoulli_distribution dir_dist;
+		
+		static uniform_real_distribution<double> mv_dist(100.0, 300.0);
+		double base_vx = mv_dist(rnd::engine);
+		double base_vy = mv_dist(rnd::engine);
+		double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
+		double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
+
+		static uniform_real_distribution<double> rot_dist(40.0, 70.0);
+		double base_av = rot_dist(rnd::engine);
+		double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
 		// Initialize components.
 		uint64_t id = ++_last_id;
@@ -173,8 +212,11 @@ class test_state : public state {
 		auto appearance = cmp::create_static_bmp(_resman.get_bitmap(bmp));
 
 		vector<shared_ptr<cmp::dynamics>> dynamics {
-			cmp::create_const_velocity_dynamics(vx, vy),
-			cmp::create_const_ang_vel_dynamics(1.5)
+			cmp::create_const_velocity_dynamics(
+					bvx + base_vx * mul_vx,
+					bvy + base_vy * mul_vy),
+			cmp::create_const_ang_vel_dynamics(
+					base_av * mul_av)
 		};
 
 		auto orientation = cmp::create_orientation(x, y, 0.0);
@@ -195,14 +237,9 @@ class test_state : public state {
 		uint32_t num_debris = 0;
 
 		// Register nodes.
-		_ds.add_node({ id, appearance, orientation, shape, dynamics });
-		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
-		_ms.add_node({	id,
-				dynamics,
-				orientation,
-				shape,
-				movement_bounds,
-				life_bounds });
+		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
+		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 
 		// Feedback for the state.
 		return id;
@@ -251,27 +288,22 @@ class test_state : public state {
 		uint32_t num_debris = 10;
 
 		// Register nodes.
-		_ds.add_node({ id, appearance, orientation, shape, dynamics });
+		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
 
-		_ms.set_player_controlled(id);
-		_ms.add_node({	id,
-				dynamics,
-				orientation,
-				shape,
-				movement_bounds,
-				life_bounds});
+		_movement_system.set_player_controlled(id);
+		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 
-		_as.add_node({id, orientation, weapon_beh});
-		_as.set_player_shooting(id);
-		_as.set_player_interval(0.125);
+		_arms_system.add_node({id, orientation, weapon_beh});
+		_arms_system.set_player_shooting(id);
+		_arms_system.set_player_interval(0.125);
 
-		_cs.add_node({ id, cc, shape, coll_queue });
+		_collision_system.add_node({ id, cc, shape, coll_queue });
 
-		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
+		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness });
 
-		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
+		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
-		_fs.add_node({ id, orientation, wellness, fxs });
+		_fx_system.add_node({ id, orientation, wellness, fxs });
 
 		return id;
 	}
@@ -331,24 +363,13 @@ class test_state : public state {
 
 		// Register the components.
 		// ------------------------
-		_ds.add_node({ id, appearance, orientation, shape, dynamics });
-
-		_ms.add_node({	id,
-				dynamics,
-				orientation,
-				shape,
-				movement_bounds,
-				life_bounds});
-
-		_as.add_node({ id, orientation, weapon_beh });
-
-		_cs.add_node({ id, cc, shape, coll_queue });
-
-		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
-
-		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
-
-		_fs.add_node({ id, orientation, wellness, fxs });
+		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
+		_arms_system.add_node({ id, orientation, weapon_beh });
+		_collision_system.add_node({ id, cc, shape, coll_queue });
+		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness });
+		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
+		_fx_system.add_node({ id, orientation, wellness, fxs });
 
 		return id;
 	}
@@ -459,24 +480,13 @@ class test_state : public state {
 
 		// Register the components.
 		// ------------------------
-		_ds.add_node({ id, appearance, orientation, shape, dynamics });
-
-		_ms.add_node({	id,
-				dynamics,
-				orientation,
-				shape,
-				movement_bounds,
-				life_bounds});
-
-		_as.add_node({ id, orientation, weapon_beh });
-
-		_cs.add_node({ id, cc, shape, coll_queue });
-
-		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
-
-		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
-
-		_fs.add_node({ id, orientation, wellness, fxs });
+		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
+		_arms_system.add_node({ id, orientation, weapon_beh });
+		_collision_system.add_node({ id, cc, shape, coll_queue });
+		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness });
+		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
+		_fx_system.add_node({ id, orientation, wellness, fxs });
 
 		return id;
 	}
@@ -545,23 +555,12 @@ class test_state : public state {
 
 		// Register nodes.
 		// ---------------
-
-		_ds.add_node({ id, appearance, orientation, shape, dynamics });
-
-		_ms.add_node({	id,
-				dynamics,
-				orientation,
-				shape,
-				movement_bounds,
-				life_bounds});
-		
-		_cs.add_node({ id, cc, shape, coll_queue });
-
-		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
-
-		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
-
-		_fs.add_node({ id, orientation, wellness, fxs });
+		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics }); 
+		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
+		_collision_system.add_node({ id, cc, shape, coll_queue }); 
+		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness }); 
+		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl }); 
+		_fx_system.add_node({ id, orientation, wellness, fxs });
 
 		return id;
 	}
@@ -623,21 +622,11 @@ class test_state : public state {
 
 		// Register nodes.
 		// ---------------
-
-		_ds.add_node({ id, appearance, orientation, shape, dynamics });
-
-		_ms.add_node({	id,
-				dynamics,
-				orientation,
-				shape,
-				movement_bounds,
-				life_bounds});
-		
-		_cs.add_node({ id, cc, shape, coll_queue });
-
-		_ps.add_node({ id, cc, coll_queue, painmap, wellness });
-
-		_ws.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
+		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics }); 
+		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
+		_collision_system.add_node({ id, cc, shape, coll_queue }); 
+		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness }); 
+		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
 		return id;
 	}
@@ -650,13 +639,13 @@ class test_state : public state {
 		switch(msg.type) {
 		case comm::msg_t::remove_entity:
 			id = msg.remove_entity.id;
-			sys::remove_node(_ms, id);
-			sys::remove_node(_cs, id);
-			sys::remove_node(_as, id);
-			sys::remove_node(_ds, id);
-			sys::remove_node(_ps, id);
-			sys::remove_node(_ws, id);
-			sys::remove_node(_fs, id);
+			sys::remove_node(_movement_system, id);
+			sys::remove_node(_collision_system, id);
+			sys::remove_node(_arms_system, id);
+			sys::remove_node(_pain_system, id);
+			sys::remove_node(_wellness_system, id);
+			sys::remove_node(_fx_system, id);
+			sys::remove_node(_drawing_system, id);
 			break;
 
 		case comm::msg_t::spawn_bullet:
@@ -683,7 +672,9 @@ class test_state : public state {
 			break;
 
 		case comm::msg_t::spawn_smoke:
-			create_smoke(msg.spawn_smoke.x, msg.spawn_smoke.y);
+			create_smoke(msg.spawn_smoke.x,
+				     msg.spawn_smoke.y,
+				     msg.spawn_smoke.size);
 			break;
 
 		case comm::msg_t::spawn_debris:
@@ -698,6 +689,47 @@ class test_state : public state {
 		}
 	}
 
+	// GUI drawing.
+	// ------------
+	ALLEGRO_COLOR health_color(double health_ratio) {
+
+		double r, g;
+
+		if(health_ratio >= 0.5) {
+			g = 1.0;
+			r = 1.0 - (health_ratio - 0.5) * 2.0;
+		} else {
+			r = 1.0;
+			g = health_ratio * 2.0;
+		}
+
+		return al_map_rgb_f(r, g, 0.0);
+	}
+
+	void draw_bar(double from_bottom, double ratio, ALLEGRO_COLOR color) {
+		double x1 = _config.get_screen_w() * 0.05;
+		double x2 = _config.get_screen_w() * 0.95;
+		double y1 = _config.get_screen_h() - from_bottom - 5.0f;
+		double y2 = _config.get_screen_h() - from_bottom;
+		double hx2 = x1 + ratio * (x2 - x1);
+		al_draw_filled_rectangle(x1, y1, hx2, y2, color);
+	}	
+
+	void draw_hud() {
+		// Score.
+		al_draw_textf(
+			_resman.get_font(res_id::FONT),
+			al_map_rgba_f(1.0f, 1.0f, 1.0f, 1.0f),
+			10.0f, 10.0f, 0,
+			"ASD");
+	
+		// Health 
+		double health_ratio = _wellness_system.
+			get_ent_health_ratio(_player_id);
+
+		draw_bar(10.0, health_ratio, health_color(health_ratio));
+	}
+
 public:
 	test_state(const config& config, const resman& resman)
 	: _config(config)
@@ -709,7 +741,7 @@ public:
 	, _bomber_spawn_clk(
 		uniform_real_distribution<double>(5.0, 7.0),
 		bind(&test_state::create_bomber, this))
-	, _ds(resman.get_font(res_id::TINY_FONT))
+	, _drawing_system(resman.get_font(res_id::TINY_FONT))
 	, _last_id(0)
 	{
 		_keys[ALLEGRO_KEY_UP] = false;
@@ -717,20 +749,12 @@ public:
 		_keys[ALLEGRO_KEY_LEFT] = false;
 		_keys[ALLEGRO_KEY_RIGHT] = false;
 		_keys[ALLEGRO_KEY_LCTRL] = false;
-		create_player_ship(200.0, 200.0);
+		_player_id = create_player_ship(200.0, 200.0);
 	}
 
-	void sigkill() {
-		_done = true;
-	}
-
-	bool done() {
-		return _done;
-	}
-
-	unique_ptr<state> next_state() {
-		return unique_ptr<state>();
-	}
+	void sigkill() { _done = true; }
+	bool done() { return _done; }
+	unique_ptr<state> next_state() { return unique_ptr<state>(); }
 
 	void frame_logic(double dt) {
 
@@ -745,29 +769,32 @@ public:
 		if(_keys[ALLEGRO_KEY_LEFT]) player_throttle_x -= 1.0;
 		if(_keys[ALLEGRO_KEY_DOWN]) player_throttle_y += 1.0;
 		if(_keys[ALLEGRO_KEY_UP]) player_throttle_y -= 1.0;
-		_ms.set_player_throttle(player_throttle_x, player_throttle_y);
+		_movement_system.set_player_throttle(player_throttle_x, player_throttle_y);
 
 		// Update the player's trigger.
 		bool player_trigger = _keys[ALLEGRO_KEY_LCTRL];
-		_as.set_player_trigger(player_trigger);
+		_arms_system.set_player_trigger(player_trigger);
 
 		// Manage the debug ouptut. 
-		_ms.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_cs.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_as.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_ds.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_ps.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_ws.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_fs.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_movement_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_collision_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_arms_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_pain_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_wellness_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_fx_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_drawing_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
 
 		// Update the systems.
-		_ms.update(dt, _messages);
-		_cs.update();
-		_as.update(dt, _messages);
-		_ds.update(dt);
-		_ps.update(_messages);
-		_ws.update(dt, _messages);
-		_fs.update(dt, _messages);
+		_movement_system.update(dt, _messages);
+		_collision_system.update();
+		_arms_system.update(dt, _messages);
+		_pain_system.update(_messages);
+		_wellness_system.update(dt, _messages);
+		_fx_system.update(dt, _messages);
+		_drawing_system.update(dt);
+
+		// Hacky hud pass...
+		draw_hud();
 
 		// Handle messages.
 		while(!_messages.empty()) {

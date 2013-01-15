@@ -37,6 +37,12 @@ using namespace std;
 
 #include "../misc/exceptions.h"
 
+// TODO: Create a "complex resource" : sequence/animation
+//       - it will store the bitmap, frame width/count / etc.
+//         and carry it around, e.g. to the factory routine.
+//	   ...have "animation -> appearance" and
+//	           "bitmap -> appearance" functions...
+
 enum class res_id : int {
 
 	// Prepared resources.
@@ -46,8 +52,6 @@ enum class res_id : int {
 	ENEMY_BOMBER,
 	EYE_BULLET,
 	MISSILE,
-	EXPLOSION,
-	SMOKE,
 	TINY_FONT,
 	FONT,
 	DEBRIS1,
@@ -58,8 +62,10 @@ enum class res_id : int {
 	HEALTH,
 
 	// Generated bitmaps.
-	SMOKE_1,
-	EXPLOSION_1,
+	SMOKE,
+	SMOKE_SMALL,
+	SMOKE_BIG,
+	EXPLOSION,
 };
 
 class resman {
@@ -93,7 +99,7 @@ private:
 	void add_bitmap(res_id id, string path);
 	void add_font(res_id id, string path, int size);
 
-	void gen_expand_fade(
+	void expand_fade(
 			res_id id,
 			string path,
 			uint32_t num_frames,
@@ -102,6 +108,8 @@ private:
 	void fade_frames(res_id id,
 			 string path,
 			 uint32_t num_frames);
+
+	void scaled_copy(res_id id, res_id original, double scale);
 };
 
 #endif

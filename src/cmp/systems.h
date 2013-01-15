@@ -122,10 +122,16 @@ public:
 
 class wellness_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	map<uint64_t, double> _entity_health_map;
+	map<uint64_t, double> _entity_max_health_map;
 	vector<nd::wellness_node> _nodes;
 public:
 	void add_node(nd::wellness_node node) { _nodes.push_back(node); }
 	void update(double dt, vector<comm::message>& msgs);
+	double get_ent_health(uint64_t id) { return _entity_health_map[id]; }
+	double get_ent_health_ratio(uint64_t id) {
+		return _entity_health_map[id] / _entity_max_health_map[id];
+	}
 };
 
 }

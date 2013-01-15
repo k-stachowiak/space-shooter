@@ -341,7 +341,7 @@ public:
 
 		_timer.update(dt);
 		for(uint32_t i = 0; i < _timer.get_ticks(); ++i)
-			msgs.push_back(comm::create_spawn_smoke(x, y));
+			msgs.push_back(comm::create_spawn_smoke(x, y, comm::smoke_size::big));
 		_timer.clear();
 	}
 };
@@ -370,7 +370,7 @@ public:
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
-			msgs.push_back(comm::create_spawn_smoke(x, y));
+			msgs.push_back(comm::create_spawn_smoke(x, y, comm::smoke_size::small));
 		}
 	}
 };

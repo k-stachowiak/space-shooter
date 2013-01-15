@@ -1,6 +1,8 @@
+EXENAME := shoot$(EXESUFFIX)
+
 CXX = g++
-CXXFLAGS = -Wall --std=gnu++0x -g
 LIBS = -lallegro_monolith
+CXXFLAGS := -Wall --std=gnu++0x $(ADDFLAGS)
 
 OBJS := src/cmp/comm.o \
 	src/cmp/components.o \
@@ -12,9 +14,15 @@ OBJS := src/cmp/comm.o \
 	src/allegro.o \
 	src/main.o
 
-# link
-space-shooter: $(OBJS)
-	$(CXX) $(OBJS) $(LIBS) -o space-shooter
+# Link.
+# -----
+exe : $(OBJS)
+	$(CXX) $(OBJS) $(LIBS) -o $(EXENAME)
+
+# Debugging cases.
+# ----------------
+debug:
+	$(MAKE) $(MAKEFILE) ADDFLAGS="-g -DDEBUG" EXESUFFIX="_d"
 
 # pull in dependency info for *existing* .o files
 -include $(OBJS:.o=.d)
@@ -32,5 +40,5 @@ space-shooter: $(OBJS)
 
 # remove compilation products
 clean:
-	rm -f space-shooter
+	rm -f $(EXENAME)
 	find src -name "*.o" -o -name "*.d" | xargs rm -f

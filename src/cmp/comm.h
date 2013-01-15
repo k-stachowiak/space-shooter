@@ -25,6 +25,10 @@
 
 namespace comm {
 
+enum class smoke_size {
+	small, medium, big
+};
+
 enum class msg_t {
 	remove_entity,
 	spawn_bullet,
@@ -62,6 +66,7 @@ struct message {
 
 	struct {
 		double x, y;
+		smoke_size size;
 	} spawn_smoke;
 
 	struct {
@@ -73,7 +78,7 @@ struct message {
 message create_spawn_bullet(double x, double y, double theta, double vx, double vy, bool enemy);
 message create_spawn_missile(double x, double y, double theta, double vx, double vy, bool enemy);
 message create_spawn_explosion(double x, double y);
-message create_spawn_smoke(double x, double y);
+message create_spawn_smoke(double x, double y, smoke_size size);
 message create_spawn_debris(double x, double y, double vx, double vy);
 message create_remove_entity(uint64_t id);
 

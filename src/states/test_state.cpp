@@ -35,7 +35,7 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Score system/hack?
+// - Add the scoring system for the missiles as well! test carefully!
 // - Extract the entity creation code to an entity factory class.
 // - Health pickups.
 
@@ -67,6 +67,7 @@ class test_state : public state {
 	sys::wellness_system _wellness_system;
 	sys::fx_system _fx_system;
 	sys::drawing_system _drawing_system;
+	sys::score_system _score_system;
 
 	// Factories.
 	// ----------
@@ -269,7 +270,7 @@ class test_state : public state {
 		_arms_system.set_player_shooting(id);
 		_arms_system.set_player_interval(0.125);
 
-		_collision_system.add_node({ id, cc, shape, coll_queue });
+		_collision_system.add_node({ id, id, cc, shape, coll_queue });
 
 		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness });
 
@@ -328,15 +329,18 @@ class test_state : public state {
 		bool explodes = true; 
 		uint32_t num_debris = 7;
 
+		auto sc = cmp::score_class::ENEMY_BOMBER;
+
 		// Register the components.
 		// ------------------------
 		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
 		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 		_arms_system.add_node({ id, orientation, weapon_beh });
-		_collision_system.add_node({ id, cc, shape, coll_queue });
+		_collision_system.add_node({ id, id, cc, shape, coll_queue });
 		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness });
 		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 		_fx_system.add_node({ id, orientation, wellness, fxs });
+		_score_system.add_node({ id, sc, wellness });
 
 		return id;
 	}
@@ -443,15 +447,18 @@ class test_state : public state {
 		bool explodes = true; 
 		uint32_t num_debris = 5;
 
+		auto sc = cmp::score_class::ENEMY_EYE;
+
 		// Register the components.
 		// ------------------------
 		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
 		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 		_arms_system.add_node({ id, orientation, weapon_beh });
-		_collision_system.add_node({ id, cc, shape, coll_queue });
+		_collision_system.add_node({ id, id, cc, shape, coll_queue });
 		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness });
 		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 		_fx_system.add_node({ id, orientation, wellness, fxs });
+		_score_system.add_node({ id, sc, wellness });
 
 		return id;
 	}
@@ -460,7 +467,8 @@ class test_state : public state {
 			double x, double y,
 			double theta,
 			double vx, double vy,
-			bool enemy) {
+			bool enemy,
+			uint64_t origin_id) {
 
 		// Constants.
 		// ----------
@@ -517,7 +525,7 @@ class test_state : public state {
 		// ---------------
 		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics }); 
 		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
-		_collision_system.add_node({ id, cc, shape, coll_queue }); 
+		_collision_system.add_node({ id, origin_id, cc, shape, coll_queue });
 		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness }); 
 		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl }); 
 		_fx_system.add_node({ id, orientation, wellness, fxs });
@@ -529,7 +537,8 @@ class test_state : public state {
 			double x, double y,
 			double theta,
 			double vx, double vy,
-			bool enemy) {
+			bool enemy,
+			uint64_t origin_id) {
 
 		// Constants.
 		// ----------
@@ -578,7 +587,7 @@ class test_state : public state {
 		// ---------------
 		_drawing_system.add_node({ id, appearance, orientation, shape, dynamics }); 
 		_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
-		_collision_system.add_node({ id, cc, shape, coll_queue }); 
+		_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
 		_pain_system.add_node({ id, cc, coll_queue, painmap, wellness }); 
 		_wellness_system.add_node({ id, explodes, num_debris, orientation, dynamics, wellness, ttl });
 
@@ -600,6 +609,7 @@ class test_state : public state {
 			sys::remove_node(_wellness_system, id);
 			sys::remove_node(_fx_system, id);
 			sys::remove_node(_drawing_system, id);
+			sys::remove_node(_score_system, id);
 			break;
 
 		case comm::msg_t::spawn_bullet:
@@ -608,7 +618,8 @@ class test_state : public state {
 					msg.spawn_bullet.theta,
 					msg.spawn_bullet.vx,
 					msg.spawn_bullet.vy,
-					msg.spawn_bullet.enemy);
+					msg.spawn_bullet.enemy,
+					msg.spawn_bullet.origin_id);
 			break;
 
 		case comm::msg_t::spawn_missile:
@@ -617,7 +628,8 @@ class test_state : public state {
 					msg.spawn_missile.theta,
 					msg.spawn_missile.vx,
 					msg.spawn_missile.vy,
-					msg.spawn_missile.enemy);
+					msg.spawn_missile.enemy,
+					msg.spawn_missile.origin_id);
 			break;
 
 		case comm::msg_t::spawn_explosion:
@@ -671,11 +683,12 @@ class test_state : public state {
 
 	void draw_hud() {
 		// Score.
+		int player_score = int(_score_system.get_score(_player_id));
 		al_draw_textf(
 			_resman.get_font(res_id::FONT),
 			al_map_rgba_f(1.0f, 1.0f, 1.0f, 1.0f),
 			10.0f, 10.0f, 0,
-			"ASD");
+			"Score: %d", player_score);
 	
 		// Health 
 		double health_ratio = _wellness_system.
@@ -737,6 +750,7 @@ public:
 		_wellness_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
 		_fx_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
 		_drawing_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_score_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
 
 		// Update the systems.
 		_movement_system.update(dt, _messages);
@@ -746,6 +760,7 @@ public:
 		_wellness_system.update(dt, _messages);
 		_fx_system.update(dt, _messages);
 		_drawing_system.update(dt);
+		_score_system.update();
 
 		// Hacky hud pass...
 		draw_hud();

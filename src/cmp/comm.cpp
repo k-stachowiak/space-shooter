@@ -26,10 +26,11 @@ message create_spawn_bullet(
 		double x, double y,
 		double theta,
 		double vx, double vy,
-		bool enemy) {
+		bool enemy,
+		uint64_t origin_id) {
 	message msg;
 	msg.type = msg_t::spawn_bullet;
-	msg.spawn_bullet = { x, y, theta, vx, vy, enemy };
+	msg.spawn_bullet = { x, y, theta, vx, vy, enemy, origin_id };
 	return msg;
 }
 
@@ -37,10 +38,11 @@ message create_spawn_missile(
 		double x, double y,
 		double theta,
 		double vx, double vy,
-		bool enemy) {
+		bool enemy,
+		uint64_t origin_id) {
 	message msg;
 	msg.type = msg_t::spawn_missile;
-	msg.spawn_missile = { x, y, theta, vx, vy, enemy };
+	msg.spawn_missile = { x, y, theta, vx, vy, enemy, origin_id };
 	return msg;
 }
 

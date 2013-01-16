@@ -275,12 +275,16 @@ public:
 		init_counter();
 	}
 
-	void update(double dt, double x, double y, vector<comm::message>& msgs) {
+	void update(uint64_t id, double dt, double x, double y, vector<comm::message>& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
 			msgs.push_back(comm::create_spawn_bullet(
-						x, y, 1.57, 0.0, 800.0, true));
+						x, y,
+						1.57, 0.0,
+						800.0,
+						true,
+						id));
 		}
 	}
 };
@@ -307,14 +311,17 @@ public:
 		init_counter();
 	}
 
-	void update(double dt, double x, double y, vector<comm::message>& msgs) {
+	void update(uint64_t id, double dt, double x, double y, vector<comm::message>& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
 			msgs.push_back(comm::create_spawn_missile(
 						x + _x_offset,
 						y + _y_offset,
-						1.57, 0.0, 150.0, true));
+						1.57, 0.0,
+						150.0,
+						true,
+						id));
 		}
 	}
 };

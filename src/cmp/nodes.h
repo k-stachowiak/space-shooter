@@ -35,8 +35,16 @@ namespace nd {
  * in another one.
  */
 
+// TODO: Rename "identities" to "ids".
+
+struct score_node {
+	uint64_t id;
+	cmp::score_class sc;
+	shared_ptr<cmp::wellness> wellness;
+};
+
 struct drawing_node {
-	uint64_t identity;
+	uint64_t id;
 	shared_ptr<cmp::appearance> appearance;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::shape> shape;
@@ -44,14 +52,14 @@ struct drawing_node {
 };
 
 struct fx_node {
-	uint64_t identity;
+	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::wellness> wellness;
 	vector<shared_ptr<cmp::fx>> effects;
 };
 
 struct movement_node {
-	uint64_t identity;
+	uint64_t id;
 	vector<shared_ptr<cmp::dynamics>> dynamics;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::shape> shape;
@@ -60,20 +68,21 @@ struct movement_node {
 };
 
 struct arms_node {
-	uint64_t identity;
+	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;
 	vector<shared_ptr<cmp::weapon_beh>> weapon_beh;
 };
 
 struct collision_node {
-	uint64_t identity;
+	uint64_t id;
+	uint64_t origin_id;
 	cmp::coll_class cc;
 	shared_ptr<cmp::shape> shape;
 	shared_ptr<cmp::coll_queue> coll_queue;
 };
 
 struct pain_node {
-	uint64_t identity;
+	uint64_t id;
 	cmp::coll_class cc;
 	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::painmap> painmap;
@@ -81,7 +90,7 @@ struct pain_node {
 };
 
 struct wellness_node {
-	uint64_t identity;
+	uint64_t id;
 	bool explodes;
 	uint32_t num_debris;
 	shared_ptr<cmp::orientation> orientation;

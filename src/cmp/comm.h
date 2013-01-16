@@ -51,6 +51,7 @@ struct message {
 		double theta;
 		double vx, vy;
 		bool enemy;
+		uint64_t origin_id;
 	} spawn_bullet;
 
 	struct {
@@ -58,6 +59,7 @@ struct message {
 		double theta;
 		double vx, vy;
 		bool enemy;
+		uint64_t origin_id;
 	} spawn_missile;
 
 	struct {
@@ -75,8 +77,8 @@ struct message {
 	} spawn_debris;
 };
 
-message create_spawn_bullet(double x, double y, double theta, double vx, double vy, bool enemy);
-message create_spawn_missile(double x, double y, double theta, double vx, double vy, bool enemy);
+message create_spawn_bullet(double x, double y, double theta, double vx, double vy, bool enemy, uint64_t origin_id);
+message create_spawn_missile(double x, double y, double theta, double vx, double vy, bool enemy, uint64_t origin_id);
 message create_spawn_explosion(double x, double y);
 message create_spawn_smoke(double x, double y, smoke_size size);
 message create_spawn_debris(double x, double y, double vx, double vy);

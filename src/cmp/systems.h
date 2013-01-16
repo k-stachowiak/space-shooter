@@ -38,7 +38,7 @@ namespace sys {
 template<typename SYS>
 void remove_node(SYS& sys, uint64_t id) {
 	for(auto n = begin(sys._nodes); n != end(sys._nodes); ++n) {
-		if(n->identity == id) {
+		if(n->id == id) {
 			*n = sys._nodes.back();
 			sys._nodes.pop_back();
 			--n;
@@ -51,6 +51,24 @@ protected:
 	bool _debug_mode;
 public:
 	void set_debug_mode(bool debug_mode) { _debug_mode = debug_mode; }
+};
+
+class score_system : public system {
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	vector<nd::score_node> _nodes;
+	map<cmp::score_class, double> _class_score_map;
+	map<uint64_t, double> _ent_score_map;
+public:
+	score_system()
+	: _class_score_map(map<cmp::score_class, double> {
+			{ cmp::score_class::ENEMY_EYE, 1.0 },
+			{ cmp::score_class::ENEMY_BOMBER, 5.0 }
+		})
+	{}
+
+	void add_node(nd::score_node n) { _nodes.push_back(n); }
+	void update();
+	double get_score(uint64_t id) { return _ent_score_map[id]; }
 };
 
 class drawing_system : public system {
@@ -93,7 +111,7 @@ class arms_system : public system {
 	bool _player_trigger;
 	double _player_counter;
 	bool _player_prev_left;
-	void handle_player(double dt, vector<comm::message>& msgs, double x, double y);
+	void handle_player(uint64_t id, double dt, vector<comm::message>& msgs, double x, double y);
 	comm::message proc_msg(double x, double y, comm::message msg);
 public:
 	arms_system() : _player_counter(0.0) {}

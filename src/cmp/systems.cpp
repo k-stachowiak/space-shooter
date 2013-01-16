@@ -18,6 +18,10 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include <iostream>
+using std::cout;
+using std::endl;
+
 #include <string>
 using std::string;
 
@@ -29,6 +33,22 @@ using std::bernoulli_distribution;
 #include "../misc/rand.h"
 
 namespace sys {
+
+	// Score system.
+	// -------------
+
+	void score_system::update() {
+		for(auto const& n : _nodes) {
+			
+			if(n.wellness->is_alive()) {
+				continue;
+			}
+
+			uint64_t receiver = n.wellness->get_last_dmg_id();
+			double score = _class_score_map[n.sc];
+			_ent_score_map[receiver] += score;
+		}
+	}
 
 	// Drawing system.
 	// ---------------
@@ -107,7 +127,7 @@ namespace sys {
 			double vx = 0, vy = 0;
 			double theta = 0;
 			
-			if(n.identity == _player_controlled) {
+			if(n.id == _player_controlled) {
 				vx = _player_throttle_x * 400.0;
 				vy = _player_throttle_y * 300.0;
 
@@ -150,14 +170,14 @@ namespace sys {
 				maxi = n.life_bounds->get_x_max();
 				if(!between(x + dx, mini, maxi)) {
 					msgs.push_back(comm::create_remove_entity(
-								n.identity));
+								n.id));
 					continue;
 				}
 				mini = n.life_bounds->get_x_min();
 				maxi = n.life_bounds->get_y_max();
 				if(!between(y + dy, mini, maxi)) {
 					msgs.push_back(comm::create_remove_entity(
-								n.identity));
+								n.id));
 					continue;
 				}
 			}
@@ -178,7 +198,8 @@ namespace sys {
 	// Arms system.
 	// ------------
 
-	void arms_system::handle_player(double dt,
+	void arms_system::handle_player(uint64_t id,
+			double dt,
 			vector<comm::message>& msgs,
 			double x,
 			double y) {
@@ -197,12 +218,18 @@ namespace sys {
 			_player_prev_left = false;
 			msgs.push_back(comm::create_spawn_bullet(
 						x + 15.0, y,
-						-1.57, 0.0, -800.0, false));
+						-1.57, 0.0,
+						-800.0,
+						false,
+						id));
 		} else {
 			_player_prev_left = true;
 			msgs.push_back(comm::create_spawn_bullet(
 						x - 15.0, y,
-						-1.57, 0.0, -800.0, false));
+						-1.57, 0.0,
+						-800.0,
+						false,
+						id));
 		}
 	}
 
@@ -212,13 +239,13 @@ namespace sys {
 			x = n.orientation->get_x();
 			y = n.orientation->get_y();
 
-			if(n.identity == _player_shooting) {
-				handle_player(dt, msgs, x, y);
+			if(n.id == _player_shooting) {
+				handle_player(n.id, dt, msgs, x, y);
 				continue;
 			}
 
 			for(auto const& wb : n.weapon_beh)
-				wb->update(dt, x, y, msgs);
+				wb->update(n.id, dt, x, y, msgs);
 		}
 	}
 
@@ -233,7 +260,9 @@ namespace sys {
 
 		if(shp_a.collides_with(shp_b)) {
 			cmp::coll_report report {
-				a.cc, a.shape, b.cc, b.shape };
+				{ a.id, a.origin_id, a.cc, a.shape },
+				{ b.id, b.origin_id, b.cc, b.shape }
+			};
 			a.coll_queue->push_report(report);
 			b.coll_queue->push_report(report);
 		}
@@ -256,12 +285,25 @@ namespace sys {
 	void pain_system::update(vector<comm::message>& msgs) {
 		for(auto const& n : _nodes) {
 			n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
-				auto const& other_cc = (r.cc_a == n.cc)
-					? r.cc_b
-					: r.cc_a;
+				
+				// Determine which of the colliding entities
+				// is the "other one".
+				cmp::coll_class other_cc;
+				uint64_t other_origin_id;
 
+				// Note that the real colliding id's are compared here,
+				// but the originating id is recorded for further use.
+				if(r.a.id == n.id) {
+					other_cc = r.b.cc;
+					other_origin_id = r.b.origin_id;
+				} else {
+					other_cc = r.a.cc;
+					other_origin_id = r.a.origin_id;
+				}
+
+				// Determine the damage amount and deal it to the "other one".
 				double pain = n.painmap->get_pain(other_cc);
-				n.wellness->deal_dmg(pain);
+				n.wellness->deal_dmg(pain, other_origin_id);
 			});
 		}
 	}
@@ -273,8 +315,8 @@ namespace sys {
 		for(auto const& n : _nodes) {
 
 			if(n.wellness) {
-				_entity_health_map[n.identity] = n.wellness->get_health();
-				_entity_max_health_map[n.identity] = n.wellness->get_max_health();
+				_entity_health_map[n.id] = n.wellness->get_health();
+				_entity_max_health_map[n.id] = n.wellness->get_max_health();
 			}
 
 			bool died = false;
@@ -308,7 +350,7 @@ namespace sys {
 								vx, vy));
 				}
 				
-				msgs.push_back(comm::create_remove_entity(n.identity));
+				msgs.push_back(comm::create_remove_entity(n.id));
 			}
 		}
 	}

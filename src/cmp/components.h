@@ -79,12 +79,28 @@ enum class coll_class {
 	ARMOR_PICKUP,
 };
 
+// Score class id.
+enum class score_class {
+	ENEMY_EYE,
+	ENEMY_BOMBER
+};
+
 // Collision report type.
+//
+// Note: The pain id is the identifier of the node which
+// deals damage through this node. E.g. If this node is a
+// bullet, the pain_id will be that of the ship, who has
+// launched the bullet. This way the entity responsible
+// for the damage may be determined.
 struct coll_report {
-	coll_class cc_a;
-	shared_ptr<shape> shp_a;
-	coll_class cc_b;
-	shared_ptr<shape> shp_b;
+
+	// Store info about two colliding objects "a" and "b".
+	struct {
+		uint64_t id;
+		uint64_t origin_id;
+		coll_class cc;
+		shared_ptr<shape> shp;
+	} a, b;
 };
 
 // Animation frame definition.
@@ -162,14 +178,16 @@ public:
 
 // The object's health armor etc.
 class wellness {
+	uint64_t _last_dmg_id; // NOTE that this is used to grant points for kill.
 	double _max_health;
 	double _health;
 public:
 	wellness(double health) : _max_health(health), _health(health) {}
-	void deal_dmg(double dmg) { _health -= dmg; }
+	void deal_dmg(double dmg, uint64_t source_id) { _health -= dmg; _last_dmg_id = source_id; }
 	double get_max_health() const { return _max_health; }
 	double get_health() const { return _health; }
 	bool is_alive() const { return _health > 0.0; }
+	uint64_t get_last_dmg_id() const { return _last_dmg_id; }
 };
 
 // Timer base.
@@ -221,6 +239,7 @@ class weapon_beh {
 public:
 	virtual ~weapon_beh() {}
 	virtual void update(
+			uint64_t id,
 			double dt,
 			double x, double y,
 			vector<comm::message>& msgs) = 0;

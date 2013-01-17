@@ -47,9 +47,6 @@ namespace comm {
 
 namespace cmp {
 
-// TODO: Move shapes and collision detection to another module.
-//       They will be associated with the physics/collision system.
-
 // Shape base.
 // -----------
 
@@ -265,8 +262,7 @@ public:
 
 shared_ptr<orientation> create_orientation(double x, double y, double theta);
 
-shared_ptr<bounds> create_bounds(
-		double x_min, double y_min, double x_max, double y_max);
+shared_ptr<bounds> create_bounds(double x_min, double y_min, double x_max, double y_max);
 
 shared_ptr<coll_queue> create_coll_queue();
 

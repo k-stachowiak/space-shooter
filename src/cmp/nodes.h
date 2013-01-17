@@ -35,8 +35,6 @@ namespace nd {
  * in another one.
  */
 
-// TODO: Rename "identities" to "ids".
-
 struct score_node {
 	uint64_t id;
 	cmp::score_class sc;

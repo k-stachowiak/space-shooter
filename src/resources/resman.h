@@ -37,12 +37,6 @@ using namespace std;
 
 #include "../misc/exceptions.h"
 
-// TODO: Create a "complex resource" : sequence/animation
-//       - it will store the bitmap, frame width/count / etc.
-//         and carry it around, e.g. to the factory routine.
-//	   ...have "animation -> appearance" and
-//	           "bitmap -> appearance" functions...
-
 enum class res_id : int {
 
 	// Prepared resources.

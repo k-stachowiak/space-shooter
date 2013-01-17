@@ -6,6 +6,7 @@ CXXFLAGS := -Wall --std=gnu++0x $(ADDFLAGS)
 
 OBJS := src/cmp/comm.o \
 	src/cmp/components.o \
+	src/cmp/entity_factory.o \
 	src/cmp/systems.o \
 	src/geometry/bezier.o \
 	src/misc/rand.o \

@@ -179,6 +179,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 
 	auto painmap = cmp::create_painmap({
 		{ cmp::coll_class::ENEMY_BULLET, 10.0 },
+		{ cmp::coll_class::ENEMY_MISSILE, 20.0 },
 		{ cmp::coll_class::ENEMY_SHIP, 25.0 }
 	}); 
 

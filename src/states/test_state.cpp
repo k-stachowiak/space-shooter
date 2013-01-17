@@ -35,7 +35,6 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - BUG: Y no damage from missiles?
 // - Add the scoring system for the missiles as well! test carefully!
 // - Health pickups.
 

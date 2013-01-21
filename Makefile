@@ -1,8 +1,8 @@
-EXENAME := shoot$(EXESUFFIX)
+EXENAME := shoot
 
 CXX = g++
 LIBS = -lallegro_monolith
-CXXFLAGS := -Wall --std=gnu++0x $(ADDFLAGS)
+CXXFLAGS := -Wall --std=gnu++0x -g
 
 OBJS := src/cmp/comm.o \
 	src/cmp/components.o \
@@ -19,11 +19,6 @@ OBJS := src/cmp/comm.o \
 # -----
 exe : $(OBJS)
 	$(CXX) $(OBJS) $(LIBS) -o $(EXENAME)
-
-# Debugging cases.
-# ----------------
-debug:
-	$(MAKE) $(MAKEFILE) ADDFLAGS="-g -DDEBUG" EXESUFFIX="_d"
 
 # pull in dependency info for *existing* .o files
 -include $(OBJS:.o=.d)
@@ -43,3 +38,5 @@ debug:
 clean:
 	rm -f $(EXENAME)
 	find src -name "*.o" -o -name "*.d" | xargs rm -f
+
+.PHONY: clean

@@ -69,6 +69,15 @@ message create_spawn_debris(
 	return msg;
 }
 
+message create_spawn_health_pickup(
+		double x, double y,
+		double vx, double vy) {
+	message msg;
+	msg.type = msg_t::spawn_health_pickup;
+	msg.spawn_health_pickup = { x, y, vx, vy };
+	return msg;
+}
+
 message create_remove_entity(uint64_t id) {
 	message msg;
 	msg.type = msg_t::remove_entity;

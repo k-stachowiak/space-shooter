@@ -139,6 +139,14 @@ public:
 	void update(vector<comm::message>& msgs);
 };
 
+class pickup_system : public system {
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	vector<nd::pickup_node> _nodes;
+public:
+	void add_node(nd::pickup_node node) { _nodes.push_back(node); }
+	void update(vector<comm::message>& msgs);
+};
+
 class wellness_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	map<uint64_t, double> _entity_health_map;

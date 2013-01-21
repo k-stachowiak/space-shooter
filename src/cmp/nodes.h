@@ -81,15 +81,21 @@ struct collision_node {
 
 struct pain_node {
 	uint64_t id;
-	cmp::coll_class cc;
 	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::painmap> painmap;
+	shared_ptr<cmp::wellness> wellness;
+};
+
+struct pickup_node {
+	uint64_t id;
+	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::wellness> wellness;
 };
 
 struct wellness_node {
 	uint64_t id;
 	bool explodes;
+	bool spawn_health;
 	uint32_t num_debris;
 	shared_ptr<cmp::orientation> orientation;
 	vector<shared_ptr<cmp::dynamics>> dynamics;

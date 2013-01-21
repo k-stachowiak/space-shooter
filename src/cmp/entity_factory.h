@@ -41,6 +41,7 @@ class entity_factory {
 	sys::fx_system&		_fx_system;
 	sys::drawing_system&	_drawing_system;
 	sys::score_system&	_score_system;
+	sys::pickup_system&	_pickup_system;
 
 public:
 	entity_factory(
@@ -53,7 +54,8 @@ public:
 		sys::wellness_system&	wellness_system,
 		sys::fx_system&		fx_system,
 		sys::drawing_system&	drawing_system,
-		sys::score_system&	score_system)
+		sys::score_system&	score_system,
+		sys::pickup_system&	pickup_system)
 	: _last_id(0)
 	, _config(cfg)
 	, _resman(rm)
@@ -65,6 +67,7 @@ public:
 	, _fx_system (fx_system)
 	, _drawing_system (drawing_system)
 	, _score_system (score_system) 
+	, _pickup_system (pickup_system)
 	{}
 
 	uint64_t create_explosion(double x, double y);
@@ -73,6 +76,7 @@ public:
 	uint64_t create_player_ship(double x, double y);
 	uint64_t create_bomber();
 	uint64_t create_eye();
+	uint64_t create_health_pickup(double x, double y, double vx, double vy);
 
 	uint64_t create_missile(
 			double x, double y,

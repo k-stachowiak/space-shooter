@@ -35,7 +35,8 @@ enum class msg_t {
 	spawn_missile,
 	spawn_explosion,
 	spawn_smoke,
-	spawn_debris
+	spawn_debris,
+	spawn_health_pickup
 };
 
 struct message {
@@ -75,6 +76,11 @@ struct message {
 		double x, y;
 		double vx, vy;
 	} spawn_debris;
+
+	struct {
+		double x, y;
+		double vx, vy;
+	} spawn_health_pickup;
 };
 
 message create_spawn_bullet(double x, double y, double theta, double vx, double vy, bool enemy, uint64_t origin_id);
@@ -82,6 +88,7 @@ message create_spawn_missile(double x, double y, double theta, double vx, double
 message create_spawn_explosion(double x, double y);
 message create_spawn_smoke(double x, double y, smoke_size size);
 message create_spawn_debris(double x, double y, double vx, double vy);
+message create_spawn_health_pickup(double x, double y, double vx, double vy);
 message create_remove_entity(uint64_t id);
 
 }

@@ -35,8 +35,7 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Add the scoring system for the missiles as well! test carefully!
-// - Health pickups.
+// - Enemies flash when hit.
 
 class test_state : public state {
 
@@ -67,6 +66,7 @@ class test_state : public state {
 	sys::fx_system		_fx_system;
 	sys::drawing_system	_drawing_system;
 	sys::score_system	_score_system;
+	sys::pickup_system	_pickup_system;
 
 	// Factories.
 	// ----------
@@ -91,6 +91,7 @@ class test_state : public state {
 			sys::remove_node(_fx_system, id);
 			sys::remove_node(_drawing_system, id);
 			sys::remove_node(_score_system, id);
+			sys::remove_node(_pickup_system, id);
 			break;
 
 		case comm::msg_t::spawn_bullet:
@@ -130,6 +131,13 @@ class test_state : public state {
 					msg.spawn_debris.vx,
 					msg.spawn_debris.vy);
 			break;
+
+		case comm::msg_t::spawn_health_pickup:
+			_ef.create_health_pickup(msg.spawn_health_pickup.x,
+					msg.spawn_health_pickup.y,
+					msg.spawn_health_pickup.vx,
+					msg.spawn_health_pickup.vy);
+			break;
 			
 		default:
 			break;
@@ -139,9 +147,7 @@ class test_state : public state {
 	// GUI drawing.
 	// ------------
 	ALLEGRO_COLOR health_color(double health_ratio) {
-
 		double r, g;
-
 		if(health_ratio >= 0.5) {
 			g = 1.0;
 			r = 1.0 - (health_ratio - 0.5) * 2.0;
@@ -149,7 +155,6 @@ class test_state : public state {
 			r = 1.0;
 			g = health_ratio * 2.0;
 		}
-
 		return al_map_rgb_f(r, g, 0.0);
 	}
 
@@ -199,7 +204,8 @@ public:
 		_wellness_system,
 		_fx_system,
 		_drawing_system,
-		_score_system)
+		_score_system,
+		_pickup_system)
 	, _last_id(0)
 	{
 		_keys[ALLEGRO_KEY_UP] = false;
@@ -242,6 +248,7 @@ public:
 		_fx_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
 		_drawing_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
 		_score_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_pickup_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
 
 		// Update the systems.
 		_movement_system.update(dt, _messages);
@@ -252,6 +259,7 @@ public:
 		_fx_system.update(dt, _messages);
 		_drawing_system.update(dt);
 		_score_system.update();
+		_pickup_system.update(_messages);
 
 		// Hacky hud pass...
 		draw_hud();

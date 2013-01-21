@@ -73,7 +73,6 @@ enum class coll_class {
 	ENEMY_BULLET,
 	ENEMY_MISSILE,
 	HEALTH_PICKUP,
-	ARMOR_PICKUP,
 };
 
 // Score class id.
@@ -181,6 +180,7 @@ class wellness {
 public:
 	wellness(double health) : _max_health(health), _health(health) {}
 	void deal_dmg(double dmg, uint64_t source_id) { _health -= dmg; _last_dmg_id = source_id; }
+	void add_health(double dh) { _health += dh; }
 	double get_max_health() const { return _max_health; }
 	double get_health() const { return _health; }
 	bool is_alive() const { return _health > 0.0; }

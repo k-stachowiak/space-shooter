@@ -308,6 +308,40 @@ namespace sys {
 		}
 	}
 
+	// Pickup system.
+	// --------------
+	
+	void pickup_system::update(vector<comm::message>& msgs) {
+		for(auto const& n : _nodes) {
+			n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
+
+				// TODO : The code below is duplicated in the pain system.
+				// increase the reuse appeal?
+
+				// Determine which of the colliding entities
+				// is the "other one".
+				cmp::coll_class other_cc;
+
+				// Note that the real colliding id's are compared here,
+				// but the originating id is recorded for further use.
+				if(r.a.id == n.id) {
+					other_cc = r.b.cc;
+				} else {
+					other_cc = r.a.cc;
+				}
+
+				switch(other_cc) {
+				case cmp::coll_class::HEALTH_PICKUP:
+					n.wellness->add_health(10);
+					break;
+
+				default:
+					break;
+				}
+			});
+		}
+	}
+
 	// Wellness system.
 	// ----------------
 	
@@ -332,15 +366,25 @@ namespace sys {
 			}
 
 			if(died) {
-				if(n.explodes)
+
+				if(n.explodes) {
 					msgs.push_back(comm::create_spawn_explosion(
 								n.orientation->get_x(),
 								n.orientation->get_y()));
+				}
+
 				double vx = 0;
 				double vy = 0;
 				for(auto const& d : n.dynamics) {
 					vx += d->get_vx();
 					vy += d->get_vy();
+				}
+
+				if(n.spawn_health) {
+					msgs.push_back(comm::create_spawn_health_pickup(
+								n.orientation->get_x(),
+								n.orientation->get_y(),
+								vx, vy));
 				}
 
 				for(uint32_t i = 0; i < n.num_debris; ++i) {

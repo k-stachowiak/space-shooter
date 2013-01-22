@@ -210,6 +210,7 @@ public:
 	virtual ~appearance() {}
 	virtual void update(double dt) = 0;
 	virtual ALLEGRO_BITMAP* bitmap() const = 0;
+	virtual ALLEGRO_BITMAP* flash() const = 0;
 };
 
 // Dynamics base.
@@ -276,10 +277,13 @@ shared_ptr<timer> create_const_int_timer(double interval);
 
 // Appearance classes.
 
-shared_ptr<appearance> create_static_bmp(ALLEGRO_BITMAP* bmp);
+shared_ptr<appearance> create_static_bmp(
+		ALLEGRO_BITMAP* bmp,
+		ALLEGRO_BITMAP* flash);
 
 shared_ptr<appearance> create_simple_anim(
 		ALLEGRO_BITMAP* bmp,
+		ALLEGRO_BITMAP* flash,
 		uint32_t frame_width,
 		uint32_t num_frames,
 		vector<frame_def> const& frame_defs,

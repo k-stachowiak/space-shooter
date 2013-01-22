@@ -32,6 +32,27 @@ using std::bernoulli_distribution;
 #include "systems.h"
 #include "../misc/rand.h"
 
+// Common functions.
+// -----------------
+
+static inline void resolve_coll_report(
+		cmp::coll_report const& report,
+		uint64_t this_id,
+		cmp::coll_class& other_cc,
+		uint64_t& other_origin_id) {
+
+	// Note that the real colliding id's are compared here,
+	// but the originating id is recorded for further use.
+	if(report.a.id == this_id) {
+		other_cc = report.b.cc;
+		other_origin_id = report.b.origin_id;
+	} else {
+		other_cc = report.a.cc;
+		other_origin_id = report.a.origin_id;
+	}
+}
+	
+
 namespace sys {
 
 	// Score system.
@@ -60,13 +81,23 @@ namespace sys {
 		double x, y;
 		double phi;
 		for(auto const& n : _nodes) {
+
 			n.appearance->update(dt);
-			bmp = n.appearance->bitmap();
+
+			if(*(n.pain_flash) > 0.0) {
+				bmp = n.appearance->flash();
+				*(n.pain_flash) -= dt;
+			} else {
+				bmp = n.appearance->bitmap();
+			}
+
 			x = n.orientation->get_x();
 			y = n.orientation->get_y();
 			phi = n.orientation->get_phi();
+
 			int w = al_get_bitmap_width(bmp);
 			int h = al_get_bitmap_height(bmp);
+
 			al_draw_rotated_bitmap(bmp, 
 					w >> 1, h >> 1,
 					x, y, phi, 0);
@@ -290,20 +321,15 @@ namespace sys {
 				// is the "other one".
 				cmp::coll_class other_cc;
 				uint64_t other_origin_id;
-
-				// Note that the real colliding id's are compared here,
-				// but the originating id is recorded for further use.
-				if(r.a.id == n.id) {
-					other_cc = r.b.cc;
-					other_origin_id = r.b.origin_id;
-				} else {
-					other_cc = r.a.cc;
-					other_origin_id = r.a.origin_id;
-				}
+				resolve_coll_report(r, n.id, other_cc, other_origin_id);
 
 				// Determine the damage amount and deal it to the "other one".
 				double pain = n.painmap->get_pain(other_cc);
 				n.wellness->deal_dmg(pain, other_origin_id);
+
+				if(pain > 0.0) {
+					*(n.pain_flash) = 0.025;
+				}
 			});
 		}
 	}
@@ -315,20 +341,11 @@ namespace sys {
 		for(auto const& n : _nodes) {
 			n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
 
-				// TODO : The code below is duplicated in the pain system.
-				// increase the reuse appeal?
-
 				// Determine which of the colliding entities
 				// is the "other one".
 				cmp::coll_class other_cc;
-
-				// Note that the real colliding id's are compared here,
-				// but the originating id is recorded for further use.
-				if(r.a.id == n.id) {
-					other_cc = r.b.cc;
-				} else {
-					other_cc = r.a.cc;
-				}
+				uint64_t other_origin_id;
+				resolve_coll_report(r, n.id, other_cc, other_origin_id);
 
 				switch(other_cc) {
 				case cmp::coll_class::HEALTH_PICKUP:

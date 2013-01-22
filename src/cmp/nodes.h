@@ -46,6 +46,7 @@ struct drawing_node {
 	shared_ptr<cmp::appearance> appearance;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::shape> shape;
+	shared_ptr<double> pain_flash;
 	vector<shared_ptr<cmp::dynamics>> dynamics;
 };
 
@@ -84,6 +85,7 @@ struct pain_node {
 	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::painmap> painmap;
 	shared_ptr<cmp::wellness> wellness;
+	shared_ptr<double> pain_flash;
 };
 
 struct pickup_node {

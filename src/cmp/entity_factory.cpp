@@ -1,3 +1,23 @@
+/* Copyright (C) 2012 Krzysztof Stachowiak */
+
+/*
+* This file is part of space-shooter.
+*
+* space-shooter is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* space-shooter is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with space-shooter; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+
 #include "../misc/rand.h"
 #include "../geometry/bezier.h"
 #include "entity_factory.h"
@@ -16,6 +36,7 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 
 	auto appearance = cmp::create_simple_anim(
 			_resman.get_bitmap(res_id::EXPLOSION),
+			_resman.get_bitmap(res_id::EXPLOSION),
 			frame_width,
 			num_frames,
 			frame_defs,
@@ -30,8 +51,10 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 	bool spawn_health = false;
 	uint32_t num_debris = 0;
 
+	auto pain_flash = make_shared<double>(0.0);
+
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, explodes, spawn_health, num_debris, orientation, dynamics, wellness, ttl });
 
 	// Feedback for the state.
@@ -71,6 +94,7 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 
 	auto appearance = cmp::create_simple_anim(
 			_resman.get_bitmap(rid),
+			_resman.get_bitmap(rid),
 			frame_width,
 			num_frames,
 			frame_defs,
@@ -85,8 +109,10 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	bool spawn_health = false; // TODO: Come up with a common way of defining, whatever spawns on death.
 	uint32_t num_debris = 0;
 
+	auto pain_flash = make_shared<double>(0.0);
+
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, explodes, spawn_health, num_debris, orientation, dynamics, wellness, ttl });
 
 	// Feedback for the state.
@@ -128,7 +154,9 @@ uint64_t entity_factory::create_debris(double x, double y, double bvx, double bv
 	// Initialize components.
 	uint64_t id = ++_last_id;
 	
-	auto appearance = cmp::create_static_bmp(_resman.get_bitmap(bmp));
+	auto appearance = cmp::create_static_bmp(
+			_resman.get_bitmap(bmp),
+			_resman.get_bitmap(bmp));
 
 	vector<shared_ptr<cmp::dynamics>> dynamics {
 		cmp::create_const_velocity_dynamics(
@@ -149,8 +177,10 @@ uint64_t entity_factory::create_debris(double x, double y, double bvx, double bv
 	bool spawn_health = false;
 	uint32_t num_debris = 0;
 
+	auto pain_flash = make_shared<double>(0.0);
+
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, explodes, spawn_health, num_debris, orientation, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 
@@ -164,7 +194,8 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	uint64_t id = ++_last_id;
 
 	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::PLAYER_SHIP));
+			_resman.get_bitmap(res_id::PLAYER_SHIP),
+			_resman.get_bitmap(res_id::PLAYER_SHIP_FLASH));
 
 	vector<shared_ptr<cmp::dynamics>> dynamics; 
 	auto orientation = cmp::create_orientation(x, y, -1.57); 
@@ -194,8 +225,10 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	bool spawn_health = false;
 	uint32_t num_debris = 10;
 
+	auto pain_flash = make_shared<double>(0.0);
+
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
 
 	_movement_system.set_player_controlled(id);
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
@@ -205,7 +238,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	_arms_system.set_player_interval(0.125);
 
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness });
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
 	_wellness_system.add_node({ id, explodes, spawn_health, num_debris, orientation, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, wellness, fxs });
 	_pickup_system.add_node({ id, coll_queue, wellness });
@@ -226,7 +259,8 @@ uint64_t entity_factory::create_bomber() {
 	uint64_t id = ++_last_id;
 
 	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::ENEMY_BOMBER));
+			_resman.get_bitmap(res_id::ENEMY_BOMBER),
+			_resman.get_bitmap(res_id::ENEMY_BOMBER_FLASH));
 
 	vector<shared_ptr<cmp::dynamics>> dynamics {
 		cmp::create_const_velocity_dynamics(0.0, 60.0)
@@ -264,13 +298,15 @@ uint64_t entity_factory::create_bomber() {
 
 	auto sc = cmp::score_class::ENEMY_BOMBER;
 
+	auto pain_flash = make_shared<double>(0.0);
+
 	// Register the components.
 	// ------------------------
-	_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness });
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
 	_wellness_system.add_node({ id, explodes, spawn_health, num_debris, orientation, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -337,6 +373,7 @@ uint64_t entity_factory::create_eye() {
 
 	auto appearance = cmp::create_simple_anim(
 			_resman.get_bitmap(res_id::ENEMY_EYE),
+			_resman.get_bitmap(res_id::ENEMY_EYE_FLASH),
 			frame_width,
 			num_frames,
 			frame_defs,
@@ -386,13 +423,15 @@ uint64_t entity_factory::create_eye() {
 
 	auto sc = cmp::score_class::ENEMY_EYE;
 
+	auto pain_flash = make_shared<double>(0.0);
+
 	// Register the components.
 	// ------------------------
-	_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness });
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
 	_wellness_system.add_node({ id, explodes, spawn_health, num_debris, orientation, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -406,13 +445,13 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	// ----------------
 	bernoulli_distribution dir_dist;
 
-	static uniform_real_distribution<double> mv_dist(5.0, 10.0);
+	static uniform_real_distribution<double> mv_dist(15.0, 25.0);
 	double base_vx = mv_dist(rnd::engine);
 	double base_vy = mv_dist(rnd::engine);
 	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
 	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	static uniform_real_distribution<double> rot_dist(40.0, 70.0);
+	static uniform_real_distribution<double> rot_dist(3.0, 9.0);
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
@@ -422,7 +461,9 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	// ----------------------
 	uint64_t id = ++_last_id;
 
-	auto appearance = cmp::create_static_bmp(_resman.get_bitmap(res_id::HEALTH));
+	auto appearance = cmp::create_static_bmp(
+			_resman.get_bitmap(res_id::HEALTH),
+			_resman.get_bitmap(res_id::HEALTH));
 
 	vector<shared_ptr<cmp::dynamics>> dynamics {
 		cmp::create_const_velocity_dynamics(
@@ -450,12 +491,14 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	bool spawn_health = false;
 	uint32_t num_debris = 0;
 
+	auto pain_flash = make_shared<double>(0.0);
+
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, dynamics });
+	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, explodes, spawn_health, num_debris, orientation, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness }); 
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
 
 	// Feedback for the state.
 	return id;
@@ -479,7 +522,9 @@ uint64_t entity_factory::create_missile(
 
 	uint64_t id = ++_last_id;
 
-	auto appearance = cmp::create_static_bmp( _resman.get_bitmap(res_id::MISSILE));
+	auto appearance = cmp::create_static_bmp(
+			_resman.get_bitmap(res_id::MISSILE),
+			_resman.get_bitmap(res_id::MISSILE));
 
 	vector<shared_ptr<cmp::dynamics>> dynamics {
 		cmp::create_const_velocity_dynamics(vx, vy)
@@ -504,6 +549,8 @@ uint64_t entity_factory::create_missile(
 	bool spawn_health = false;
 	uint32_t num_debris = 3;
 
+	auto pain_flash = make_shared<double>(0.0);
+
 	// Context dependent.
 
 	shared_ptr<cmp::painmap> painmap;
@@ -522,10 +569,10 @@ uint64_t entity_factory::create_missile(
 
 	// Register nodes.
 	// ---------------
-	_drawing_system.add_node({ id, appearance, orientation, shape, dynamics }); 
+	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics }); 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness }); 
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
 	_wellness_system.add_node({ id, explodes, spawn_health, num_debris, orientation, dynamics, wellness, ttl }); 
 	_fx_system.add_node({ id, orientation, wellness, fxs });
 
@@ -568,27 +615,35 @@ uint64_t entity_factory::create_bullet(
 	bool spawn_health = false;
 	uint32_t num_debris = 0;
 
+	auto pain_flash = make_shared<double>(0.0);
+
 	// Context dependent.
 
 	shared_ptr<cmp::appearance> appearance;
 	shared_ptr<cmp::painmap> painmap;
 	cmp::coll_class cc;
 	if(enemy) {
-		appearance = cmp::create_static_bmp( _resman.get_bitmap(res_id::EYE_BULLET));
+		appearance = cmp::create_static_bmp(
+				_resman.get_bitmap(res_id::EYE_BULLET),
+				_resman.get_bitmap(res_id::EYE_BULLET));
+
 		painmap = cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, bullet_health } });
 		cc = cmp::coll_class::ENEMY_BULLET;
 	} else {
-		appearance = cmp::create_static_bmp( _resman.get_bitmap(res_id::PLAYER_BULLET));
+		appearance = cmp::create_static_bmp(
+				_resman.get_bitmap(res_id::PLAYER_BULLET),
+				_resman.get_bitmap(res_id::PLAYER_BULLET));
+
 		painmap = cmp::create_painmap({ { cmp::coll_class::ENEMY_SHIP, bullet_health } });
 		cc = cmp::coll_class::PLAYER_BULLET;
 	}
 
 	// Register nodes.
 	// ---------------
-	_drawing_system.add_node({ id, appearance, orientation, shape, dynamics }); 
+	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics }); 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
-	_pain_system.add_node({ id, coll_queue, painmap, wellness }); 
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
 	_wellness_system.add_node({ id, explodes, spawn_health, num_debris, orientation, dynamics, wellness, ttl });
 
 	return id;

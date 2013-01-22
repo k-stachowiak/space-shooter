@@ -78,6 +78,6 @@ int main() {
 		return 0;
 	} catch (initialization_error e) {
 		cerr << "Initialization failed : " << e.what() << endl;
-		return cin.get();
+		return 1;
 	}
 }

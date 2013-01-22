@@ -35,7 +35,21 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Enemies flash when hit.
+// - collectible missile weapon bonus.
+//   - handle second player's trigger,
+//   - 1st make the missiles unlimited ammo,
+//   - then make the missiles limited ammo (introduce
+//       ammo counter component),
+//   - indicate ammo in hud,
+//   - then create a missile ammo collectible that
+//       increases the component's value.
+// - implement delayed events:
+//   - message has a counter,
+//   - when traversing the messages queue, the msgs
+//       with positive counter are skipped
+//       (counter decremented).
+//   - implement multiple explosions after player dies
+//       with this mechanism.
 
 class test_state : public state {
 

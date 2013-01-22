@@ -63,10 +63,12 @@ public:
 
 class static_bmp : public appearance {
 	ALLEGRO_BITMAP* _bmp;
+	ALLEGRO_BITMAP* _flsh;
 public:
-	static_bmp(ALLEGRO_BITMAP* bmp) : _bmp(bmp) {}
+	static_bmp(ALLEGRO_BITMAP* bmp, ALLEGRO_BITMAP* flsh) : _bmp(bmp), _flsh(flsh) {}
 	void update(double) {}
 	ALLEGRO_BITMAP* bitmap() const { return _bmp; }
+	ALLEGRO_BITMAP* flash() const { return _flsh; }
 };
 
 class simple_anim : public appearance {
@@ -74,10 +76,14 @@ class simple_anim : public appearance {
 	// The original bitmap - the frames' atlas.
 	ALLEGRO_BITMAP* _bitmap;
 
+	// The flashed variant of the bitmap.
+	ALLEGRO_BITMAP* _flash;
+
 	// The information about the particular frames.
 	uint32_t _frame_width;
 	uint32_t _num_frames;
 	array<ALLEGRO_BITMAP*, 128> _frame_images;
+	array<ALLEGRO_BITMAP*, 128> _flash_images;
 
 	// The information about the frame definitions.
 	uint32_t _num_defs;
@@ -94,22 +100,30 @@ class simple_anim : public appearance {
 public:
 	simple_anim(
 		ALLEGRO_BITMAP* bitmap, 
+		ALLEGRO_BITMAP* flash, 
 		uint32_t frame_width, 
 		uint32_t num_frames,
 		vector<frame_def> const& frame_defs,
 		int rep_count)
 	: _bitmap(bitmap)
+	, _flash(flash)
 	, _frame_width(frame_width)
 	, _num_frames(num_frames)
 	, _rep_count(rep_count)
 	, _done(false) {
 
 		// Generate the frame's sub-bitmaps
-		for(uint32_t frame = 0; frame < _num_frames; ++frame)
+		for(uint32_t frame = 0; frame < _num_frames; ++frame) {
 			_frame_images[frame] = al_create_sub_bitmap(
 				_bitmap,
 				frame * _frame_width, 0,
 				_frame_width, al_get_bitmap_height(_bitmap));
+			
+			_flash_images[frame] = al_create_sub_bitmap(
+				_flash,
+				frame * _frame_width, 0,
+				_frame_width, al_get_bitmap_height(_flash));
+		}
 
 		// Store the definitions.
 		_num_defs = frame_defs.size();
@@ -161,6 +175,10 @@ public:
 		return _frame_images[current_index];
 	}
 
+	ALLEGRO_BITMAP* flash() const {
+		uint32_t current_index = _frame_defs[_current_def].index;
+		return _flash_images[current_index];
+	}
 };
 
 // Dynamics classes.
@@ -470,12 +488,15 @@ shared_ptr<timer> create_const_int_timer(double interval) {
 
 // Apperarance classes.
 
-shared_ptr<appearance> create_static_bmp(ALLEGRO_BITMAP* bmp) {
-	return shared_ptr<appearance>(new static_bmp(bmp));
+shared_ptr<appearance> create_static_bmp(
+		ALLEGRO_BITMAP* bmp,
+		ALLEGRO_BITMAP* flash) {
+	return shared_ptr<appearance>(new static_bmp(bmp, flash));
 }
 
 shared_ptr<appearance> create_simple_anim(
 		ALLEGRO_BITMAP* bmp,
+		ALLEGRO_BITMAP* flash,
 		uint32_t frame_width,
 		uint32_t num_frames,
 		vector<frame_def> const& frame_defs,
@@ -483,6 +504,7 @@ shared_ptr<appearance> create_simple_anim(
 
 	return shared_ptr<appearance>(new simple_anim(
 			bmp,
+			flash,
 			frame_width,
 			num_frames,
 			frame_defs,

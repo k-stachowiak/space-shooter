@@ -41,9 +41,12 @@ enum class res_id : int {
 
 	// Prepared resources.
 	PLAYER_SHIP,
+	PLAYER_SHIP_FLASH,
 	PLAYER_BULLET,
 	ENEMY_EYE,
+	ENEMY_EYE_FLASH,
 	ENEMY_BOMBER,
+	ENEMY_BOMBER_FLASH,
 	EYE_BULLET,
 	MISSILE,
 	TINY_FONT,
@@ -104,6 +107,8 @@ private:
 			 uint32_t num_frames);
 
 	void scaled_copy(res_id id, res_id original, double scale);
+
+	void flash(res_id id, res_id original);
 };
 
 #endif

@@ -26,7 +26,7 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	// Initialize all the resources to be needed later here.
 	// -----------------------------------------------------
 	
-	// Load images.
+	// Load simple images.
 	add_bitmap(res_id::PLAYER_SHIP, "data/ship_from_internetz.png");
 	add_bitmap(res_id::PLAYER_BULLET, "data/player_bullet.png");
 	add_bitmap(res_id::ENEMY_EYE, "data/enemy_eye.png");
@@ -40,10 +40,16 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	add_bitmap(res_id::DEBRIS5, "data/debris5.png");
 	add_bitmap(res_id::HEALTH, "data/health.png");
 
+	// Load/generate animations
 	expand_fade(res_id::SMOKE, "data/smoke_single.png", 15, 3.0);
 	scaled_copy(res_id::SMOKE_SMALL, res_id::SMOKE, 0.5);
 	scaled_copy(res_id::SMOKE_BIG, res_id::SMOKE, 2.0);
 	fade_frames(res_id::EXPLOSION, "data/explosion.png", 16);
+
+	// Generate flashes.
+	flash(res_id::PLAYER_SHIP_FLASH, res_id::PLAYER_SHIP);
+	flash(res_id::ENEMY_EYE_FLASH, res_id::ENEMY_EYE);
+	flash(res_id::ENEMY_BOMBER_FLASH, res_id::ENEMY_BOMBER);
 
 	// Load fonts.
 	add_font(res_id::TINY_FONT, "data/prstartk.ttf", 10);
@@ -194,6 +200,32 @@ void resman::scaled_copy(res_id id, res_id original, double scale) {
 	// End drawing to target.
 	al_set_target_bitmap(al_get_backbuffer(_dpy));
 	_bitmaps[id] = move(result_bitmap);
+}
+
+void resman::flash(res_id id, res_id original) {
+	
+	// Base dimensions.
+	double orig_w = al_get_bitmap_width(_bitmaps[original].get()); 
+	double orig_h = al_get_bitmap_height(_bitmaps[original].get()); 
+
+	// Store blender.
+	int op, src, dst;
+	al_get_blender(&op, &src, &dst);
+
+	// Begin drawing to target.
+	p_bmp result_bitmap(al_create_bitmap(orig_w, orig_h));
+	al_set_target_bitmap(result_bitmap.get());
+	al_clear_to_color(al_map_rgba_f(1, 1, 1, 0));
+
+	al_set_blender(ALLEGRO_ADD, ALLEGRO_ZERO, ALLEGRO_ALPHA);
+	al_draw_bitmap(_bitmaps[original].get(), 0, 0, 0);
+
+	// End drawing to target.
+	al_set_target_bitmap(al_get_backbuffer(_dpy));
+	_bitmaps[id] = move(result_bitmap);
+
+	// Restore blender.
+	al_set_blender(op, src, dst);
 }
 
 void resman::fade_frames(res_id id,

@@ -376,18 +376,28 @@ namespace sys {
 				uint64_t other_origin_id;
 				resolve_coll_report(r, n.id, other_cc, other_id, other_origin_id);
 
-				bool picked_up = true;
+				double h = n.wellness->get_health();
+				double H = n.wellness->get_max_health();
+				double dh = 10;
+
+				bool picked_up = false;
 				switch(other_cc) {
 				case cmp::coll_class::HEALTH_PICKUP:
-					n.wellness->add_health(10);
+					if(h < H) {
+						picked_up = true;
+						if(h + dh >= H)
+							n.wellness->add_health(H - h);
+						else
+							n.wellness->add_health(dh);
+					}
 					break;
 
 				case cmp::coll_class::MISSILES_PICKUP:
 					n.ammo->add_rockets(7);
+					picked_up = true;
 					break;
 
 				default:
-					picked_up = false;
 					break;
 				}
 

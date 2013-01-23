@@ -36,9 +36,6 @@ using std::uniform_real_distribution;
 
 // TODO:
 // 
-// - fix the weapon component so that it doesn't reset the cooldown
-//   when the trigger is hit continuously.
-//
 // - Don't pisk up health if at max already.
 //
 // - introduce drawing planes to the graphics system.

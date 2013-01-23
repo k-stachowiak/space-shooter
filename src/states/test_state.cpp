@@ -39,8 +39,10 @@ using std::uniform_real_distribution;
 // - make the pickup system remove pickups and not the pain system.
 //   - the pickups no longer have to reside in the pain system (less components!)
 //
-// - fix the weapon component so that it doesn't reset the cooldown\
+// - fix the weapon component so that it doesn't reset the cooldown
 //   when the trigger is hit continuously.
+//
+// - introduce drawing planes to the graphics system.
 // 
 // - implement delayed events:
 //   - message has a counter,

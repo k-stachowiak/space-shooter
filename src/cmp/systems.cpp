@@ -39,15 +39,18 @@ static inline void resolve_coll_report(
 		cmp::coll_report const& report,
 		uint64_t this_id,
 		cmp::coll_class& other_cc,
+		uint64_t& other_id,
 		uint64_t& other_origin_id) {
 
 	// Note that the real colliding id's are compared here,
 	// but the originating id is recorded for further use.
 	if(report.a.id == this_id) {
 		other_cc = report.b.cc;
+		other_id = report.b.id;
 		other_origin_id = report.b.origin_id;
 	} else {
 		other_cc = report.a.cc;
+		other_id = report.a.id;
 		other_origin_id = report.a.origin_id;
 	}
 }
@@ -344,8 +347,9 @@ namespace sys {
 				// Determine which of the colliding entities
 				// is the "other one".
 				cmp::coll_class other_cc;
+				uint64_t other_id;
 				uint64_t other_origin_id;
-				resolve_coll_report(r, n.id, other_cc, other_origin_id);
+				resolve_coll_report(r, n.id, other_cc, other_id, other_origin_id);
 
 				// Determine the damage amount and deal it to the "other one".
 				double pain = n.painmap->get_pain(other_cc);
@@ -368,9 +372,11 @@ namespace sys {
 				// Determine which of the colliding entities
 				// is the "other one".
 				cmp::coll_class other_cc;
+				uint64_t other_id;
 				uint64_t other_origin_id;
-				resolve_coll_report(r, n.id, other_cc, other_origin_id);
+				resolve_coll_report(r, n.id, other_cc, other_id, other_origin_id);
 
+				bool picked_up = true;
 				switch(other_cc) {
 				case cmp::coll_class::HEALTH_PICKUP:
 					n.wellness->add_health(10);
@@ -381,7 +387,12 @@ namespace sys {
 					break;
 
 				default:
+					picked_up = false;
 					break;
+				}
+
+				if(picked_up) {
+					msgs.push_back(comm::create_remove_entity(other_id));
 				}
 			});
 		}

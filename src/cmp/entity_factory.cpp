@@ -469,8 +469,6 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	double little_health = 1.0;
-
 	// Initialize components.
 	// ----------------------
 	uint64_t id = ++_last_id;
@@ -490,7 +488,7 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 
 	auto shape = cmp::create_circle(x, y, 16.0); 
 	auto coll_queue = cmp::create_coll_queue(); 
-	auto wellness = cmp::create_wellness(little_health); 
+	shared_ptr<cmp::wellness> wellness; 
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
 	auto life_bounds = cmp::create_bounds(
 		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
@@ -499,7 +497,6 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 
 
 	auto cc = cmp::coll_class::HEALTH_PICKUP;
-	auto painmap = cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, little_health } });
 
 	bool explodes = false; 
 	bool spawn_health = false;
@@ -513,7 +510,6 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	_wellness_system.add_node({ id, explodes, spawn_health, spawn_missiles, num_debris, orientation, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
 
 	// Feedback for the state.
 	return id;
@@ -535,8 +531,6 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	double little_health = 1.0;
-
 	// Initialize components.
 	// ----------------------
 	uint64_t id = ++_last_id;
@@ -556,16 +550,14 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 
 	auto shape = cmp::create_circle(x, y, 16.0); 
 	auto coll_queue = cmp::create_coll_queue(); 
-	auto wellness = cmp::create_wellness(little_health); 
+	shared_ptr<cmp::wellness> wellness; 
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
 	auto life_bounds = cmp::create_bounds(
 		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
 
 	shared_ptr<cmp::timer> ttl; 
 
-
 	auto cc = cmp::coll_class::MISSILES_PICKUP;
-	auto painmap = cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, little_health } });
 
 	bool explodes = false; 
 	bool spawn_health = false;
@@ -579,7 +571,6 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 	_wellness_system.add_node({ id, explodes, spawn_health, spawn_missiles, num_debris, orientation, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
 
 	// Feedback for the state.
 	return id;

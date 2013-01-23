@@ -230,12 +230,9 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// Register nodes.
 	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
 
-	_movement_system.set_player_controlled(id);
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 
 	_arms_system.add_node({id, orientation, weapon_beh});
-	_arms_system.set_player_shooting(id);
-	_arms_system.set_player_interval(0.125);
 
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
@@ -283,6 +280,7 @@ uint64_t entity_factory::create_bomber() {
 
 	auto painmap = cmp::create_painmap({
 			{ cmp::coll_class::PLAYER_BULLET, 10.0 },
+			{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
 			{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
 
 	auto wellness = cmp::create_wellness(100.0); 
@@ -408,6 +406,7 @@ uint64_t entity_factory::create_eye() {
 
 	auto painmap = cmp::create_painmap({
 			{ cmp::coll_class::PLAYER_BULLET, 10.0 },
+			{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
 			{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
 
 	auto wellness = cmp::create_wellness(30.0); 
@@ -542,7 +541,7 @@ uint64_t entity_factory::create_missile(
 	shared_ptr<cmp::timer> ttl;
 
 	vector<shared_ptr<cmp::fx>> fxs {
-		cmp::create_period_smoke(0.25, 0.25)
+		cmp::create_period_smoke(0.1, 0.125)
 	};
 
 	bool explodes = true; 

@@ -35,6 +35,7 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
+// 
 // - collectible missile weapon bonus.
 //   - handle second player's trigger,
 //   - 1st make the missiles unlimited ammo,
@@ -43,6 +44,7 @@ using std::uniform_real_distribution;
 //   - indicate ammo in hud,
 //   - then create a missile ammo collectible that
 //       increases the component's value.
+// 
 // - implement delayed events:
 //   - message has a counter,
 //   - when traversing the messages queue, the msgs
@@ -50,6 +52,14 @@ using std::uniform_real_distribution;
 //       (counter decremented).
 //   - implement multiple explosions after player dies
 //       with this mechanism.
+//
+// - Improve graphics
+//   - change the ships' sprites
+//   - add stars and extraterrestial bodies (nebulas?)
+//
+// - Adjust the collision shapes and sizes.
+//
+// - Debris made of the graphics' pieces :)
 
 class test_state : public state {
 
@@ -91,8 +101,6 @@ class test_state : public state {
 	// -----------------
 
 	void handle_message(comm::message const& msg) {
-		// TODO: Consider passing the message structs instead of the
-		// tedious unpacking of the separate arguments...
 		uint64_t id;
 		switch(msg.type) {
 		case comm::msg_t::remove_entity:
@@ -226,8 +234,12 @@ public:
 		_keys[ALLEGRO_KEY_DOWN] = false;
 		_keys[ALLEGRO_KEY_LEFT] = false;
 		_keys[ALLEGRO_KEY_RIGHT] = false;
-		_keys[ALLEGRO_KEY_LCTRL] = false;
+		_keys[ALLEGRO_KEY_Z] = false;
+		_keys[ALLEGRO_KEY_X] = false;
+		
 		_player_id = _ef.create_player_ship(200.0, 200.0);
+		_movement_system.set_player_id(_player_id);
+		_arms_system.set_player_id(_player_id);
 	}
 
 	void sigkill() { _done = true; }
@@ -250,8 +262,11 @@ public:
 		_movement_system.set_player_throttle(player_throttle_x, player_throttle_y);
 
 		// Update the player's trigger.
-		bool player_trigger = _keys[ALLEGRO_KEY_LCTRL];
-		_arms_system.set_player_trigger(player_trigger);
+		bool player_mg_trigger = _keys[ALLEGRO_KEY_Z];
+		_arms_system.set_player_mg_trigger(player_mg_trigger);
+
+		bool player_rl_trigger = _keys[ALLEGRO_KEY_X];
+		_arms_system.set_player_rl_trigger(player_rl_trigger);
 
 		// Manage the debug ouptut. 
 		_movement_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);

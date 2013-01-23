@@ -30,10 +30,45 @@ using std::vector;
 #include "nodes.h"
 #include "comm.h"
 
-template<class T>
-inline bool between(T value, T min, T max) { return value >= min && value <= max; }
-
 namespace sys {
+
+// Helper components.
+// ------------------
+
+class weapon {
+	double _interval;
+	bool _trigger;
+	double _counter;
+
+public:
+	weapon()
+	: _interval(0.0)
+	, _trigger(false)
+	, _counter(0.0)
+	{}
+
+	void set_interval(double value) { _interval = value; }
+	void set_trigger(bool value) { _trigger = value; }
+
+	bool update(double dt) {
+
+		if(!_trigger) {
+			_counter = 0.0;
+			return false;
+		}
+
+		_counter -= dt;
+		if(_counter > 0.0) {
+			return false;
+		}
+
+		_counter += _interval;
+		return true;
+	}
+};
+
+// System types declarations.
+// --------------------------
 
 template<typename SYS>
 void remove_node(SYS& sys, uint64_t id) {
@@ -92,33 +127,43 @@ public:
 class movement_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::movement_node> _nodes;
-	uint64_t _player_controlled;
-	double _player_throttle_x;
-	double _player_throttle_y;
+
+	struct {
+		uint64_t id;
+		double throttle_x;
+		double throttle_y;
+	} _player;
 public:
-	movement_system() : _player_throttle_x(0.0) , _player_throttle_y(0.0) {}
+	movement_system() { _player = { 0 }; }
 	void add_node(nd::movement_node n) { _nodes.push_back(n); }
-	void set_player_controlled(uint64_t id) { _player_controlled = id; }
-	void set_player_throttle(double x, double y) { _player_throttle_x = x; _player_throttle_y = y; }
+	void set_player_id(uint64_t id) { _player.id = id; }
+	void set_player_throttle(double x, double y) { _player.throttle_x = x; _player.throttle_y = y; }
 	void update(double dt, vector<comm::message>& msgs);
 };
 
 class arms_system : public system {
+
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+
 	vector<nd::arms_node> _nodes;
-	uint64_t _player_shooting;
-	double _player_interval;
-	bool _player_trigger;
-	double _player_counter;
-	bool _player_prev_left;
+
+	struct {
+		uint64_t id;
+
+		bool prev_left;
+		weapon minigun;
+		weapon rpg;
+
+	} _player;
+
 	void handle_player(uint64_t id, double dt, vector<comm::message>& msgs, double x, double y);
 	comm::message proc_msg(double x, double y, comm::message msg);
 public:
-	arms_system() : _player_counter(0.0) {}
+	arms_system() { _player.minigun.set_interval(0.1); _player.rpg.set_interval(0.75); }
 	void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
-	void set_player_shooting(uint64_t id) { _player_shooting = id; }
-	void set_player_interval(double interval) { _player_interval = interval; }
-	void set_player_trigger(bool trigger) { _player_trigger = trigger; }
+	void set_player_id(uint64_t id) { _player.id = id; }
+	void set_player_mg_trigger(bool t) { _player.minigun.set_trigger(t); }
+	void set_player_rl_trigger(bool t) { _player.rpg.set_trigger(t); }
 	void update(double dt, vector<comm::message>& msgs);
 };
 

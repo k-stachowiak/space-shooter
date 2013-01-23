@@ -52,6 +52,11 @@ static inline void resolve_coll_report(
 	}
 }
 	
+template<class T>
+inline bool between(T value, T min, T max) { return value >= min && value <= max; }
+
+// Systems implementations.
+// ------------------------
 
 namespace sys {
 
@@ -158,9 +163,9 @@ namespace sys {
 			double vx = 0, vy = 0;
 			double theta = 0;
 			
-			if(n.id == _player_controlled) {
-				vx = _player_throttle_x * 400.0;
-				vy = _player_throttle_y * 300.0;
+			if(n.id == _player.id) {
+				vx = _player.throttle_x * 400.0;
+				vy = _player.throttle_y * 300.0;
 
 			} else {
 				for(auto const& d : n.dynamics) { 
@@ -228,37 +233,44 @@ namespace sys {
 
 	// Arms system.
 	// ------------
-
+	
 	void arms_system::handle_player(uint64_t id,
 			double dt,
 			vector<comm::message>& msgs,
 			double x,
 			double y) {
 
-		if(!_player_trigger) {
-			_player_counter = 0.0;
-			return;
+		if(_player.minigun.update(dt)) {
+			if(_player.prev_left) {
+				_player.prev_left = false;
+				msgs.push_back(comm::create_spawn_bullet(
+							x + 15.0, y,
+							-1.57, 0.0,
+							-800.0,
+							false,
+							id));
+			} else {
+				_player.prev_left = true;
+				msgs.push_back(comm::create_spawn_bullet(
+							x - 15.0, y,
+							-1.57, 0.0,
+							-800.0,
+							false,
+							id));
+			}
 		}
 
-		_player_counter -= dt;
-		if(_player_counter > 0.0)
-			return;
-
-		_player_counter += _player_interval;
-		if(_player_prev_left) {
-			_player_prev_left = false;
-			msgs.push_back(comm::create_spawn_bullet(
-						x + 15.0, y,
+		if(_player.rpg.update(dt)) {
+			msgs.push_back(comm::create_spawn_missile(
+						x + 25.0, y,
 						-1.57, 0.0,
-						-800.0,
+						-300.0,
 						false,
 						id));
-		} else {
-			_player_prev_left = true;
-			msgs.push_back(comm::create_spawn_bullet(
-						x - 15.0, y,
+			msgs.push_back(comm::create_spawn_missile(
+						x - 25.0, y,
 						-1.57, 0.0,
-						-800.0,
+						-300.0,
 						false,
 						id));
 		}
@@ -270,7 +282,7 @@ namespace sys {
 			x = n.orientation->get_x();
 			y = n.orientation->get_y();
 
-			if(n.id == _player_shooting) {
+			if(n.id == _player.id) {
 				handle_player(n.id, dt, msgs, x, y);
 				continue;
 			}

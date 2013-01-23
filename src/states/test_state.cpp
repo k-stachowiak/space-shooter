@@ -36,11 +36,10 @@ using std::uniform_real_distribution;
 
 // TODO:
 // 
-// - make the pickup system remove pickups and not the pain system.
-//   - the pickups no longer have to reside in the pain system (less components!)
-//
 // - fix the weapon component so that it doesn't reset the cooldown
 //   when the trigger is hit continuously.
+//
+// - Don't pisk up health if at max already.
 //
 // - introduce drawing planes to the graphics system.
 // 

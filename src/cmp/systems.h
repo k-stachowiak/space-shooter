@@ -52,13 +52,11 @@ public:
 
 	bool update(double dt) {
 
-		if(!_trigger) {
-			_counter = 0.0;
-			return false;
+		if(_counter > 0.0) {
+			_counter -= dt;
 		}
 
-		_counter -= dt;
-		if(_counter > 0.0) {
+		if(!_trigger || _counter > 0.0) {
 			return false;
 		}
 

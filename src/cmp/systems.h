@@ -154,9 +154,13 @@ class arms_system : public system {
 		weapon minigun;
 		weapon rpg;
 
+		int bullets;
+		int rockets;
+
 	} _player;
 
-	void handle_player(uint64_t id, double dt, vector<comm::message>& msgs, double x, double y);
+	void handle_player(uint64_t id, shared_ptr<cmp::ammo> ammo,
+		       double dt, vector<comm::message>& msgs, double x, double y);
 	comm::message proc_msg(double x, double y, comm::message msg);
 public:
 	arms_system() { _player.minigun.set_interval(0.1); _player.rpg.set_interval(0.75); }
@@ -164,6 +168,7 @@ public:
 	void set_player_id(uint64_t id) { _player.id = id; }
 	void set_player_mg_trigger(bool t) { _player.minigun.set_trigger(t); }
 	void set_player_rl_trigger(bool t) { _player.rpg.set_trigger(t); }
+	int get_player_rl_ammo() const { return _player.rockets; }
 	void update(double dt, vector<comm::message>& msgs);
 };
 

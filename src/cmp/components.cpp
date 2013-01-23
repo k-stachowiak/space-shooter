@@ -293,7 +293,12 @@ public:
 		init_counter();
 	}
 
-	void update(uint64_t id, double dt, double x, double y, vector<comm::message>& msgs) {
+	void update(uint64_t id,
+			shared_ptr<ammo> ammo,
+			double dt,
+			double x,
+			double y,
+			vector<comm::message>& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
@@ -329,7 +334,12 @@ public:
 		init_counter();
 	}
 
-	void update(uint64_t id, double dt, double x, double y, vector<comm::message>& msgs) {
+	void update(uint64_t id,
+			shared_ptr<ammo> ammo,
+			double dt,
+			double x,
+			double y,
+			vector<comm::message>& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
@@ -474,6 +484,14 @@ shared_ptr<coll_queue> create_coll_queue() {
 
 shared_ptr<painmap> create_painmap(map<coll_class, double> pain_map) {
 	return make_shared<painmap>(pain_map);
+}
+
+shared_ptr<ammo> create_ammo_unlimited() {
+	return make_shared<ammo>(-1, -1);
+}
+
+shared_ptr<ammo> create_ammo(int bullets, int rockets) {
+	return make_shared<ammo>(bullets, rockets);
 }
 
 shared_ptr<wellness> create_wellness(double health) {

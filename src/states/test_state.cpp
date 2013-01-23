@@ -36,14 +36,11 @@ using std::uniform_real_distribution;
 
 // TODO:
 // 
-// - collectible missile weapon bonus.
-//   - handle second player's trigger,
-//   - 1st make the missiles unlimited ammo,
-//   - then make the missiles limited ammo (introduce
-//       ammo counter component),
-//   - indicate ammo in hud,
-//   - then create a missile ammo collectible that
-//       increases the component's value.
+// - make the pickup system remove pickups and not the pain system.
+//   - the pickups no longer have to reside in the pain system (less components!)
+//
+// - fix the weapon component so that it doesn't reset the cooldown\
+//   when the trigger is hit continuously.
 // 
 // - implement delayed events:
 //   - message has a counter,
@@ -160,6 +157,13 @@ class test_state : public state {
 					msg.spawn_health_pickup.vx,
 					msg.spawn_health_pickup.vy);
 			break;
+
+		case comm::msg_t::spawn_missiles_pickup:
+			_ef.create_missiles_pickup(msg.spawn_missiles_pickup.x,
+					msg.spawn_missiles_pickup.y,
+					msg.spawn_missiles_pickup.vx,
+					msg.spawn_missiles_pickup.vy);
+			break;
 			
 		default:
 			break;
@@ -197,6 +201,14 @@ class test_state : public state {
 			al_map_rgba_f(1.0f, 1.0f, 1.0f, 1.0f),
 			10.0f, 10.0f, 0,
 			"Score: %d", player_score);
+
+		// Ammo.
+		int player_rockets = _arms_system.get_player_rl_ammo();
+		al_draw_textf(
+			_resman.get_font(res_id::FONT),
+			al_map_rgba_f(0.333f, 0.667f, 0.333f, 1),
+			10.0f, 50.0f, 0,
+			"Rockets: %d", player_rockets);
 	
 		// Health 
 		double health_ratio = _wellness_system.

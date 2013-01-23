@@ -33,6 +33,7 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	add_bitmap(res_id::ENEMY_BOMBER, "data/enemy_bomber2.png");
 	add_bitmap(res_id::EYE_BULLET, "data/eye_bullet.png");
 	add_bitmap(res_id::MISSILE, "data/missile.png");
+	add_bitmap(res_id::MISSILES, "data/missiles.png");
 	add_bitmap(res_id::DEBRIS1, "data/debris1.png");
 	add_bitmap(res_id::DEBRIS2, "data/debris2.png");
 	add_bitmap(res_id::DEBRIS3, "data/debris3.png");

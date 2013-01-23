@@ -49,6 +49,7 @@ enum class res_id : int {
 	ENEMY_BOMBER_FLASH,
 	EYE_BULLET,
 	MISSILE,
+	MISSILES,
 	TINY_FONT,
 	FONT,
 	DEBRIS1,

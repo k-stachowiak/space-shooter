@@ -70,6 +70,7 @@ struct arms_node {
 	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;
 	vector<shared_ptr<cmp::weapon_beh>> weapon_beh;
+	shared_ptr<cmp::ammo> ammo;
 };
 
 struct collision_node {
@@ -92,12 +93,14 @@ struct pickup_node {
 	uint64_t id;
 	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::wellness> wellness;
+	shared_ptr<cmp::ammo> ammo;
 };
 
 struct wellness_node {
 	uint64_t id;
 	bool explodes;
 	bool spawn_health;
+	bool spawn_missiles;
 	uint32_t num_debris;
 	shared_ptr<cmp::orientation> orientation;
 	vector<shared_ptr<cmp::dynamics>> dynamics;

@@ -235,12 +235,21 @@ namespace sys {
 	// ------------
 	
 	void arms_system::handle_player(uint64_t id,
+			shared_ptr<cmp::ammo> ammo,
 			double dt,
 			vector<comm::message>& msgs,
 			double x,
 			double y) {
+		
+		// Store the ammo info for the core logic.
+		// ---------------------------------------
+		_player.bullets = ammo->get_bullets();
+		_player.rockets = ammo->get_rockets();
 
-		if(_player.minigun.update(dt)) {
+		// Minigun fire.
+		// -------------
+		if(_player.minigun.update(dt) && ammo->get_bullets() != 0) {
+			ammo->add_bullets(-1);
 			if(_player.prev_left) {
 				_player.prev_left = false;
 				msgs.push_back(comm::create_spawn_bullet(
@@ -260,7 +269,10 @@ namespace sys {
 			}
 		}
 
-		if(_player.rpg.update(dt)) {
+		// Rocket launcher fire.
+		// ---------------------
+		if(_player.rpg.update(dt) && ammo->get_rockets() != 0) {
+			ammo->add_rockets(-1);
 			msgs.push_back(comm::create_spawn_missile(
 						x + 25.0, y,
 						-1.57, 0.0,
@@ -283,12 +295,12 @@ namespace sys {
 			y = n.orientation->get_y();
 
 			if(n.id == _player.id) {
-				handle_player(n.id, dt, msgs, x, y);
+				handle_player(n.id, n.ammo, dt, msgs, x, y);
 				continue;
 			}
 
 			for(auto const& wb : n.weapon_beh)
-				wb->update(n.id, dt, x, y, msgs);
+				wb->update(n.id, n.ammo, dt, x, y, msgs);
 		}
 	}
 
@@ -364,6 +376,10 @@ namespace sys {
 					n.wellness->add_health(10);
 					break;
 
+				case cmp::coll_class::MISSILES_PICKUP:
+					n.ammo->add_rockets(7);
+					break;
+
 				default:
 					break;
 				}
@@ -411,6 +427,13 @@ namespace sys {
 
 				if(n.spawn_health) {
 					msgs.push_back(comm::create_spawn_health_pickup(
+								n.orientation->get_x(),
+								n.orientation->get_y(),
+								vx, vy));
+				}
+
+				if(n.spawn_missiles) {
+					msgs.push_back(comm::create_spawn_missiles_pickup(
 								n.orientation->get_x(),
 								n.orientation->get_y(),
 								vx, vy));

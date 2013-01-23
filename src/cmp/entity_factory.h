@@ -77,6 +77,7 @@ public:
 	uint64_t create_bomber();
 	uint64_t create_eye();
 	uint64_t create_health_pickup(double x, double y, double vx, double vy);
+	uint64_t create_missiles_pickup(double x, double y, double vx, double vy);
 
 	uint64_t create_missile(
 			double x, double y,

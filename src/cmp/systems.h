@@ -106,12 +106,24 @@ public:
 
 class drawing_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
-	vector<nd::drawing_node> _nodes;
+	map<cmp::draw_plane, vector<nd::drawing_node>> _nodes;
 	ALLEGRO_FONT* _debug_font;
+	void draw_plane(double dt, vector<nd::drawing_node> const& nodes);
 public:
 	drawing_system(ALLEGRO_FONT* debug_font) : _debug_font(debug_font) {}
-	void add_node(nd::drawing_node n) { _nodes.push_back(n); }
+	void add_node(nd::drawing_node n) { _nodes[n.draw_plane].push_back(n); }
 	void update(double dt);
+	friend void remove_node(drawing_system& sys, uint64_t id) {
+		for(auto& pr : sys._nodes) {
+			for(auto n = begin(pr.second); n != end(pr.second); ++n) {
+				if(n->id == id) {
+					*n = pr.second.back();
+					pr.second.pop_back();
+					--n;
+				}
+			}
+		}
+	}
 };
 
 class fx_system : public system {
@@ -161,7 +173,11 @@ class arms_system : public system {
 		       double dt, vector<comm::message>& msgs, double x, double y);
 	comm::message proc_msg(double x, double y, comm::message msg);
 public:
-	arms_system() { _player.minigun.set_interval(0.1); _player.rpg.set_interval(0.75); }
+	arms_system() {
+		_player = { 0 };
+		_player.minigun.set_interval(0.1);
+		_player.rpg.set_interval(0.75);
+	}
 	void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
 	void set_player_id(uint64_t id) { _player.id = id; }
 	void set_player_mg_trigger(bool t) { _player.minigun.set_trigger(t); }

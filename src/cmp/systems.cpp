@@ -82,13 +82,12 @@ namespace sys {
 	// Drawing system.
 	// ---------------
 
-	void drawing_system::update(double dt) {
-		al_clear_to_color(al_map_rgb_f(0.0f, 0.0f, 0.0f));
+	void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes) {
 
 		ALLEGRO_BITMAP* bmp;
 		double x, y;
 		double phi;
-		for(auto const& n : _nodes) {
+		for(auto const& n : nodes) {
 
 			n.appearance->update(dt);
 
@@ -129,6 +128,13 @@ namespace sys {
 				}
 			}
 		}
+	}
+
+	void drawing_system::update(double dt) {
+		al_clear_to_color(al_map_rgb_f(0.0f, 0.0f, 0.0f));
+		draw_plane(dt, _nodes[cmp::draw_plane::PROJECTILES]);
+		draw_plane(dt, _nodes[cmp::draw_plane::SHIPS]);
+		draw_plane(dt, _nodes[cmp::draw_plane::FX]);
 	}
 
 	// FX system.

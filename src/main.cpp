@@ -76,7 +76,7 @@ int main() {
 		application app;
 		app.loop();
 		return 0;
-	} catch (initialization_error e) {
+	} catch (initialization_error& e) {
 		cerr << "Initialization failed : " << e.what() << endl;
 		return 1;
 	}

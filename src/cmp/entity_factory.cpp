@@ -26,6 +26,8 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 
 	// Initialize components.
 	uint64_t id = ++_last_id;
+
+	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
 	
 	uint32_t frame_width = 70;
 	uint32_t num_frames = 16;
@@ -50,12 +52,12 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 	bool explodes = false; 
 	bool spawn_health = false;
 	bool spawn_missiles = false;
-	uint32_t num_debris = 0;
+	const uint32_t num_debris = 0;
 
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, explodes, spawn_health, spawn_missiles, num_debris, orientation, dynamics, wellness, ttl });
 
 	// Feedback for the state.
@@ -67,6 +69,8 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	// Initialize components.
 	uint64_t id = ++_last_id;
 
+	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
+	
 	res_id rid;
 	double scale;
 	switch(size) {
@@ -109,12 +113,12 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	bool explodes = false; 
 	bool spawn_health = false; // TODO: Come up with a common way of defining, whatever spawns on death.
 	bool spawn_missiles = false;
-	uint32_t num_debris = 0;
+	const uint32_t num_debris = 0;
 
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, explodes, spawn_health, spawn_missiles, num_debris, orientation, dynamics, wellness, ttl });
 
 	// Feedback for the state.
@@ -156,6 +160,8 @@ uint64_t entity_factory::create_debris(double x, double y, double bvx, double bv
 	// Initialize components.
 	uint64_t id = ++_last_id;
 	
+	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
+	
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(bmp),
 			_resman.get_bitmap(bmp));
@@ -178,12 +184,12 @@ uint64_t entity_factory::create_debris(double x, double y, double bvx, double bv
 	bool explodes = false; 
 	bool spawn_health = false;
 	bool spawn_missiles = false;
-	uint32_t num_debris = 0;
+	const uint32_t num_debris = 0;
 
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, explodes, spawn_health, spawn_missiles, num_debris, orientation, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 
@@ -196,6 +202,8 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// Initialize components.
 	uint64_t id = ++_last_id;
 
+	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
+	
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::PLAYER_SHIP),
 			_resman.get_bitmap(res_id::PLAYER_SHIP_FLASH));
@@ -230,12 +238,12 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	bool explodes = true; 
 	bool spawn_health = false;
 	bool spawn_missiles = false;
-	uint32_t num_debris = 10;
+	const uint32_t num_debris = 10;
 
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 
@@ -262,6 +270,8 @@ uint64_t entity_factory::create_bomber() {
 	
 	uint64_t id = ++_last_id;
 
+	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
+	
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::ENEMY_BOMBER),
 			_resman.get_bitmap(res_id::ENEMY_BOMBER_FLASH));
@@ -303,7 +313,7 @@ uint64_t entity_factory::create_bomber() {
 	bool explodes = true; 
 	bool spawn_health = true;
 	bool spawn_missiles = true;
-	uint32_t num_debris = 7;
+	const uint32_t num_debris = 7;
 
 	auto sc = cmp::score_class::ENEMY_BOMBER;
 
@@ -311,7 +321,7 @@ uint64_t entity_factory::create_bomber() {
 
 	// Register the components.
 	// ------------------------
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
@@ -380,6 +390,8 @@ uint64_t entity_factory::create_eye() {
 	// -----------------------
 	uint64_t id = ++_last_id;
 
+	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
+	
 	auto appearance = cmp::create_simple_anim(
 			_resman.get_bitmap(res_id::ENEMY_EYE),
 			_resman.get_bitmap(res_id::ENEMY_EYE_FLASH),
@@ -433,7 +445,7 @@ uint64_t entity_factory::create_eye() {
 	bool explodes = true; 
 	bool spawn_health = false;
 	bool spawn_missiles = false;
-	uint32_t num_debris = 5;
+	const uint32_t num_debris = 5;
 
 	auto sc = cmp::score_class::ENEMY_EYE;
 
@@ -441,7 +453,7 @@ uint64_t entity_factory::create_eye() {
 
 	// Register the components.
 	// ------------------------
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
@@ -473,6 +485,8 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	// ----------------------
 	uint64_t id = ++_last_id;
 
+	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
+	
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::HEALTH),
 			_resman.get_bitmap(res_id::HEALTH));
@@ -501,12 +515,12 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	bool explodes = false; 
 	bool spawn_health = false;
 	bool spawn_missiles = false;
-	uint32_t num_debris = 0;
+	const uint32_t num_debris = 0;
 
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, explodes, spawn_health, spawn_missiles, num_debris, orientation, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
@@ -535,6 +549,8 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 	// ----------------------
 	uint64_t id = ++_last_id;
 
+	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
+	
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::MISSILES),
 			_resman.get_bitmap(res_id::MISSILES));
@@ -562,12 +578,12 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 	bool explodes = false; 
 	bool spawn_health = false;
 	bool spawn_missiles = false;
-	uint32_t num_debris = 0;
+	const uint32_t num_debris = 0;
 
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Register nodes.
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics });
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, explodes, spawn_health, spawn_missiles, num_debris, orientation, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
@@ -594,6 +610,8 @@ uint64_t entity_factory::create_missile(
 
 	uint64_t id = ++_last_id;
 
+	cmp::draw_plane draw_plane = cmp::draw_plane::PROJECTILES;
+	
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::MISSILE),
 			_resman.get_bitmap(res_id::MISSILE));
@@ -620,7 +638,7 @@ uint64_t entity_factory::create_missile(
 	bool explodes = true; 
 	bool spawn_health = false;
 	bool spawn_missiles = false;
-	uint32_t num_debris = 3;
+	const uint32_t num_debris = 3;
 
 	auto pain_flash = make_shared<double>(0.0);
 
@@ -642,7 +660,7 @@ uint64_t entity_factory::create_missile(
 
 	// Register nodes.
 	// ---------------
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics }); 
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
@@ -670,6 +688,8 @@ uint64_t entity_factory::create_bullet(
 
 	uint64_t id = ++_last_id;
 
+	cmp::draw_plane draw_plane = cmp::draw_plane::PROJECTILES;
+	
 	vector<shared_ptr<cmp::dynamics>> dynamics {
 		cmp::create_const_velocity_dynamics(vx, vy)
 	};
@@ -687,7 +707,7 @@ uint64_t entity_factory::create_bullet(
 	bool explodes = false; 
 	bool spawn_health = false;
 	bool spawn_missiles = false;
-	uint32_t num_debris = 0;
+	const uint32_t num_debris = 0;
 
 	auto pain_flash = make_shared<double>(0.0);
 
@@ -714,7 +734,7 @@ uint64_t entity_factory::create_bullet(
 
 	// Register nodes.
 	// ---------------
-	_drawing_system.add_node({ id, appearance, orientation, shape, pain_flash, dynamics }); 
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 

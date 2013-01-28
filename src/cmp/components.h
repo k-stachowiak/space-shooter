@@ -64,6 +64,13 @@ public:
 // Additional types.
 // -----------------
 
+// The drawing order management.
+enum class draw_plane {
+	SHIPS,
+	FX,
+	PROJECTILES
+};
+
 // Collision class id.
 enum class coll_class {
 	PLAYER_SHIP,

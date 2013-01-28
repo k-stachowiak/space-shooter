@@ -36,10 +36,6 @@ using std::uniform_real_distribution;
 
 // TODO:
 // 
-// - Don't pisk up health if at max already.
-//
-// - introduce drawing planes to the graphics system.
-// 
 // - implement delayed events:
 //   - message has a counter,
 //   - when traversing the messages queue, the msgs
@@ -47,6 +43,8 @@ using std::uniform_real_distribution;
 //       (counter decremented).
 //   - implement multiple explosions after player dies
 //       with this mechanism.
+//
+// - BUG: health bar goes negative?
 //
 // - Improve graphics
 //   - change the ships' sprites
@@ -100,15 +98,15 @@ class test_state : public state {
 		switch(msg.type) {
 		case comm::msg_t::remove_entity:
 			id = msg.remove_entity.id;
-			sys::remove_node(_movement_system, id);
-			sys::remove_node(_collision_system, id);
-			sys::remove_node(_arms_system, id);
-			sys::remove_node(_pain_system, id);
-			sys::remove_node(_wellness_system, id);
-			sys::remove_node(_fx_system, id);
-			sys::remove_node(_drawing_system, id);
-			sys::remove_node(_score_system, id);
-			sys::remove_node(_pickup_system, id);
+			remove_node(_movement_system, id);
+			remove_node(_collision_system, id);
+			remove_node(_arms_system, id);
+			remove_node(_pain_system, id);
+			remove_node(_wellness_system, id);
+			remove_node(_fx_system, id);
+			remove_node(_drawing_system, id);
+			remove_node(_score_system, id);
+			remove_node(_pickup_system, id);
 			break;
 
 		case comm::msg_t::spawn_bullet:

@@ -43,6 +43,7 @@ struct score_node {
 
 struct drawing_node {
 	uint64_t id;
+	cmp::draw_plane draw_plane;
 	shared_ptr<cmp::appearance> appearance;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::shape> shape;

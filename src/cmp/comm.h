@@ -34,12 +34,7 @@ using std::pair;
 
 namespace comm {
 
-// The message model.
-// ------------------
-
-enum class smoke_size {
-	small, medium, big
-};
+enum class smoke_size { tiny, medium, big };
 
 enum class msg_t {
 	remove_entity,

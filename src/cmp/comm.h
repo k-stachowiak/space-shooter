@@ -25,9 +25,7 @@
 
 namespace comm {
 
-enum class smoke_size {
-	small, medium, big
-};
+enum class smoke_size { tiny, medium, big };
 
 enum class msg_t {
 	remove_entity,

@@ -1,8 +1,9 @@
 EXENAME := shoot
 
 CXX = g++
-LIBS = -lallegro_monolith
-CXXFLAGS := -Wall --std=gnu++0x -g
+# LIBS = -lallegro_monolith		# GNU/Linux
+LIBS = -lallegro-5.0.8-monolith-md	# Win
+CXXFLAGS := -Wall --std=gnu++11 -g
 
 OBJS := src/cmp/comm.o \
 	src/cmp/components.o \

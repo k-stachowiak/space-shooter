@@ -74,7 +74,7 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	res_id rid;
 	double scale;
 	switch(size) {
-		case comm::smoke_size::small:
+		case comm::smoke_size::tiny:
 			rid = res_id::SMOKE_SMALL;
 			scale = 0.5;
 			break;

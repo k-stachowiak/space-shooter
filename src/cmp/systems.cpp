@@ -142,7 +142,7 @@ namespace sys {
 	
 	void fx_system::update(
 			double dt,
-			vector<comm::message>& msgs) {
+			comm::msg_queue& msgs) {
 		double max_health;
 		double health;
 		double x, y;
@@ -163,7 +163,7 @@ namespace sys {
 	
 	void movement_system::update(
 			double dt,
-			vector<comm::message>& msgs) {
+			comm::msg_queue& msgs) {
 
 		for(auto const& n : _nodes) {
 
@@ -214,14 +214,14 @@ namespace sys {
 				mini = n.life_bounds->get_x_min();
 				maxi = n.life_bounds->get_x_max();
 				if(!between(x + dx, mini, maxi)) {
-					msgs.push_back(comm::create_remove_entity(
+					msgs.push(comm::create_remove_entity(
 								n.id));
 					continue;
 				}
 				mini = n.life_bounds->get_x_min();
 				maxi = n.life_bounds->get_y_max();
 				if(!between(y + dy, mini, maxi)) {
-					msgs.push_back(comm::create_remove_entity(
+					msgs.push(comm::create_remove_entity(
 								n.id));
 					continue;
 				}
@@ -246,7 +246,7 @@ namespace sys {
 	void arms_system::handle_player(uint64_t id,
 			shared_ptr<cmp::ammo> ammo,
 			double dt,
-			vector<comm::message>& msgs,
+			comm::msg_queue& msgs,
 			double x,
 			double y) {
 		
@@ -261,7 +261,7 @@ namespace sys {
 			ammo->add_bullets(-1);
 			if(_player.prev_left) {
 				_player.prev_left = false;
-				msgs.push_back(comm::create_spawn_bullet(
+				msgs.push(comm::create_spawn_bullet(
 							x + 15.0, y,
 							-1.57, 0.0,
 							-800.0,
@@ -269,7 +269,7 @@ namespace sys {
 							id));
 			} else {
 				_player.prev_left = true;
-				msgs.push_back(comm::create_spawn_bullet(
+				msgs.push(comm::create_spawn_bullet(
 							x - 15.0, y,
 							-1.57, 0.0,
 							-800.0,
@@ -282,13 +282,13 @@ namespace sys {
 		// ---------------------
 		if(_player.rpg.update(dt) && ammo->get_rockets() != 0) {
 			ammo->add_rockets(-1);
-			msgs.push_back(comm::create_spawn_missile(
+			msgs.push(comm::create_spawn_missile(
 						x + 25.0, y,
 						-1.57, 0.0,
 						-300.0,
 						false,
 						id));
-			msgs.push_back(comm::create_spawn_missile(
+			msgs.push(comm::create_spawn_missile(
 						x - 25.0, y,
 						-1.57, 0.0,
 						-300.0,
@@ -297,7 +297,7 @@ namespace sys {
 		}
 	}
 
-	void arms_system::update(double dt, vector<comm::message>& msgs) {
+	void arms_system::update(double dt, comm::msg_queue& msgs) {
 		double x, y;
 		for(auto const& n : _nodes) {
 			x = n.orientation->get_x();
@@ -346,7 +346,7 @@ namespace sys {
 	// Pain system.
 	// ------------
 	
-	void pain_system::update(vector<comm::message>& msgs) {
+	void pain_system::update(comm::msg_queue& msgs) {
 		for(auto const& n : _nodes) {
 			n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
 				
@@ -371,7 +371,7 @@ namespace sys {
 	// Pickup system.
 	// --------------
 	
-	void pickup_system::update(vector<comm::message>& msgs) {
+	void pickup_system::update(comm::msg_queue& msgs) {
 		for(auto const& n : _nodes) {
 			n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
 
@@ -408,7 +408,7 @@ namespace sys {
 				}
 
 				if(picked_up) {
-					msgs.push_back(comm::create_remove_entity(other_id));
+					msgs.push(comm::create_remove_entity(other_id));
 				}
 			});
 		}
@@ -417,7 +417,7 @@ namespace sys {
 	// Wellness system.
 	// ----------------
 	
-	void wellness_system::update(double dt, vector<comm::message>& msgs) {
+	void wellness_system::update(double dt, comm::msg_queue& msgs) {
 		for(auto const& n : _nodes) {
 
 			if(n.wellness) {
@@ -440,7 +440,7 @@ namespace sys {
 			if(died) {
 
 				if(n.explodes) {
-					msgs.push_back(comm::create_spawn_explosion(
+					msgs.push(comm::create_spawn_explosion(
 								n.orientation->get_x(),
 								n.orientation->get_y()));
 				}
@@ -453,27 +453,27 @@ namespace sys {
 				}
 
 				if(n.spawn_health) {
-					msgs.push_back(comm::create_spawn_health_pickup(
+					msgs.push(comm::create_spawn_health_pickup(
 								n.orientation->get_x(),
 								n.orientation->get_y(),
 								vx, vy));
 				}
 
 				if(n.spawn_missiles) {
-					msgs.push_back(comm::create_spawn_missiles_pickup(
+					msgs.push(comm::create_spawn_missiles_pickup(
 								n.orientation->get_x(),
 								n.orientation->get_y(),
 								vx, vy));
 				}
 
 				for(uint32_t i = 0; i < n.num_debris; ++i) {
-					msgs.push_back(comm::create_spawn_debris(
+					msgs.push(comm::create_spawn_debris(
 								n.orientation->get_x(),
 								n.orientation->get_y(),
 								vx, vy));
 				}
 				
-				msgs.push_back(comm::create_remove_entity(n.id));
+				msgs.push(comm::create_remove_entity(n.id));
 			}
 		}
 	}

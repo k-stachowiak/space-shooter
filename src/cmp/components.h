@@ -43,6 +43,7 @@ using std::for_each;
 
 namespace comm {
 	class message;
+	class msg_queue;
 }
 
 namespace cmp {
@@ -260,7 +261,7 @@ public:
 			shared_ptr<ammo> ammo,
 			double dt,
 			double x, double y,
-			vector<comm::message>& msgs) = 0;
+			comm::msg_queue& msgs) = 0;
 };
 
 // FX base.
@@ -273,7 +274,7 @@ public:
 			double dt,
 			double health_ratio,
 			double x, double y,
-			vector<comm::message>& msgs) = 0;
+			comm::msg_queue& msgs) = 0;
 };
 
 // Constructors.

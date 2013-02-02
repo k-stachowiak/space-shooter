@@ -23,7 +23,19 @@
 
 #include <stdint.h>
 
+#include <functional>
+using std::function;
+
+#include <vector>
+using std::vector;
+
+#include <utility>
+using std::pair;
+
 namespace comm {
+
+// The message model.
+// ------------------
 
 enum class smoke_size {
 	small, medium, big
@@ -89,14 +101,55 @@ struct message {
 	} spawn_missiles_pickup;
 };
 
-message create_spawn_bullet(double x, double y, double theta, double vx, double vy, bool enemy, uint64_t origin_id);
-message create_spawn_missile(double x, double y, double theta, double vx, double vy, bool enemy, uint64_t origin_id);
+message create_spawn_bullet(
+		double x, double y, 
+		double theta, 
+		double vx, double vy, 
+		bool enemy, 
+		uint64_t origin_id);
+
+message create_spawn_missile(
+		double x, double y,
+		double theta,
+		double vx, double vy,
+		bool enemy,
+		uint64_t origin_id);
+
 message create_spawn_explosion(double x, double y);
 message create_spawn_smoke(double x, double y, smoke_size size);
 message create_spawn_debris(double x, double y, double vx, double vy);
 message create_spawn_health_pickup(double x, double y, double vx, double vy);
 message create_spawn_missiles_pickup(double x, double y, double vx, double vy);
 message create_remove_entity(uint64_t id);
+
+// The message queue container.
+// ----------------------------
+
+class msg_queue {
+	vector<pair<double, message>> _msgs;
+public:
+	void push(message const& m, double delay) {
+		_msgs.push_back(pair<double, message>(delay, m));
+	}
+
+	void push(message const& m) { push(m, 0.0); }
+
+	template<class MsgCallback>
+	void for_each_msg(double dt, MsgCallback mc) {
+		for(std::size_t i = 0; i < _msgs.size();) {
+			auto& pr = _msgs[i];
+			if(pr.first > 0.0) {
+				pr.first -= dt;
+				++i;
+			} else {
+				mc(pr.second);
+				_msgs[i] = move(_msgs.back());
+				_msgs.pop_back();
+				// Note: no incrementation.
+			}
+		}
+	}
+};
 
 }
 

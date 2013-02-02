@@ -298,11 +298,11 @@ public:
 			double dt,
 			double x,
 			double y,
-			vector<comm::message>& msgs) {
+			comm::msg_queue& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
-			msgs.push_back(comm::create_spawn_bullet(
+			msgs.push(comm::create_spawn_bullet(
 						x, y,
 						1.57, 0.0,
 						800.0,
@@ -339,11 +339,11 @@ public:
 			double dt,
 			double x,
 			double y,
-			vector<comm::message>& msgs) {
+			comm::msg_queue& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
-			msgs.push_back(comm::create_spawn_missile(
+			msgs.push(comm::create_spawn_missile(
 						x + _x_offset,
 						y + _y_offset,
 						1.57, 0.0,
@@ -369,7 +369,7 @@ public:
 	void update(double dt, 
 			double health_ratio,
 			double x, double y,
-			vector<comm::message>& msgs) {
+			comm::msg_queue& msgs) {
 
 		if(health_ratio > _pain_threshold)
 			return;
@@ -380,7 +380,7 @@ public:
 		for(uint32_t i = 0; i < _timer.get_ticks(); ++i) {
 			double dx = dist(rnd::engine);
 			double dy = dist(rnd::engine);
-			msgs.push_back(comm::create_spawn_smoke(
+			msgs.push(comm::create_spawn_smoke(
 						x + dx, y + dy,
 						comm::smoke_size::medium));
 		}
@@ -408,11 +408,11 @@ public:
 	void update(	double dt,
 			double health_ratio,
 			double x, double y,
-			vector<comm::message>& msgs) {
+			comm::msg_queue& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
-			msgs.push_back(comm::create_spawn_smoke(x, y, comm::smoke_size::small));
+			msgs.push(comm::create_spawn_smoke(x, y, comm::smoke_size::small));
 		}
 	}
 };

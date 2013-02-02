@@ -66,7 +66,7 @@ class test_state : public state {
 	map<int, bool> _keys;
 	bool _done;
 	uint64_t _player_id;
-	vector<comm::message> _messages;
+	comm::msg_queue _messages;
 
 	// Generation processes.
 	// ---------------------
@@ -93,77 +93,81 @@ class test_state : public state {
 	// Message handling.
 	// -----------------
 
-	void handle_message(comm::message const& msg) {
-		uint64_t id;
-		switch(msg.type) {
-		case comm::msg_t::remove_entity:
-			id = msg.remove_entity.id;
-			remove_node(_movement_system, id);
-			remove_node(_collision_system, id);
-			remove_node(_arms_system, id);
-			remove_node(_pain_system, id);
-			remove_node(_wellness_system, id);
-			remove_node(_fx_system, id);
-			remove_node(_drawing_system, id);
-			remove_node(_score_system, id);
-			remove_node(_pickup_system, id);
-			break;
+	void handle_messages(double dt) {
 
-		case comm::msg_t::spawn_bullet:
-			_ef.create_bullet(msg.spawn_bullet.x,
-					msg.spawn_bullet.y,
-					msg.spawn_bullet.theta,
-					msg.spawn_bullet.vx,
-					msg.spawn_bullet.vy,
-					msg.spawn_bullet.enemy,
-					msg.spawn_bullet.origin_id);
-			break;
+		_messages.for_each_msg(dt, [this](comm::message const& msg) {
 
-		case comm::msg_t::spawn_missile:
-			_ef.create_missile(msg.spawn_missile.x,
-					msg.spawn_missile.y,
-					msg.spawn_missile.theta,
-					msg.spawn_missile.vx,
-					msg.spawn_missile.vy,
-					msg.spawn_missile.enemy,
-					msg.spawn_missile.origin_id);
-			break;
+			uint64_t id;
+			switch(msg.type) {
+			case comm::msg_t::remove_entity:
+				id = msg.remove_entity.id;
+				remove_node(_movement_system, id);
+				remove_node(_collision_system, id);
+				remove_node(_arms_system, id);
+				remove_node(_pain_system, id);
+				remove_node(_wellness_system, id);
+				remove_node(_fx_system, id);
+				remove_node(_drawing_system, id);
+				remove_node(_score_system, id);
+				remove_node(_pickup_system, id);
+				break;
 
-		case comm::msg_t::spawn_explosion:
-			_ef.create_explosion(msg.spawn_explosion.x,
-					msg.spawn_explosion.y);
-			break;
+			case comm::msg_t::spawn_bullet:
+				_ef.create_bullet(msg.spawn_bullet.x,
+						msg.spawn_bullet.y,
+						msg.spawn_bullet.theta,
+						msg.spawn_bullet.vx,
+						msg.spawn_bullet.vy,
+						msg.spawn_bullet.enemy,
+						msg.spawn_bullet.origin_id);
+				break;
 
-		case comm::msg_t::spawn_smoke:
-			_ef.create_smoke(msg.spawn_smoke.x,
-				     msg.spawn_smoke.y,
-				     msg.spawn_smoke.size);
-			break;
+			case comm::msg_t::spawn_missile:
+				_ef.create_missile(msg.spawn_missile.x,
+						msg.spawn_missile.y,
+						msg.spawn_missile.theta,
+						msg.spawn_missile.vx,
+						msg.spawn_missile.vy,
+						msg.spawn_missile.enemy,
+						msg.spawn_missile.origin_id);
+				break;
 
-		case comm::msg_t::spawn_debris:
-			_ef.create_debris(msg.spawn_debris.x,
-					msg.spawn_debris.y,
-					msg.spawn_debris.vx,
-					msg.spawn_debris.vy);
-			break;
+			case comm::msg_t::spawn_explosion:
+				_ef.create_explosion(msg.spawn_explosion.x,
+						msg.spawn_explosion.y);
+				break;
 
-		case comm::msg_t::spawn_health_pickup:
-			_ef.create_health_pickup(msg.spawn_health_pickup.x,
-					msg.spawn_health_pickup.y,
-					msg.spawn_health_pickup.vx,
-					msg.spawn_health_pickup.vy);
-			break;
+			case comm::msg_t::spawn_smoke:
+				_ef.create_smoke(msg.spawn_smoke.x,
+					     msg.spawn_smoke.y,
+					     msg.spawn_smoke.size);
+				break;
 
-		case comm::msg_t::spawn_missiles_pickup:
-			_ef.create_missiles_pickup(msg.spawn_missiles_pickup.x,
-					msg.spawn_missiles_pickup.y,
-					msg.spawn_missiles_pickup.vx,
-					msg.spawn_missiles_pickup.vy);
-			break;
-			
-		default:
-			break;
-		}
+			case comm::msg_t::spawn_debris:
+				_ef.create_debris(msg.spawn_debris.x,
+						msg.spawn_debris.y,
+						msg.spawn_debris.vx,
+						msg.spawn_debris.vy);
+				break;
+
+			case comm::msg_t::spawn_health_pickup:
+				_ef.create_health_pickup(msg.spawn_health_pickup.x,
+						msg.spawn_health_pickup.y,
+						msg.spawn_health_pickup.vx,
+						msg.spawn_health_pickup.vy);
+				break;
+
+			case comm::msg_t::spawn_missiles_pickup:
+				_ef.create_missiles_pickup(msg.spawn_missiles_pickup.x,
+						msg.spawn_missiles_pickup.y,
+						msg.spawn_missiles_pickup.vx,
+						msg.spawn_missiles_pickup.vy);
+				break;
+				
+			default:
+				break;
+			}
+		});
 	}
 
 	// GUI drawing.
@@ -302,10 +306,9 @@ public:
 		draw_hud();
 
 		// Handle messages.
-		while(!_messages.empty()) {
-			handle_message(_messages.back());
-			_messages.pop_back();
-		}
+		// TODO: this will decrease the timers of the jsut inserted messages
+		// 	how to deal with this? handle messages up front?
+		handle_messages(dt);
 	}
 
 	void key_up(int k) {

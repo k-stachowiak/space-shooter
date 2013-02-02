@@ -55,6 +55,7 @@ allegro::allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps) {
 
 	// Display initialization.
 	// -----------------------
+	al_set_new_display_flags(ALLEGRO_WINDOWED | ALLEGRO_OPENGL_3_0);
 	_display = al_create_display(scr_w, scr_h);
 	if(!_display) {
 		throw initialization_error("Failed initializing allegro display");

@@ -131,7 +131,7 @@ class fx_system : public system {
 	vector<nd::fx_node> _nodes;
 public:
 	void add_node(nd::fx_node n) { _nodes.push_back(n); }
-	void update(double dt, vector<comm::message>& msgs);
+	void update(double dt, comm::msg_queue& msgs);
 };
 
 class movement_system : public system {
@@ -148,7 +148,7 @@ public:
 	void add_node(nd::movement_node n) { _nodes.push_back(n); }
 	void set_player_id(uint64_t id) { _player.id = id; }
 	void set_player_throttle(double x, double y) { _player.throttle_x = x; _player.throttle_y = y; }
-	void update(double dt, vector<comm::message>& msgs);
+	void update(double dt, comm::msg_queue& msgs);
 };
 
 class arms_system : public system {
@@ -170,7 +170,7 @@ class arms_system : public system {
 	} _player;
 
 	void handle_player(uint64_t id, shared_ptr<cmp::ammo> ammo,
-		       double dt, vector<comm::message>& msgs, double x, double y);
+		       double dt, comm::msg_queue& msgs, double x, double y);
 	comm::message proc_msg(double x, double y, comm::message msg);
 public:
 	arms_system() {
@@ -183,7 +183,7 @@ public:
 	void set_player_mg_trigger(bool t) { _player.minigun.set_trigger(t); }
 	void set_player_rl_trigger(bool t) { _player.rpg.set_trigger(t); }
 	int get_player_rl_ammo() const { return _player.rockets; }
-	void update(double dt, vector<comm::message>& msgs);
+	void update(double dt, comm::msg_queue& msgs);
 };
 
 class collision_system : public system {
@@ -200,7 +200,7 @@ class pain_system : public system {
 	vector<nd::pain_node> _nodes;
 public:
 	void add_node(nd::pain_node node) { _nodes.push_back(node); }
-	void update(vector<comm::message>& msgs);
+	void update(comm::msg_queue& msgs);
 };
 
 class pickup_system : public system {
@@ -208,7 +208,7 @@ class pickup_system : public system {
 	vector<nd::pickup_node> _nodes;
 public:
 	void add_node(nd::pickup_node node) { _nodes.push_back(node); }
-	void update(vector<comm::message>& msgs);
+	void update(comm::msg_queue& msgs);
 };
 
 class wellness_system : public system {
@@ -218,7 +218,7 @@ class wellness_system : public system {
 	vector<nd::wellness_node> _nodes;
 public:
 	void add_node(nd::wellness_node node) { _nodes.push_back(node); }
-	void update(double dt, vector<comm::message>& msgs);
+	void update(double dt, comm::msg_queue& msgs);
 	double get_ent_health(uint64_t id) { return _entity_health_map[id]; }
 	double get_ent_health_ratio(uint64_t id) {
 		return _entity_health_map[id] / _entity_max_health_map[id];

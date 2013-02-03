@@ -209,6 +209,9 @@ class test_state : public state {
 		double health_ratio = _wellness_system.
 			get_ent_health_ratio(_player_id);
 
+		if(health_ratio < 0.0)
+			health_ratio = 0.0;
+
 		draw_bar(10.0, health_ratio, health_color(health_ratio));
 	}
 

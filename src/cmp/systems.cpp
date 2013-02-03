@@ -85,30 +85,22 @@ namespace sys {
 
 	void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes) {
 
-		ALLEGRO_BITMAP* bmp;
 		double x, y;
 		double phi;
 		for(auto const& n : nodes) {
 
 			n.appearance->update(dt);
 
-			if(*(n.pain_flash) > 0.0) {
-				bmp = n.appearance->flash();
-				*(n.pain_flash) -= dt;
-			} else {
-				bmp = n.appearance->bitmap();
-			}
-
 			x = n.orientation->get_x();
 			y = n.orientation->get_y();
 			phi = n.orientation->get_phi();
 
-			int w = al_get_bitmap_width(bmp);
-			int h = al_get_bitmap_height(bmp);
-
-			al_draw_rotated_bitmap(bmp, 
-					w >> 1, h >> 1,
-					x, y, phi, 0);
+			if(*(n.pain_flash) > 0.0) {
+				n.appearance->draw_flash(x, y, phi);
+				*(n.pain_flash) -= dt;
+			} else {
+				n.appearance->draw(x, y, phi);
+			}
 
 			if(_debug_mode && n.shape) {
 				n.shape->debug_draw();
@@ -133,8 +125,9 @@ namespace sys {
 
 	void drawing_system::update(double dt) {
 		al_clear_to_color(al_map_rgb_f(0.0f, 0.0f, 0.0f));
-		draw_plane(dt, _nodes[cmp::draw_plane::PROJECTILES]);
+		draw_plane(dt, _nodes[cmp::draw_plane::BACKGROUND]);
 		draw_plane(dt, _nodes[cmp::draw_plane::SHIPS]);
+		draw_plane(dt, _nodes[cmp::draw_plane::PROJECTILES]);
 		draw_plane(dt, _nodes[cmp::draw_plane::FX]);
 	}
 

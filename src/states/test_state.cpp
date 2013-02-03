@@ -36,13 +36,7 @@ using std::uniform_real_distribution;
 
 // TODO:
 // 
-// - BUG: health bar goes negative?
-//
-// - Non drawn bullets (visibility / efficiency)
-//
-// - Improve graphics
-//   - change the ships' sprites
-//   - add stars and extraterrestial bodies (nebulas?)
+// - [ON HOLD] Non drawn bullets (visibility / efficiency)
 //
 // - Adjust the collision shapes and sizes.
 //
@@ -67,6 +61,7 @@ class test_state : public state {
 	// ---------------------
 	random_clock<uniform_real_distribution<double>> _eye_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _bomber_spawn_clk;
+	random_clock<uniform_real_distribution<double>> _star_spawn_clk;
 
 	// Systems.
 	// --------
@@ -226,6 +221,9 @@ public:
 	, _bomber_spawn_clk(
 		uniform_real_distribution<double>(5.0, 7.0),
 		bind(&entity_factory::create_bomber, &_ef))
+	, _star_spawn_clk(
+		uniform_real_distribution<double>(0.125, 0.25),
+		bind(&entity_factory::create_star, &_ef))
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
 	, _ef(_config,
 		_resman,
@@ -250,6 +248,8 @@ public:
 		_player_id = _ef.create_player_ship(200.0, 200.0);
 		_movement_system.set_player_id(_player_id);
 		_arms_system.set_player_id(_player_id);
+
+		_ef.create_star();
 	}
 
 	void sigkill() { _done = true; }
@@ -261,6 +261,7 @@ public:
 		// Trigger the clocks.
 		_eye_spawn_clk.tick(dt);
 		_bomber_spawn_clk.tick(dt);
+		_star_spawn_clk.tick(dt);
 
 		// Update the player's throttle.
 		double player_throttle_x = 0.0;

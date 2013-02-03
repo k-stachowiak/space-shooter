@@ -153,7 +153,7 @@ uint64_t entity_factory::create_debris(double x, double y, double bvx, double bv
 	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
 	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	static uniform_real_distribution<double> rot_dist(40.0, 70.0);
+	static uniform_real_distribution<double> rot_dist(4.0, 7.0);
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
@@ -194,6 +194,45 @@ uint64_t entity_factory::create_debris(double x, double y, double bvx, double bv
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 
 	// Feedback for the state.
+	return id;
+}
+
+uint64_t entity_factory::create_star() {
+
+	// Helpers
+	uniform_real_distribution<double> uni_dist;
+	double grade = uni_dist(rnd::engine);
+
+	double vy = 200.0 * (grade * 0.5 + 0.5);
+	double shade = grade * 0.9 + 0.1;
+	
+	double x = uni_dist(rnd::engine) * _config.get_screen_w();
+	
+	// Initialize components.
+	uint64_t id = ++_last_id;
+
+	cmp::draw_plane draw_plane = cmp::draw_plane::BACKGROUND;
+
+	auto appearance = cmp::create_pixel(shade, shade, shade);
+
+	auto orientation = cmp::create_orientation(x, 1.0, 0.0);
+
+	auto pain_flash = make_shared<double>(0.0);
+
+	shared_ptr<cmp::shape> shape;
+
+	vector<shared_ptr<cmp::dynamics>> dynamics {
+		cmp::create_const_velocity_dynamics(0.0, vy),
+	};
+
+	auto movement_bounds = shared_ptr<cmp::bounds>(); 
+	auto life_bounds = cmp::create_bounds(
+		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
+
+	// Register nodes.
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
+
 	return id;
 }
 

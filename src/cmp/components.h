@@ -68,6 +68,7 @@ public:
 
 // The drawing order management.
 enum class draw_plane {
+	BACKGROUND,
 	SHIPS,
 	FX,
 	PROJECTILES
@@ -230,8 +231,8 @@ class appearance {
 public:
 	virtual ~appearance() {}
 	virtual void update(double dt) = 0;
-	virtual ALLEGRO_BITMAP* bitmap() const = 0;
-	virtual ALLEGRO_BITMAP* flash() const = 0;
+	virtual void draw(double x, double y, double phi) const = 0;
+	virtual void draw_flash(double x, double y, double phi) const = 0;
 };
 
 // Dynamics base.
@@ -301,6 +302,8 @@ shared_ptr<wellness> create_wellness(double health);
 shared_ptr<timer> create_const_int_timer(double interval);
 
 // Appearance classes.
+
+shared_ptr<appearance> create_pixel(double r, double g, double b);
 
 shared_ptr<appearance> create_static_bmp(
 		ALLEGRO_BITMAP* bmp,

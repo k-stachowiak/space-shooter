@@ -1,4 +1,4 @@
-/* Copyright (C) 2012 Krzysztof Stachowiak */
+/* Copyright (C) 2012,2013 Krzysztof Stachowiak */
 
 /*
 * This file is part of space-shooter.
@@ -61,14 +61,42 @@ public:
 // Appearance classes.
 // -------------------
 
+class pixel : public appearance {
+	double _r, _g, _b;
+public:
+	pixel(double r, double g, double b) : _r(r), _g(g), _b(b) {}
+
+	void update(double dt) {}
+
+	void draw(double x, double y, double phi) const {
+		al_draw_pixel(x + 0.5, y + 0.5, al_map_rgb_f(_r, _g, _b));
+	}
+
+	void draw_flash(double x, double y, double phi) const {}
+};
+
 class static_bmp : public appearance {
 	ALLEGRO_BITMAP* _bmp;
 	ALLEGRO_BITMAP* _flsh;
 public:
 	static_bmp(ALLEGRO_BITMAP* bmp, ALLEGRO_BITMAP* flsh) : _bmp(bmp), _flsh(flsh) {}
 	void update(double) {}
-	ALLEGRO_BITMAP* bitmap() const { return _bmp; }
-	ALLEGRO_BITMAP* flash() const { return _flsh; }
+
+	void draw(double x, double y, double phi) const {
+		int w = al_get_bitmap_width(_bmp);
+		int h = al_get_bitmap_height(_bmp);
+		al_draw_rotated_bitmap(_bmp, 
+				w / 2, h / 2,
+				x, y, phi, 0);
+	}
+
+	void draw_flash(double x, double y, double phi) const {
+		int w = al_get_bitmap_width(_flsh);
+		int h = al_get_bitmap_height(_flsh);
+		al_draw_rotated_bitmap(_flsh, 
+				w / 2, h / 2,
+				x, y, phi, 0);
+	}
 };
 
 class simple_anim : public appearance {
@@ -170,15 +198,22 @@ public:
 		}
 	}
 
-	ALLEGRO_BITMAP* bitmap() const {
+	void draw(double x, double y, double phi) const {
 		uint32_t current_index = _frame_defs[_current_def].index;
-		return _frame_images[current_index];
+		ALLEGRO_BITMAP* bmp = _frame_images[current_index];
+		int w = al_get_bitmap_width(bmp);
+		int h = al_get_bitmap_height(bmp);
+		al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
 	}
 
-	ALLEGRO_BITMAP* flash() const {
+	void draw_flash(double x, double y, double phi) const {
 		uint32_t current_index = _frame_defs[_current_def].index;
-		return _flash_images[current_index];
+		ALLEGRO_BITMAP* bmp = _flash_images[current_index];
+		int w = al_get_bitmap_width(bmp);
+		int h = al_get_bitmap_height(bmp);
+		al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
 	}
+
 };
 
 // Dynamics classes.
@@ -547,6 +582,10 @@ shared_ptr<timer> create_const_int_timer(double interval) {
 }
 
 // Apperarance classes.
+
+shared_ptr<appearance> create_pixel(double r, double g, double b) {
+	return shared_ptr<appearance>(new pixel(r, g, b));
+}
 
 shared_ptr<appearance> create_static_bmp(
 		ALLEGRO_BITMAP* bmp,

@@ -1,4 +1,4 @@
-/* Copyright (C) 2012 Krzysztof Stachowiak */
+/* Copyright (C) 2012,2013 Krzysztof Stachowiak */
 
 /*
 * This file is part of space-shooter.
@@ -27,7 +27,7 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	// -----------------------------------------------------
 	
 	// Load simple images.
-	add_bitmap(res_id::PLAYER_SHIP, "data/ship_from_internetz.png");
+	add_bitmap(res_id::PLAYER_SHIP, "data/player_ship.png");
 	add_bitmap(res_id::PLAYER_BULLET, "data/player_bullet.png");
 	add_bitmap(res_id::ENEMY_EYE, "data/enemy_eye.png");
 	add_bitmap(res_id::ENEMY_BOMBER, "data/enemy_bomber2.png");

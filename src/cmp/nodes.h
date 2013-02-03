@@ -99,9 +99,9 @@ struct pickup_node {
 
 struct wellness_node {
 	uint64_t id;
-	bool explodes;
 	bool spawn_health;
 	bool spawn_missiles;
+	uint32_t num_explosions;
 	uint32_t num_debris;
 	shared_ptr<cmp::orientation> orientation;
 	vector<shared_ptr<cmp::dynamics>> dynamics;

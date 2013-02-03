@@ -412,7 +412,7 @@ public:
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
-			msgs.push(comm::create_spawn_smoke(x, y, comm::smoke_size::small));
+			msgs.push(comm::create_spawn_smoke(x, y, comm::smoke_size::tiny));
 		}
 	}
 };

@@ -28,6 +28,7 @@ using std::string;
 #include <random>
 using std::uniform_real_distribution;
 using std::bernoulli_distribution;
+using std::exponential_distribution;
 
 #include "systems.h"
 #include "../misc/rand.h"
@@ -54,7 +55,7 @@ static inline void resolve_coll_report(
 		other_origin_id = report.a.origin_id;
 	}
 }
-	
+
 template<class T>
 inline bool between(T value, T min, T max) { return value >= min && value <= max; }
 
@@ -439,18 +440,27 @@ namespace sys {
 
 			if(died) {
 
-				if(n.explodes) {
+				// Handle explosions.
+				uniform_real_distribution<double> delay_dist(0.125, 0.25);
+				uniform_real_distribution<double> dxy_dist(-10.0, 10.0);
+				double delay = 0.0;
+				for(uint32_t i = 0; i < n.num_explosions; ++i) {
 					msgs.push(comm::create_spawn_explosion(
-								n.orientation->get_x(),
-								n.orientation->get_y()));
+							n.orientation->get_x() + dxy_dist(rnd::engine), 
+							n.orientation->get_y() + dxy_dist(rnd::engine)),
+						  delay);
+					delay += delay_dist(rnd::engine);
 				}
 
+				// Read the velocity.
 				double vx = 0;
 				double vy = 0;
 				for(auto const& d : n.dynamics) {
 					vx += d->get_vx();
 					vy += d->get_vy();
 				}
+
+				// Simple spawns.
 
 				if(n.spawn_health) {
 					msgs.push(comm::create_spawn_health_pickup(

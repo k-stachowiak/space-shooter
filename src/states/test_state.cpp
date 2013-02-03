@@ -36,15 +36,12 @@ using std::uniform_real_distribution;
 
 // TODO:
 // 
-// - implement delayed events:
-//   - message has a counter,
-//   - when traversing the messages queue, the msgs
-//       with positive counter are skipped
-//       (counter decremented).
-//   - implement multiple explosions after player dies
-//       with this mechanism.
+// - adjust the size of the bomber bitmap, and it's shape 
+//     (implement rectangle and collisions)
 //
 // - BUG: health bar goes negative?
+//
+// - Non drawn bullets (visibility / efficiency)
 //
 // - Improve graphics
 //   - change the ships' sprites
@@ -53,6 +50,7 @@ using std::uniform_real_distribution;
 // - Adjust the collision shapes and sizes.
 //
 // - Debris made of the graphics' pieces :)
+// - Cascade explosions
 
 class test_state : public state {
 

@@ -36,9 +36,6 @@ using std::uniform_real_distribution;
 
 // TODO:
 // 
-// - adjust the size of the bomber bitmap, and it's shape 
-//     (implement rectangle and collisions)
-//
 // - BUG: health bar goes negative?
 //
 // - Non drawn bullets (visibility / efficiency)

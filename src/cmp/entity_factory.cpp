@@ -287,7 +287,11 @@ uint64_t entity_factory::create_bomber() {
 		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
 
 	auto cc = cmp::coll_class::ENEMY_SHIP; 
-	auto shape = cmp::create_circle(x, y, 32.0); 
+
+	auto c1 = cmp::create_circle(x, y - 20.0, 30.0); 
+	auto c2 = cmp::create_circle(x, y + 20.0, 30.0); 
+	auto shape = cmp::create_complex_shape({ c1, c2 });
+
 	auto coll_queue = cmp::create_coll_queue();
 
 	vector<shared_ptr<cmp::weapon_beh>> weapon_beh {

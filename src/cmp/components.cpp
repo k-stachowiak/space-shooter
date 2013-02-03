@@ -454,6 +454,48 @@ public:
 	}
 };
 
+class complex_shape : public shape {
+	vector<shared_ptr<shape>> _shapes;
+public:
+	complex_shape(vector<shared_ptr<shape>> shapes) : _shapes(shapes) {}
+
+	void shift(double dx, double dy) {
+		for(auto& s : _shapes) {
+			s->shift(dx, dy);
+		}
+	}
+	
+	void rotate(double) {
+		// Rotation not implemented.
+		// Should more sophisticated geometry be applied,
+		// use a 3rd party library...
+	}
+
+	bool collides_with(shape const& shp) const {
+		for(auto& s : _shapes) {
+			if(s->collides_with(shp)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool collides_with_circle(circle const& c) const {
+		for(auto& s : _shapes) {
+			if(s->collides_with_circle(c)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void debug_draw() {
+		for(auto& s : _shapes) {
+			s->debug_draw();
+		}
+	}
+};
+
 // Collision implementations.
 // --------------------------
 
@@ -547,6 +589,10 @@ shared_ptr<dynamics> create_path_dynamics(vector<point> points) {
 
 shared_ptr<shape> create_circle(double x, double y, double r) {
 	return shared_ptr<shape>(new circle(x, y, r));
+}
+
+shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes) {
+	return shared_ptr<shape>(new complex_shape(shapes));
 }
 
 // Weapon behavior classes.

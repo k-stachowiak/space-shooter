@@ -52,6 +52,7 @@ namespace cmp {
 // -----------
 
 class circle;
+class complex_shape;
 
 class shape {
 public:
@@ -324,6 +325,7 @@ shared_ptr<dynamics> create_path_dynamics(vector<point> points);
 // Shape classes.
 
 shared_ptr<shape> create_circle(double x, double y, double r);
+shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes);
 
 // Weapon behavior classes.
 

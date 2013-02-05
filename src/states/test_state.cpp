@@ -38,11 +38,10 @@ using std::uniform_real_distribution;
 // 
 // - [ON HOLD] Non drawn bullets (visibility / efficiency)
 //
-// - Enhance the means of defining of whatever is dropped upon the object's death.
-//     - on_death_component [(delay, message)]
-//
 // - Debris made of the graphics' pieces :)
 // - Cascade explosions
+//
+// - Select a consistent graphics set and redesign the enemies for it.
 
 class test_state : public state {
 
@@ -138,7 +137,8 @@ class test_state : public state {
 				_ef.create_debris(msg.spawn_debris.x,
 						msg.spawn_debris.y,
 						msg.spawn_debris.vx,
-						msg.spawn_debris.vy);
+						msg.spawn_debris.vy,
+						msg.spawn_debris.image);
 				break;
 
 			case comm::msg_t::spawn_health_pickup:

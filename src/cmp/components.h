@@ -308,7 +308,7 @@ shared_ptr<ammo> create_ammo(int bullets, int rockets);
 shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs);
 shared_ptr<reaction> create_health_drop_reaction();
 shared_ptr<reaction> create_missile_drop_reaction();
-shared_ptr<reaction> create_debris_reaction(uint32_t num_debris);
+shared_ptr<reaction> create_debris_reaction(uint32_t num_debris, vector<res_id> images);
 shared_ptr<reaction> create_explosion_sequence_reaction(uint32_t num_explosions);
 
 shared_ptr<wellness> create_wellness(double health);
@@ -336,11 +336,8 @@ shared_ptr<appearance> create_simple_anim(
 // Dynamic classes.
 
 shared_ptr<dynamics> create_complex_dynamics(vector<shared_ptr<dynamics>> ds);
-
 shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy);
-
 shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta);
-
 shared_ptr<dynamics> create_path_dynamics(vector<point> points);
 
 // Shape classes.
@@ -351,9 +348,7 @@ shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes);
 // Weapon behavior classes.
 
 shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs);
-
 shared_ptr<weapon_beh> create_period_bullet(double dt_min, double dt_max);
-
 shared_ptr<weapon_beh> create_period_missile(
 		double dt_min, double dt_max,
 		double x_off, double y_off);
@@ -361,7 +356,6 @@ shared_ptr<weapon_beh> create_period_missile(
 // Fx classes.
 
 shared_ptr<fx> create_smoke_when_hurt(double pain_threshold);
-
 shared_ptr<fx> create_period_smoke(double dt_min, double dt_max);
 
 }

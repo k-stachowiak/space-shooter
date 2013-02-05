@@ -121,20 +121,7 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	return id;
 }
 
-uint64_t entity_factory::create_debris(double x, double y, double bvx, double bvy) {
-
-	// Prepare helpers.
-	vector<res_id> bitmaps {
-		res_id::DEBRIS1,
-		res_id::DEBRIS2,
-		res_id::DEBRIS3,
-		res_id::DEBRIS4,
-		res_id::DEBRIS5 };
-
-	// Bitmap selection.
-	static uniform_int_distribution<int> bmp_dist(0, bitmaps.size() - 1);
-	uint32_t index = bmp_dist(rnd::engine);
-	res_id bmp = bitmaps[index];
+uint64_t entity_factory::create_debris(double x, double y, double bvx, double bvy, res_id bmp) {
 
 	// TTL generation.
 	static uniform_real_distribution<double> ttl_dist(1.0, 3.0);
@@ -264,7 +251,12 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
 	auto on_death = cmp::create_complex_reaction({
-			cmp::create_debris_reaction(10),
+			cmp::create_debris_reaction(10, {
+				res_id::DEBRIS1,
+				res_id::DEBRIS2,
+				res_id::DEBRIS3,
+				res_id::DEBRIS4,
+				res_id::DEBRIS5 }),
 			cmp::create_explosion_sequence_reaction(7) });
 
 	auto pain_flash = make_shared<double>(0.0);
@@ -341,7 +333,11 @@ uint64_t entity_factory::create_bomber() {
 	auto on_death = cmp::create_complex_reaction({
 			cmp::create_health_drop_reaction(),
 			cmp::create_missile_drop_reaction(),
-			cmp::create_debris_reaction(7),
+			cmp::create_debris_reaction(4, {
+				res_id::BOMBER_DEBRIS_1,
+				res_id::BOMBER_DEBRIS_2,
+				res_id::BOMBER_DEBRIS_3,
+				res_id::BOMBER_DEBRIS_4 }),
 			cmp::create_explosion_sequence_reaction(3) });
 
 	auto sc = cmp::score_class::ENEMY_BOMBER;
@@ -466,7 +462,12 @@ uint64_t entity_factory::create_eye() {
 	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
 	auto on_death = cmp::create_complex_reaction({
-			cmp::create_debris_reaction(5),
+			cmp::create_debris_reaction(5, {
+				res_id::DEBRIS1,
+				res_id::DEBRIS2,
+				res_id::DEBRIS3,
+				res_id::DEBRIS4,
+				res_id::DEBRIS5 }),
 			cmp::create_explosion_sequence_reaction(1) });
 
 	auto sc = cmp::score_class::ENEMY_EYE;
@@ -647,7 +648,12 @@ uint64_t entity_factory::create_missile(
 	auto fxs = cmp::create_period_smoke(0.1, 0.125);
 
 	auto on_death = cmp::create_complex_reaction({
-			cmp::create_debris_reaction(3),
+			cmp::create_debris_reaction(3, {
+				res_id::DEBRIS1,
+				res_id::DEBRIS2,
+				res_id::DEBRIS3,
+				res_id::DEBRIS4,
+				res_id::DEBRIS5 }),
 			cmp::create_explosion_sequence_reaction(1) });
 
 	auto pain_flash = make_shared<double>(0.0);

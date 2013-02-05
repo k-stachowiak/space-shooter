@@ -32,6 +32,8 @@ using std::vector;
 #include <utility>
 using std::pair;
 
+#include "../resources/resman.h"
+
 namespace comm {
 
 enum class smoke_size { tiny, medium, big };
@@ -83,6 +85,7 @@ struct message {
 	struct {
 		double x, y;
 		double vx, vy;
+		res_id image;
 	} spawn_debris;
 
 	struct {
@@ -112,7 +115,7 @@ message create_spawn_missile(
 
 message create_spawn_explosion(double x, double y);
 message create_spawn_smoke(double x, double y, smoke_size size);
-message create_spawn_debris(double x, double y, double vx, double vy);
+message create_spawn_debris(double x, double y, double vx, double vy, res_id image);
 message create_spawn_health_pickup(double x, double y, double vx, double vy);
 message create_spawn_missiles_pickup(double x, double y, double vx, double vy);
 message create_remove_entity(uint64_t id);

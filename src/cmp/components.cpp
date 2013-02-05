@@ -93,13 +93,22 @@ public:
 
 class debris_reaction : public reaction {
 	uint32_t _num_debris;
+	vector<res_id> _images;
 public:
-	debris_reaction(uint32_t num_debris) : _num_debris(num_debris) {}
+	debris_reaction(uint32_t num_debris, vector<res_id> images)
+	: _num_debris(num_debris)
+	, _images(images)
+	{}
+
 	void trigger(double x, double y, double phi,
 			double vx, double vy,
 			comm::msg_queue& queue) {
+
+		uniform_int_distribution<int> bmp_dist(0, _images.size() - 1);
 		for(uint32_t i = 0; i < _num_debris; ++i) {
-			queue.push(comm::create_spawn_debris(x, y, vx, vy));
+			uint32_t index = bmp_dist(rnd::engine);
+			res_id bmp = _images[index];
+			queue.push(comm::create_spawn_debris(x, y, vx, vy, bmp));
 		}
 	}
 };
@@ -662,8 +671,8 @@ shared_ptr<reaction> create_missile_drop_reaction() {
 	return shared_ptr<reaction>(new missile_drop_reaction);
 }
 
-shared_ptr<reaction> create_debris_reaction(uint32_t num_debris) {
-	return shared_ptr<reaction>(new debris_reaction(num_debris));
+shared_ptr<reaction> create_debris_reaction(uint32_t num_debris, vector<res_id> images) {
+	return shared_ptr<reaction>(new debris_reaction(num_debris, images));
 }
 
 shared_ptr<reaction> create_explosion_sequence_reaction(uint32_t num_explosions) {

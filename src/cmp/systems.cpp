@@ -141,10 +141,10 @@ namespace sys {
 			y = n.orientation->get_y();
 			max_health = n.wellness->get_max_health();
 			health = n.wellness->get_health();
-			for(auto const& f : n.effects) {
-				f->update(dt, health / max_health,
-						x, y, msgs);
-			}
+			n.effects->update(dt,
+					health / max_health,
+					x, y,
+					msgs);
 		}
 	}
 
@@ -296,8 +296,8 @@ namespace sys {
 				continue;
 			}
 
-			for(auto const& wb : n.weapon_beh)
-				wb->update(n.id, n.ammo, dt, x, y, msgs);
+			if(n.weapon_beh)
+				n.weapon_beh->update(n.id, n.ammo, dt, x, y, msgs);
 		}
 	}
 

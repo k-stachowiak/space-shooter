@@ -248,7 +248,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	auto cc = cmp::coll_class::PLAYER_SHIP; 
 	auto shape = cmp::create_circle(x, y, 32.0); 
 	auto coll_queue = cmp::create_coll_queue(); 
-	vector<shared_ptr<cmp::weapon_beh>> weapon_beh; 
+	shared_ptr<cmp::weapon_beh> weapon_beh; 
 
 	auto painmap = cmp::create_painmap({
 		{ cmp::coll_class::ENEMY_BULLET, 10.0 },
@@ -261,9 +261,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	auto ammo = cmp::create_ammo(-1, 3);
 
 	shared_ptr<cmp::timer> ttl; 
-	vector<shared_ptr<cmp::fx>> fxs {
-		cmp::create_smoke_when_hurt(0.25)
-	};
+	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
 	auto on_death = cmp::create_complex_reaction({
 			cmp::create_debris_reaction(10),
@@ -321,15 +319,16 @@ uint64_t entity_factory::create_bomber() {
 
 	auto coll_queue = cmp::create_coll_queue();
 
-	vector<shared_ptr<cmp::weapon_beh>> weapon_beh {
+	auto weapon_beh = cmp::create_complex_weapon_beh({
 		cmp::create_period_missile(3.0, 3.0, -15.0, 0.0),
 		cmp::create_period_missile(3.0, 3.0,  15.0, 0.0)
-	};
+	});
 
 	auto painmap = cmp::create_painmap({
-			{ cmp::coll_class::PLAYER_BULLET, 10.0 },
-			{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
-			{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
+		{ cmp::coll_class::PLAYER_BULLET, 10.0 },
+		{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
+		{ cmp::coll_class::PLAYER_SHIP, 50.0 }
+	});
 
 	auto wellness = cmp::create_wellness(100.0); 
 
@@ -337,9 +336,7 @@ uint64_t entity_factory::create_bomber() {
 
 	shared_ptr<cmp::timer> ttl;
 
-	vector<shared_ptr<cmp::fx>> fxs {
-		cmp::create_smoke_when_hurt(0.25)
-	};
+	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
 	auto on_death = cmp::create_complex_reaction({
 			cmp::create_health_drop_reaction(),
@@ -453,9 +450,7 @@ uint64_t entity_factory::create_eye() {
 
 	auto coll_queue = cmp::create_coll_queue();
 
-	vector<shared_ptr<cmp::weapon_beh>> weapon_beh {
-		cmp::create_period_bullet(anim_period, anim_period)
-	};
+	auto weapon_beh = cmp::create_period_bullet(anim_period, anim_period);
 
 	auto painmap = cmp::create_painmap({
 			{ cmp::coll_class::PLAYER_BULLET, 10.0 },
@@ -468,9 +463,7 @@ uint64_t entity_factory::create_eye() {
 
 	shared_ptr<cmp::timer> ttl;
 
-	vector<shared_ptr<cmp::fx>> fxs {
-		cmp::create_smoke_when_hurt(0.25)
-	};
+	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
 	auto on_death = cmp::create_complex_reaction({
 			cmp::create_debris_reaction(5),
@@ -651,9 +644,7 @@ uint64_t entity_factory::create_missile(
 	auto wellness = cmp::create_wellness(missile_health); 
 	shared_ptr<cmp::timer> ttl;
 
-	vector<shared_ptr<cmp::fx>> fxs {
-		cmp::create_period_smoke(0.1, 0.125)
-	};
+	auto fxs = cmp::create_period_smoke(0.1, 0.125);
 
 	auto on_death = cmp::create_complex_reaction({
 			cmp::create_debris_reaction(3),

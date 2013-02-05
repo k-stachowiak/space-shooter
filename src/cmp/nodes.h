@@ -55,7 +55,7 @@ struct fx_node {
 	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::wellness> wellness;
-	vector<shared_ptr<cmp::fx>> effects;
+	shared_ptr<cmp::fx> effects;
 };
 
 struct movement_node {
@@ -70,9 +70,7 @@ struct movement_node {
 struct arms_node {
 	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;
-	// TODO: have types like complex_weapon_beh instead of
-	//       these component collections...
-	vector<shared_ptr<cmp::weapon_beh>> weapon_beh;
+	shared_ptr<cmp::weapon_beh> weapon_beh;
 	shared_ptr<cmp::ammo> ammo;
 };
 

@@ -350,6 +350,8 @@ shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes);
 
 // Weapon behavior classes.
 
+shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs);
+
 shared_ptr<weapon_beh> create_period_bullet(double dt_min, double dt_max);
 
 shared_ptr<weapon_beh> create_period_missile(

@@ -396,6 +396,23 @@ public:
 // Weapon behavior classes.
 // ------------------------
 
+class complex_weapon_beh : public weapon_beh {
+	vector<shared_ptr<weapon_beh>> _wbs;
+public:
+	complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs) : _wbs(wbs) {}
+
+	void update(uint64_t id,
+			shared_ptr<ammo> ammo,
+			double dt,
+			double x, double y,
+			comm::msg_queue& msgs) {
+
+		for(auto& wb : _wbs) {
+			wb->update(id, ammo, dt, x, y, msgs);
+		}
+	}
+};
+
 class period_bullet : public weapon_beh {
 	double _dt_min;
 	double _dt_max;
@@ -414,6 +431,7 @@ public:
 		init_counter();
 	}
 
+	// TODO: Y there's the ammo pointer here?
 	void update(uint64_t id,
 			shared_ptr<ammo> ammo,
 			double dt,
@@ -745,6 +763,10 @@ shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes) {
 }
 
 // Weapon behavior classes.
+
+shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs) {
+	return shared_ptr<weapon_beh>(new complex_weapon_beh(wbs));
+}
 
 shared_ptr<weapon_beh> create_period_bullet(double dt_min, double dt_max) {
 	return shared_ptr<weapon_beh>(new period_bullet(dt_min, dt_max));

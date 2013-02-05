@@ -185,32 +185,12 @@ public:
 
 // The definition of the reaction to an event.
 
-typedef function<void(
-		shared_ptr<orientation>,
-		double, double,	// velocities
-		comm::msg_queue&)> reaction_callback;
-
-// TODO: Consider making reaction handle a single callback
-//       and creating a complex reaction object for handling
-//       multiple callbacks.
-//
-//       Also implement reactions like "explosion sequence", or 
-//       "debris spawn", which will take the number of elements
-//       to be spawned as the construction arguments.
 class reaction {
-	vector<reaction_callback> _callbacks;
 public:
-	reaction(vector<reaction_callback> callbacks)
-	: _callbacks(callbacks)
-	{}
-
-	void trigger(shared_ptr<orientation> ori,
+	virtual void trigger(
+			double x, double y, double theta,
 			double vx, double vy,
-			comm::msg_queue& queue) {
-
-		for(auto const& cb : _callbacks)
-			cb(ori, vx, vy, queue);
-	}
+			comm::msg_queue& queue) = 0;
 };
 
 // The object's health armor etc.
@@ -325,7 +305,11 @@ shared_ptr<painmap> create_painmap(map<coll_class, double> pain_map);
 shared_ptr<ammo> create_ammo_unlimited();
 shared_ptr<ammo> create_ammo(int bullets, int rockets);
 
-shared_ptr<reaction> create_reaction(vector<reaction_callback> callbacks);
+shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs);
+shared_ptr<reaction> create_health_drop_reaction();
+shared_ptr<reaction> create_missile_drop_reaction();
+shared_ptr<reaction> create_debris_reaction(uint32_t num_debris);
+shared_ptr<reaction> create_explosion_sequence_reaction(uint32_t num_explosions);
 
 shared_ptr<wellness> create_wellness(double health);
 
@@ -350,6 +334,8 @@ shared_ptr<appearance> create_simple_anim(
 		int32_t rep_count);
 
 // Dynamic classes.
+
+shared_ptr<dynamics> create_complex_dynamics(vector<shared_ptr<dynamics>> ds);
 
 shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy);
 

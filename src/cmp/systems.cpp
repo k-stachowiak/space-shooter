@@ -104,20 +104,16 @@ namespace sys {
 
 			if(_debug_mode && n.shape) {
 				n.shape->debug_draw();
-				double cur_x = x + 10.0;
-				double cur_y = y + 10.0;
-				auto color = al_map_rgb_f(1.0f, 1.0f, 1.0f);
-				for(auto const& d : n.dynamics) {
+				if(n.dynamics) {
 					al_draw_textf(
 						_debug_font,
-						color,
-						cur_x, cur_y,
+						al_map_rgb_f(1.0f, 1.0f, 1.0f),
+						x + 10, y + 10,
 						0,
 						"(%.1f, %.1f, %.1f),",
-							d->get_vx(),
-							d->get_vy(),
-							d->get_theta());
-					cur_y += 20.0;
+							n.dynamics->get_vx(),
+							n.dynamics->get_vy(),
+							n.dynamics->get_theta());
 				}
 			}
 		}
@@ -171,12 +167,10 @@ namespace sys {
 				vy = _player.throttle_y * 300.0;
 
 			} else {
-				for(auto const& d : n.dynamics) { 
-					d->update(dt);
-					vx += d->get_vx();
-					vy += d->get_vy();
-					theta += d->get_theta();
-				}
+				n.dynamics->update(dt);
+				vx = n.dynamics->get_vx();
+				vy = n.dynamics->get_vy();
+				theta = n.dynamics->get_theta();
 			}
 
 			// Check bounds.
@@ -432,17 +426,22 @@ namespace sys {
 			}
 
 			if(died) {
-				// Read the velocity.
 				double vx = 0;
 				double vy = 0;
-				for(auto const& d : n.dynamics) {
-					vx += d->get_vx();
-					vy += d->get_vy();
+				if(n.dynamics) {
+					// Read the velocity.
+					vx = n.dynamics->get_vx();
+					vy = n.dynamics->get_vy();
 				}
 
 				// Handle reactions.
 				if(n.on_death)
-					n.on_death->trigger(n.orientation, vx, vy, msgs);
+					n.on_death->trigger(
+							n.orientation->get_x(),
+							n.orientation->get_y(),
+							n.orientation->get_phi(),
+							vx, vy,
+							msgs);
 				
 				// Remove the entity.
 				msgs.push(comm::create_remove_entity(n.id));

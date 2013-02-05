@@ -22,56 +22,6 @@
 #include "../geometry/bezier.h"
 #include "entity_factory.h"
 
-// Create reaction callbacks.
-// --------------------------
-
-cmp::reaction_callback create_spawn_health_cb() {
-	return [](shared_ptr<cmp::orientation> ori,
-			double vx, double vy,
-			comm::msg_queue& queue) {
-		queue.push(comm::create_spawn_health_pickup(
-					ori->get_x(), ori->get_y(),
-					vx, vy));
-	};
-}
-
-cmp::reaction_callback create_spawn_missiles_cb() {
-	return [](shared_ptr<cmp::orientation> ori,
-			double vx, double vy,
-			comm::msg_queue& queue) {
-		queue.push(comm::create_spawn_missiles_pickup(
-					ori->get_x(), ori->get_y(),
-					vx, vy));
-	};
-}
-
-cmp::reaction_callback create_spawn_debris_cb() {
-	return [](shared_ptr<cmp::orientation> ori,
-			double vx, double vy,
-			comm::msg_queue& queue) {
-		queue.push(comm::create_spawn_debris(
-					ori->get_x(), ori->get_y(),
-					vx, vy));
-	};
-}
-
-cmp::reaction_callback create_spawn_explosion_cb() {
-	return [](shared_ptr<cmp::orientation> ori,
-			double vx, double vy,
-			comm::msg_queue& queue) {
-
-		uniform_real_distribution<double> delay_dist(1);
-		uniform_real_distribution<double> dxy_dist(-10.0, 10.0);
-
-		double x = ori->get_x() + dxy_dist(rnd::engine);
-		double y = ori->get_y() + dxy_dist(rnd::engine);
-		queue.push(comm::create_spawn_explosion(x, y), delay_dist(rnd::engine));
-	};
-}
-
-// Create entities.
-// ----------------
-
 uint64_t entity_factory::create_explosion(double x, double y) {
 
 	// Initialize components.
@@ -94,7 +44,7 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 			frame_defs,
 			1);
 
-	vector<shared_ptr<cmp::dynamics>> dynamics; 
+	shared_ptr<cmp::dynamics> dynamics; 
 	auto orientation = cmp::create_orientation(x, y, 0.0); 
 	shared_ptr<cmp::shape> shape; 
 	shared_ptr<cmp::wellness> wellness; 
@@ -153,7 +103,7 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 			frame_defs,
 			1);
 
-	vector<shared_ptr<cmp::dynamics>> dynamics; 
+	shared_ptr<cmp::dynamics> dynamics; 
 	auto orientation = cmp::create_orientation(x, y, 0.0); 
 	shared_ptr<cmp::shape> shape; 
 	shared_ptr<cmp::wellness> wellness; 
@@ -212,13 +162,12 @@ uint64_t entity_factory::create_debris(double x, double y, double bvx, double bv
 			_resman.get_bitmap(bmp),
 			_resman.get_bitmap(bmp));
 
-	vector<shared_ptr<cmp::dynamics>> dynamics {
+	auto dynamics = cmp::create_complex_dynamics({
 		cmp::create_const_velocity_dynamics(
 				bvx + base_vx * mul_vx,
 				bvy + base_vy * mul_vy),
 		cmp::create_const_ang_vel_dynamics(
-				base_av * mul_av)
-	};
+				base_av * mul_av) });
 
 	auto orientation = cmp::create_orientation(x, y, 0.0); 
 	shared_ptr<cmp::shape> shape; 
@@ -265,9 +214,7 @@ uint64_t entity_factory::create_star() {
 
 	shared_ptr<cmp::shape> shape;
 
-	vector<shared_ptr<cmp::dynamics>> dynamics {
-		cmp::create_const_velocity_dynamics(0.0, vy),
-	};
+	auto dynamics = cmp::create_const_velocity_dynamics(0.0, vy);
 
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
 	auto life_bounds = cmp::create_bounds(
@@ -291,7 +238,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 			_resman.get_bitmap(res_id::PLAYER_SHIP),
 			_resman.get_bitmap(res_id::PLAYER_SHIP_FLASH));
 
-	vector<shared_ptr<cmp::dynamics>> dynamics; 
+	shared_ptr<cmp::dynamics> dynamics; 
 	auto orientation = cmp::create_orientation(x, y, -1.57); 
 
 	auto movement_bounds = cmp::create_bounds(
@@ -318,12 +265,9 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 		cmp::create_smoke_when_hurt(0.25)
 	};
 
-	vector<cmp::reaction_callback> on_death_callbacks;
-	for(size_t i = 0; i < 7; ++i)
-		on_death_callbacks.push_back(create_spawn_explosion_cb());
-	for(size_t i = 0; i < 10; ++i)
-		on_death_callbacks.push_back(create_spawn_debris_cb());
-	auto on_death = cmp::create_reaction(on_death_callbacks);
+	auto on_death = cmp::create_complex_reaction({
+			cmp::create_debris_reaction(10),
+			cmp::create_explosion_sequence_reaction(7) });
 
 	auto pain_flash = make_shared<double>(0.0);
 
@@ -361,9 +305,7 @@ uint64_t entity_factory::create_bomber() {
 			_resman.get_bitmap(res_id::ENEMY_BOMBER),
 			_resman.get_bitmap(res_id::ENEMY_BOMBER_FLASH));
 
-	vector<shared_ptr<cmp::dynamics>> dynamics {
-		cmp::create_const_velocity_dynamics(0.0, 60.0)
-	};
+	auto dynamics = cmp::create_const_velocity_dynamics(0.0, 60.0);
 
 	auto orientation = cmp::create_orientation(x, y, 1.57); 
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
@@ -399,14 +341,11 @@ uint64_t entity_factory::create_bomber() {
 		cmp::create_smoke_when_hurt(0.25)
 	};
 
-	vector<cmp::reaction_callback> on_death_callbacks;
-	on_death_callbacks.push_back(create_spawn_health_cb());
-	on_death_callbacks.push_back(create_spawn_missiles_cb());
-	for(size_t i = 0; i < 3; ++i)
-		on_death_callbacks.push_back(create_spawn_explosion_cb());
-	for(size_t i = 0; i < 7; ++i)
-		on_death_callbacks.push_back(create_spawn_debris_cb());
-	auto on_death = cmp::create_reaction(on_death_callbacks);
+	auto on_death = cmp::create_complex_reaction({
+			cmp::create_health_drop_reaction(),
+			cmp::create_missile_drop_reaction(),
+			cmp::create_debris_reaction(7),
+			cmp::create_explosion_sequence_reaction(3) });
 
 	auto sc = cmp::score_class::ENEMY_BOMBER;
 
@@ -493,9 +432,7 @@ uint64_t entity_factory::create_eye() {
 			frame_defs,
 			-1);
 
-	vector<shared_ptr<cmp::dynamics>> dynamics {
-		cmp::create_path_dynamics(points)
-	};
+	auto dynamics = cmp::create_path_dynamics(points);
 
 	auto orientation = cmp::create_orientation(
 			points.front().x,
@@ -535,11 +472,9 @@ uint64_t entity_factory::create_eye() {
 		cmp::create_smoke_when_hurt(0.25)
 	};
 
-	vector<cmp::reaction_callback> on_death_callbacks;
-	on_death_callbacks.push_back(create_spawn_explosion_cb());
-	for(size_t i = 0; i < 5; ++i)
-		on_death_callbacks.push_back(create_spawn_debris_cb());
-	auto on_death = cmp::create_reaction(on_death_callbacks);
+	auto on_death = cmp::create_complex_reaction({
+			cmp::create_debris_reaction(5),
+			cmp::create_explosion_sequence_reaction(1) });
 
 	auto sc = cmp::score_class::ENEMY_EYE;
 
@@ -585,12 +520,12 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 			_resman.get_bitmap(res_id::HEALTH),
 			_resman.get_bitmap(res_id::HEALTH));
 
-	vector<shared_ptr<cmp::dynamics>> dynamics {
+	auto dynamics = cmp::create_complex_dynamics({
 		cmp::create_const_velocity_dynamics(
 			vx + base_vx * mul_vx,
 			vy + base_vy * mul_vy),
 		cmp::create_const_ang_vel_dynamics(
-			base_av * mul_av) };
+			base_av * mul_av) });
 
 	auto orientation = cmp::create_orientation(x, y, 0.0); 
 
@@ -602,7 +537,6 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
 
 	shared_ptr<cmp::timer> ttl; 
-
 
 	auto cc = cmp::coll_class::HEALTH_PICKUP;
 
@@ -646,12 +580,12 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 			_resman.get_bitmap(res_id::MISSILES),
 			_resman.get_bitmap(res_id::MISSILES));
 
-	vector<shared_ptr<cmp::dynamics>> dynamics {
+	auto dynamics = cmp::create_complex_dynamics({
 		cmp::create_const_velocity_dynamics(
 			vx + base_vx * mul_vx,
 			vy + base_vy * mul_vy),
 		cmp::create_const_ang_vel_dynamics(
-			base_av * mul_av) };
+			base_av * mul_av) });
 
 	auto orientation = cmp::create_orientation(x, y, 0.0); 
 
@@ -704,9 +638,7 @@ uint64_t entity_factory::create_missile(
 			_resman.get_bitmap(res_id::MISSILE),
 			_resman.get_bitmap(res_id::MISSILE));
 
-	vector<shared_ptr<cmp::dynamics>> dynamics {
-		cmp::create_const_velocity_dynamics(vx, vy)
-	};
+	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 
 	auto orientation = cmp::create_orientation(x, y, theta); 
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
@@ -723,11 +655,9 @@ uint64_t entity_factory::create_missile(
 		cmp::create_period_smoke(0.1, 0.125)
 	};
 
-	vector<cmp::reaction_callback> on_death_callbacks;
-	on_death_callbacks.push_back(create_spawn_explosion_cb());
-	for(size_t i = 0; i < 3; ++i)
-		on_death_callbacks.push_back(create_spawn_debris_cb());
-	auto on_death = cmp::create_reaction(on_death_callbacks);
+	auto on_death = cmp::create_complex_reaction({
+			cmp::create_debris_reaction(3),
+			cmp::create_explosion_sequence_reaction(1) });
 
 	auto pain_flash = make_shared<double>(0.0);
 
@@ -779,9 +709,7 @@ uint64_t entity_factory::create_bullet(
 
 	cmp::draw_plane draw_plane = cmp::draw_plane::PROJECTILES;
 	
-	vector<shared_ptr<cmp::dynamics>> dynamics {
-		cmp::create_const_velocity_dynamics(vx, vy)
-	};
+	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 
 	auto orientation = cmp::create_orientation(x, y, theta); 
 	auto movement_bounds = shared_ptr<cmp::bounds>();

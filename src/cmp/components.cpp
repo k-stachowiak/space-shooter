@@ -58,6 +58,75 @@ public:
 	}
 };
 
+// Reaction classes.
+// -----------------
+
+class complex_reaction : public reaction {
+	vector<shared_ptr<reaction>> _rs;
+public:
+	complex_reaction(vector<shared_ptr<reaction>> rs) : _rs(rs) {}
+	void trigger(double x, double y, double phi,
+			double vx, double vy,
+			comm::msg_queue& queue) {
+		for(auto r : _rs)
+			r->trigger(x, y, phi, vx, vy, queue);
+	}
+};
+
+class health_drop_reaction : public reaction {
+public:
+	void trigger(double x, double y, double phi,
+			double vx, double vy,
+			comm::msg_queue& queue) {
+		queue.push(comm::create_spawn_health_pickup(x, y, vx, vy));
+	}
+};
+
+class missile_drop_reaction : public reaction {
+public:
+	void trigger(double x, double y, double phi,
+			double vx, double vy,
+			comm::msg_queue& queue) {
+		queue.push(comm::create_spawn_missiles_pickup(x, y, vx, vy));
+	}
+};
+
+class debris_reaction : public reaction {
+	uint32_t _num_debris;
+public:
+	debris_reaction(uint32_t num_debris) : _num_debris(num_debris) {}
+	void trigger(double x, double y, double phi,
+			double vx, double vy,
+			comm::msg_queue& queue) {
+		for(uint32_t i = 0; i < _num_debris; ++i) {
+			queue.push(comm::create_spawn_debris(x, y, vx, vy));
+		}
+	}
+};
+
+class explosion_sequence_reaction : public reaction {
+	uint32_t _num_explosions;
+public:
+	explosion_sequence_reaction(uint32_t num_explosions)
+	: _num_explosions(num_explosions)
+	{}
+
+	void trigger(double x, double y, double phi,
+			double vx, double vy,
+			comm::msg_queue& queue) {
+
+		double delay = 0.0;
+		uniform_real_distribution<double> delay_dist(0.125, 0.25);
+		uniform_real_distribution<double> dxy_dist(-10.0, 10.0);
+		for(uint32_t i = 0; i < _num_explosions; ++i) {
+			double expl_x = x + dxy_dist(rnd::engine);
+			double expl_y = y + dxy_dist(rnd::engine);
+			queue.push(comm::create_spawn_explosion(expl_x, expl_y), delay);
+			delay += delay_dist(rnd::engine);
+		}
+	}
+};
+
 // Appearance classes.
 // -------------------
 
@@ -218,6 +287,23 @@ public:
 
 // Dynamics classes.
 // -----------------
+
+class complex_dynamics : public dynamics {
+	vector<shared_ptr<dynamics>> _ds;
+public:
+	complex_dynamics(vector<shared_ptr<dynamics>> ds)
+	: _ds(ds) {}
+
+	void update(double dt) {
+		_vx = _vy = _theta = 0.0;
+		for(auto const& d : _ds) {
+			d->update(dt);
+			_vx += d->get_vx();
+			_vy += d->get_vy();
+			_theta += d->get_theta();
+		}
+	}
+};
 
 class const_velocity_dynamics : public dynamics {
 public:
@@ -546,8 +632,24 @@ bool collide_circle_circle(const circle& a, const circle& b) {
 
 // Simple types.
 
-shared_ptr<reaction> create_reaction(vector<reaction_callback> callbacks) {
-	return make_shared<reaction>(callbacks);
+shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs) {
+	return shared_ptr<reaction>(new complex_reaction(rs));
+}
+
+shared_ptr<reaction> create_health_drop_reaction() {
+	return shared_ptr<reaction>(new health_drop_reaction);
+}
+
+shared_ptr<reaction> create_missile_drop_reaction() {
+	return shared_ptr<reaction>(new missile_drop_reaction);
+}
+
+shared_ptr<reaction> create_debris_reaction(uint32_t num_debris) {
+	return shared_ptr<reaction>(new debris_reaction(num_debris));
+}
+
+shared_ptr<reaction> create_explosion_sequence_reaction(uint32_t num_explosions) {
+	return shared_ptr<reaction>(new explosion_sequence_reaction(num_explosions));
 }
 
 shared_ptr<orientation> create_orientation(double x, double y, double theta) {
@@ -615,6 +717,10 @@ shared_ptr<appearance> create_simple_anim(
 }
 
 // Dynamic classes.
+
+shared_ptr<dynamics> create_complex_dynamics(vector<shared_ptr<dynamics>> ds) {
+	return shared_ptr<dynamics>(new complex_dynamics(ds));
+}
 
 shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy) {
 	return shared_ptr<dynamics>(new const_velocity_dynamics(vx, vy));

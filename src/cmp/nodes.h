@@ -48,7 +48,7 @@ struct drawing_node {
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::shape> shape;
 	shared_ptr<double> pain_flash;
-	vector<shared_ptr<cmp::dynamics>> dynamics;
+	shared_ptr<cmp::dynamics> dynamics;
 };
 
 struct fx_node {
@@ -60,7 +60,7 @@ struct fx_node {
 
 struct movement_node {
 	uint64_t id;
-	vector<shared_ptr<cmp::dynamics>> dynamics;
+	shared_ptr<cmp::dynamics> dynamics;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::shape> shape;
 	shared_ptr<cmp::bounds> movement_bounds;
@@ -103,7 +103,7 @@ struct wellness_node {
 	uint64_t id;
 	shared_ptr<cmp::reaction> on_death;
 	shared_ptr<cmp::orientation> orientation;
-	vector<shared_ptr<cmp::dynamics>> dynamics;
+	shared_ptr<cmp::dynamics> dynamics;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::timer> ttl;
 };

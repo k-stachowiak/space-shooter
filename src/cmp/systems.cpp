@@ -432,19 +432,6 @@ namespace sys {
 			}
 
 			if(died) {
-
-				// Handle explosions.
-				uniform_real_distribution<double> delay_dist(0.125, 0.25);
-				uniform_real_distribution<double> dxy_dist(-10.0, 10.0);
-				double delay = 0.0;
-				for(uint32_t i = 0; i < n.num_explosions; ++i) {
-					msgs.push(comm::create_spawn_explosion(
-							n.orientation->get_x() + dxy_dist(rnd::engine), 
-							n.orientation->get_y() + dxy_dist(rnd::engine)),
-						  delay);
-					delay += delay_dist(rnd::engine);
-				}
-
 				// Read the velocity.
 				double vx = 0;
 				double vy = 0;
@@ -453,29 +440,11 @@ namespace sys {
 					vy += d->get_vy();
 				}
 
-				// Simple spawns.
-
-				if(n.spawn_health) {
-					msgs.push(comm::create_spawn_health_pickup(
-								n.orientation->get_x(),
-								n.orientation->get_y(),
-								vx, vy));
-				}
-
-				if(n.spawn_missiles) {
-					msgs.push(comm::create_spawn_missiles_pickup(
-								n.orientation->get_x(),
-								n.orientation->get_y(),
-								vx, vy));
-				}
-
-				for(uint32_t i = 0; i < n.num_debris; ++i) {
-					msgs.push(comm::create_spawn_debris(
-								n.orientation->get_x(),
-								n.orientation->get_y(),
-								vx, vy));
-				}
+				// Handle reactions.
+				if(n.on_death)
+					n.on_death->trigger(n.orientation, vx, vy, msgs);
 				
+				// Remove the entity.
 				msgs.push(comm::create_remove_entity(n.id));
 			}
 		}

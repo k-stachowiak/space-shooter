@@ -70,6 +70,8 @@ struct movement_node {
 struct arms_node {
 	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;
+	// TODO: have types like complex_weapon_beh instead of
+	//       these component collections...
 	vector<shared_ptr<cmp::weapon_beh>> weapon_beh;
 	shared_ptr<cmp::ammo> ammo;
 };
@@ -99,10 +101,7 @@ struct pickup_node {
 
 struct wellness_node {
 	uint64_t id;
-	bool spawn_health;
-	bool spawn_missiles;
-	uint32_t num_explosions;
-	uint32_t num_debris;
+	shared_ptr<cmp::reaction> on_death;
 	shared_ptr<cmp::orientation> orientation;
 	vector<shared_ptr<cmp::dynamics>> dynamics;
 	shared_ptr<cmp::wellness> wellness;

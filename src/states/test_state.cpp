@@ -38,7 +38,8 @@ using std::uniform_real_distribution;
 // 
 // - [ON HOLD] Non drawn bullets (visibility / efficiency)
 //
-// - Adjust the collision shapes and sizes.
+// - Enhance the means of defining of whatever is dropped upon the object's death.
+//     - on_death_component [(delay, message)]
 //
 // - Debris made of the graphics' pieces :)
 // - Cascade explosions

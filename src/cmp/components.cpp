@@ -546,6 +546,10 @@ bool collide_circle_circle(const circle& a, const circle& b) {
 
 // Simple types.
 
+shared_ptr<reaction> create_reaction(vector<reaction_callback> callbacks) {
+	return make_shared<reaction>(callbacks);
+}
+
 shared_ptr<orientation> create_orientation(double x, double y, double theta) {
 	return make_shared<orientation>(x, y, theta);
 }

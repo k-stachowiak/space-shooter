@@ -140,7 +140,7 @@ public:
 				mc(pr.second);
 				_msgs[i] = move(_msgs.back());
 				_msgs.pop_back();
-				// Note: no incrementation.
+				// Note: no increment.
 			}
 		}
 	}

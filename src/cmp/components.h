@@ -37,14 +37,14 @@ using std::function;
 #include <algorithm>
 using std::for_each;
 
+#include <utility>
+using std::pair;
+
 #include <allegro5/allegro.h>
 
 #include "../geometry/types.h"
+#include "comm.h"
 
-namespace comm {
-	class message;
-	class msg_queue;
-}
 
 namespace cmp {
 
@@ -183,6 +183,36 @@ public:
 	}
 };
 
+// The definition of the reaction to an event.
+
+typedef function<void(
+		shared_ptr<orientation>,
+		double, double,	// velocities
+		comm::msg_queue&)> reaction_callback;
+
+// TODO: Consider making reaction handle a single callback
+//       and creating a complex reaction object for handling
+//       multiple callbacks.
+//
+//       Also implement reactions like "explosion sequence", or 
+//       "debris spawn", which will take the number of elements
+//       to be spawned as the construction arguments.
+class reaction {
+	vector<reaction_callback> _callbacks;
+public:
+	reaction(vector<reaction_callback> callbacks)
+	: _callbacks(callbacks)
+	{}
+
+	void trigger(shared_ptr<orientation> ori,
+			double vx, double vy,
+			comm::msg_queue& queue) {
+
+		for(auto const& cb : _callbacks)
+			cb(ori, vx, vy, queue);
+	}
+};
+
 // The object's health armor etc.
 class wellness {
 	uint64_t _last_dmg_id; // NOTE that this is used to grant points for kill.
@@ -294,6 +324,8 @@ shared_ptr<painmap> create_painmap(map<coll_class, double> pain_map);
 
 shared_ptr<ammo> create_ammo_unlimited();
 shared_ptr<ammo> create_ammo(int bullets, int rockets);
+
+shared_ptr<reaction> create_reaction(vector<reaction_callback> callbacks);
 
 shared_ptr<wellness> create_wellness(double health);
 

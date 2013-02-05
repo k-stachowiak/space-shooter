@@ -35,13 +35,10 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// 
-// - [ON HOLD] Non drawn bullets (visibility / efficiency)
-//
-// - Debris made of the graphics' pieces :)
-// - Cascade explosions
-//
+// - [ON HOLD] Non drawn bullets (visibility / efficiency).
 // - Select a consistent graphics set and redesign the enemies for it.
+// - Balance the pickups.
+// - Separate planes for the debris (FX) and for the pickups (new plane?)
 
 class test_state : public state {
 
@@ -138,7 +135,12 @@ class test_state : public state {
 						msg.spawn_debris.y,
 						msg.spawn_debris.vx,
 						msg.spawn_debris.vy,
-						msg.spawn_debris.image);
+						msg.spawn_debris.vmin,
+						msg.spawn_debris.vmax,
+						msg.spawn_debris.theta_min,
+						msg.spawn_debris.theta_max,
+						msg.spawn_debris.image,
+						msg.spawn_debris.explode);
 				break;
 
 			case comm::msg_t::spawn_health_pickup:

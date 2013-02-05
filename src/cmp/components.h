@@ -308,7 +308,14 @@ shared_ptr<ammo> create_ammo(int bullets, int rockets);
 shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs);
 shared_ptr<reaction> create_health_drop_reaction();
 shared_ptr<reaction> create_missile_drop_reaction();
-shared_ptr<reaction> create_debris_reaction(uint32_t num_debris, vector<res_id> images);
+
+shared_ptr<reaction> create_debris_reaction(
+		uint32_t num_debris,
+		vector<res_id> images,
+		double vmin, double vmax,
+		double theta_min, double theta_max,
+		bool explode, bool randomize);
+
 shared_ptr<reaction> create_explosion_sequence_reaction(uint32_t num_explosions);
 
 shared_ptr<wellness> create_wellness(double health);

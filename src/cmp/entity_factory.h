@@ -72,7 +72,14 @@ public:
 
 	uint64_t create_explosion(double x, double y);
 	uint64_t create_smoke(double x, double y, comm::smoke_size size);
-	uint64_t create_debris(double x, double y, double bvx, double bvy, res_id bmp);
+
+	uint64_t create_debris(double x, double y,
+			double bvx, double bvy,
+			double vmin, double vmax,
+			double theta_min, double theta_max,
+			res_id bmp,
+			bool explode);
+
 	uint64_t create_star();
 	uint64_t create_player_ship(double x, double y);
 	uint64_t create_bomber();

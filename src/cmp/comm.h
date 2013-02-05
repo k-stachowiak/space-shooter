@@ -85,7 +85,10 @@ struct message {
 	struct {
 		double x, y;
 		double vx, vy;
+		double vmin, vmax;
+		double theta_min, theta_max;
 		res_id image;
+		bool explode;
 	} spawn_debris;
 
 	struct {
@@ -115,7 +118,14 @@ message create_spawn_missile(
 
 message create_spawn_explosion(double x, double y);
 message create_spawn_smoke(double x, double y, smoke_size size);
-message create_spawn_debris(double x, double y, double vx, double vy, res_id image);
+
+message create_spawn_debris(double x, double y,
+		double vx, double vy,
+		double vmin, double vmax,
+		double theta_min, double theta_max,
+		res_id image,
+		bool explode);
+
 message create_spawn_health_pickup(double x, double y, double vx, double vy);
 message create_spawn_missiles_pickup(double x, double y, double vx, double vy);
 message create_remove_entity(uint64_t id);

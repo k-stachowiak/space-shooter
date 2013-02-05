@@ -63,10 +63,18 @@ message create_spawn_smoke(double x, double y, smoke_size size) {
 message create_spawn_debris(
 		double x, double y,
 		double vx, double vy,
-		res_id image) {
+		double vmin, double vmax,
+		double theta_min, double theta_max,
+		res_id image,
+		bool explode) {
 	message msg;
 	msg.type = msg_t::spawn_debris;
-	msg.spawn_debris = { x, y, vx, vy, image };
+	msg.spawn_debris = { x, y,
+		vx, vy,
+		vmin, vmax,
+		theta_min, theta_max,
+		image,
+		explode };
 	return msg;
 }
 

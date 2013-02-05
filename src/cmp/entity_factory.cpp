@@ -18,6 +18,10 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include <iostream>
+using std::cout;
+using std::endl;
+
 #include "../misc/rand.h"
 #include "../geometry/bezier.h"
 #include "entity_factory.h"
@@ -121,22 +125,27 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	return id;
 }
 
-uint64_t entity_factory::create_debris(double x, double y, double bvx, double bvy, res_id bmp) {
+uint64_t entity_factory::create_debris(double x, double y,
+		double bvx, double bvy,
+		double vmin, double vmax,
+		double theta_min, double theta_max,
+		res_id bmp,
+		bool explode) {
 
 	// TTL generation.
-	static uniform_real_distribution<double> ttl_dist(1.0, 3.0);
+	uniform_real_distribution<double> ttl_dist(1.0, 3.0);
 	double ttl_time = ttl_dist(rnd::engine);
 
 	// Random movement.
 	bernoulli_distribution dir_dist;
 	
-	static uniform_real_distribution<double> mv_dist(100.0, 300.0);
+	uniform_real_distribution<double> mv_dist(vmin, vmax);
 	double base_vx = mv_dist(rnd::engine);
 	double base_vy = mv_dist(rnd::engine);
 	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
 	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	static uniform_real_distribution<double> rot_dist(4.0, 7.0);
+	uniform_real_distribution<double> rot_dist(theta_min, theta_max);
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
@@ -165,6 +174,7 @@ uint64_t entity_factory::create_debris(double x, double y, double bvx, double bv
 	auto ttl = cmp::create_const_int_timer(ttl_time); 
 
 	shared_ptr<cmp::reaction> on_death;
+	if(explode) on_death = cmp::create_explosion_sequence_reaction(1);
 
 	auto pain_flash = make_shared<double>(0.0);
 
@@ -256,7 +266,11 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 				res_id::DEBRIS2,
 				res_id::DEBRIS3,
 				res_id::DEBRIS4,
-				res_id::DEBRIS5 }),
+				res_id::DEBRIS5 },
+				100.0, 300.0,
+				4.0, 7.0,
+				/* explode = */ false,
+				/* randomize = */ true),
 			cmp::create_explosion_sequence_reaction(7) });
 
 	auto pain_flash = make_shared<double>(0.0);
@@ -337,7 +351,11 @@ uint64_t entity_factory::create_bomber() {
 				res_id::BOMBER_DEBRIS_1,
 				res_id::BOMBER_DEBRIS_2,
 				res_id::BOMBER_DEBRIS_3,
-				res_id::BOMBER_DEBRIS_4 }),
+				res_id::BOMBER_DEBRIS_4 },
+				10.0, 30.0,
+				0.25, 1.0,
+				/* explode = */ true,
+				/* randomize = */ false),
 			cmp::create_explosion_sequence_reaction(3) });
 
 	auto sc = cmp::score_class::ENEMY_BOMBER;
@@ -467,7 +485,11 @@ uint64_t entity_factory::create_eye() {
 				res_id::DEBRIS2,
 				res_id::DEBRIS3,
 				res_id::DEBRIS4,
-				res_id::DEBRIS5 }),
+				res_id::DEBRIS5 },
+				100.0, 300.0,
+				4.0, 7.0,
+				/* explode = */ false,
+				/* randomize = */ true),
 			cmp::create_explosion_sequence_reaction(1) });
 
 	auto sc = cmp::score_class::ENEMY_EYE;
@@ -494,13 +516,13 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	// ----------------
 	bernoulli_distribution dir_dist;
 
-	static uniform_real_distribution<double> mv_dist(15.0, 25.0);
+	uniform_real_distribution<double> mv_dist(15.0, 25.0);
 	double base_vx = mv_dist(rnd::engine);
 	double base_vy = mv_dist(rnd::engine);
 	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
 	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	static uniform_real_distribution<double> rot_dist(3.0, 9.0);
+	uniform_real_distribution<double> rot_dist(3.0, 9.0);
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
@@ -554,13 +576,13 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 	// ----------------
 	bernoulli_distribution dir_dist;
 
-	static uniform_real_distribution<double> mv_dist(15.0, 25.0);
+	uniform_real_distribution<double> mv_dist(15.0, 25.0);
 	double base_vx = mv_dist(rnd::engine);
 	double base_vy = mv_dist(rnd::engine);
 	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
 	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	static uniform_real_distribution<double> rot_dist(3.0, 9.0);
+	uniform_real_distribution<double> rot_dist(3.0, 9.0);
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
@@ -653,7 +675,11 @@ uint64_t entity_factory::create_missile(
 				res_id::DEBRIS2,
 				res_id::DEBRIS3,
 				res_id::DEBRIS4,
-				res_id::DEBRIS5 }),
+				res_id::DEBRIS5 },
+				100.0, 300.0,
+				4.0, 7.0,
+				/* explode = */ false,
+				/* randomize = */ true),
 			cmp::create_explosion_sequence_reaction(1) });
 
 	auto pain_flash = make_shared<double>(0.0);

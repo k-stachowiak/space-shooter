@@ -448,6 +448,8 @@ public:
 class period_bullet : public weapon_beh {
 	double _dt_min;
 	double _dt_max;
+	double _x_off;
+	double _y_off;
 	double _counter;
 
 	void init_counter(double remainder = 0.0) {
@@ -456,9 +458,11 @@ class period_bullet : public weapon_beh {
 	}
 
 public:
-	period_bullet(double dt_min, double dt_max)
+	period_bullet(double dt_min, double dt_max, double x_off, double y_off)
 	: _dt_min(dt_min)
 	, _dt_max(dt_max)
+	, _x_off(x_off)
+	, _y_off(y_off)
        	, _counter(0) {
 		init_counter();
 	}
@@ -474,9 +478,10 @@ public:
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
 			msgs.push(comm::create_spawn_bullet(
-						x, y,
+						x + _x_off,
+						y + _y_off,
 						1.57, 0.0,
-						800.0,
+						500.0,
 						true,
 						id));
 		}
@@ -811,8 +816,13 @@ shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> 
 	return shared_ptr<weapon_beh>(new complex_weapon_beh(wbs));
 }
 
-shared_ptr<weapon_beh> create_period_bullet(double dt_min, double dt_max) {
-	return shared_ptr<weapon_beh>(new period_bullet(dt_min, dt_max));
+shared_ptr<weapon_beh> create_period_bullet(
+		double dt_min,
+		double dt_max,
+		double x_off,
+		double y_off) {
+	return shared_ptr<weapon_beh>(new period_bullet(
+				dt_min, dt_max, x_off, y_off));
 }
 
 shared_ptr<weapon_beh> create_period_missile(

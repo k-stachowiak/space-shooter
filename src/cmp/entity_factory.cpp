@@ -464,7 +464,7 @@ uint64_t entity_factory::create_eye() {
 
 	auto coll_queue = cmp::create_coll_queue();
 
-	auto weapon_beh = cmp::create_period_bullet(anim_period, anim_period);
+	auto weapon_beh = cmp::create_period_bullet(anim_period, anim_period, 0.0, 0.0);
 
 	auto painmap = cmp::create_painmap({
 			{ cmp::coll_class::PLAYER_BULLET, 10.0 },
@@ -493,6 +493,97 @@ uint64_t entity_factory::create_eye() {
 			cmp::create_explosion_sequence_reaction(1) });
 
 	auto sc = cmp::score_class::ENEMY_EYE;
+
+	auto pain_flash = make_shared<double>(0.0);
+
+	// Register the components.
+	// ------------------------
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
+	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
+	_collision_system.add_node({ id, id, cc, shape, coll_queue });
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
+	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
+	_fx_system.add_node({ id, orientation, wellness, fxs });
+	_score_system.add_node({ id, sc, wellness });
+
+	return id;
+}
+
+uint64_t entity_factory::create_light_fighter() {
+
+	bernoulli_distribution xdir_dist;
+
+	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
+	
+	const double vx = dir * 50.0;
+	const double vy = 50.0;
+
+	const double offscreen = 30.0;
+	double x = (dir > 0.0)
+		? -offscreen
+		: _config.get_screen_w() + offscreen;
+	double y = -offscreen;
+
+	// Prepare the components.
+	// -----------------------
+	uint64_t id = ++_last_id;
+
+	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
+	
+	auto appearance = cmp::create_static_bmp(
+			_resman.get_bitmap(res_id::ENEMY_LIGHT_FIGHTER),
+			_resman.get_bitmap(res_id::ENEMY_LIGHT_FIGHTER_FLASH)); 
+
+	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+
+	auto orientation = cmp::create_orientation(x, y, 1.57);
+
+	auto movement_bounds = shared_ptr<cmp::bounds>();
+
+	auto life_bounds = cmp::create_bounds(
+		-offscreen - 1.0,
+		-offscreen - 1.0,
+		_config.get_screen_w() + offscreen + 1.0,
+		_config.get_screen_h() + offscreen + 1.0);
+
+	auto cc = cmp::coll_class::ENEMY_SHIP;
+
+	auto shape = cmp::create_circle(x, y, 32.0);
+
+	auto coll_queue = cmp::create_coll_queue();
+
+	auto weapon_beh = cmp::create_complex_weapon_beh({
+			cmp::create_period_bullet(3.0, 3.0, +17.0, -3.0),
+			cmp::create_period_bullet(3.0, 3.0, -17.0, -3.0) });
+
+	auto painmap = cmp::create_painmap({
+			{ cmp::coll_class::PLAYER_BULLET, 10.0 },
+			{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
+			{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
+
+	auto wellness = cmp::create_wellness(30.0); 
+
+	auto ammo = cmp::create_ammo_unlimited();
+
+	shared_ptr<cmp::timer> ttl;
+
+	auto fxs = cmp::create_smoke_when_hurt(0.25);
+
+	auto on_death = cmp::create_complex_reaction({
+			cmp::create_debris_reaction(5, {
+				res_id::DEBRIS1,
+				res_id::DEBRIS2,
+				res_id::DEBRIS3,
+				res_id::DEBRIS4,
+				res_id::DEBRIS5 },
+				100.0, 300.0,
+				4.0, 7.0,
+				/* explode = */ false,
+				/* randomize = */ true),
+			cmp::create_explosion_sequence_reaction(1) });
+
+	auto sc = cmp::score_class::ENEMY_LIGHT_FIGHTER;
 
 	auto pain_flash = make_shared<double>(0.0);
 

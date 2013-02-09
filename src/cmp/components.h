@@ -89,7 +89,8 @@ enum class coll_class {
 // Score class id.
 enum class score_class {
 	ENEMY_EYE,
-	ENEMY_BOMBER
+	ENEMY_BOMBER,
+	ENEMY_LIGHT_FIGHTER
 };
 
 // Collision report type.
@@ -355,7 +356,11 @@ shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes);
 // Weapon behavior classes.
 
 shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs);
-shared_ptr<weapon_beh> create_period_bullet(double dt_min, double dt_max);
+
+shared_ptr<weapon_beh> create_period_bullet(
+		double dt_min, double dt_max,
+		double x_off, double y_off);
+
 shared_ptr<weapon_beh> create_period_missile(
 		double dt_min, double dt_max,
 		double x_off, double y_off);

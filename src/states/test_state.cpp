@@ -38,7 +38,8 @@ using std::uniform_real_distribution;
 // - [ON HOLD] Non drawn bullets (visibility / efficiency).
 // - Select a consistent graphics set and redesign the enemies for it.
 // - Balance the pickups.
-// - Separate planes for the debris (FX) and for the pickups (new plane?)
+// - Separate planes for the debris (FX) and for the pickups (new plane?).
+// - Dryrun the stars generator so that the screen starts filled with some initial stars.
 
 class test_state : public state {
 
@@ -59,6 +60,7 @@ class test_state : public state {
 	random_clock<uniform_real_distribution<double>> _eye_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _bomber_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _star_spawn_clk;
+	random_clock<uniform_real_distribution<double>> _l_fighter_spawn_clk;
 
 	// Systems.
 	// --------
@@ -227,6 +229,9 @@ public:
 	, _star_spawn_clk(
 		uniform_real_distribution<double>(0.125, 0.25),
 		bind(&entity_factory::create_star, &_ef))
+	, _l_fighter_spawn_clk(
+		uniform_real_distribution<double>(3.0, 5.0),
+		bind(&entity_factory::create_light_fighter, &_ef))
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
 	, _ef(_config,
 		_resman,
@@ -262,9 +267,10 @@ public:
 	void frame_logic(double dt) {
 
 		// Trigger the clocks.
-		_eye_spawn_clk.tick(dt);
-		_bomber_spawn_clk.tick(dt);
+		// _eye_spawn_clk.tick(dt);
+		// _bomber_spawn_clk.tick(dt);
 		_star_spawn_clk.tick(dt);
+		_l_fighter_spawn_clk.tick(dt);
 
 		// Update the player's throttle.
 		double player_throttle_x = 0.0;

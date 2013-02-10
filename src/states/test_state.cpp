@@ -61,6 +61,7 @@ class test_state : public state {
 	random_clock<uniform_real_distribution<double>> _bomber_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _star_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _l_fighter_spawn_clk;
+	random_clock<uniform_real_distribution<double>> _h_fighter_spawn_clk;
 
 	// Systems.
 	// --------
@@ -77,7 +78,6 @@ class test_state : public state {
 	// Factories.
 	// ----------
 	entity_factory _ef;
-	uint64_t _last_id;
 
 	// Message handling.
 	// -----------------
@@ -232,6 +232,9 @@ public:
 	, _l_fighter_spawn_clk(
 		uniform_real_distribution<double>(3.0, 5.0),
 		bind(&entity_factory::create_light_fighter, &_ef))
+	, _h_fighter_spawn_clk(
+		uniform_real_distribution<double>(5.0, 7.0),
+		bind(&entity_factory::create_heavy_fighter, &_ef))
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
 	, _ef(_config,
 		_resman,
@@ -244,7 +247,6 @@ public:
 		_drawing_system,
 		_score_system,
 		_pickup_system)
-	, _last_id(0)
 	{
 		_keys[ALLEGRO_KEY_UP] = false;
 		_keys[ALLEGRO_KEY_DOWN] = false;
@@ -271,6 +273,7 @@ public:
 		// _bomber_spawn_clk.tick(dt);
 		_star_spawn_clk.tick(dt);
 		_l_fighter_spawn_clk.tick(dt);
+		_h_fighter_spawn_clk.tick(dt);
 
 		// Update the player's throttle.
 		double player_throttle_x = 0.0;

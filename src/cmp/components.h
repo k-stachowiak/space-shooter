@@ -90,7 +90,8 @@ enum class coll_class {
 enum class score_class {
 	ENEMY_EYE,
 	ENEMY_BOMBER,
-	ENEMY_LIGHT_FIGHTER
+	ENEMY_LIGHT_FIGHTER,
+	ENEMY_HEAVY_FIGHTER
 };
 
 // Collision report type.

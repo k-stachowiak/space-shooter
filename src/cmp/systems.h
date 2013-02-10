@@ -95,7 +95,9 @@ public:
 	score_system()
 	: _class_score_map(map<cmp::score_class, double> {
 			{ cmp::score_class::ENEMY_EYE, 1.0 },
-			{ cmp::score_class::ENEMY_BOMBER, 5.0 }
+			{ cmp::score_class::ENEMY_BOMBER, 5.0 },
+			{ cmp::score_class::ENEMY_LIGHT_FIGHTER, 1.0 },
+			{ cmp::score_class::ENEMY_HEAVY_FIGHTER, 3.0 }
 		})
 	{}
 

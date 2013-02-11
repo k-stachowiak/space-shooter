@@ -33,6 +33,8 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	add_bitmap(res_id::ENEMY_BOMBER, "data/light_bomber.png");
 	add_bitmap(res_id::ENEMY_LIGHT_FIGHTER, "data/light_fighter.png");
 	add_bitmap(res_id::ENEMY_HEAVY_FIGHTER, "data/heavy_fighter.png");
+	add_bitmap(res_id::ENEMY_LIGHT_BOMBER, "data/light_bomber.png");
+	add_bitmap(res_id::ENEMY_HEAVY_BOMBER, "data/heavy_bomber.png");
 	add_bitmap(res_id::BOMBER_DEBRIS_1, "data/enemy_bomber2_piece_1.png");
 	add_bitmap(res_id::BOMBER_DEBRIS_2, "data/enemy_bomber2_piece_2.png");
 	add_bitmap(res_id::BOMBER_DEBRIS_3, "data/enemy_bomber2_piece_3.png");
@@ -59,6 +61,8 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	flash(res_id::ENEMY_BOMBER_FLASH, res_id::ENEMY_BOMBER);
 	flash(res_id::ENEMY_LIGHT_FIGHTER_FLASH, res_id::ENEMY_LIGHT_FIGHTER);
 	flash(res_id::ENEMY_HEAVY_FIGHTER_FLASH, res_id::ENEMY_HEAVY_FIGHTER);
+	flash(res_id::ENEMY_LIGHT_BOMBER_FLASH, res_id::ENEMY_LIGHT_BOMBER);
+	flash(res_id::ENEMY_HEAVY_BOMBER_FLASH, res_id::ENEMY_HEAVY_BOMBER);
 
 	// Load fonts.
 	add_font(res_id::TINY_FONT, "data/prstartk.ttf", 10);

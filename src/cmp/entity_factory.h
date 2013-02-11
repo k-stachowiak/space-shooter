@@ -88,6 +88,8 @@ public:
 
 	uint64_t create_light_fighter();
 	uint64_t create_heavy_fighter();
+	uint64_t create_light_bomber();
+	uint64_t create_heavy_bomber();
 
 	uint64_t create_health_pickup(double x, double y, double vx, double vy);
 	uint64_t create_missiles_pickup(double x, double y, double vx, double vy);

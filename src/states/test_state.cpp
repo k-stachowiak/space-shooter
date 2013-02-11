@@ -36,8 +36,11 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - [ON HOLD] Non drawn bullets (visibility / efficiency).
-// - Select a consistent graphics set and redesign the enemies for it.
+// - Throw the piskups again.
+// - Make rockets move with acceleration.
 // - Balance the pickups.
+// - Make the fx and the explosions come from the area that depends on the shape
+//     - get_random_point(shape)
 // - Separate planes for the debris (FX) and for the pickups (new plane?).
 // - Dryrun the stars generator so that the screen starts filled with some initial stars.
 
@@ -62,6 +65,8 @@ class test_state : public state {
 	random_clock<uniform_real_distribution<double>> _star_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _l_fighter_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _h_fighter_spawn_clk;
+	random_clock<uniform_real_distribution<double>> _l_bomber_spawn_clk;
+	random_clock<uniform_real_distribution<double>> _h_bomber_spawn_clk;
 
 	// Systems.
 	// --------
@@ -230,11 +235,17 @@ public:
 		uniform_real_distribution<double>(0.125, 0.25),
 		bind(&entity_factory::create_star, &_ef))
 	, _l_fighter_spawn_clk(
-		uniform_real_distribution<double>(3.0, 5.0),
+		uniform_real_distribution<double>(2.0, 4.0),
 		bind(&entity_factory::create_light_fighter, &_ef))
 	, _h_fighter_spawn_clk(
-		uniform_real_distribution<double>(5.0, 7.0),
+		uniform_real_distribution<double>(4.0, 6.0),
 		bind(&entity_factory::create_heavy_fighter, &_ef))
+	, _l_bomber_spawn_clk(
+		uniform_real_distribution<double>(6.0, 8.0),
+		bind(&entity_factory::create_light_bomber, &_ef))
+	, _h_bomber_spawn_clk(
+		uniform_real_distribution<double>(8.0, 10.0),
+		bind(&entity_factory::create_heavy_bomber, &_ef))
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
 	, _ef(_config,
 		_resman,
@@ -274,6 +285,8 @@ public:
 		_star_spawn_clk.tick(dt);
 		_l_fighter_spawn_clk.tick(dt);
 		_h_fighter_spawn_clk.tick(dt);
+		_l_bomber_spawn_clk.tick(dt);
+		_h_bomber_spawn_clk.tick(dt);
 
 		// Update the player's throttle.
 		double player_throttle_x = 0.0;

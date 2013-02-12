@@ -36,8 +36,6 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - [ON HOLD] Non drawn bullets (visibility / efficiency).
-// - Make the fx and the explosions come from the area that depends on the shape
-//     - get_random_point(shape)
 // - Separate planes for the debris (FX) and for the pickups (new plane?).
 // - Dryrun the stars generator so that the screen starts filled with some initial stars.
 

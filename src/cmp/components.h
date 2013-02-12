@@ -60,6 +60,7 @@ public:
 	virtual void rotate(double dphi) = 0;
 	virtual bool collides_with(shape const& shp) const = 0;
 	virtual bool collides_with_circle(circle const& c) const = 0;
+	virtual pair<double, double> get_random_point() const = 0;
 	virtual void debug_draw() {}
 };
 
@@ -192,7 +193,8 @@ public:
 class reaction {
 public:
 	virtual void trigger(
-		double x, double y, double theta,
+		double x, double y, double phi,
+		shared_ptr<shape> shape,
 		double vx, double vy,
 		comm::msg_queue& queue) = 0;
 };
@@ -290,6 +292,7 @@ public:
 			double dt,
 			double health_ratio,
 			double x, double y,
+			shared_ptr<cmp::shape> shape, // TODO: Only pass reference to the systems. shared pointers are overkill here.
 			comm::msg_queue& msgs) = 0;
 };
 

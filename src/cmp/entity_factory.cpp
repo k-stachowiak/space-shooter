@@ -60,7 +60,7 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 
 	// Register nodes.
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 
 	// Feedback for the state.
 	return id;
@@ -119,7 +119,7 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 
 	// Register nodes.
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 
 	// Feedback for the state.
 	return id;
@@ -180,7 +180,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 
 	// Register nodes.
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 
 	// Feedback for the state.
@@ -284,8 +284,8 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
-	_fx_system.add_node({ id, orientation, wellness, fxs });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_pickup_system.add_node({ id, coll_queue, wellness, ammo });
 
 	return id;
@@ -383,8 +383,8 @@ uint64_t entity_factory::create_light_fighter() {
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
-	_fx_system.add_node({ id, orientation, wellness, fxs });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
 
 	return id;
@@ -492,8 +492,8 @@ uint64_t entity_factory::create_heavy_fighter() {
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
-	_fx_system.add_node({ id, orientation, wellness, fxs });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
 
 	return id;
@@ -599,8 +599,8 @@ uint64_t entity_factory::create_light_bomber() {
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
-	_fx_system.add_node({ id, orientation, wellness, fxs });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
 
 	return id;
@@ -704,8 +704,8 @@ uint64_t entity_factory::create_heavy_bomber() {
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
-	_fx_system.add_node({ id, orientation, wellness, fxs });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
 
 	return id;
@@ -763,7 +763,7 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 
 	// Register nodes.
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 
@@ -823,7 +823,7 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 
 	// Register nodes.
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 
@@ -905,8 +905,8 @@ uint64_t entity_factory::create_missile(
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
-	_fx_system.add_node({ id, orientation, wellness, fxs });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 
 	return id;
 }
@@ -975,7 +975,7 @@ uint64_t entity_factory::create_bullet(
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 
 	return id;
 }

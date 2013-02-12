@@ -18,6 +18,8 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include <cmath>
+
 #include <array>
 using std::array;
 
@@ -66,16 +68,18 @@ class complex_reaction : public reaction {
 public:
 	complex_reaction(vector<shared_ptr<reaction>> rs) : _rs(rs) {}
 	void trigger(double x, double y, double phi,
+			shared_ptr<shape> shape,
 			double vx, double vy,
 			comm::msg_queue& queue) {
 		for(auto r : _rs)
-			r->trigger(x, y, phi, vx, vy, queue);
+			r->trigger(x, y, phi, shape, vx, vy, queue);
 	}
 };
 
 class health_drop_reaction : public reaction {
 public:
 	void trigger(double x, double y, double phi,
+			shared_ptr<shape> shape,
 			double vx, double vy,
 			comm::msg_queue& queue) {
 		queue.push(comm::create_spawn_health_pickup(x, y, vx, vy));
@@ -85,6 +89,7 @@ public:
 class missile_drop_reaction : public reaction {
 public:
 	void trigger(double x, double y, double phi,
+			shared_ptr<shape> shape,
 			double vx, double vy,
 			comm::msg_queue& queue) {
 		queue.push(comm::create_spawn_missiles_pickup(x, y, vx, vy));
@@ -116,6 +121,7 @@ public:
 	{}
 
 	void trigger(double x, double y, double phi,
+			shared_ptr<shape> shape,
 			double vx, double vy,
 			comm::msg_queue& queue) {
 
@@ -125,8 +131,10 @@ public:
 				? bmp_dist(rnd::engine)
 				: (i % _images.size());
 			res_id bmp = _images[index];
+			double deb_x, deb_y;
+			tie(deb_x, deb_y) = shape->get_random_point();
 			queue.push(comm::create_spawn_debris(
-						x, y,
+						deb_x, deb_y,
 						vx, vy,
 						_vmin, _vmax,
 						_theta_min, _theta_max,
@@ -144,15 +152,15 @@ public:
 	{}
 
 	void trigger(double x, double y, double phi,
+			shared_ptr<shape> shape,
 			double vx, double vy,
 			comm::msg_queue& queue) {
 
 		double delay = 0.0;
 		uniform_real_distribution<double> delay_dist(0.125, 0.25);
-		uniform_real_distribution<double> dxy_dist(-10.0, 10.0);
 		for(uint32_t i = 0; i < _num_explosions; ++i) {
-			double expl_x = x + dxy_dist(rnd::engine);
-			double expl_y = y + dxy_dist(rnd::engine);
+			double expl_x, expl_y;
+			tie(expl_x, expl_y) = shape->get_random_point();
 			queue.push(comm::create_spawn_explosion(expl_x, expl_y), delay);
 			delay += delay_dist(rnd::engine);
 		}
@@ -561,20 +569,17 @@ public:
 	void update(double dt, 
 			double health_ratio,
 			double x, double y,
+			shared_ptr<cmp::shape> shape,
 			comm::msg_queue& msgs) {
 
 		if(health_ratio > _pain_threshold)
 			return;
 
-		static uniform_real_distribution<double> dist(-20.0, 20.0);
-
 		_timer.update(dt);
 		for(uint32_t i = 0; i < _timer.get_ticks(); ++i) {
-			double dx = dist(rnd::engine);
-			double dy = dist(rnd::engine);
-			msgs.push(comm::create_spawn_smoke(
-						x + dx, y + dy,
-						comm::smoke_size::medium));
+			double rnd_x, rnd_y;
+			tie(rnd_x, rnd_y) = shape->get_random_point();
+			msgs.push(comm::create_spawn_smoke(rnd_x, rnd_y, comm::smoke_size::medium));
 		}
 		_timer.clear();
 	}
@@ -600,6 +605,7 @@ public:
 	void update(	double dt,
 			double health_ratio,
 			double x, double y,
+			shared_ptr<cmp::shape> shape,
 			comm::msg_queue& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
@@ -641,6 +647,15 @@ public:
 		return collide_circle_circle(*this, c);
 	}
 
+	pair<double, double> get_random_point() const {
+		uniform_real_distribution<double> dist;
+		double t = 6.28 * dist(rnd::engine);
+		double u = dist(rnd::engine) + dist(rnd::engine);
+		double r = (u > 1.0) ? (2.0 - u) : u;
+		return make_pair(_x + _r * r * cos(t),
+				 _y + _r * r * sin(t));
+	}
+
 	void debug_draw() {
 		al_draw_circle(_x, _y, _r, al_map_rgb_f(1.0, 0.0, 0.0), 1.0);
 	}
@@ -679,6 +694,11 @@ public:
 			}
 		}
 		return false;
+	}
+
+	pair<double, double> get_random_point() const {
+		uniform_int_distribution<size_t> dist(0, _shapes.size() - 1);
+		return _shapes.at(dist(rnd::engine))->get_random_point();
 	}
 
 	void debug_draw() {

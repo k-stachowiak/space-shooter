@@ -144,6 +144,7 @@ namespace sys {
 			n.effects->update(dt,
 					health / max_health,
 					x, y,
+					n.shape,
 					msgs);
 		}
 	}
@@ -440,6 +441,7 @@ namespace sys {
 							n.orientation->get_x(),
 							n.orientation->get_y(),
 							n.orientation->get_phi(),
+							n.shape,
 							vx, vy,
 							msgs);
 				

@@ -54,6 +54,7 @@ struct drawing_node {
 struct fx_node {
 	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;
+	shared_ptr<cmp::shape> shape;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::fx> effects;
 };
@@ -101,6 +102,7 @@ struct wellness_node {
 	uint64_t id;
 	shared_ptr<cmp::reaction> on_death;
 	shared_ptr<cmp::orientation> orientation;
+	shared_ptr<cmp::shape> shape;
 	shared_ptr<cmp::dynamics> dynamics;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::timer> ttl;

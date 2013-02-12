@@ -291,225 +291,6 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	return id;
 }
 
-uint64_t entity_factory::create_bomber() {
-
-	uniform_real_distribution<double> x_dist(
-			0.0, _config.get_screen_w());
-
-	double x = x_dist(rnd::engine);
-	double y = 1.0;
-
-	// Initialize components.
-	
-	uint64_t id = ++_last_id;
-
-	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
-	
-	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::ENEMY_BOMBER),
-			_resman.get_bitmap(res_id::ENEMY_BOMBER_FLASH));
-
-	auto dynamics = cmp::create_const_velocity_dynamics(0.0, 60.0);
-
-	auto orientation = cmp::create_orientation(x, y, 1.57); 
-	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-
-	auto life_bounds = cmp::create_bounds(
-		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
-
-	auto cc = cmp::coll_class::ENEMY_SHIP; 
-
-	auto c1 = cmp::create_circle(x, y - 20.0, 30.0); 
-	auto c2 = cmp::create_circle(x, y + 20.0, 30.0); 
-	auto shape = cmp::create_complex_shape({ c1, c2 });
-
-	auto coll_queue = cmp::create_coll_queue();
-
-	auto weapon_beh = cmp::create_complex_weapon_beh({
-		cmp::create_period_missile(3.0, 3.0, -15.0, 0.0),
-		cmp::create_period_missile(3.0, 3.0,  15.0, 0.0)
-	});
-
-	auto painmap = cmp::create_painmap({
-		{ cmp::coll_class::PLAYER_BULLET, 10.0 },
-		{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
-		{ cmp::coll_class::PLAYER_SHIP, 50.0 }
-	});
-
-	auto wellness = cmp::create_wellness(100.0); 
-
-	auto ammo = cmp::create_ammo_unlimited();
-
-	shared_ptr<cmp::timer> ttl;
-
-	auto fxs = cmp::create_smoke_when_hurt(0.25);
-
-	auto on_death = cmp::create_complex_reaction({
-			cmp::create_health_drop_reaction(),
-			cmp::create_missile_drop_reaction(),
-			cmp::create_debris_reaction(4, {
-				res_id::BOMBER_DEBRIS_1,
-				res_id::BOMBER_DEBRIS_2,
-				res_id::BOMBER_DEBRIS_3,
-				res_id::BOMBER_DEBRIS_4 },
-				10.0, 30.0,
-				0.25, 1.0,
-				/* explode = */ true,
-				/* randomize = */ false),
-			cmp::create_explosion_sequence_reaction(3) });
-
-	auto sc = cmp::score_class::ENEMY_BOMBER;
-
-	auto pain_flash = make_shared<double>(0.0);
-
-	// Register the components.
-	// ------------------------
-	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
-	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
-	_fx_system.add_node({ id, orientation, wellness, fxs });
-	_score_system.add_node({ id, sc, wellness });
-
-	return id;
-}
-
-uint64_t entity_factory::create_eye() {
-	
-	// Prepare resources for the components.
-	// -------------------------------------
-
-	// The animation.
-	uint32_t frame_width = 32;
-	uint32_t num_frames = 6;
-	double blink_time = 0.15;
-	double angry_time = 0.15;
-	vector<cmp::frame_def> frame_defs {
-		{ 4, angry_time },
-		{ 3, angry_time },
-		{ 2, blink_time }, // Close.
-		{ 1, blink_time },
-		{ 0, blink_time }, // Open.
-		{ 1, blink_time },
-		{ 2, blink_time }, // Close.
-		{ 1, blink_time },
-		{ 0, blink_time }, // Open.
-		{ 1, blink_time },
-		{ 2, blink_time },
-		{ 3, angry_time }, // Angry
-		{ 4, angry_time },
-		{ 5, angry_time }
-	};
-
-	// Compute the animation cycle time.
-	double anim_period = 0;
-	for(auto const& fd : frame_defs)
-		anim_period += fd.time;
-
-	// The path.
-	uniform_real_distribution<double> from_to_dist(
-			0.0, _config.get_screen_w());
-
-	uniform_real_distribution<double> pan_dist(
-			0.0, _config.get_screen_w());
-
-	bernoulli_distribution right_to_left(0.5);
-
-	vector<point> points {
-		{ from_to_dist(rnd::engine), 0.0 },
-		{ 0.0,                       pan_dist(rnd::engine) },
-		{ _config.get_screen_w(),    pan_dist(rnd::engine) },
-		{ from_to_dist(rnd::engine), _config.get_screen_h() + 50 }
-	};
-
-	if(right_to_left(rnd::engine))
-		swap(points[2], points[1]);
-	
-	points = bezier(points, 50);
-
-	// Prepare the components.
-	// -----------------------
-	uint64_t id = ++_last_id;
-
-	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
-	
-	auto appearance = cmp::create_simple_anim(
-			_resman.get_bitmap(res_id::ENEMY_EYE),
-			_resman.get_bitmap(res_id::ENEMY_EYE_FLASH),
-			frame_width,
-			num_frames,
-			frame_defs,
-			-1);
-
-	auto dynamics = cmp::create_path_dynamics(points);
-
-	auto orientation = cmp::create_orientation(
-			points.front().x,
-			points.front().y,
-			0.0);
-
-	auto movement_bounds = shared_ptr<cmp::bounds>();
-
-	auto life_bounds = cmp::create_bounds(
-		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
-
-	auto cc = cmp::coll_class::ENEMY_SHIP;
-
-	auto shape = cmp::create_circle(
-			points.front().x,
-			points.front().y,
-			16.0);
-
-	auto coll_queue = cmp::create_coll_queue();
-
-	auto weapon_beh = cmp::create_period_bullet(anim_period, anim_period, 0.0, 0.0);
-
-	auto painmap = cmp::create_painmap({
-			{ cmp::coll_class::PLAYER_BULLET, 10.0 },
-			{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
-			{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
-
-	auto wellness = cmp::create_wellness(30.0); 
-
-	auto ammo = cmp::create_ammo_unlimited();
-
-	shared_ptr<cmp::timer> ttl;
-
-	auto fxs = cmp::create_smoke_when_hurt(0.25);
-
-	auto on_death = cmp::create_complex_reaction({
-			cmp::create_debris_reaction(5, {
-				res_id::DEBRIS1,
-				res_id::DEBRIS2,
-				res_id::DEBRIS3,
-				res_id::DEBRIS4,
-				res_id::DEBRIS5 },
-				100.0, 300.0,
-				4.0, 7.0,
-				/* explode = */ false,
-				/* randomize = */ true),
-			cmp::create_explosion_sequence_reaction(1) });
-
-	auto sc = cmp::score_class::ENEMY_EYE;
-
-	auto pain_flash = make_shared<double>(0.0);
-
-	// Register the components.
-	// ------------------------
-	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
-	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, dynamics, wellness, ttl });
-	_fx_system.add_node({ id, orientation, wellness, fxs });
-	_score_system.add_node({ id, sc, wellness });
-
-	return id;
-}
-
 uint64_t entity_factory::create_light_fighter() {
 
 	bernoulli_distribution xdir_dist;
@@ -570,18 +351,26 @@ uint64_t entity_factory::create_light_fighter() {
 
 	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
-	auto on_death = cmp::create_complex_reaction({
-			cmp::create_debris_reaction(3, {
-				res_id::DEBRIS1,
-				res_id::DEBRIS2,
-				res_id::DEBRIS3,
-				res_id::DEBRIS4,
-				res_id::DEBRIS5 },
-				100.0, 300.0,
-				4.0, 7.0,
-				/* explode = */ false,
-				/* randomize = */ true),
-			cmp::create_explosion_sequence_reaction(1) });
+	vector<shared_ptr<cmp::reaction>> reactions {
+		cmp::create_debris_reaction(3, {
+			res_id::DEBRIS1,
+			res_id::DEBRIS2,
+			res_id::DEBRIS3,
+			res_id::DEBRIS4,
+			res_id::DEBRIS5 },
+			100.0, 300.0,
+			4.0, 7.0,
+			/* explode = */ false,
+			/* randomize = */ true),
+		cmp::create_explosion_sequence_reaction(1) };
+
+	bernoulli_distribution drop_health(0.1);
+	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
+
+	bernoulli_distribution drop_missile(0.05);
+	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
+
+	auto on_death = cmp::create_complex_reaction(reactions);
 
 	auto sc = cmp::score_class::ENEMY_LIGHT_FIGHTER;
 
@@ -671,18 +460,26 @@ uint64_t entity_factory::create_heavy_fighter() {
 
 	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
-	auto on_death = cmp::create_complex_reaction({
-			cmp::create_debris_reaction(5, {
-				res_id::DEBRIS1,
-				res_id::DEBRIS2,
-				res_id::DEBRIS3,
-				res_id::DEBRIS4,
-				res_id::DEBRIS5 },
-				100.0, 300.0,
-				4.0, 7.0,
-				/* explode = */ false,
-				/* randomize = */ true),
-			cmp::create_explosion_sequence_reaction(3) });
+	vector<shared_ptr<cmp::reaction>> reactions {
+		cmp::create_debris_reaction(5, {
+			res_id::DEBRIS1,
+			res_id::DEBRIS2,
+			res_id::DEBRIS3,
+			res_id::DEBRIS4,
+			res_id::DEBRIS5 },
+			100.0, 300.0,
+			4.0, 7.0,
+			/* explode = */ false,
+			/* randomize = */ true),
+		cmp::create_explosion_sequence_reaction(3) };
+
+	bernoulli_distribution drop_health(0.125);
+	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
+
+	bernoulli_distribution drop_missile(0.1);
+	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
+
+	auto on_death = cmp::create_complex_reaction(reactions);
 
 	auto sc = cmp::score_class::ENEMY_HEAVY_FIGHTER;
 
@@ -770,18 +567,26 @@ uint64_t entity_factory::create_light_bomber() {
 
 	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
-	auto on_death = cmp::create_complex_reaction({
-			cmp::create_debris_reaction(7, {
-				res_id::DEBRIS1,
-				res_id::DEBRIS2,
-				res_id::DEBRIS3,
-				res_id::DEBRIS4,
-				res_id::DEBRIS5 },
-				100.0, 300.0,
-				4.0, 7.0,
-				/* explode = */ false,
-				/* randomize = */ true),
-			cmp::create_explosion_sequence_reaction(5) });
+	vector<shared_ptr<cmp::reaction>> reactions {
+		cmp::create_debris_reaction(7, {
+			res_id::DEBRIS1,
+			res_id::DEBRIS2,
+			res_id::DEBRIS3,
+			res_id::DEBRIS4,
+			res_id::DEBRIS5 },
+			100.0, 300.0,
+			4.0, 7.0,
+			/* explode = */ false,
+			/* randomize = */ true),
+		cmp::create_explosion_sequence_reaction(5) };
+
+	bernoulli_distribution drop_health(0.333);
+	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
+
+	bernoulli_distribution drop_missile(0.125);
+	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
+
+	auto on_death = cmp::create_complex_reaction(reactions);
 
 	auto sc = cmp::score_class::ENEMY_LIGHT_BOMBER;
 
@@ -867,18 +672,26 @@ uint64_t entity_factory::create_heavy_bomber() {
 
 	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
-	auto on_death = cmp::create_complex_reaction({
-			cmp::create_debris_reaction(13, {
-				res_id::DEBRIS1,
-				res_id::DEBRIS2,
-				res_id::DEBRIS3,
-				res_id::DEBRIS4,
-				res_id::DEBRIS5 },
-				100.0, 300.0,
-				4.0, 7.0,
-				/* explode = */ false,
-				/* randomize = */ true),
-			cmp::create_explosion_sequence_reaction(7) });
+	vector<shared_ptr<cmp::reaction>> reactions {
+		cmp::create_debris_reaction(13, {
+			res_id::DEBRIS1,
+			res_id::DEBRIS2,
+			res_id::DEBRIS3,
+			res_id::DEBRIS4,
+			res_id::DEBRIS5 },
+			100.0, 300.0,
+			4.0, 7.0,
+			/* explode = */ false,
+			/* randomize = */ true),
+		cmp::create_explosion_sequence_reaction(7) };
+
+	bernoulli_distribution drop_health(0.5);
+	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
+
+	bernoulli_distribution drop_missile(0.333);
+	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
+
+	auto on_death = cmp::create_complex_reaction(reactions);
 
 	auto sc = cmp::score_class::ENEMY_HEAVY_BOMBER;
 
@@ -1025,9 +838,11 @@ uint64_t entity_factory::create_missile(
 		bool enemy,
 		uint64_t origin_id) {
 
-	// Constants.
+	// Helpers.
 	// ----------
-	double missile_health = 1.0;
+	const double missile_health = 1.0;
+	const double ax = 0;
+	const double ay = (vy > 0) ? 500.0 : -500.0;
 
 	// Initialize Components.
 	// ----------------------
@@ -1042,7 +857,7 @@ uint64_t entity_factory::create_missile(
 			_resman.get_bitmap(res_id::MISSILE),
 			_resman.get_bitmap(res_id::MISSILE));
 
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+	auto dynamics = cmp::create_const_acc_dynamics(vx, vy, ax, ay);
 
 	auto orientation = cmp::create_orientation(x, y, theta); 
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
@@ -1078,14 +893,10 @@ uint64_t entity_factory::create_missile(
 	cmp::coll_class cc;
 	if(enemy) {
 		cc = cmp::coll_class::ENEMY_MISSILE;
-		painmap = cmp::create_painmap({
-				{ cmp::coll_class::PLAYER_SHIP, missile_health },
-				{ cmp::coll_class::PLAYER_BULLET, missile_health } });
+		painmap = cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, missile_health } });
 	} else {
 		cc = cmp::coll_class::PLAYER_MISSILE;
-		painmap = cmp::create_painmap({
-				{ cmp::coll_class::ENEMY_SHIP, missile_health },
-				{ cmp::coll_class::ENEMY_BULLET, missile_health } });
+		painmap = cmp::create_painmap({ { cmp::coll_class::ENEMY_SHIP, missile_health } });
 	}
 
 	// Register nodes.

@@ -83,9 +83,6 @@ public:
 	uint64_t create_star();
 	uint64_t create_player_ship(double x, double y);
 
-	uint64_t create_bomber();
-	uint64_t create_eye();
-
 	uint64_t create_light_fighter();
 	uint64_t create_heavy_fighter();
 	uint64_t create_light_bomber();
@@ -94,6 +91,8 @@ public:
 	uint64_t create_health_pickup(double x, double y, double vx, double vy);
 	uint64_t create_missiles_pickup(double x, double y, double vx, double vy);
 
+	// TODO: This should rather take the direction vector and compute the velocities
+	//     and the accelerations internally.
 	uint64_t create_missile(
 			double x, double y,
 			double theta,

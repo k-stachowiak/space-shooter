@@ -36,9 +36,6 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - [ON HOLD] Non drawn bullets (visibility / efficiency).
-// - Throw the piskups again.
-// - Make rockets move with acceleration.
-// - Balance the pickups.
 // - Make the fx and the explosions come from the area that depends on the shape
 //     - get_random_point(shape)
 // - Separate planes for the debris (FX) and for the pickups (new plane?).
@@ -60,8 +57,6 @@ class test_state : public state {
 
 	// Generation processes.
 	// ---------------------
-	random_clock<uniform_real_distribution<double>> _eye_spawn_clk;
-	random_clock<uniform_real_distribution<double>> _bomber_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _star_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _l_fighter_spawn_clk;
 	random_clock<uniform_real_distribution<double>> _h_fighter_spawn_clk;
@@ -225,12 +220,6 @@ public:
 	: _config(config)
 	, _resman(resman)
 	, _done(false)
-	, _eye_spawn_clk(
-		uniform_real_distribution<double>(1.0, 2.0),
-		bind(&entity_factory::create_eye, &_ef))
-	, _bomber_spawn_clk(
-		uniform_real_distribution<double>(5.0, 7.0),
-		bind(&entity_factory::create_bomber, &_ef))
 	, _star_spawn_clk(
 		uniform_real_distribution<double>(0.125, 0.25),
 		bind(&entity_factory::create_star, &_ef))
@@ -280,8 +269,6 @@ public:
 	void frame_logic(double dt) {
 
 		// Trigger the clocks.
-		// _eye_spawn_clk.tick(dt);
-		// _bomber_spawn_clk.tick(dt);
 		_star_spawn_clk.tick(dt);
 		_l_fighter_spawn_clk.tick(dt);
 		_h_fighter_spawn_clk.tick(dt);

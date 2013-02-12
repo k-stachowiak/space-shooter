@@ -192,9 +192,9 @@ public:
 class reaction {
 public:
 	virtual void trigger(
-			double x, double y, double theta,
-			double vx, double vy,
-			comm::msg_queue& queue) = 0;
+		double x, double y, double theta,
+		double vx, double vy,
+		comm::msg_queue& queue) = 0;
 };
 
 // The object's health armor etc.
@@ -348,6 +348,7 @@ shared_ptr<appearance> create_simple_anim(
 
 shared_ptr<dynamics> create_complex_dynamics(vector<shared_ptr<dynamics>> ds);
 shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy);
+shared_ptr<dynamics> create_const_acc_dynamics(double vx0, double vy0, double ax, double ay);
 shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta);
 shared_ptr<dynamics> create_path_dynamics(vector<point> points);
 

@@ -347,6 +347,22 @@ public:
 	void update(double dt) {}
 };
 
+class const_acc_dynamics : public dynamics {
+	double _vx0, _vy0;
+	double _ax, _ay;
+	double _t;
+public:
+	const_acc_dynamics(double vx0, double vy0, double ax, double ay)
+	: _vx0(vx0), _vy0(vy0), _ax(ax), _ay(ay), _t(0)
+	{}
+
+	void update(double dt) {
+		_t += dt;
+		_vx = _vx0 + _ax * _t;
+		_vy = _vy0 + _ay * _t;
+	}
+};
+
 class const_ang_vel_dynamics : public dynamics {
 public:
 	const_ang_vel_dynamics(double theta) { _theta = theta; }
@@ -790,6 +806,10 @@ shared_ptr<dynamics> create_complex_dynamics(vector<shared_ptr<dynamics>> ds) {
 
 shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy) {
 	return shared_ptr<dynamics>(new const_velocity_dynamics(vx, vy));
+}
+
+shared_ptr<dynamics> create_const_acc_dynamics(double vx0, double vy0, double ax, double ay) {
+	return shared_ptr<dynamics>(new const_acc_dynamics(vx0, vy0, ax, ay));
 }
 
 shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta) {

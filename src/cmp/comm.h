@@ -89,6 +89,7 @@ struct message {
 		double theta_min, theta_max;
 		res_id image;
 		bool explode;
+		uint64_t origin_id;
 	} spawn_debris;
 
 	struct {
@@ -124,7 +125,8 @@ message create_spawn_debris(double x, double y,
 		double vmin, double vmax,
 		double theta_min, double theta_max,
 		res_id image,
-		bool explode);
+		bool explode,
+		uint64_t origin_id);
 
 message create_spawn_health_pickup(double x, double y, double vx, double vy);
 message create_spawn_missiles_pickup(double x, double y, double vx, double vy);

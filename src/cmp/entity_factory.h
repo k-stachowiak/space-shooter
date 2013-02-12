@@ -78,7 +78,8 @@ public:
 			double vmin, double vmax,
 			double theta_min, double theta_max,
 			res_id bmp,
-			bool explode);
+			bool explode,
+			uint64_t origin_id);
 
 	uint64_t create_star();
 	uint64_t create_player_ship(double x, double y);

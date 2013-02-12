@@ -438,12 +438,13 @@ namespace sys {
 				// Handle reactions.
 				if(n.on_death)
 					n.on_death->trigger(
-							n.orientation->get_x(),
-							n.orientation->get_y(),
-							n.orientation->get_phi(),
-							n.shape,
-							vx, vy,
-							msgs);
+						n.orientation->get_x(),
+						n.orientation->get_y(),
+						n.orientation->get_phi(),
+						n.shape,
+						vx, vy,
+						n.id,
+						msgs);
 				
 				// Remove the entity.
 				msgs.push(comm::create_remove_entity(n.id));

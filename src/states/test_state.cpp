@@ -140,7 +140,8 @@ class test_state : public state {
 						msg.spawn_debris.theta_min,
 						msg.spawn_debris.theta_max,
 						msg.spawn_debris.image,
-						msg.spawn_debris.explode);
+						msg.spawn_debris.explode,
+						msg.spawn_debris.origin_id);
 				break;
 
 			case comm::msg_t::spawn_health_pickup:

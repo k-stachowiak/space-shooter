@@ -66,7 +66,8 @@ message create_spawn_debris(
 		double vmin, double vmax,
 		double theta_min, double theta_max,
 		res_id image,
-		bool explode) {
+		bool explode,
+		uint64_t origin_id) {
 	message msg;
 	msg.type = msg_t::spawn_debris;
 	msg.spawn_debris = { x, y,
@@ -74,7 +75,8 @@ message create_spawn_debris(
 		vmin, vmax,
 		theta_min, theta_max,
 		image,
-		explode };
+		explode,
+		origin_id };
 	return msg;
 }
 

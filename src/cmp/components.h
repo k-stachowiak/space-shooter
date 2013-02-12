@@ -83,6 +83,7 @@ enum class coll_class {
 	ENEMY_SHIP,
 	ENEMY_BULLET,
 	ENEMY_MISSILE,
+	DEBRIS,
 	HEALTH_PICKUP,
 	MISSILES_PICKUP,
 };
@@ -196,6 +197,7 @@ public:
 		double x, double y, double phi,
 		shared_ptr<shape> shape,
 		double vx, double vy,
+		uint64_t origin_id,
 		comm::msg_queue& queue) = 0;
 };
 

@@ -130,7 +130,12 @@ uint64_t entity_factory::create_debris(double x, double y,
 		double vmin, double vmax,
 		double theta_min, double theta_max,
 		res_id bmp,
-		bool explode) {
+		bool explode,
+		uint64_t origin_id) {
+
+	// Helpers.
+	// --------
+	double debris_health = 1;
 
 	// TTL generation.
 	uniform_real_distribution<double> ttl_dist(0.25, 1.0);
@@ -166,8 +171,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 				base_av * mul_av) });
 
 	auto orientation = cmp::create_orientation(x, y, 0.0); 
-	shared_ptr<cmp::shape> shape; 
-	shared_ptr<cmp::wellness> wellness; 
+	auto wellness = cmp::create_wellness(debris_health); 
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
 	auto life_bounds = cmp::create_bounds(
 		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
@@ -178,10 +182,21 @@ uint64_t entity_factory::create_debris(double x, double y,
 
 	auto pain_flash = make_shared<double>(0.0);
 
+	cmp::coll_class cc = cmp::coll_class::DEBRIS;
+	auto shape = cmp::create_circle(x, y, 8.0);
+	auto coll_queue = cmp::create_coll_queue();
+	auto painmap = cmp::create_painmap({
+		{ cmp::coll_class::PLAYER_SHIP, debris_health },
+		{ cmp::coll_class::ENEMY_SHIP, debris_health }
+	});
+
 	// Register nodes.
+	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
+	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
 
 	// Feedback for the state.
 	return id;
@@ -250,7 +265,8 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	auto painmap = cmp::create_painmap({
 		{ cmp::coll_class::ENEMY_BULLET, 10.0 },
 		{ cmp::coll_class::ENEMY_MISSILE, 20.0 },
-		{ cmp::coll_class::ENEMY_SHIP, 25.0 }
+		{ cmp::coll_class::ENEMY_SHIP, 25.0 },
+		{ cmp::coll_class::DEBRIS, 10.0 }
 	}); 
 
 	auto wellness = cmp::create_wellness(100.0); 
@@ -339,9 +355,11 @@ uint64_t entity_factory::create_light_fighter() {
 			cmp::create_period_bullet(3.0, 3.0, -17.0, -3.0) });
 
 	auto painmap = cmp::create_painmap({
-			{ cmp::coll_class::PLAYER_BULLET, 10.0 },
-			{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
-			{ cmp::coll_class::PLAYER_SHIP, 50.0 } });
+		{ cmp::coll_class::PLAYER_BULLET, 10.0 },
+		{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
+		{ cmp::coll_class::PLAYER_SHIP, 50.0 },
+		{ cmp::coll_class::DEBRIS, 10.0 }
+	});
 
 	auto wellness = cmp::create_wellness(30.0); 
 
@@ -448,9 +466,11 @@ uint64_t entity_factory::create_heavy_fighter() {
 			cmp::create_period_missile(4.0, 4.0, -40.0, -5.0) });
 
 	auto painmap = cmp::create_painmap({
-			{ cmp::coll_class::PLAYER_BULLET, 5.0 },
-			{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
-			{ cmp::coll_class::PLAYER_SHIP, 30.0 } });
+		{ cmp::coll_class::PLAYER_BULLET, 5.0 },
+		{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
+		{ cmp::coll_class::PLAYER_SHIP, 30.0 },
+		{ cmp::coll_class::DEBRIS, 10.0 }
+	});
 
 	auto wellness = cmp::create_wellness(50.0); 
 
@@ -555,9 +575,11 @@ uint64_t entity_factory::create_light_bomber() {
 			cmp::create_period_missile(3.0, 3.0, -65.0, -30.0) });
 
 	auto painmap = cmp::create_painmap({
-			{ cmp::coll_class::PLAYER_BULLET, 5.0 },
-			{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
-			{ cmp::coll_class::PLAYER_SHIP, 30.0 } });
+		{ cmp::coll_class::PLAYER_BULLET, 5.0 },
+		{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
+		{ cmp::coll_class::PLAYER_SHIP, 30.0 },
+		{ cmp::coll_class::DEBRIS, 10.0 }
+	});
 
 	auto wellness = cmp::create_wellness(70.0); 
 
@@ -660,9 +682,11 @@ uint64_t entity_factory::create_heavy_bomber() {
 			cmp::create_period_missile(3.0, 3.0, -65.0, -30.0) });
 
 	auto painmap = cmp::create_painmap({
-			{ cmp::coll_class::PLAYER_BULLET, 5.0 },
-			{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
-			{ cmp::coll_class::PLAYER_SHIP, 30.0 } });
+		{ cmp::coll_class::PLAYER_BULLET, 5.0 },
+		{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
+		{ cmp::coll_class::PLAYER_SHIP, 30.0 },
+		{ cmp::coll_class::DEBRIS, 10.0 }
+	});
 
 	auto wellness = cmp::create_wellness(90.0); 
 

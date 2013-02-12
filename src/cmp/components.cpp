@@ -70,9 +70,10 @@ public:
 	void trigger(double x, double y, double phi,
 			shared_ptr<shape> shape,
 			double vx, double vy,
+			uint64_t origin_id,
 			comm::msg_queue& queue) {
 		for(auto r : _rs)
-			r->trigger(x, y, phi, shape, vx, vy, queue);
+			r->trigger(x, y, phi, shape, vx, vy, origin_id, queue);
 	}
 };
 
@@ -81,6 +82,7 @@ public:
 	void trigger(double x, double y, double phi,
 			shared_ptr<shape> shape,
 			double vx, double vy,
+			uint64_t origin_id,
 			comm::msg_queue& queue) {
 		queue.push(comm::create_spawn_health_pickup(x, y, vx, vy));
 	}
@@ -91,6 +93,7 @@ public:
 	void trigger(double x, double y, double phi,
 			shared_ptr<shape> shape,
 			double vx, double vy,
+			uint64_t origin_id,
 			comm::msg_queue& queue) {
 		queue.push(comm::create_spawn_missiles_pickup(x, y, vx, vy));
 	}
@@ -103,6 +106,7 @@ class debris_reaction : public reaction {
 	double _theta_min, _theta_max;
 	bool _explode;
 	bool _randomize;
+	
 public:
 	debris_reaction(uint32_t num_debris,
 			vector<res_id> images,
@@ -123,6 +127,7 @@ public:
 	void trigger(double x, double y, double phi,
 			shared_ptr<shape> shape,
 			double vx, double vy,
+			uint64_t origin_id,
 			comm::msg_queue& queue) {
 
 		uniform_int_distribution<int> bmp_dist(0, _images.size() - 1);
@@ -139,7 +144,8 @@ public:
 						_vmin, _vmax,
 						_theta_min, _theta_max,
 						bmp,
-						_explode));
+						_explode,
+						origin_id));
 		}
 	}
 };
@@ -154,6 +160,7 @@ public:
 	void trigger(double x, double y, double phi,
 			shared_ptr<shape> shape,
 			double vx, double vy,
+			uint64_t origin_id,
 			comm::msg_queue& queue) {
 
 		double delay = 0.0;

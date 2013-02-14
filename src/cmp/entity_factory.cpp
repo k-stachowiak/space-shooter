@@ -28,18 +28,27 @@ using std::endl;
 
 uint64_t entity_factory::create_explosion(double x, double y) {
 
-	// Initialize components.
-	uint64_t id = ++_last_id;
-
-	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
-	
+	// Helpers.
+	// --------
 	uint32_t frame_width = 70;
 	uint32_t num_frames = 16;
 	double frame_time = 0.05;
+
 	vector<cmp::frame_def> frame_defs;
 	for(uint32_t i = 0; i < num_frames; ++i)
 		frame_defs.emplace_back(i, frame_time);
 
+	// Common components.
+	// ------------------
+	uint64_t id = ++_last_id;
+	auto orientation = cmp::create_orientation(x, y, 0.0); 
+	shared_ptr<cmp::dynamics> dynamics; 
+	shared_ptr<cmp::shape> shape; 
+
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::FX;
+	auto pain_flash = make_shared<double>(0.0);
 	auto appearance = cmp::create_simple_anim(
 			_resman.get_bitmap(res_id::EXPLOSION),
 			_resman.get_bitmap(res_id::EXPLOSION),
@@ -48,31 +57,26 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 			frame_defs,
 			1);
 
-	shared_ptr<cmp::dynamics> dynamics; 
-	auto orientation = cmp::create_orientation(x, y, 0.0); 
-	shared_ptr<cmp::shape> shape; 
-	shared_ptr<cmp::wellness> wellness; 
+	// Wellness components.
+	// --------------------
 	auto ttl = cmp::create_const_int_timer(num_frames * frame_time); 
-
 	shared_ptr<cmp::reaction> on_death;
-
-	auto pain_flash = make_shared<double>(0.0);
+	shared_ptr<cmp::wellness> wellness; 
 
 	// Register nodes.
+	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 
-	// Feedback for the state.
 	return id;
 }
 
 uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size) {
 
-	// Initialize components.
-	uint64_t id = ++_last_id;
+	// Helpers.
+	// --------
 
-	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
-	
+	// Interpret size.
 	res_id rid;
 	double scale;
 	switch(size) {
@@ -80,18 +84,22 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 			rid = res_id::SMOKE_SMALL;
 			scale = 0.5;
 			break;
+
 		case comm::smoke_size::medium:
 			rid = res_id::SMOKE;
 			scale = 1.0;
 			break;
+			
 		case comm::smoke_size::big:
 			rid = res_id::SMOKE_BIG;
 			scale = 2.0;
 			break;
+
 		default:
 			throw;
 	}
-	
+
+	// Prepare animation frame definitions.
 	uint32_t frame_width = 32 * 3 * scale;
 	uint32_t num_frames = 25;
 	double frame_time = 0.075;
@@ -99,6 +107,18 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	for(uint32_t i = 0; i < num_frames; ++i)
 		frame_defs.emplace_back(i, frame_time);
 
+	
+	// Common components.
+	// ------------------
+	uint64_t id = ++_last_id;
+	auto orientation = cmp::create_orientation(x, y, 0.0); 
+	auto pain_flash = make_shared<double>();
+	shared_ptr<cmp::dynamics> dynamics; 
+	shared_ptr<cmp::shape> shape; 
+
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::FX;
 	auto appearance = cmp::create_simple_anim(
 			_resman.get_bitmap(rid),
 			_resman.get_bitmap(rid),
@@ -107,21 +127,17 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 			frame_defs,
 			1);
 
-	shared_ptr<cmp::dynamics> dynamics; 
-	auto orientation = cmp::create_orientation(x, y, 0.0); 
-	shared_ptr<cmp::shape> shape; 
-	shared_ptr<cmp::wellness> wellness; 
+	// Wellness components.
+	// --------------------
 	auto ttl = cmp::create_const_int_timer(num_frames * frame_time); 
-
 	shared_ptr<cmp::reaction> on_death;
-
-	auto pain_flash = make_shared<double>(0.0);
+	shared_ptr<cmp::wellness> wellness; 
 
 	// Register nodes.
+	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 
-	// Feedback for the state.
 	return id;
 }
 
@@ -154,37 +170,44 @@ uint64_t entity_factory::create_debris(double x, double y,
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	// Initialize components.
+	// Common components.
+	// ------------------
 	uint64_t id = ++_last_id;
-	
-	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
-	
-	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(bmp),
-			_resman.get_bitmap(bmp));
-
-	auto dynamics = cmp::create_complex_dynamics({
-		cmp::create_const_velocity_dynamics(
-				bvx + base_vx * mul_vx,
-				bvy + base_vy * mul_vy),
-		cmp::create_const_ang_vel_dynamics(
-				base_av * mul_av) });
-
 	auto orientation = cmp::create_orientation(x, y, 0.0); 
-	auto wellness = cmp::create_wellness(debris_health); 
-	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-	auto life_bounds = cmp::create_bounds(
-		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
-	auto ttl = cmp::create_const_int_timer(ttl_time); 
-
-	shared_ptr<cmp::reaction> on_death;
-	if(explode) on_death = cmp::create_explosion_sequence_reaction(1);
-
 	auto pain_flash = make_shared<double>(0.0);
-
-	cmp::coll_class cc = cmp::coll_class::DEBRIS;
 	auto shape = cmp::create_circle(x, y, 8.0);
+
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::FX;
+	auto appearance = cmp::create_static_bmp(
+		_resman.get_bitmap(bmp),
+		_resman.get_bitmap(bmp));
+
+	// Wellness nodes.
+	// ---------------
+	auto wellness = cmp::create_wellness(debris_health); 
+	auto ttl = cmp::create_const_int_timer(ttl_time); 
+	auto on_death = explode
+		? cmp::create_explosion_sequence_reaction(1)
+		: shared_ptr<cmp::reaction>();
+
+	// Movement nodes.
+	// ---------------
+	auto movement_bounds = shared_ptr<cmp::bounds>(); 
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
+	auto dynamics = cmp::create_complex_dynamics({
+		cmp::create_const_velocity_dynamics(bvx + base_vx * mul_vx, bvy + base_vy * mul_vy),
+		cmp::create_const_ang_vel_dynamics(base_av * mul_av)
+	});
+
+	// Collision nodes.
+	// ----------------
 	auto coll_queue = cmp::create_coll_queue();
+	auto cc = cmp::coll_class::DEBRIS;
+
+	// Pain nodes.
+	// -----------
 	auto painmap = cmp::create_painmap({
 		{ cmp::coll_class::PLAYER_SHIP, debris_health },
 		{ cmp::coll_class::ENEMY_SHIP, debris_health }
@@ -198,13 +221,13 @@ uint64_t entity_factory::create_debris(double x, double y,
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
 
-	// Feedback for the state.
 	return id;
 }
 
 uint64_t entity_factory::create_star() {
 
-	// Helpers
+	// Helpers.
+	// --------
 	uniform_real_distribution<double> uni_dist;
 	double grade = uni_dist(rnd::engine);
 
@@ -213,26 +236,26 @@ uint64_t entity_factory::create_star() {
 	
 	double x = uni_dist(rnd::engine) * _config.get_screen_w();
 	
-	// Initialize components.
+	// Common components.
+	// ------------------
 	uint64_t id = ++_last_id;
-
-	cmp::draw_plane draw_plane = cmp::draw_plane::BACKGROUND;
-
-	auto appearance = cmp::create_pixel(shade, shade, shade);
-
 	auto orientation = cmp::create_orientation(x, 1.0, 0.0);
-
 	auto pain_flash = make_shared<double>(0.0);
-
 	shared_ptr<cmp::shape> shape;
 
-	auto dynamics = cmp::create_const_velocity_dynamics(0.0, vy);
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::BACKGROUND;
+	auto appearance = cmp::create_pixel(shade, shade, shade);
 
+	// Movement components.
+	// --------------------
+	auto dynamics = cmp::create_const_velocity_dynamics(0.0, vy);
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-	auto life_bounds = cmp::create_bounds(
-		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
 
 	// Register nodes.
+	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 
@@ -243,25 +266,35 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 
 	// Initialize components.
 	uint64_t id = ++_last_id;
+	auto orientation = cmp::create_orientation(x, y, -1.57); 
+	auto shape = cmp::create_circle(x, y, 32.0); 
+	auto pain_flash = make_shared<double>(0.0);
 
-	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
-	
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::SHIPS;
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::PLAYER_SHIP),
 			_resman.get_bitmap(res_id::PLAYER_SHIP_FLASH));
 
-	shared_ptr<cmp::dynamics> dynamics; 
-	auto orientation = cmp::create_orientation(x, y, -1.57); 
-
-	auto movement_bounds = cmp::create_bounds(
-		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
-
+	// Movement components.
+	// --------------------
 	auto life_bounds = shared_ptr<cmp::bounds>(); 
-	auto cc = cmp::coll_class::PLAYER_SHIP; 
-	auto shape = cmp::create_circle(x, y, 32.0); 
-	auto coll_queue = cmp::create_coll_queue(); 
-	shared_ptr<cmp::weapon_beh> weapon_beh; 
+	auto movement_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
+	shared_ptr<cmp::dynamics> dynamics; 
 
+	// Arms components.
+	// ----------------
+	shared_ptr<cmp::weapon_beh> weapon_beh; // TODO: Have a "player contolled weapon behavior"
+	auto ammo = cmp::create_ammo(-1, 3);
+
+	// Collision components.
+	// ---------------------
+	auto coll_queue = cmp::create_coll_queue(); 
+	auto cc = cmp::coll_class::PLAYER_SHIP; 
+
+	// Pain components.
+	// ----------------
 	auto painmap = cmp::create_painmap({
 		{ cmp::coll_class::ENEMY_BULLET, 10.0 },
 		{ cmp::coll_class::ENEMY_MISSILE, 20.0 },
@@ -269,35 +302,34 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 		{ cmp::coll_class::DEBRIS, 10.0 }
 	}); 
 
+	// Wellness components.
+	// --------------------
 	auto wellness = cmp::create_wellness(100.0); 
-
-	auto ammo = cmp::create_ammo(-1, 3);
+	auto on_death = cmp::create_complex_reaction({
+		cmp::create_debris_reaction(10, {
+			res_id::DEBRIS1,
+			res_id::DEBRIS2,
+			res_id::DEBRIS3,
+			res_id::DEBRIS4,
+			res_id::DEBRIS5 },
+			100.0, 300.0,
+			4.0, 7.0,
+			/* explode = */ false,
+			/* randomize = */ true),
+		cmp::create_explosion_sequence_reaction(7)
+	});
 
 	shared_ptr<cmp::timer> ttl; 
+
+	// Fx components.
+	// --------------
 	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
-	auto on_death = cmp::create_complex_reaction({
-			cmp::create_debris_reaction(10, {
-				res_id::DEBRIS1,
-				res_id::DEBRIS2,
-				res_id::DEBRIS3,
-				res_id::DEBRIS4,
-				res_id::DEBRIS5 },
-				100.0, 300.0,
-				4.0, 7.0,
-				/* explode = */ false,
-				/* randomize = */ true),
-			cmp::create_explosion_sequence_reaction(7) });
-
-	auto pain_flash = make_shared<double>(0.0);
-
 	// Register nodes.
+	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-
-	_arms_system.add_node({id, orientation, weapon_beh, ammo });
-
+	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
@@ -309,6 +341,8 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 
 uint64_t entity_factory::create_light_fighter() {
 
+	// Helpers.
+	// --------
 	bernoulli_distribution xdir_dist;
 
 	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
@@ -317,43 +351,47 @@ uint64_t entity_factory::create_light_fighter() {
 	const double vy = 75.0;
 
 	const double offscreen = 30.0;
-	const double x = (dir > 0.0)
-		? -offscreen
-		: _config.get_screen_w() + offscreen;
+	const double x = (dir > 0.0) ? -offscreen : _config.get_screen_w() + offscreen;
 	const double y = -offscreen;
 
-	// Prepare the components.
-	// -----------------------
+	// Common components.
+	// ------------------
 	uint64_t id = ++_last_id;
+	auto orientation = cmp::create_orientation(x, y, 1.57);
+	auto shape = cmp::create_circle(x, y, 32.0);
+	auto pain_flash = make_shared<double>(0.0);
 
-	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
-	
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::SHIPS;
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::ENEMY_LIGHT_FIGHTER),
 			_resman.get_bitmap(res_id::ENEMY_LIGHT_FIGHTER_FLASH)); 
 
+	// Movement components.
+	// --------------------
 	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
-
-	auto orientation = cmp::create_orientation(x, y, 1.57);
-
 	auto movement_bounds = shared_ptr<cmp::bounds>();
-
 	auto life_bounds = cmp::create_bounds(
 		-offscreen - 1.0,
 		-offscreen - 1.0,
 		_config.get_screen_w() + offscreen + 1.0,
 		_config.get_screen_h() + offscreen + 1.0);
 
-	auto cc = cmp::coll_class::ENEMY_SHIP;
-
-	auto shape = cmp::create_circle(x, y, 32.0);
-
-	auto coll_queue = cmp::create_coll_queue();
-
+	// Arms components.
+	// ----------------
+	auto ammo = cmp::create_ammo_unlimited();
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(3.0, 3.0, +17.0, -3.0),
 			cmp::create_period_bullet(3.0, 3.0, -17.0, -3.0) });
 
+	// Collision components.
+	// ---------------------
+	auto cc = cmp::coll_class::ENEMY_SHIP;
+	auto coll_queue = cmp::create_coll_queue();
+
+	// Pain components.
+	// ----------------
 	auto painmap = cmp::create_painmap({
 		{ cmp::coll_class::PLAYER_BULLET, 10.0 },
 		{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
@@ -361,14 +399,9 @@ uint64_t entity_factory::create_light_fighter() {
 		{ cmp::coll_class::DEBRIS, 10.0 }
 	});
 
+	// Wellness components.
+	// --------------------
 	auto wellness = cmp::create_wellness(30.0); 
-
-	auto ammo = cmp::create_ammo_unlimited();
-
-	shared_ptr<cmp::timer> ttl;
-
-	auto fxs = cmp::create_smoke_when_hurt(0.25);
-
 	vector<shared_ptr<cmp::reaction>> reactions {
 		cmp::create_debris_reaction(3, {
 			res_id::DEBRIS1,
@@ -383,19 +416,26 @@ uint64_t entity_factory::create_light_fighter() {
 		cmp::create_explosion_sequence_reaction(1) };
 
 	bernoulli_distribution drop_health(0.1);
-	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
+	if(drop_health(rnd::engine))
+		reactions.push_back(cmp::create_health_drop_reaction());
 
 	bernoulli_distribution drop_missile(0.05);
-	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
+	if(drop_missile(rnd::engine))
+		reactions.push_back(cmp::create_missile_drop_reaction());
 
 	auto on_death = cmp::create_complex_reaction(reactions);
+	shared_ptr<cmp::timer> ttl;
 
+	// Fx components.
+	// --------------
+	auto fxs = cmp::create_smoke_when_hurt(0.25);
+
+	// Score components.
+	// -----------------
 	auto sc = cmp::score_class::ENEMY_LIGHT_FIGHTER;
 
-	auto pain_flash = make_shared<double>(0.0);
-
-	// Register the components.
-	// ------------------------
+	// Register components.
+	// --------------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
@@ -410,10 +450,10 @@ uint64_t entity_factory::create_light_fighter() {
 
 uint64_t entity_factory::create_heavy_fighter() {
 
-	// Prepare helpers.
-	// ----------------
+	// Helpers.
+	// --------
 
-	// Determine path points.
+	// Path points.
 	uniform_real_distribution<double> x_margin_dist(50.0, 200.0);
 	
 	const double offscreen = 30.0;
@@ -430,22 +470,24 @@ uint64_t entity_factory::create_heavy_fighter() {
 
 	vector<point> points { { x0, y0 }, { x0, y1 }, { x1, y1 }, { x1, y2 } };
 
-	// Prepare the components.
-	// -----------------------
+	// Common components.
+	// ------------------
 	uint64_t id = ++_last_id;
+	auto orientation = cmp::create_orientation(points.front().x, points.front().y, 1.57);
+	auto shape = cmp::create_circle(points.front().x, points.front().y, 55.0);
+	auto pain_flash = make_shared<double>(0.0);
 
-	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
-	
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::SHIPS;
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::ENEMY_HEAVY_FIGHTER),
 			_resman.get_bitmap(res_id::ENEMY_HEAVY_FIGHTER_FLASH)); 
 
+	// Movement components.
+	// --------------------
 	auto dynamics = cmp::create_path_dynamics(points);
-
-	auto orientation = cmp::create_orientation(points.front().x, points.front().y, 1.57);
-
 	auto movement_bounds = shared_ptr<cmp::bounds>();
-
 	auto life_bounds = cmp::create_bounds(
 		-offscreen,
 		-offscreen - 1.0, // -1 ensures that the starting position is valid
@@ -453,18 +495,22 @@ uint64_t entity_factory::create_heavy_fighter() {
 		_config.get_screen_h() + offscreen - 1.0); // -1 ensures that the
 							   // end position is invalid
 
-	auto cc = cmp::coll_class::ENEMY_SHIP;
-
-	auto shape = cmp::create_circle(points.front().x, points.front().y, 55.0);
-
-	auto coll_queue = cmp::create_coll_queue();
-
+	// Arms components.
+	// ----------------
+	auto ammo = cmp::create_ammo_unlimited();
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(1.5, 1.5, +25.0, -5.0),
 			cmp::create_period_bullet(1.5, 1.5, -25.0, -5.0),
 			cmp::create_period_missile(4.0, 4.0, +40.0, -5.0),
 			cmp::create_period_missile(4.0, 4.0, -40.0, -5.0) });
 
+	// Collision components.
+	// ---------------------
+	auto coll_queue = cmp::create_coll_queue();
+	auto cc = cmp::coll_class::ENEMY_SHIP;
+
+	// Pain components.
+	// ----------------
 	auto painmap = cmp::create_painmap({
 		{ cmp::coll_class::PLAYER_BULLET, 5.0 },
 		{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
@@ -472,14 +518,10 @@ uint64_t entity_factory::create_heavy_fighter() {
 		{ cmp::coll_class::DEBRIS, 10.0 }
 	});
 
+	// Wellness components.
+	// --------------------
 	auto wellness = cmp::create_wellness(50.0); 
-
-	auto ammo = cmp::create_ammo_unlimited();
-
 	shared_ptr<cmp::timer> ttl;
-
-	auto fxs = cmp::create_smoke_when_hurt(0.25);
-
 	vector<shared_ptr<cmp::reaction>> reactions {
 		cmp::create_debris_reaction(5, {
 			res_id::DEBRIS1,
@@ -501,9 +543,13 @@ uint64_t entity_factory::create_heavy_fighter() {
 
 	auto on_death = cmp::create_complex_reaction(reactions);
 
-	auto sc = cmp::score_class::ENEMY_HEAVY_FIGHTER;
+	// Fx components.
+	// --------------
+	auto fxs = cmp::create_smoke_when_hurt(0.25);
 
-	auto pain_flash = make_shared<double>(0.0);
+	// Score components.
+	// -----------------
+	auto sc = cmp::score_class::ENEMY_HEAVY_FIGHTER;
 
 	// Register the components.
 	// ------------------------
@@ -521,8 +567,8 @@ uint64_t entity_factory::create_heavy_fighter() {
 
 uint64_t entity_factory::create_light_bomber() {
 
-	// Prepare helpers.
-	// ----------------
+	// Helpers.
+	// --------
 	bernoulli_distribution xdir_dist;
 
 	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
@@ -531,49 +577,54 @@ uint64_t entity_factory::create_light_bomber() {
 	const double vy = 50.0;
 
 	const double offscreen = 30.0;
-	const double x = (dir > 0.0)
-		? -offscreen
-		: _config.get_screen_w() + offscreen;
+	const double x = (dir > 0.0) ? -offscreen : _config.get_screen_w() + offscreen;
 	const double y = -offscreen;
 
-	// Prepare the components.
-	// -----------------------
+	// Common components.
+	// ------------------
 	uint64_t id = ++_last_id;
-
-	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
-	
-	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::ENEMY_LIGHT_BOMBER),
-			_resman.get_bitmap(res_id::ENEMY_LIGHT_BOMBER_FLASH)); 
-
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
-
 	auto orientation = cmp::create_orientation(x, y, 1.57);
-
-	auto movement_bounds = shared_ptr<cmp::bounds>();
-
-	auto life_bounds = cmp::create_bounds(
-		-offscreen - 1.0,
-		-offscreen - 1.0,
-		_config.get_screen_w() + offscreen + 1.0,
-		_config.get_screen_h() + offscreen + 1.0);
-
-	auto cc = cmp::coll_class::ENEMY_SHIP;
-
+	auto pain_flash = make_shared<double>(0.0);
 	auto shape = cmp::create_complex_shape({
 		cmp::create_circle(x - 25.0, y - 36.0, 36.0),
 		cmp::create_circle(x + 25.0, y - 36.0, 36.0),
 		cmp::create_circle(x, y + 36.0, 36.0)
 	});
 
-	auto coll_queue = cmp::create_coll_queue();
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::SHIPS;
+	auto appearance = cmp::create_static_bmp(
+			_resman.get_bitmap(res_id::ENEMY_LIGHT_BOMBER),
+			_resman.get_bitmap(res_id::ENEMY_LIGHT_BOMBER_FLASH)); 
 
+	// Movement components.
+	// --------------------
+	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+	auto movement_bounds = shared_ptr<cmp::bounds>();
+	auto life_bounds = cmp::create_bounds(
+		-offscreen - 1.0,
+		-offscreen - 1.0,
+		_config.get_screen_w() + offscreen + 1.0,
+		_config.get_screen_h() + offscreen + 1.0);
+
+	// Arms components.
+	// ----------------
+	auto ammo = cmp::create_ammo_unlimited();
 	auto weapon_beh = cmp::create_complex_weapon_beh({
-			cmp::create_period_bullet(1.0, 1.0, +55.0, -30.0),
-			cmp::create_period_bullet(1.0, 1.0, -55.0, -30.0),
-			cmp::create_period_missile(3.0, 3.0, +65.0, -30.0),
-			cmp::create_period_missile(3.0, 3.0, -65.0, -30.0) });
+		cmp::create_period_bullet(1.0, 1.0, +55.0, -30.0),
+		cmp::create_period_bullet(1.0, 1.0, -55.0, -30.0),
+		cmp::create_period_missile(3.0, 3.0, +65.0, -30.0),
+		cmp::create_period_missile(3.0, 3.0, -65.0, -30.0)
+	});
 
+	// Collision components.
+	// ---------------------
+	auto coll_queue = cmp::create_coll_queue();
+	auto cc = cmp::coll_class::ENEMY_SHIP;
+
+	// Pain components.
+	// ----------------
 	auto painmap = cmp::create_painmap({
 		{ cmp::coll_class::PLAYER_BULLET, 5.0 },
 		{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
@@ -581,14 +632,9 @@ uint64_t entity_factory::create_light_bomber() {
 		{ cmp::coll_class::DEBRIS, 10.0 }
 	});
 
+	// Wellness components.
+	// --------------------
 	auto wellness = cmp::create_wellness(70.0); 
-
-	auto ammo = cmp::create_ammo_unlimited();
-
-	shared_ptr<cmp::timer> ttl;
-
-	auto fxs = cmp::create_smoke_when_hurt(0.25);
-
 	vector<shared_ptr<cmp::reaction>> reactions {
 		cmp::create_debris_reaction(7, {
 			res_id::DEBRIS1,
@@ -600,7 +646,8 @@ uint64_t entity_factory::create_light_bomber() {
 			4.0, 7.0,
 			/* explode = */ false,
 			/* randomize = */ true),
-		cmp::create_explosion_sequence_reaction(5) };
+		cmp::create_explosion_sequence_reaction(5)
+	};
 
 	bernoulli_distribution drop_health(0.333);
 	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
@@ -609,10 +656,15 @@ uint64_t entity_factory::create_light_bomber() {
 	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
 
 	auto on_death = cmp::create_complex_reaction(reactions);
+	shared_ptr<cmp::timer> ttl;
 
+	// Fx components.
+	// --------------
+	auto fxs = cmp::create_smoke_when_hurt(0.25);
+
+	// Score components.
+	// -----------------
 	auto sc = cmp::score_class::ENEMY_LIGHT_BOMBER;
-
-	auto pain_flash = make_shared<double>(0.0);
 
 	// Register the components.
 	// ------------------------
@@ -630,8 +682,8 @@ uint64_t entity_factory::create_light_bomber() {
 
 uint64_t entity_factory::create_heavy_bomber() {
 
-	// Prepare helpers.
-	// ----------------
+	// Helpers.
+	// --------
 	bernoulli_distribution xdir_dist;
 	uniform_real_distribution<double> y_dist(
 			50.0, _config.get_screen_h() * 0.5);
@@ -643,44 +695,50 @@ uint64_t entity_factory::create_heavy_bomber() {
 	const double x = -offscreen;
 	const double y = y_dist(rnd::engine);
 
-	// Prepare the components.
+	// Common components.
 	// -----------------------
 	uint64_t id = ++_last_id;
-
-	cmp::draw_plane draw_plane = cmp::draw_plane::SHIPS;
-	
-	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::ENEMY_HEAVY_BOMBER),
-			_resman.get_bitmap(res_id::ENEMY_HEAVY_BOMBER_FLASH)); 
-
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
-
 	auto orientation = cmp::create_orientation(x, y, 0.0);
-
-	auto movement_bounds = shared_ptr<cmp::bounds>();
-
-	auto life_bounds = cmp::create_bounds(
-		-offscreen - 1.0,
-		-offscreen - 1.0,
-		_config.get_screen_w() + offscreen + 1.0,
-		_config.get_screen_h() + offscreen + 1.0);
-
-	auto cc = cmp::coll_class::ENEMY_SHIP;
-
+	auto pain_flash = make_shared<double>(0.0);
 	auto shape = cmp::create_complex_shape({
 		cmp::create_circle(x - 100.0, y + 15, 50.0),
 		cmp::create_circle(x, y + 15, 50.0),
 		cmp::create_circle(x + 100.0, y + 15, 50.0)
 	});
 
-	auto coll_queue = cmp::create_coll_queue();
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::SHIPS;
+	auto appearance = cmp::create_static_bmp(
+			_resman.get_bitmap(res_id::ENEMY_HEAVY_BOMBER),
+			_resman.get_bitmap(res_id::ENEMY_HEAVY_BOMBER_FLASH)); 
 
+	// Movement components.
+	// --------------------
+	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+	auto movement_bounds = shared_ptr<cmp::bounds>();
+	auto life_bounds = cmp::create_bounds(
+		-offscreen - 1.0,
+		-offscreen - 1.0,
+		_config.get_screen_w() + offscreen + 1.0,
+		_config.get_screen_h() + offscreen + 1.0);
+
+	// Arms components.
+	// ----------------
+	auto ammo = cmp::create_ammo_unlimited();
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(1.0, 1.0, +55.0, -30.0),
 			cmp::create_period_bullet(1.0, 1.0, -55.0, -30.0),
 			cmp::create_period_missile(3.0, 3.0, +65.0, -30.0),
 			cmp::create_period_missile(3.0, 3.0, -65.0, -30.0) });
 
+	// Collision components.
+	// ---------------------
+	auto coll_queue = cmp::create_coll_queue();
+	auto cc = cmp::coll_class::ENEMY_SHIP;
+
+	// Pain components.
+	// ----------------
 	auto painmap = cmp::create_painmap({
 		{ cmp::coll_class::PLAYER_BULLET, 5.0 },
 		{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
@@ -688,14 +746,9 @@ uint64_t entity_factory::create_heavy_bomber() {
 		{ cmp::coll_class::DEBRIS, 10.0 }
 	});
 
+	// Wellness components.
+	// --------------------
 	auto wellness = cmp::create_wellness(90.0); 
-
-	auto ammo = cmp::create_ammo_unlimited();
-
-	shared_ptr<cmp::timer> ttl;
-
-	auto fxs = cmp::create_smoke_when_hurt(0.25);
-
 	vector<shared_ptr<cmp::reaction>> reactions {
 		cmp::create_debris_reaction(13, {
 			res_id::DEBRIS1,
@@ -707,7 +760,8 @@ uint64_t entity_factory::create_heavy_bomber() {
 			4.0, 7.0,
 			/* explode = */ false,
 			/* randomize = */ true),
-		cmp::create_explosion_sequence_reaction(7) };
+		cmp::create_explosion_sequence_reaction(7)
+	};
 
 	bernoulli_distribution drop_health(0.5);
 	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
@@ -716,10 +770,15 @@ uint64_t entity_factory::create_heavy_bomber() {
 	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
 
 	auto on_death = cmp::create_complex_reaction(reactions);
+	shared_ptr<cmp::timer> ttl;
 
+	// Fx Components.
+	// --------------
+	auto fxs = cmp::create_smoke_when_hurt(0.25);
+
+	// Score components.
+	// -----------------
 	auto sc = cmp::score_class::ENEMY_HEAVY_BOMBER;
-
-	auto pain_flash = make_shared<double>(0.0);
 
 	// Register the components.
 	// ------------------------
@@ -737,8 +796,8 @@ uint64_t entity_factory::create_heavy_bomber() {
 
 uint64_t entity_factory::create_health_pickup(double x, double y, double vx, double vy) {
 
-	// Prepare helpers.
-	// ----------------
+	// Helpers.
+	// --------
 	bernoulli_distribution dir_dist;
 
 	uniform_real_distribution<double> mv_dist(15.0, 25.0);
@@ -751,16 +810,24 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	// Initialize components.
-	// ----------------------
+	// Components.
+	// -----------
 	uint64_t id = ++_last_id;
+	auto orientation = cmp::create_orientation(x, y, 0.0); 
+	auto shape = cmp::create_circle(x, y, 16.0); 
+	auto pain_flash = make_shared<double>(0.0);
 
-	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
-	
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::FX;
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::HEALTH),
 			_resman.get_bitmap(res_id::HEALTH));
 
+	// Movement components.
+	// --------------------
+	auto movement_bounds = shared_ptr<cmp::bounds>(); 
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
 	auto dynamics = cmp::create_complex_dynamics({
 		cmp::create_const_velocity_dynamics(
 			vx + base_vx * mul_vx,
@@ -768,37 +835,24 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 		cmp::create_const_ang_vel_dynamics(
 			base_av * mul_av) });
 
-	auto orientation = cmp::create_orientation(x, y, 0.0); 
-
-	auto shape = cmp::create_circle(x, y, 16.0); 
+	// Collision components.
+	// ---------------------
 	auto coll_queue = cmp::create_coll_queue(); 
-	shared_ptr<cmp::wellness> wellness; 
-	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-	auto life_bounds = cmp::create_bounds(
-		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
-
-	shared_ptr<cmp::timer> ttl; 
-
 	auto cc = cmp::coll_class::HEALTH_PICKUP;
 
-	shared_ptr<cmp::reaction> on_death;
-
-	auto pain_flash = make_shared<double>(0.0);
-
 	// Register nodes.
+	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 
-	// Feedback for the state.
 	return id;
 }
 
 uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, double vy) {
 
-	// Prepare helpers.
-	// ----------------
+	// Helpers.
+	// --------
 	bernoulli_distribution dir_dist;
 
 	uniform_real_distribution<double> mv_dist(15.0, 25.0);
@@ -814,13 +868,21 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 	// Initialize components.
 	// ----------------------
 	uint64_t id = ++_last_id;
+	auto orientation = cmp::create_orientation(x, y, 0.0); 
+	auto shape = cmp::create_circle(x, y, 16.0); 
+	auto pain_flash = make_shared<double>(0.0);
 
-	cmp::draw_plane draw_plane = cmp::draw_plane::FX;
-	
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::FX;
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::MISSILES),
 			_resman.get_bitmap(res_id::MISSILES));
 
+	// Movement components.
+	// --------------------
+	auto movement_bounds = shared_ptr<cmp::bounds>(); 
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
 	auto dynamics = cmp::create_complex_dynamics({
 		cmp::create_const_velocity_dynamics(
 			vx + base_vx * mul_vx,
@@ -828,30 +890,17 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 		cmp::create_const_ang_vel_dynamics(
 			base_av * mul_av) });
 
-	auto orientation = cmp::create_orientation(x, y, 0.0); 
-
-	auto shape = cmp::create_circle(x, y, 16.0); 
+	// Collision components.
+	// ---------------------
 	auto coll_queue = cmp::create_coll_queue(); 
-	shared_ptr<cmp::wellness> wellness; 
-	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-	auto life_bounds = cmp::create_bounds(
-		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
-
-	shared_ptr<cmp::timer> ttl; 
-
 	auto cc = cmp::coll_class::MISSILES_PICKUP;
 
-	shared_ptr<cmp::reaction> on_death;
-
-	auto pain_flash = make_shared<double>(0.0);
-
 	// Register nodes.
+	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
 
-	// Feedback for the state.
 	return id;
 }
 
@@ -868,34 +917,40 @@ uint64_t entity_factory::create_missile(
 	const double ax = 0;
 	const double ay = (vy > 0) ? 500.0 : -500.0;
 
-	// Initialize Components.
-	// ----------------------
-
 	// Common components.
-
+	// ------------------
 	uint64_t id = ++_last_id;
+	auto orientation = cmp::create_orientation(x, y, theta); 
+	auto shape = cmp::create_circle(x, y, 8.0); 
+	auto pain_flash = make_shared<double>(0.0);
 
-	cmp::draw_plane draw_plane = cmp::draw_plane::PROJECTILES;
-	
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::PROJECTILES;
 	auto appearance = cmp::create_static_bmp(
 			_resman.get_bitmap(res_id::MISSILE),
 			_resman.get_bitmap(res_id::MISSILE));
 
+	// Movement components.
+	// --------------------
 	auto dynamics = cmp::create_const_acc_dynamics(vx, vy, ax, ay);
-
-	auto orientation = cmp::create_orientation(x, y, theta); 
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
 
-	auto life_bounds = cmp::create_bounds(
-		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
-
-	auto shape = cmp::create_circle(x, y, 8.0); 
+	// Collision components.
+	// ---------------------
 	auto coll_queue = cmp::create_coll_queue(); 
+	auto cc = enemy ? cmp::coll_class::ENEMY_MISSILE : cmp::coll_class::PLAYER_MISSILE;
+
+	// Pain components.
+	// ----------------
+	auto painmap = enemy
+		? cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, missile_health } })
+		: cmp::create_painmap({ { cmp::coll_class::ENEMY_SHIP, missile_health } });
+
+	// Wellness components.
+	// --------------------
 	auto wellness = cmp::create_wellness(missile_health); 
-	shared_ptr<cmp::timer> ttl;
-
-	auto fxs = cmp::create_period_smoke(0.1, 0.125);
-
 	auto on_death = cmp::create_complex_reaction({
 			cmp::create_debris_reaction(3, {
 				res_id::DEBRIS1,
@@ -909,19 +964,11 @@ uint64_t entity_factory::create_missile(
 				/* randomize = */ true),
 			cmp::create_explosion_sequence_reaction(1) });
 
-	auto pain_flash = make_shared<double>(0.0);
+	shared_ptr<cmp::timer> ttl;
 
-	// Context dependent.
-
-	shared_ptr<cmp::painmap> painmap;
-	cmp::coll_class cc;
-	if(enemy) {
-		cc = cmp::coll_class::ENEMY_MISSILE;
-		painmap = cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, missile_health } });
-	} else {
-		cc = cmp::coll_class::PLAYER_MISSILE;
-		painmap = cmp::create_painmap({ { cmp::coll_class::ENEMY_SHIP, missile_health } });
-	}
+	// Fx components.
+	// --------------
+	auto fxs = cmp::create_period_smoke(0.1, 0.125);
 
 	// Register nodes.
 	// ---------------
@@ -942,56 +989,50 @@ uint64_t entity_factory::create_bullet(
 		bool enemy,
 		uint64_t origin_id) {
 
-	// Constants.
-	// ----------
+	// Helpers.
+	// --------
 	double bullet_health = 1.0;
 
-	// Initialize components.
-	// ----------------------
-
 	// Common components.
-
+	// ------------------
 	uint64_t id = ++_last_id;
-
-	cmp::draw_plane draw_plane = cmp::draw_plane::PROJECTILES;
-	
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
-
 	auto orientation = cmp::create_orientation(x, y, theta); 
-	auto movement_bounds = shared_ptr<cmp::bounds>();
-
-	auto life_bounds = cmp::create_bounds(
-		0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
-
 	auto shape = cmp::create_circle(x, y, 8.0); 
-	auto coll_queue = cmp::create_coll_queue(); 
-	auto wellness = cmp::create_wellness(bullet_health); 
-	shared_ptr<cmp::timer> ttl; 
-
-	shared_ptr<cmp::reaction> on_death;
-
 	auto pain_flash = make_shared<double>(0.0);
 
-	// Context dependent.
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::PROJECTILES;
+	auto appearance = enemy
+		? cmp::create_static_bmp(
+			_resman.get_bitmap(res_id::EYE_BULLET),
+			_resman.get_bitmap(res_id::EYE_BULLET))
+		: cmp::create_static_bmp(
+			_resman.get_bitmap(res_id::PLAYER_BULLET),
+			_resman.get_bitmap(res_id::PLAYER_BULLET));
 
-	shared_ptr<cmp::appearance> appearance;
-	shared_ptr<cmp::painmap> painmap;
-	cmp::coll_class cc;
-	if(enemy) {
-		appearance = cmp::create_static_bmp(
-				_resman.get_bitmap(res_id::EYE_BULLET),
-				_resman.get_bitmap(res_id::EYE_BULLET));
+	// Movement components.
+	// --------------------
+	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+	auto movement_bounds = shared_ptr<cmp::bounds>();
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
 
-		painmap = cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, bullet_health } });
-		cc = cmp::coll_class::ENEMY_BULLET;
-	} else {
-		appearance = cmp::create_static_bmp(
-				_resman.get_bitmap(res_id::PLAYER_BULLET),
-				_resman.get_bitmap(res_id::PLAYER_BULLET));
+	// Collision components.
+	// ---------------------
+	auto coll_queue = cmp::create_coll_queue(); 
+	auto cc = enemy ? cmp::coll_class::ENEMY_BULLET : cmp::coll_class::PLAYER_BULLET;
 
-		painmap = cmp::create_painmap({ { cmp::coll_class::ENEMY_SHIP, bullet_health } });
-		cc = cmp::coll_class::PLAYER_BULLET;
-	}
+	// Pain components.
+	// ----------------
+	auto painmap = enemy
+		? cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, bullet_health } })
+		: cmp::create_painmap({ { cmp::coll_class::ENEMY_SHIP, bullet_health } });
+
+	// Wellness components.
+	// --------------------
+	auto wellness = cmp::create_wellness(bullet_health); 
+	shared_ptr<cmp::timer> ttl; 
+	shared_ptr<cmp::reaction> on_death;
 
 	// Register nodes.
 	// ---------------
@@ -1003,3 +1044,4 @@ uint64_t entity_factory::create_bullet(
 
 	return id;
 }
+

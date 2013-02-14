@@ -36,7 +36,10 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - [ON HOLD] Non drawn bullets (visibility / efficiency).
-// - Separate planes for the debris (FX) and for the pickups (new plane?).
+// - Upgrades
+// - Full HUD
+// - Large ship pieces
+// - wavess and patterns
 // - Dryrun the stars generator so that the screen starts filled with some initial stars.
 
 class test_state : public state {

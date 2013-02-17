@@ -227,6 +227,17 @@ public:
 	void add_rockets(int delta) { _rockets += delta; }
 };
 
+class upgrades {
+	size_t _gun_lvl;
+	size_t _rl_lvl;
+public:
+	upgrades() : _gun_lvl(1), _rl_lvl(1) {}
+	void upgrade_gun() { ++_gun_lvl; }
+	void upgrade_rl() { ++_rl_lvl; }
+	size_t gun_lvl() const { return _gun_lvl; }
+	size_t rl_lvl() const { return _rl_lvl; }
+};
+
 // Timer base.
 // -----------
 
@@ -313,6 +324,8 @@ shared_ptr<painmap> create_painmap(map<coll_class, double> pain_map);
 
 shared_ptr<ammo> create_ammo_unlimited();
 shared_ptr<ammo> create_ammo(int bullets, int rockets);
+
+shared_ptr<upgrades> create_upgrades();
 
 shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs);
 shared_ptr<reaction> create_health_drop_reaction();

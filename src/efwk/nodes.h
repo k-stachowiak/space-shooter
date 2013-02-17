@@ -88,6 +88,7 @@ struct pain_node {
 	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::painmap> painmap;
 	shared_ptr<cmp::wellness> wellness;
+	shared_ptr<cmp::upgrades> upgrades;
 	shared_ptr<double> pain_flash;
 };
 
@@ -96,6 +97,7 @@ struct pickup_node {
 	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::ammo> ammo;
+	shared_ptr<cmp::upgrades> upgrades;
 };
 
 struct wellness_node {

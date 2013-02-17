@@ -202,6 +202,8 @@ public:
 class pain_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::pain_node> _nodes;
+	map<uint64_t, cmp::upgrades> _upgrades_map;
+	double compute_multiplier(cmp::coll_class cc, uint64_t origin_id) const;
 public:
 	void add_node(nd::pain_node node) { _nodes.push_back(node); }
 	void update(comm::msg_queue& msgs);

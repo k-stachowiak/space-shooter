@@ -176,6 +176,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 	auto orientation = cmp::create_orientation(x, y, 0.0); 
 	auto pain_flash = make_shared<double>(0.0);
 	auto shape = cmp::create_circle(x, y, 8.0);
+	shared_ptr<cmp::upgrades> upgrades;
 
 	// Drawing components.
 	// -------------------
@@ -219,7 +220,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
 
 	return id;
 }
@@ -287,6 +288,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// ----------------
 	shared_ptr<cmp::weapon_beh> weapon_beh; // TODO: Have a "player contolled weapon behavior"
 	auto ammo = cmp::create_ammo(-1, 3);
+	auto upgrades = cmp::create_upgrades();
 
 	// Collision components.
 	// ---------------------
@@ -331,7 +333,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_pickup_system.add_node({ id, coll_queue, wellness, ammo });
@@ -381,6 +383,7 @@ uint64_t entity_factory::create_light_fighter() {
 	// Arms components.
 	// ----------------
 	auto ammo = cmp::create_ammo_unlimited();
+	auto upgrades = cmp::create_upgrades();
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(3.0, 3.0, +17.0, -3.0),
 			cmp::create_period_bullet(3.0, 3.0, -17.0, -3.0) });
@@ -440,7 +443,7 @@ uint64_t entity_factory::create_light_fighter() {
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -498,6 +501,7 @@ uint64_t entity_factory::create_heavy_fighter() {
 	// Arms components.
 	// ----------------
 	auto ammo = cmp::create_ammo_unlimited();
+	auto upgrades = cmp::create_upgrades();
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(1.5, 1.5, +25.0, -5.0),
 			cmp::create_period_bullet(1.5, 1.5, -25.0, -5.0),
@@ -557,7 +561,7 @@ uint64_t entity_factory::create_heavy_fighter() {
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -611,6 +615,7 @@ uint64_t entity_factory::create_light_bomber() {
 	// Arms components.
 	// ----------------
 	auto ammo = cmp::create_ammo_unlimited();
+	auto upgrades = cmp::create_upgrades();
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 		cmp::create_period_bullet(1.0, 1.0, +55.0, -30.0),
 		cmp::create_period_bullet(1.0, 1.0, -55.0, -30.0),
@@ -672,7 +677,7 @@ uint64_t entity_factory::create_light_bomber() {
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -726,6 +731,7 @@ uint64_t entity_factory::create_heavy_bomber() {
 	// Arms components.
 	// ----------------
 	auto ammo = cmp::create_ammo_unlimited();
+	auto upgrades = cmp::create_upgrades();
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(1.0, 1.0, +55.0, -30.0),
 			cmp::create_period_bullet(1.0, 1.0, -55.0, -30.0),
@@ -786,7 +792,7 @@ uint64_t entity_factory::create_heavy_bomber() {
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
 	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash });
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -923,6 +929,7 @@ uint64_t entity_factory::create_missile(
 	auto orientation = cmp::create_orientation(x, y, theta); 
 	auto shape = cmp::create_circle(x, y, 8.0); 
 	auto pain_flash = make_shared<double>(0.0);
+	shared_ptr<cmp::upgrades> upgrades;
 
 	// Drawing components.
 	// -------------------
@@ -975,7 +982,7 @@ uint64_t entity_factory::create_missile(
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 
@@ -999,6 +1006,7 @@ uint64_t entity_factory::create_bullet(
 	auto orientation = cmp::create_orientation(x, y, theta); 
 	auto shape = cmp::create_circle(x, y, 8.0); 
 	auto pain_flash = make_shared<double>(0.0);
+	shared_ptr<cmp::upgrades> upgrades;
 
 	// Drawing components.
 	// -------------------
@@ -1039,7 +1047,7 @@ uint64_t entity_factory::create_bullet(
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
 	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, pain_flash }); 
+	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 
 	return id;

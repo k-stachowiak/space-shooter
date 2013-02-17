@@ -786,6 +786,10 @@ shared_ptr<ammo> create_ammo(int bullets, int rockets) {
 	return make_shared<ammo>(bullets, rockets);
 }
 
+shared_ptr<upgrades> create_upgrades() {
+	return make_shared<upgrades>();
+}
+
 shared_ptr<wellness> create_wellness(double health) {
 	return make_shared<wellness>(health);
 }

@@ -28,9 +28,9 @@ using std::uniform_real_distribution;
 #include "state.h"
 #include "../misc/random_clock.h"
 #include "../misc/rand.h"
-#include "../cmp/systems.h"
-#include "../cmp/comm.h"
-#include "../cmp/entity_factory.h"
+#include "../efwk/systems.h"
+#include "../efwk/comm.h"
+#include "../efwk/entity_factory.h"
 
 #include <allegro5/allegro_primitives.h>
 

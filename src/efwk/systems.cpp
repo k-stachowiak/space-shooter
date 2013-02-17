@@ -334,10 +334,45 @@ namespace sys {
 
 	// Pain system.
 	// ------------
+
+	double pain_system::compute_multiplier(cmp::coll_class cc, uint64_t origin_id) const {
+
+		if(_upgrades_map.find(origin_id) == end(_upgrades_map)) {
+			return 1.0;
+		}
+
+		// Determine the upgrades of the offender.
+		auto const& upgrades = _upgrades_map.at(origin_id);
+
+		// Decide, which of the upgrades to take into account
+		// based on what has hit you.
+		size_t upgrade_lvl;
+		switch(cc) {
+		case cmp::coll_class::PLAYER_BULLET:
+		case cmp::coll_class::ENEMY_BULLET:
+			upgrade_lvl = upgrades.gun_lvl();
+			break;
+
+		case cmp::coll_class::PLAYER_MISSILE:
+	 	case cmp::coll_class::ENEMY_MISSILE:
+			upgrade_lvl = upgrades.rl_lvl();
+			break;
+
+		default:
+			throw;
+		}
+
+		return upgrade_lvl;
+	}
 	
 	void pain_system::update(comm::msg_queue& msgs) {
 		for(auto const& n : _nodes) {
-			n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
+			// Store the upgrades info.
+			if(n.upgrades) 
+				_upgrades_map[n.id] = *(n.upgrades);
+
+			// Analyze collisions.
+			n.coll_queue->for_each_report([this, &n, &msgs](cmp::coll_report const& r) {
 				
 				// Determine which of the colliding entities
 				// is the "other one".
@@ -346,9 +381,11 @@ namespace sys {
 				uint64_t other_origin_id;
 				resolve_coll_report(r, n.id, other_cc, other_id, other_origin_id);
 
-				// Determine the damage amount and deal it to the "other one".
+				// Determine the damage amount and the damage multiplier.
 				double pain = n.painmap->get_pain(other_cc);
-				n.wellness->deal_dmg(pain, other_origin_id);
+				double multiplier = compute_multiplier(other_cc, other_origin_id);
+
+				n.wellness->deal_dmg(pain * multiplier, other_origin_id);
 
 				if(pain > 0.0) {
 					*(n.pain_flash) = 0.025;

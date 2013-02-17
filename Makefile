@@ -5,10 +5,10 @@ CXX = g++
 LIBS = -lallegro-5.0.8-monolith-md	# Win
 CXXFLAGS := -Wall --std=gnu++11 -g
 
-OBJS := src/cmp/comm.o \
-	src/cmp/components.o \
-	src/cmp/entity_factory.o \
-	src/cmp/systems.o \
+OBJS := src/efwk/comm.o \
+	src/efwk/components.o \
+	src/efwk/entity_factory.o \
+	src/efwk/systems.o \
 	src/geometry/bezier.o \
 	src/misc/rand.o \
 	src/resources/resman.o \

@@ -35,7 +35,6 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - properly handle ammo depletion.
 // - Upgrades
 // - Full HUD
 // - Large ship pieces

@@ -546,13 +546,16 @@ public:
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
-			msgs.push(comm::create_spawn_bullet(
-						x + _x_off,
-						y + _y_off,
-						1.57, 0.0,
-						500.0,
-						true,
-						id));
+
+			if(ammo->get_bullets() != 0) {
+				ammo->add_bullets(-1);
+				msgs.push(comm::create_spawn_bullet(
+					x + _x_off, y + _y_off,
+					1.57, 0.0,
+					500.0,
+					true,
+					id));
+			}
 		}
 	}
 
@@ -590,13 +593,17 @@ public:
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
-			msgs.push(comm::create_spawn_missile(
-						x + _x_offset,
-						y + _y_offset,
-						1.57, 0.0,
-						150.0,
-						true,
-						id));
+
+			if(ammo->get_bullets() != 0) {
+				ammo->add_rockets(-1);
+				msgs.push(comm::create_spawn_missile(
+					x + _x_offset,
+					y + _y_offset,
+					1.57, 0.0,
+					150.0,
+					true,
+					id));
+			}
 		}
 	}
 

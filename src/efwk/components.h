@@ -48,6 +48,8 @@ using std::pair;
 
 namespace cmp {
 
+class collision_profile;
+
 // Shape base.
 // -----------
 
@@ -75,19 +77,6 @@ enum class draw_plane {
 	PROJECTILES
 };
 
-// Collision class id.
-enum class coll_class {
-	PLAYER_SHIP,
-	PLAYER_BULLET,
-	PLAYER_MISSILE,
-	ENEMY_SHIP,
-	ENEMY_BULLET,
-	ENEMY_MISSILE,
-	DEBRIS,
-	HEALTH_PICKUP,
-	MISSILES_PICKUP,
-};
-
 // Score class id.
 enum class score_class {
 	ENEMY_EYE,
@@ -106,14 +95,10 @@ enum class score_class {
 // launched the bullet. This way the entity responsible
 // for the damage may be determined.
 struct coll_report {
-
-	// Store info about two colliding objects "a" and "b".
-	struct {
-		uint64_t id;
-		uint64_t origin_id;
-		coll_class cc;
-		shared_ptr<shape> shp;
-	} a, b;
+	uint64_t id;
+	uint64_t origin_id;
+	shared_ptr<cmp::collision_profile> cp;
+	shared_ptr<shape> shp;
 };
 
 // Animation frame definition.
@@ -128,6 +113,30 @@ struct frame_def {
 		return *this;
 	}
 };
+
+// Weapon's trigger component.
+class weapon {
+	double _interval;
+	bool _trigger;
+	double _counter;
+
+public:
+	weapon(double interval)
+	: _interval(interval)
+	, _trigger(false)
+	, _counter(0.0)
+	{}
+
+	void set_trigger(bool value) { _trigger = value; }
+
+	bool update(double dt) {
+		if(_counter > 0.0) _counter -= dt;
+		if(!_trigger || _counter > 0.0) return false;
+		_counter += _interval;
+		return true;
+	}
+};
+
 
 // Simple classes.
 // ---------------
@@ -176,21 +185,7 @@ public:
 	}
 };
 
-// The mapping of the collision types to the amount of the
-// damage they would deal upon a collision.
-class painmap {
-	map<coll_class, double> _pain_map;
-public:
-	painmap(map<coll_class, double> pain_map) : _pain_map(pain_map) {}
-	double get_pain(coll_class const& cc) { 
-		if(_pain_map.find(cc) == end(_pain_map))
-			return 0.0;
-		return _pain_map[cc];
-	}
-};
-
 // The definition of the reaction to an event.
-
 class reaction {
 public:
 	virtual void trigger(
@@ -276,6 +271,7 @@ public:
 	dynamics() : _vx(0), _vy(0), _theta(0) {}
 	virtual ~dynamics() {}
 	virtual void update(double dt) = 0;
+	virtual void input(map<int, bool>& keys) = 0;
 	double get_vx() const { return _vx; }
 	double get_vy() const { return _vy; }
 	double get_theta() const { return _theta; }
@@ -293,6 +289,8 @@ public:
 			double dt,
 			double x, double y,
 			comm::msg_queue& msgs) = 0;
+
+	virtual void input(map<int, bool>& keys) = 0;
 };
 
 // FX base.
@@ -309,6 +307,43 @@ public:
 			comm::msg_queue& msgs) = 0;
 };
 
+// Collision components.
+// ---------------------
+
+enum class pain_team {
+	NONE,
+	PLAYER,
+	ENEMY
+};
+
+enum class pain_profile {
+	NONE,	// Ignore collisions
+	PAPER,	// Die immediately
+	LIGHT,	// |
+	MEDIUM, // | Scaled damage
+	HEAVY	// |
+};
+
+class damage_profile {
+public:
+	virtual double compute_pain(pain_profile other) = 0;
+};
+
+class pickup_profile {
+public:
+	virtual bool trigger(
+			shared_ptr<wellness> w,
+			shared_ptr<ammo> a) = 0;
+};
+
+struct collision_profile {
+	// TODO: Consider some kind of a "maybe" container here.
+	pain_team pt;
+	pain_profile pp;
+	unique_ptr<damage_profile> dmg;
+	unique_ptr<pickup_profile> pickup;
+};
+
 // Constructors.
 // -------------
 
@@ -319,8 +354,6 @@ shared_ptr<orientation> create_orientation(double x, double y, double theta);
 shared_ptr<bounds> create_bounds(double x_min, double y_min, double x_max, double y_max);
 
 shared_ptr<coll_queue> create_coll_queue();
-
-shared_ptr<painmap> create_painmap(map<coll_class, double> pain_map);
 
 shared_ptr<ammo> create_ammo_unlimited();
 shared_ptr<ammo> create_ammo(int bullets, int rockets);
@@ -369,6 +402,7 @@ shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy);
 shared_ptr<dynamics> create_const_acc_dynamics(double vx0, double vy0, double ax, double ay);
 shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta);
 shared_ptr<dynamics> create_path_dynamics(vector<point> points);
+shared_ptr<dynamics> create_player_controlled_dynamics();
 
 // Shape classes.
 
@@ -387,10 +421,24 @@ shared_ptr<weapon_beh> create_period_missile(
 		double dt_min, double dt_max,
 		double x_off, double y_off);
 
+shared_ptr<weapon_beh> create_player_controlled_weapon_beh();
+
 // Fx classes.
 
 shared_ptr<fx> create_smoke_when_hurt(double pain_threshold);
 shared_ptr<fx> create_period_smoke(double dt_min, double dt_max);
+
+// Collision classes.
+
+shared_ptr<collision_profile> create_collision_profile(
+		pain_team pain_t,
+		pain_profile pain_p,
+		unique_ptr<damage_profile> dmg_p,
+		unique_ptr<pickup_profile> pick_p);
+
+unique_ptr<damage_profile> create_simple_damage_profile(double amount);
+unique_ptr<pickup_profile> create_health_pickup_profile(double amount);
+unique_ptr<pickup_profile> create_missiles_pickup_profile(double amount);
 
 }
 

@@ -205,22 +205,19 @@ uint64_t entity_factory::create_debris(double x, double y,
 	// Collision nodes.
 	// ----------------
 	auto coll_queue = cmp::create_coll_queue();
-	auto cc = cmp::coll_class::DEBRIS;
-
-	// Pain nodes.
-	// -----------
-	auto painmap = cmp::create_painmap({
-		{ cmp::coll_class::PLAYER_SHIP, debris_health },
-		{ cmp::coll_class::ENEMY_SHIP, debris_health }
-	});
+	auto cp = cmp::create_collision_profile( 
+		cmp::pain_team::NONE,
+		cmp::pain_profile::LIGHT,
+		cmp::create_simple_damage_profile(5.0),
+		nullptr);
 
 	// Register nodes.
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
+	_collision_system.add_node({ id, origin_id, cp, shape, coll_queue }); 
+	_pain_system.add_node({ id, coll_queue, cp, wellness, upgrades, pain_flash });
 
 	return id;
 }
@@ -282,27 +279,22 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// --------------------
 	auto life_bounds = shared_ptr<cmp::bounds>(); 
 	auto movement_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
-	shared_ptr<cmp::dynamics> dynamics; 
+	auto dynamics = cmp::create_player_controlled_dynamics();
 
 	// Arms components.
 	// ----------------
-	shared_ptr<cmp::weapon_beh> weapon_beh; // TODO: Have a "player contolled weapon behavior"
+	auto weapon_beh = cmp::create_player_controlled_weapon_beh();
 	auto ammo = cmp::create_ammo(-1, 3);
 	auto upgrades = cmp::create_upgrades();
 
 	// Collision components.
 	// ---------------------
 	auto coll_queue = cmp::create_coll_queue(); 
-	auto cc = cmp::coll_class::PLAYER_SHIP; 
-
-	// Pain components.
-	// ----------------
-	auto painmap = cmp::create_painmap({
-		{ cmp::coll_class::ENEMY_BULLET, 10.0 },
-		{ cmp::coll_class::ENEMY_MISSILE, 20.0 },
-		{ cmp::coll_class::ENEMY_SHIP, 25.0 },
-		{ cmp::coll_class::DEBRIS, 10.0 }
-	}); 
+	auto cp = cmp::create_collision_profile( 
+		cmp::pain_team::PLAYER,
+		cmp::pain_profile::MEDIUM,
+		cmp::create_simple_damage_profile(50.0),
+		nullptr);
 
 	// Wellness components.
 	// --------------------
@@ -332,11 +324,12 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
-	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
+	_collision_system.add_node({ id, id, cp, shape, coll_queue });
+	_pain_system.add_node({ id, coll_queue, cp, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_pickup_system.add_node({ id, coll_queue, wellness, ammo });
+	_input_system.add_node({ id, dynamics, weapon_beh });
 
 	return id;
 }
@@ -390,17 +383,12 @@ uint64_t entity_factory::create_light_fighter() {
 
 	// Collision components.
 	// ---------------------
-	auto cc = cmp::coll_class::ENEMY_SHIP;
 	auto coll_queue = cmp::create_coll_queue();
-
-	// Pain components.
-	// ----------------
-	auto painmap = cmp::create_painmap({
-		{ cmp::coll_class::PLAYER_BULLET, 10.0 },
-		{ cmp::coll_class::PLAYER_MISSILE, 30.0 },
-		{ cmp::coll_class::PLAYER_SHIP, 50.0 },
-		{ cmp::coll_class::DEBRIS, 10.0 }
-	});
+	auto cp = cmp::create_collision_profile( 
+		cmp::pain_team::ENEMY,
+		cmp::pain_profile::LIGHT,
+		cmp::create_simple_damage_profile(50.0),
+		nullptr);
 
 	// Wellness components.
 	// --------------------
@@ -442,8 +430,8 @@ uint64_t entity_factory::create_light_fighter() {
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
-	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
+	_collision_system.add_node({ id, id, cp, shape, coll_queue });
+	_pain_system.add_node({ id, coll_queue, cp, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -511,16 +499,11 @@ uint64_t entity_factory::create_heavy_fighter() {
 	// Collision components.
 	// ---------------------
 	auto coll_queue = cmp::create_coll_queue();
-	auto cc = cmp::coll_class::ENEMY_SHIP;
-
-	// Pain components.
-	// ----------------
-	auto painmap = cmp::create_painmap({
-		{ cmp::coll_class::PLAYER_BULLET, 5.0 },
-		{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
-		{ cmp::coll_class::PLAYER_SHIP, 30.0 },
-		{ cmp::coll_class::DEBRIS, 10.0 }
-	});
+	auto cp = cmp::create_collision_profile( 
+		cmp::pain_team::ENEMY,
+		cmp::pain_profile::MEDIUM,
+		cmp::create_simple_damage_profile(75.0),
+		nullptr);
 
 	// Wellness components.
 	// --------------------
@@ -560,8 +543,8 @@ uint64_t entity_factory::create_heavy_fighter() {
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
-	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
+	_collision_system.add_node({ id, id, cp, shape, coll_queue });
+	_pain_system.add_node({ id, coll_queue, cp, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -626,16 +609,11 @@ uint64_t entity_factory::create_light_bomber() {
 	// Collision components.
 	// ---------------------
 	auto coll_queue = cmp::create_coll_queue();
-	auto cc = cmp::coll_class::ENEMY_SHIP;
-
-	// Pain components.
-	// ----------------
-	auto painmap = cmp::create_painmap({
-		{ cmp::coll_class::PLAYER_BULLET, 5.0 },
-		{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
-		{ cmp::coll_class::PLAYER_SHIP, 30.0 },
-		{ cmp::coll_class::DEBRIS, 10.0 }
-	});
+	auto cp = cmp::create_collision_profile( 
+		cmp::pain_team::ENEMY,
+		cmp::pain_profile::MEDIUM,
+		cmp::create_simple_damage_profile(75.0),
+		nullptr);
 
 	// Wellness components.
 	// --------------------
@@ -676,8 +654,8 @@ uint64_t entity_factory::create_light_bomber() {
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
-	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
+	_collision_system.add_node({ id, id, cp, shape, coll_queue });
+	_pain_system.add_node({ id, coll_queue, cp, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -741,16 +719,11 @@ uint64_t entity_factory::create_heavy_bomber() {
 	// Collision components.
 	// ---------------------
 	auto coll_queue = cmp::create_coll_queue();
-	auto cc = cmp::coll_class::ENEMY_SHIP;
-
-	// Pain components.
-	// ----------------
-	auto painmap = cmp::create_painmap({
-		{ cmp::coll_class::PLAYER_BULLET, 5.0 },
-		{ cmp::coll_class::PLAYER_MISSILE, 20.0 },
-		{ cmp::coll_class::PLAYER_SHIP, 30.0 },
-		{ cmp::coll_class::DEBRIS, 10.0 }
-	});
+	auto cp = cmp::create_collision_profile( 
+		cmp::pain_team::ENEMY,
+		cmp::pain_profile::HEAVY,
+		cmp::create_simple_damage_profile(100.0),
+		nullptr);
 
 	// Wellness components.
 	// --------------------
@@ -791,8 +764,8 @@ uint64_t entity_factory::create_heavy_bomber() {
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
 	_arms_system.add_node({ id, orientation, weapon_beh, ammo });
-	_collision_system.add_node({ id, id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
+	_collision_system.add_node({ id, id, cp, shape, coll_queue });
+	_pain_system.add_node({ id, coll_queue, cp, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, wellness });
@@ -844,13 +817,17 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	// Collision components.
 	// ---------------------
 	auto coll_queue = cmp::create_coll_queue(); 
-	auto cc = cmp::coll_class::HEALTH_PICKUP;
+	auto cp = cmp::create_collision_profile( 
+		cmp::pain_team::NONE,
+		cmp::pain_profile::PAPER,
+		nullptr,
+		cmp::create_health_pickup_profile(10.0));
 
 	// Register nodes.
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-	_collision_system.add_node({ id, id, cc, shape, coll_queue });
+	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 
 	return id;
 }
@@ -899,13 +876,17 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 	// Collision components.
 	// ---------------------
 	auto coll_queue = cmp::create_coll_queue(); 
-	auto cc = cmp::coll_class::MISSILES_PICKUP;
+	auto cp = cmp::create_collision_profile( 
+		cmp::pain_team::NONE,
+		cmp::pain_profile::PAPER,
+		nullptr,
+		cmp::create_missiles_pickup_profile(7.0));
 
 	// Register nodes.
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-	_collision_system.add_node({ id, id, cc, shape, coll_queue });
+	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 
 	return id;
 }
@@ -947,13 +928,12 @@ uint64_t entity_factory::create_missile(
 	// Collision components.
 	// ---------------------
 	auto coll_queue = cmp::create_coll_queue(); 
-	auto cc = enemy ? cmp::coll_class::ENEMY_MISSILE : cmp::coll_class::PLAYER_MISSILE;
-
-	// Pain components.
-	// ----------------
-	auto painmap = enemy
-		? cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, missile_health } })
-		: cmp::create_painmap({ { cmp::coll_class::ENEMY_SHIP, missile_health } });
+	auto pain_team = enemy ? cmp::pain_team::ENEMY : cmp::pain_team::PLAYER;
+	auto cp = cmp::create_collision_profile( 
+		pain_team,
+		cmp::pain_profile::PAPER,
+		cmp::create_simple_damage_profile(25.0),
+		nullptr);
 
 	// Wellness components.
 	// --------------------
@@ -981,8 +961,8 @@ uint64_t entity_factory::create_missile(
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
-	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue });
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
+	_collision_system.add_node({ id, origin_id, cp, shape, coll_queue });
+	_pain_system.add_node({ id, coll_queue, cp, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 
@@ -1028,13 +1008,12 @@ uint64_t entity_factory::create_bullet(
 	// Collision components.
 	// ---------------------
 	auto coll_queue = cmp::create_coll_queue(); 
-	auto cc = enemy ? cmp::coll_class::ENEMY_BULLET : cmp::coll_class::PLAYER_BULLET;
-
-	// Pain components.
-	// ----------------
-	auto painmap = enemy
-		? cmp::create_painmap({ { cmp::coll_class::PLAYER_SHIP, bullet_health } })
-		: cmp::create_painmap({ { cmp::coll_class::ENEMY_SHIP, bullet_health } });
+	auto pain_team = enemy ? cmp::pain_team::ENEMY : cmp::pain_team::PLAYER;
+	auto cp = cmp::create_collision_profile( 
+		pain_team,
+		cmp::pain_profile::PAPER,
+		cmp::create_simple_damage_profile(5.0),
+		nullptr);
 
 	// Wellness components.
 	// --------------------
@@ -1046,8 +1025,8 @@ uint64_t entity_factory::create_bullet(
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
-	_collision_system.add_node({ id, origin_id, cc, shape, coll_queue }); 
-	_pain_system.add_node({ id, coll_queue, painmap, wellness, upgrades, pain_flash });
+	_collision_system.add_node({ id, origin_id, cp, shape, coll_queue }); 
+	_pain_system.add_node({ id, coll_queue, cp, wellness, upgrades, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 
 	return id;

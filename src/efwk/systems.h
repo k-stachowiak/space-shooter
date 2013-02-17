@@ -35,36 +35,6 @@ namespace sys {
 // Helper components.
 // ------------------
 
-class weapon {
-	double _interval;
-	bool _trigger;
-	double _counter;
-
-public:
-	weapon()
-	: _interval(0.0)
-	, _trigger(false)
-	, _counter(0.0)
-	{}
-
-	void set_interval(double value) { _interval = value; }
-	void set_trigger(bool value) { _trigger = value; }
-
-	bool update(double dt) {
-
-		if(_counter > 0.0) {
-			_counter -= dt;
-		}
-
-		if(!_trigger || _counter > 0.0) {
-			return false;
-		}
-
-		_counter += _interval;
-		return true;
-	}
-};
-
 // System types declarations.
 // --------------------------
 
@@ -108,6 +78,18 @@ public:
 	double get_score(uint64_t id) { return _ent_score_map[id]; }
 };
 
+class input_system : public system {
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	map<int, bool> _keys;
+	vector<nd::input_node> _nodes;
+public:
+	void add_node(nd::input_node n) { _nodes.push_back(move(n)); }
+	void update();
+	void key_down(int k) { _keys[k] = true; }
+	void key_up(int k) { _keys[k] = false; }
+	bool pressed(int k) { return _keys[k]; }
+};
+
 class drawing_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	map<cmp::draw_plane, vector<nd::drawing_node>> _nodes;
@@ -141,53 +123,31 @@ public:
 class movement_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::movement_node> _nodes;
-
-	struct {
-		uint64_t id;
-		double throttle_x;
-		double throttle_y;
-	} _player;
 public:
-	movement_system() { _player = { 0 }; }
 	void add_node(nd::movement_node n) { _nodes.push_back(n); }
-	void set_player_id(uint64_t id) { _player.id = id; }
-	void set_player_throttle(double x, double y) { _player.throttle_x = x; _player.throttle_y = y; }
 	void update(double dt, comm::msg_queue& msgs);
 };
 
 class arms_system : public system {
 
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
-
 	vector<nd::arms_node> _nodes;
 
-	struct {
-		uint64_t id;
+	uint64_t _tracked_id;
+	shared_ptr<cmp::ammo> _tracked_ammo;
 
-		bool prev_left;
-		weapon minigun;
-		weapon rpg;
-
-		int bullets;
-		int rockets;
-
-	} _player;
-
-	void handle_player(uint64_t id, shared_ptr<cmp::ammo> ammo,
-		       double dt, comm::msg_queue& msgs, double x, double y);
-	comm::message proc_msg(double x, double y, comm::message msg);
 public:
-	arms_system() {
-		_player = { 0 };
-		_player.minigun.set_interval(0.1);
-		_player.rpg.set_interval(0.75);
-	}
 	void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
-	void set_player_id(uint64_t id) { _player.id = id; }
-	void set_player_mg_trigger(bool t) { _player.minigun.set_trigger(t); }
-	void set_player_rl_trigger(bool t) { _player.rpg.set_trigger(t); }
-	int get_player_rl_ammo() const { return _player.rockets; }
+
+	void set_tracked_id(uint64_t tracked_id) { _tracked_id = tracked_id; }
+	shared_ptr<cmp::ammo> get_tracked_ammo() { return _tracked_ammo; }
+
 	void update(double dt, comm::msg_queue& msgs);
+	void input(map<int, bool>& keys) {
+		for(auto& n : _nodes) {
+			n.weapon_beh->input(keys);
+		}
+	}
 };
 
 class collision_system : public system {
@@ -202,8 +162,6 @@ public:
 class pain_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::pain_node> _nodes;
-	map<uint64_t, cmp::upgrades> _upgrades_map;
-	double compute_multiplier(cmp::coll_class cc, uint64_t origin_id) const;
 public:
 	void add_node(nd::pain_node node) { _nodes.push_back(node); }
 	void update(comm::msg_queue& msgs);
@@ -219,16 +177,17 @@ public:
 
 class wellness_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
-	map<uint64_t, double> _entity_health_map;
-	map<uint64_t, double> _entity_max_health_map;
 	vector<nd::wellness_node> _nodes;
+
+	uint64_t _tracked_id;
+	shared_ptr<cmp::wellness> _tracked_wellness;
+
 public:
 	void add_node(nd::wellness_node node) { _nodes.push_back(node); }
 	void update(double dt, comm::msg_queue& msgs);
-	double get_ent_health(uint64_t id) { return _entity_health_map[id]; }
-	double get_ent_health_ratio(uint64_t id) {
-		return _entity_health_map[id] / _entity_max_health_map[id];
-	}
+
+	void set_tracked_id(uint64_t tracked_id) { _tracked_id = tracked_id; }
+	shared_ptr<cmp::wellness> get_tracked_wellness() { return _tracked_wellness; }
 };
 
 }

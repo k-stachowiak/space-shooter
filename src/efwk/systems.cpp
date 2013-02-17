@@ -36,26 +36,6 @@ using std::exponential_distribution;
 // Common functions.
 // -----------------
 
-static inline void resolve_coll_report(
-		cmp::coll_report const& report,
-		uint64_t this_id,
-		cmp::coll_class& other_cc,
-		uint64_t& other_id,
-		uint64_t& other_origin_id) {
-
-	// Note that the real colliding id's are compared here,
-	// but the originating id is recorded for further use.
-	if(report.a.id == this_id) {
-		other_cc = report.b.cc;
-		other_id = report.b.id;
-		other_origin_id = report.b.origin_id;
-	} else {
-		other_cc = report.a.cc;
-		other_id = report.a.id;
-		other_origin_id = report.a.origin_id;
-	}
-}
-
 template<class T>
 inline bool between(T value, T min, T max) { return value >= min && value <= max; }
 
@@ -77,6 +57,16 @@ namespace sys {
 			uint64_t receiver = n.wellness->get_last_dmg_id();
 			double score = _class_score_map[n.sc];
 			_ent_score_map[receiver] += score;
+		}
+	}
+
+	// Input system.
+	// -------------
+	
+	void input_system::update() {
+		for(auto const& n : _nodes) {
+			n.dynamics->input(_keys);
+			n.weapon_beh->input(_keys);
 		}
 	}
 
@@ -160,14 +150,11 @@ namespace sys {
 
 			// Determine velocities.
 			// ---------------------
-			double vx = 0, vy = 0;
+			double vx = 0;
+			double vy = 0;
 			double theta = 0;
-			
-			if(n.id == _player.id) {
-				vx = _player.throttle_x * 400.0;
-				vy = _player.throttle_y * 300.0;
 
-			} else {
+			if(n.dynamics) {
 				n.dynamics->update(dt);
 				vx = n.dynamics->get_vx();
 				vy = n.dynamics->get_vy();
@@ -232,73 +219,19 @@ namespace sys {
 	// Arms system.
 	// ------------
 	
-	void arms_system::handle_player(uint64_t id,
-			shared_ptr<cmp::ammo> ammo,
-			double dt,
-			comm::msg_queue& msgs,
-			double x,
-			double y) {
-		
-		// Store the ammo info for the core logic.
-		// ---------------------------------------
-		_player.bullets = ammo->get_bullets();
-		_player.rockets = ammo->get_rockets();
-
-		// Minigun fire.
-		// -------------
-		if(_player.minigun.update(dt) && ammo->get_bullets() != 0) {
-			ammo->add_bullets(-1);
-			if(_player.prev_left) {
-				_player.prev_left = false;
-				msgs.push(comm::create_spawn_bullet(
-							x + 15.0, y,
-							-1.57, 0.0,
-							-800.0,
-							false,
-							id));
-			} else {
-				_player.prev_left = true;
-				msgs.push(comm::create_spawn_bullet(
-							x - 15.0, y,
-							-1.57, 0.0,
-							-800.0,
-							false,
-							id));
-			}
-		}
-
-		// Rocket launcher fire.
-		// ---------------------
-		if(_player.rpg.update(dt) && ammo->get_rockets() != 0) {
-			ammo->add_rockets(-1);
-			msgs.push(comm::create_spawn_missile(
-						x + 25.0, y,
-						-1.57, 0.0,
-						-300.0,
-						false,
-						id));
-			msgs.push(comm::create_spawn_missile(
-						x - 25.0, y,
-						-1.57, 0.0,
-						-300.0,
-						false,
-						id));
-		}
-	}
-
 	void arms_system::update(double dt, comm::msg_queue& msgs) {
 		double x, y;
+		_tracked_ammo.reset();
 		for(auto const& n : _nodes) {
+
 			x = n.orientation->get_x();
 			y = n.orientation->get_y();
 
-			if(n.id == _player.id) {
-				handle_player(n.id, n.ammo, dt, msgs, x, y);
-				continue;
-			}
-
 			if(n.weapon_beh)
 				n.weapon_beh->update(n.id, n.ammo, dt, x, y, msgs);
+
+			if(n.id == _tracked_id)
+				_tracked_ammo = n.ammo;
 		}
 	}
 
@@ -312,12 +245,8 @@ namespace sys {
 		cmp::shape const& shp_b = *(b.shape);
 
 		if(shp_a.collides_with(shp_b)) {
-			cmp::coll_report report {
-				{ a.id, a.origin_id, a.cc, a.shape },
-				{ b.id, b.origin_id, b.cc, b.shape }
-			};
-			a.coll_queue->push_report(report);
-			b.coll_queue->push_report(report);
+			a.coll_queue->push_report({ b.id, b.origin_id, b.cp, b.shape });
+			b.coll_queue->push_report({ a.id, a.origin_id, a.cp, a.shape });
 		}
 	}
 
@@ -334,64 +263,46 @@ namespace sys {
 
 	// Pain system.
 	// ------------
-
-	double pain_system::compute_multiplier(cmp::coll_class cc, uint64_t origin_id) const {
-
-		if(_upgrades_map.find(origin_id) == end(_upgrades_map)) {
-			return 1.0;
-		}
-
-		// Determine the upgrades of the offender.
-		auto const& upgrades = _upgrades_map.at(origin_id);
-
-		// Decide, which of the upgrades to take into account
-		// based on what has hit you.
-		size_t upgrade_lvl;
-		switch(cc) {
-		case cmp::coll_class::PLAYER_BULLET:
-		case cmp::coll_class::ENEMY_BULLET:
-			upgrade_lvl = upgrades.gun_lvl();
-			break;
-
-		case cmp::coll_class::PLAYER_MISSILE:
-	 	case cmp::coll_class::ENEMY_MISSILE:
-			upgrade_lvl = upgrades.rl_lvl();
-			break;
-
-		default:
-			throw;
-		}
-
-		return upgrade_lvl;
-	}
 	
+	static bool is_dont_care(shared_ptr<cmp::collision_profile> cp) {
+		bool ignore_team = cp->pt == cmp::pain_team::NONE;
+		bool ignore_magnitude = cp->pp == cmp::pain_profile::NONE;
+		return ignore_team || ignore_magnitude;
+	}
+
 	void pain_system::update(comm::msg_queue& msgs) {
 		for(auto const& n : _nodes) {
-			// Store the upgrades info.
-			if(n.upgrades) 
-				_upgrades_map[n.id] = *(n.upgrades);
 
-			// Analyze collisions.
-			n.coll_queue->for_each_report([this, &n, &msgs](cmp::coll_report const& r) {
-				
-				// Determine which of the colliding entities
-				// is the "other one".
-				cmp::coll_class other_cc;
-				uint64_t other_id;
-				uint64_t other_origin_id;
-				resolve_coll_report(r, n.id, other_cc, other_id, other_origin_id);
+			// Skip "don't care" nodes
+			if(is_dont_care(n.cp)) continue;
 
-				// Determine the damage amount and the damage multiplier.
-				double pain = n.painmap->get_pain(other_cc);
-				double multiplier = compute_multiplier(other_cc, other_origin_id);
+			size_t hits = 0;
 
-				n.wellness->deal_dmg(pain * multiplier, other_origin_id);
+			n.coll_queue->for_each_report([this, &hits, &n, &msgs](cmp::coll_report const& r) {
 
-				if(pain > 0.0) {
-					*(n.pain_flash) = 0.025;
-				}
+				// Skip "don't care" collisions.
+				if(is_dont_care(r.cp)) return;
+
+				// Skip friendly fire.
+				if(r.cp->pt == n.cp->pt) return;
+
+				// Record hit.
+				++hits;
+
+				// Compute and deal the pain.
+				double pain = n.cp->dmg->compute_pain(r.cp->pp);
+				n.wellness->deal_dmg(pain, r.origin_id);
+
+				// Handle the pain flash
+				if(pain > 0.0) *(n.pain_flash) = 0.025;
 			});
+
+			// Destroy if paper.
+			if(n.cp->pp == cmp::pain_profile::PAPER && hits) {
+				msgs.push(comm::create_remove_entity(n.id));
+			}
 		}
+
 	}
 
 	// Pickup system.
@@ -400,41 +311,11 @@ namespace sys {
 	void pickup_system::update(comm::msg_queue& msgs) {
 		for(auto const& n : _nodes) {
 			n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
-
-				// Determine which of the colliding entities
-				// is the "other one".
-				cmp::coll_class other_cc;
-				uint64_t other_id;
-				uint64_t other_origin_id;
-				resolve_coll_report(r, n.id, other_cc, other_id, other_origin_id);
-
-				double h = n.wellness->get_health();
-				double H = n.wellness->get_max_health();
-				double dh = 10;
-
-				bool picked_up = false;
-				switch(other_cc) {
-				case cmp::coll_class::HEALTH_PICKUP:
-					if(h < H) {
-						picked_up = true;
-						if(h + dh >= H)
-							n.wellness->add_health(H - h);
-						else
-							n.wellness->add_health(dh);
+				if(r.cp->pickup) {
+					bool picked_up = r.cp->pickup->trigger(n.wellness, n.ammo);
+					if(picked_up) {
+						msgs.push(comm::create_remove_entity(r.id));
 					}
-					break;
-
-				case cmp::coll_class::MISSILES_PICKUP:
-					n.ammo->add_rockets(7);
-					picked_up = true;
-					break;
-
-				default:
-					break;
-				}
-
-				if(picked_up) {
-					msgs.push(comm::create_remove_entity(other_id));
 				}
 			});
 		}
@@ -444,12 +325,10 @@ namespace sys {
 	// ----------------
 	
 	void wellness_system::update(double dt, comm::msg_queue& msgs) {
-		for(auto const& n : _nodes) {
 
-			if(n.wellness) {
-				_entity_health_map[n.id] = n.wellness->get_health();
-				_entity_max_health_map[n.id] = n.wellness->get_max_health();
-			}
+		_tracked_wellness.reset();
+
+		for(auto const& n : _nodes) {
 
 			bool died = false;
 			if(n.wellness) {
@@ -485,6 +364,10 @@ namespace sys {
 				
 				// Remove the entity.
 				msgs.push(comm::create_remove_entity(n.id));
+			}
+
+			if(n.id == _tracked_id) {
+				_tracked_wellness = n.wellness;
 			}
 		}
 	}

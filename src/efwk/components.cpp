@@ -350,6 +350,12 @@ public:
 			_theta += d->get_theta();
 		}
 	}
+
+	void input(map<int, bool>& keys) {
+		for(auto const& d : _ds) {
+			d->input(keys);
+		}
+	}
 };
 
 class const_velocity_dynamics : public dynamics {
@@ -360,6 +366,7 @@ public:
 	}
 
 	void update(double dt) {}
+	void input(map<int, bool>& keys) {}
 };
 
 class const_acc_dynamics : public dynamics {
@@ -376,12 +383,39 @@ public:
 		_vx = _vx0 + _ax * _t;
 		_vy = _vy0 + _ay * _t;
 	}
+
+	void input(map<int, bool>& keys) {}
 };
 
 class const_ang_vel_dynamics : public dynamics {
 public:
 	const_ang_vel_dynamics(double theta) { _theta = theta; }
 	void update(double dt) {}
+	void input(map<int, bool>& keys) {}
+};
+
+class player_controlled_dynamics : public dynamics {
+	double _throttle_x;
+	double _throttle_y;
+public:
+	player_controlled_dynamics()
+	: _throttle_x(0.0)
+	, _throttle_y(0.0)
+	{}
+
+	void update(double dt) {
+		_vx = _throttle_x * 400.0;
+		_vy = _throttle_y * 300.0;
+	}
+
+	void input(map<int, bool>& keys) {
+		_throttle_x = 0.0;
+	       	_throttle_y = 0.0;
+		if(keys[ALLEGRO_KEY_RIGHT]) _throttle_x += 1.0;
+		if(keys[ALLEGRO_KEY_LEFT]) _throttle_x -= 1.0;
+		if(keys[ALLEGRO_KEY_DOWN]) _throttle_y += 1.0;
+		if(keys[ALLEGRO_KEY_UP]) _throttle_y -= 1.0;
+	}
 };
 
 class path_dynamics : public dynamics {
@@ -452,8 +486,7 @@ public:
 		_y = new_y;
 	}
 
-	double get_vx() const { return _vx; }
-	double get_vy() const { return _vy; }
+	void input(map<int, bool>& keys) {}
 };
 
 // Weapon behavior classes.
@@ -472,6 +505,12 @@ public:
 
 		for(auto& wb : _wbs) {
 			wb->update(id, ammo, dt, x, y, msgs);
+		}
+	}
+
+	void input(map<int, bool>& keys) {
+		for(auto& wb: _wbs) {
+			wb->input(keys);
 		}
 	}
 };
@@ -498,7 +537,6 @@ public:
 		init_counter();
 	}
 
-	// TODO: Y there's the ammo pointer here?
 	void update(uint64_t id,
 			shared_ptr<ammo> ammo,
 			double dt,
@@ -517,6 +555,8 @@ public:
 						id));
 		}
 	}
+
+	void input(map<int, bool>& keys) {}
 };
 
 class period_missile : public weapon_beh {
@@ -558,6 +598,75 @@ public:
 						true,
 						id));
 		}
+	}
+
+	void input(map<int, bool>& keys) {}
+};
+
+class player_controlled_weapon_beh : public weapon_beh {
+
+	bool _prev_left;
+	weapon _minigun;
+	weapon _rpg;
+
+public:
+	player_controlled_weapon_beh()
+	: _minigun(0.1)
+	, _rpg(0.75)
+	{}
+
+	void update(uint64_t id,
+			shared_ptr<ammo> ammo,
+			double dt,
+			double x,
+			double y,
+			comm::msg_queue& msgs) {
+
+		// Minigun fire.
+		// -------------
+		if(_minigun.update(dt) && ammo->get_bullets() != 0) {
+			ammo->add_bullets(-1);
+			if(_prev_left) {
+				_prev_left = false;
+				msgs.push(comm::create_spawn_bullet(
+						x + 15.0, y,
+						-1.57, 0.0,
+						-800.0,
+						false,
+						id));
+			} else {
+				_prev_left = true;
+				msgs.push(comm::create_spawn_bullet(
+						x - 15.0, y,
+						-1.57, 0.0,
+						-800.0,
+						false,
+						id));
+			}
+		}
+
+		// Rocket launcher fire.
+		// ---------------------
+		if(_rpg.update(dt) && ammo->get_rockets() != 0) {
+			ammo->add_rockets(-1);
+			msgs.push(comm::create_spawn_missile(
+					x + 25.0, y,
+					-1.57, 0.0,
+					-300.0,
+					false,
+					id));
+			msgs.push(comm::create_spawn_missile(
+					x - 25.0, y,
+					-1.57, 0.0,
+					-300.0,
+					false,
+					id));
+		}
+	}
+
+	void input(map<int, bool>& keys) {
+		_minigun.set_trigger(keys[ALLEGRO_KEY_Z]);
+		_rpg.set_trigger(keys[ALLEGRO_KEY_X]);
 	}
 };
 
@@ -619,6 +728,46 @@ public:
 			init_counter(-_counter);
 			msgs.push(comm::create_spawn_smoke(x, y, comm::smoke_size::tiny));
 		}
+	}
+};
+
+// Collision components.
+// ---------------------
+
+class simple_damage_profile : public damage_profile {
+	double _amount;
+public:
+	simple_damage_profile(double amount) : _amount(amount) {}
+	double compute_pain(pain_profile) {
+		return _amount;
+	}
+};
+
+class health_pickup_profile : public pickup_profile {
+	double _amount;
+public:
+	health_pickup_profile(double amount) : _amount(amount) {}
+	bool trigger(shared_ptr<wellness> w, shared_ptr<ammo> a) {
+
+		double h = w->get_health();
+		double H = w->get_max_health();
+
+		if(h >= H) return false;
+
+		if(h + _amount >= H) w->add_health(H - h);
+		else w->add_health(_amount);
+
+		return true;
+	}
+};
+
+class missiles_pickup_profile : public pickup_profile {
+	double _amount;
+public:
+	missiles_pickup_profile(double amount) : _amount(amount) {}
+	bool trigger(shared_ptr<wellness> w, shared_ptr<ammo> a) {
+		a->add_rockets(_amount);
+		return true;
 	}
 };
 
@@ -774,10 +923,6 @@ shared_ptr<coll_queue> create_coll_queue() {
 	return make_shared<coll_queue>();
 }
 
-shared_ptr<painmap> create_painmap(map<coll_class, double> pain_map) {
-	return make_shared<painmap>(pain_map);
-}
-
 shared_ptr<ammo> create_ammo_unlimited() {
 	return make_shared<ammo>(-1, -1);
 }
@@ -851,6 +996,10 @@ shared_ptr<dynamics> create_path_dynamics(vector<point> points) {
 	return shared_ptr<dynamics>(new path_dynamics(points));
 }
 
+shared_ptr<dynamics> create_player_controlled_dynamics() {
+	return shared_ptr<dynamics>(new player_controlled_dynamics);
+}
+
 // Shape classes.
 
 shared_ptr<shape> create_circle(double x, double y, double r) {
@@ -885,6 +1034,10 @@ shared_ptr<weapon_beh> create_period_missile(
 				dt_min, dt_max, x_off, y_off));
 }
 
+shared_ptr<weapon_beh> create_player_controlled_weapon_beh() {
+	return shared_ptr<weapon_beh>(new player_controlled_weapon_beh);
+}
+
 // Fx classes.
 
 shared_ptr<fx> create_smoke_when_hurt(double pain_threshold) {
@@ -893,6 +1046,29 @@ shared_ptr<fx> create_smoke_when_hurt(double pain_threshold) {
 
 shared_ptr<fx> create_period_smoke(double dt_min, double dt_max) {
 	return shared_ptr<fx>(new period_smoke(dt_min, dt_max));
+}
+
+// Collision classes.
+
+shared_ptr<collision_profile> create_collision_profile(
+		pain_team pain_t,
+		pain_profile pain_p,
+		unique_ptr<damage_profile> dmg_p,
+		unique_ptr<pickup_profile> pick_p) {
+
+	return shared_ptr<collision_profile>(new collision_profile { pain_t, pain_p, move(dmg_p), move(pick_p) });
+}
+
+unique_ptr<damage_profile> create_simple_damage_profile(double amount) {
+	return unique_ptr<damage_profile>(new simple_damage_profile(amount));
+}
+
+unique_ptr<pickup_profile> create_health_pickup_profile(double amount) {
+	return unique_ptr<pickup_profile>(new health_pickup_profile(amount));
+}
+
+unique_ptr<pickup_profile> create_missiles_pickup_profile(double amount) {
+	return unique_ptr<pickup_profile>(new missiles_pickup_profile(amount));
 }
 
 }

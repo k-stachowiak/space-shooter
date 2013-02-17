@@ -42,6 +42,7 @@ class entity_factory {
 	sys::drawing_system&	_drawing_system;
 	sys::score_system&	_score_system;
 	sys::pickup_system&	_pickup_system;
+	sys::input_system&	_input_system;
 
 public:
 	entity_factory(
@@ -55,7 +56,8 @@ public:
 		sys::fx_system&		fx_system,
 		sys::drawing_system&	drawing_system,
 		sys::score_system&	score_system,
-		sys::pickup_system&	pickup_system)
+		sys::pickup_system&	pickup_system,
+		sys::input_system&	input_system)
 	: _last_id(0)
 	, _config(cfg)
 	, _resman(rm)
@@ -68,6 +70,7 @@ public:
 	, _drawing_system (drawing_system)
 	, _score_system (score_system) 
 	, _pickup_system (pickup_system)
+	, _input_system (input_system)  
 	{}
 
 	uint64_t create_explosion(double x, double y);

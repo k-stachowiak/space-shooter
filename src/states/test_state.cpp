@@ -35,7 +35,7 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - [ON HOLD] Non drawn bullets (visibility / efficiency).
+// - properly handle ammo depletion.
 // - Upgrades
 // - Full HUD
 // - Large ship pieces
@@ -51,7 +51,7 @@ class test_state : public state {
 
 	// State.
 	// ------
-	map<int, bool> _keys;
+	bool _debug;
 	bool _done;
 	uint64_t _player_id;
 	comm::msg_queue _messages;
@@ -75,6 +75,7 @@ class test_state : public state {
 	sys::drawing_system	_drawing_system;
 	sys::score_system	_score_system;
 	sys::pickup_system	_pickup_system;
+	sys::input_system	_input_system;
 
 	// Factories.
 	// ----------
@@ -100,6 +101,7 @@ class test_state : public state {
 				remove_node(_drawing_system, id);
 				remove_node(_score_system, id);
 				remove_node(_pickup_system, id);
+				remove_node(_input_system, id);
 				break;
 
 			case comm::msg_t::spawn_bullet:
@@ -200,7 +202,7 @@ class test_state : public state {
 			"Score: %d", player_score);
 
 		// Ammo.
-		int player_rockets = _arms_system.get_player_rl_ammo();
+		int player_rockets = _arms_system.get_tracked_ammo()->get_rockets();
 		al_draw_textf(
 			_resman.get_font(res_id::FONT),
 			al_map_rgba_f(0.333f, 0.667f, 0.333f, 1),
@@ -208,35 +210,27 @@ class test_state : public state {
 			"Rockets: %d", player_rockets);
 	
 		// Health 
-		double health_ratio = _wellness_system.
-			get_ent_health_ratio(_player_id);
-
-		if(health_ratio < 0.0)
-			health_ratio = 0.0;
-
-		draw_bar(10.0, health_ratio, health_color(health_ratio));
+		double max_health = _wellness_system.get_tracked_wellness()->get_max_health();
+		double health = _wellness_system.get_tracked_wellness()->get_health();
+		double ratio = health / max_health;
+		if(ratio < 0.0) ratio = 0.0;
+		draw_bar(10.0, ratio, health_color(ratio));
 	}
+
+	// This seems necessary for the clock declarations...
+	using uni_distr = uniform_real_distribution<double>;
 
 public:
 	test_state(const config& config, const resman& resman)
 	: _config(config)
 	, _resman(resman)
+	, _debug(false)
 	, _done(false)
-	, _star_spawn_clk(
-		uniform_real_distribution<double>(0.125, 0.25),
-		bind(&entity_factory::create_star, &_ef))
-	, _l_fighter_spawn_clk(
-		uniform_real_distribution<double>(2.0, 4.0),
-		bind(&entity_factory::create_light_fighter, &_ef))
-	, _h_fighter_spawn_clk(
-		uniform_real_distribution<double>(4.0, 6.0),
-		bind(&entity_factory::create_heavy_fighter, &_ef))
-	, _l_bomber_spawn_clk(
-		uniform_real_distribution<double>(6.0, 8.0),
-		bind(&entity_factory::create_light_bomber, &_ef))
-	, _h_bomber_spawn_clk(
-		uniform_real_distribution<double>(8.0, 10.0),
-		bind(&entity_factory::create_heavy_bomber, &_ef))
+	, _star_spawn_clk(uni_distr(0.125, 0.25), bind(&entity_factory::create_star, &_ef))
+	, _l_fighter_spawn_clk(uni_distr(2.0, 4.0), bind(&entity_factory::create_light_fighter, &_ef))
+	, _h_fighter_spawn_clk(uni_distr(4.0, 6.0), bind(&entity_factory::create_heavy_fighter, &_ef))
+	, _l_bomber_spawn_clk(uni_distr(6.0, 8.0), bind(&entity_factory::create_light_bomber, &_ef))
+	, _h_bomber_spawn_clk(uni_distr(8.0, 10.0), bind(&entity_factory::create_heavy_bomber, &_ef))
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
 	, _ef(_config,
 		_resman,
@@ -248,20 +242,12 @@ public:
 		_fx_system,
 		_drawing_system,
 		_score_system,
-		_pickup_system)
+		_pickup_system,
+		_input_system)
 	{
-		_keys[ALLEGRO_KEY_UP] = false;
-		_keys[ALLEGRO_KEY_DOWN] = false;
-		_keys[ALLEGRO_KEY_LEFT] = false;
-		_keys[ALLEGRO_KEY_RIGHT] = false;
-		_keys[ALLEGRO_KEY_Z] = false;
-		_keys[ALLEGRO_KEY_X] = false;
-		
 		_player_id = _ef.create_player_ship(200.0, 200.0);
-		_movement_system.set_player_id(_player_id);
-		_arms_system.set_player_id(_player_id);
-
-		_ef.create_star();
+		_arms_system.set_tracked_id(_player_id);
+		_wellness_system.set_tracked_id(_player_id);
 	}
 
 	void sigkill() { _done = true; }
@@ -277,32 +263,17 @@ public:
 		_l_bomber_spawn_clk.tick(dt);
 		_h_bomber_spawn_clk.tick(dt);
 
-		// Update the player's throttle.
-		double player_throttle_x = 0.0;
-	       	double player_throttle_y = 0.0;
-		if(_keys[ALLEGRO_KEY_RIGHT]) player_throttle_x += 1.0;
-		if(_keys[ALLEGRO_KEY_LEFT]) player_throttle_x -= 1.0;
-		if(_keys[ALLEGRO_KEY_DOWN]) player_throttle_y += 1.0;
-		if(_keys[ALLEGRO_KEY_UP]) player_throttle_y -= 1.0;
-		_movement_system.set_player_throttle(player_throttle_x, player_throttle_y);
-
-		// Update the player's trigger.
-		bool player_mg_trigger = _keys[ALLEGRO_KEY_Z];
-		_arms_system.set_player_mg_trigger(player_mg_trigger);
-
-		bool player_rl_trigger = _keys[ALLEGRO_KEY_X];
-		_arms_system.set_player_rl_trigger(player_rl_trigger);
-
 		// Manage the debug ouptut. 
-		_movement_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_collision_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_arms_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_pain_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_wellness_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_fx_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_drawing_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_score_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
-		_pickup_system.set_debug_mode(_keys[ALLEGRO_KEY_SPACE]);
+		_movement_system.set_debug_mode(_debug);
+		_collision_system.set_debug_mode(_debug);
+		_arms_system.set_debug_mode(_debug);
+		_pain_system.set_debug_mode(_debug);
+		_wellness_system.set_debug_mode(_debug);
+		_fx_system.set_debug_mode(_debug);
+		_drawing_system.set_debug_mode(_debug);
+		_score_system.set_debug_mode(_debug);
+		_pickup_system.set_debug_mode(_debug);
+		_input_system.set_debug_mode(_debug);
 
 		// Update the systems.
 		_movement_system.update(dt, _messages);
@@ -313,25 +284,27 @@ public:
 		_fx_system.update(dt, _messages);
 		_drawing_system.update(dt);
 		_score_system.update();
-		_pickup_system.update(_messages);
+		_pickup_system.update(_messages); 
+		_input_system.update();
 
 		// Hacky hud pass...
-		draw_hud();
+		auto player_wellness = _wellness_system.get_tracked_wellness();
+		if(player_wellness && player_wellness->is_alive())
+			draw_hud();
 
 		// Handle messages.
-		// TODO: this will decrease the timers of the jsut inserted messages
-		// 	how to deal with this? handle messages up front?
 		handle_messages(dt);
 	}
 
 	void key_up(int k) {
-		if(k == ALLEGRO_KEY_ESCAPE)
-			_done = true;
-		_keys[k]= false;
+		if(k == ALLEGRO_KEY_ESCAPE) _done = true;
+		if(k == ALLEGRO_KEY_SPACE) _debug = true;
+		_input_system.key_up(k);
 	}
 
 	void key_down(int k) {
-		_keys[k]= true;
+		if(k == ALLEGRO_KEY_SPACE) _debug = false;
+		_input_system.key_down(k);
 	}
 };
 

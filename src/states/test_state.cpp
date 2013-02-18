@@ -36,6 +36,11 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - Upgrades
+//     - drop proper pickups
+//     - decide whether they should increase the speed or the damage
+//     - implement and test them
+//         - balance the damages so that it takes few shots to kill something
+//         - make sure that after the upgrade it's way easier to kill something
 // - Full HUD
 // - Large ship pieces
 // - wavess and patterns

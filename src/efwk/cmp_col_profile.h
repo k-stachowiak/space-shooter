@@ -64,6 +64,7 @@ struct collision_profile {
 	// TODO: Consider some kind of a "maybe" container here.
 	pain_team pt;
 	pain_profile pp;
+	bool is_projectile;
 	unique_ptr<damage_profile> dmg;
 	unique_ptr<pickup_profile> pickup;
 };
@@ -71,6 +72,7 @@ struct collision_profile {
 shared_ptr<collision_profile> create_collision_profile(
 		pain_team pain_t,
 		pain_profile pain_p,
+		bool is_projectile,
 		unique_ptr<damage_profile> dmg_p,
 		unique_ptr<pickup_profile> pick_p);
 

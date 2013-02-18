@@ -208,6 +208,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::NONE,
 		cmp::pain_profile::LIGHT,
+		true,
 		cmp::create_simple_damage_profile(5.0),
 		nullptr);
 
@@ -293,6 +294,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::PLAYER,
 		cmp::pain_profile::MEDIUM,
+		false,
 		cmp::create_simple_damage_profile(50.0),
 		nullptr);
 
@@ -387,6 +389,7 @@ uint64_t entity_factory::create_light_fighter() {
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::ENEMY,
 		cmp::pain_profile::LIGHT,
+		false,
 		cmp::create_simple_damage_profile(50.0),
 		nullptr);
 
@@ -506,6 +509,7 @@ uint64_t entity_factory::create_heavy_fighter() {
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::ENEMY,
 		cmp::pain_profile::MEDIUM,
+		false,
 		cmp::create_simple_damage_profile(75.0),
 		nullptr);
 
@@ -620,6 +624,7 @@ uint64_t entity_factory::create_light_bomber() {
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::ENEMY,
 		cmp::pain_profile::MEDIUM,
+		false,
 		cmp::create_simple_damage_profile(75.0),
 		nullptr);
 
@@ -734,6 +739,7 @@ uint64_t entity_factory::create_heavy_bomber() {
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::ENEMY,
 		cmp::pain_profile::HEAVY,
+		false,
 		cmp::create_simple_damage_profile(100.0),
 		nullptr);
 
@@ -836,6 +842,7 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::NONE,
 		cmp::pain_profile::PAPER,
+		false,
 		nullptr,
 		cmp::create_health_pickup_profile(10.0));
 
@@ -895,6 +902,7 @@ uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, d
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::NONE,
 		cmp::pain_profile::PAPER,
+		false,
 		nullptr,
 		cmp::create_missiles_pickup_profile(7.0));
 
@@ -954,6 +962,7 @@ uint64_t entity_factory::create_bullet_upgrade_pickup(double x, double y, double
 	auto cp = cmp::create_collision_profile(
 		cmp::pain_team::NONE,
 		cmp::pain_profile::PAPER,
+		false,
 		nullptr,
 		cmp::create_bullet_upgrade_pickup_profile());
 
@@ -1012,6 +1021,7 @@ uint64_t entity_factory::create_missile(
 	auto cp = cmp::create_collision_profile( 
 		pain_team,
 		cmp::pain_profile::PAPER,
+		true,
 		cmp::create_simple_damage_profile(damage),
 		nullptr);
 
@@ -1097,6 +1107,7 @@ uint64_t entity_factory::create_bullet(
 	auto cp = cmp::create_collision_profile( 
 		pain_team,
 		cmp::pain_profile::PAPER,
+		true,
 		cmp::create_simple_damage_profile(damage),
 		nullptr);
 

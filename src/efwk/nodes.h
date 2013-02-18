@@ -107,6 +107,7 @@ struct arms_node {
 	// orientation - determines the location base for spawning the bullets etc.
 	// weapon_beh  - determines the projectiles spawning patterns
 	// ammo        - enables limiting of the projectiles spawning
+	// upgrades    - provides the information about the current player's upgrades
 
 	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;

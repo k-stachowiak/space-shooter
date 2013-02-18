@@ -77,10 +77,17 @@ public:
 shared_ptr<collision_profile> create_collision_profile(
 		pain_team pain_t,
 		pain_profile pain_p,
+		bool is_projectile,
 		unique_ptr<damage_profile> dmg_p,
 		unique_ptr<pickup_profile> pick_p) {
 
-	return shared_ptr<collision_profile>(new collision_profile { pain_t, pain_p, move(dmg_p), move(pick_p) });
+	return shared_ptr<collision_profile>(new collision_profile {
+		pain_t,
+		pain_p,
+		is_projectile,
+		move(dmg_p),
+		move(pick_p)
+	});
 }
 
 unique_ptr<damage_profile> create_simple_damage_profile(double amount) {

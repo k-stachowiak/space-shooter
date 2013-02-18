@@ -44,6 +44,9 @@ void pain_system::update(comm::msg_queue& msgs) {
 			// Skip friendly fire.
 			if(r.cp->pt == n.cp->pt) return;
 
+			// Skip projectile - projectile collisions.
+			if(r.cp->is_projectile && n.cp->is_projectile) return;
+
 			// Record hit.
 			++hits;
 

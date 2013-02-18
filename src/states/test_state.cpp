@@ -35,14 +35,10 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Upgrades
-//     - decide whether they should increase the speed or the damage
-//     - implement and test them
-//         - balance the damages so that it takes few shots to kill something
-//         - make sure that after the upgrade it's way easier to kill something
 // - Make the bullets and missiles not hit each other.
 // - Full HUD
 // - Consider separate collision spaces for different systems (e.g. pain, pickup, etc.)
+// - Generalize the concept of the entity (node) tacking in the systems.
 // - Large ship pieces
 // - waves and patterns
 // - Dry-run the stars generator so that the screen starts filled with some initial stars.

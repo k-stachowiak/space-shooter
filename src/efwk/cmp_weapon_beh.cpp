@@ -34,26 +34,15 @@ class complex_weapon_beh : public weapon_beh {
 public:
 	complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs) : _wbs(wbs) {}
 
-	void upgrade_bullets() {
-		for(auto& wb : _wbs) {
-			wb->upgrade_bullets();
-		}
-	}
-
-	void upgrade_missiles() {
-		for(auto& wb : _wbs) {
-			wb->upgrade_missiles();
-		}
-	}
-
 	void update(uint64_t id,
 			shared_ptr<ammo> ammo,
+			shared_ptr<upgrades> up,
 			double dt,
 			double x, double y,
 			comm::msg_queue& msgs) {
 
 		for(auto& wb : _wbs) {
-			wb->update(id, ammo, dt, x, y, msgs);
+			wb->update(id, ammo, up, dt, x, y, msgs);
 		}
 	}
 
@@ -88,6 +77,7 @@ public:
 
 	void update(uint64_t id,
 			shared_ptr<ammo> ammo,
+			shared_ptr<upgrades> up,
 			double dt,
 			double x,
 			double y,
@@ -102,7 +92,7 @@ public:
 					x + _x_off, y + _y_off,
 					1.57, 0.0,
 					500.0,
-					_bullets_lvl,
+					up->gun_lvl(),
 					true,
 					id));
 			}
@@ -136,6 +126,7 @@ public:
 
 	void update(uint64_t id,
 			shared_ptr<ammo> ammo,
+			shared_ptr<upgrades> up,
 			double dt,
 			double x,
 			double y,
@@ -151,7 +142,7 @@ public:
 					y + _y_offset,
 					1.57, 0.0,
 					150.0,
-					_missiles_lvl,
+					up->rl_lvl(),
 					true,
 					id));
 			}
@@ -176,6 +167,7 @@ public:
 
 	void update(uint64_t id,
 			shared_ptr<ammo> ammo,
+			shared_ptr<upgrades> up,
 			double dt,
 			double x,
 			double y,
@@ -191,7 +183,7 @@ public:
 						x + 15.0, y,
 						-1.57, 0.0,
 						-800.0,
-						_bullets_lvl,
+						up->gun_lvl(),
 						false,
 						id));
 			} else {
@@ -200,7 +192,7 @@ public:
 						x - 15.0, y,
 						-1.57, 0.0,
 						-800.0,
-						_bullets_lvl,
+						up->gun_lvl(),
 						false,
 						id));
 			}
@@ -214,14 +206,14 @@ public:
 					x + 25.0, y,
 					-1.57, 0.0,
 					-300.0,
-					_missiles_lvl,
+					up->rl_lvl(),
 					false,
 					id));
 			msgs.push(comm::create_spawn_missile(
 					x - 25.0, y,
 					-1.57, 0.0,
 					-300.0,
-					_missiles_lvl,
+					up->rl_lvl(),
 					false,
 					id));
 		}

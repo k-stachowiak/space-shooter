@@ -112,6 +112,7 @@ struct arms_node {
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::weapon_beh> weapon_beh;
 	shared_ptr<cmp::ammo> ammo;
+	shared_ptr<cmp::upgrades> upgrades;
 };
 
 struct collision_node {

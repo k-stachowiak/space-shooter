@@ -37,20 +37,13 @@ namespace cmp {
 class ammo;
 
 class weapon_beh {
-protected:
-	size_t _bullets_lvl;
-	size_t _missiles_lvl;
-
 public:
-	weapon_beh() : _bullets_lvl(1), _missiles_lvl(1) {}
 	virtual ~weapon_beh() {}
-
-	virtual void upgrade_bullets() { ++_bullets_lvl; }
-	virtual void upgrade_missiles() { ++_missiles_lvl; }
 
 	virtual void update(
 			uint64_t id,
 			shared_ptr<ammo> a,
+			shared_ptr<upgrades> up,
 			double dt,
 			double x, double y,
 			comm::msg_queue& msgs) = 0;

@@ -36,7 +36,9 @@ class health_pickup_profile : public pickup_profile {
 	double _amount;
 public:
 	health_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(shared_ptr<wellness> w, shared_ptr<ammo> a) {
+	bool trigger(shared_ptr<wellness> w,
+			shared_ptr<ammo> a,
+			shared_ptr<upgrades> up) {
 
 		double h = w->get_health();
 		double H = w->get_max_health();
@@ -54,7 +56,9 @@ class missiles_pickup_profile : public pickup_profile {
 	double _amount;
 public:
 	missiles_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(shared_ptr<wellness> w, shared_ptr<ammo> a) {
+	bool trigger(shared_ptr<wellness> w,
+			shared_ptr<ammo> a,
+			shared_ptr<upgrades> up) {
 		a->add_rockets(_amount);
 		return true;
 	}
@@ -63,7 +67,9 @@ public:
 class bullet_upgrade_pickup_profile : public pickup_profile {
 public:
 	bool trigger(shared_ptr<wellness> w,
-				 shared_ptr<ammo> a) {
+				 shared_ptr<ammo> a,
+				 shared_ptr<upgrades> up) {
+		up->upgrade_gun();
 		return true;
 	}
 };

@@ -29,6 +29,7 @@ namespace cmp {
 
 class wellness;
 class ammo;
+class upgrades;
 
 enum class pain_team {
 	NONE,
@@ -55,7 +56,8 @@ public:
 	virtual ~pickup_profile() {}
 	virtual bool trigger(
 			shared_ptr<wellness> w,
-			shared_ptr<ammo> a) = 0;
+			shared_ptr<ammo> a,
+			shared_ptr<upgrades> up) = 0;
 };
 
 struct collision_profile {

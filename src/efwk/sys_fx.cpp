@@ -18,19 +18,27 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
-
-#include "sys_arms.h"
-#include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
 #include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
 
-#endif
+namespace sys {
+
+void fx_system::update(
+		double dt,
+		comm::msg_queue& msgs) {
+	double max_health;
+	double health;
+	double x, y;
+	for(auto const& n : _nodes) {
+		x = n.orientation->get_x();
+		y = n.orientation->get_y();
+		max_health = n.wellness->get_max_health();
+		health = n.wellness->get_health();
+		n.effects->update(dt,
+				health / max_health,
+				x, y,
+				n.shape,
+				msgs);
+	}
+}
+
+}

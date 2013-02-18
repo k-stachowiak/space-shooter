@@ -18,19 +18,21 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
-
-#include "sys_arms.h"
-#include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
 #include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
 
-#endif
+namespace sys {
+
+void pickup_system::update(comm::msg_queue& msgs) {
+	for(auto const& n : _nodes) {
+		n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
+			if(r.cp->pickup) {
+				bool picked_up = r.cp->pickup->trigger(n.wellness, n.ammo);
+				if(picked_up) {
+					msgs.push(comm::create_remove_entity(r.id));
+				}
+			}
+		});
+	}
+}
+
+}

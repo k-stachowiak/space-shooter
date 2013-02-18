@@ -18,19 +18,28 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
+#ifndef CMP_TIMER_H
+#define CMP_TIMER_H
 
-#include "sys_arms.h"
-#include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
+#include <memory>
+using std::shared_ptr;
+
+namespace cmp {
+
+class timer {
+protected:
+	uint32_t _ticks;
+	double _counter;
+public:
+	virtual ~timer() {}
+	uint32_t get_ticks() const { return _ticks; }
+	void clear() { _ticks = 0; }
+	void reset() { _ticks = _counter = 0; }
+	virtual void update(double dt) = 0;
+};
+
+shared_ptr<timer> create_const_int_timer(double interval);
+
+}
 
 #endif

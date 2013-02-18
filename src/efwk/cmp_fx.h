@@ -18,19 +18,33 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
+#ifndef CMP_FX_H
+#define CMP_FX_H
 
-#include "sys_arms.h"
-#include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
+#include <memory>
+using std::shared_ptr;
+
+#include "comm.h"
+
+namespace cmp {
+
+class timer;
+class shape;
+
+class fx {
+public:
+	virtual ~fx() {}
+	virtual void update(
+			double dt,
+			double health_ratio,
+			double x, double y,
+			shared_ptr<shape> shp, // TODO: Only pass reference to the systems. shared pointers are overkill here.
+			comm::msg_queue& msgs) = 0;
+};
+
+shared_ptr<fx> create_smoke_when_hurt(shared_ptr<timer> t, double pain_threshold);
+shared_ptr<fx> create_period_smoke(double dt_min, double dt_max);
+
+}
 
 #endif

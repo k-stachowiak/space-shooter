@@ -26,11 +26,12 @@ message create_spawn_bullet(
 		double x, double y,
 		double theta,
 		double vx, double vy,
+		size_t upgrade_lvl,
 		bool enemy,
 		uint64_t origin_id) {
 	message msg;
 	msg.type = msg_t::spawn_bullet;
-	msg.spawn_bullet = { x, y, theta, vx, vy, enemy, origin_id };
+	msg.spawn_bullet = { x, y, theta, vx, vy, upgrade_lvl, enemy, origin_id };
 	return msg;
 }
 
@@ -38,11 +39,12 @@ message create_spawn_missile(
 		double x, double y,
 		double theta,
 		double vx, double vy,
+		size_t upgrade_lvl,
 		bool enemy,
 		uint64_t origin_id) {
 	message msg;
 	msg.type = msg_t::spawn_missile;
-	msg.spawn_missile = { x, y, theta, vx, vy, enemy, origin_id };
+	msg.spawn_missile = { x, y, theta, vx, vy, upgrade_lvl, enemy, origin_id };
 	return msg;
 }
 
@@ -95,6 +97,15 @@ message create_spawn_missiles_pickup(
 	message msg;
 	msg.type = msg_t::spawn_missiles_pickup;
 	msg.spawn_missiles_pickup = { x, y, vx, vy };
+	return msg;
+}
+
+message create_spawn_bullet_upgrade_pickup(
+		double x, double y,
+		double vx, double vy) {
+	message msg;
+	msg.type = msg_t::spawn_bullet_upgrade_pickup;
+	msg.spawn_bullet_upgrade_pickup = { x, y, vx, vy };
 	return msg;
 }
 

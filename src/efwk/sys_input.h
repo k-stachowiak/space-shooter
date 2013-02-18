@@ -18,19 +18,35 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
+#ifndef SYS_INPUT_H
+#define SYS_INPUT_H
 
-#include "sys_arms.h"
+#include <vector>
+using std::vector;
+
+#include <map>
+using std::map;
+
+#include <utility>
+using std::move;
+
 #include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
+#include "nodes.h"
+
+namespace sys {
+
+class input_system : public system {
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	map<int, bool> _keys;
+	vector<nd::input_node> _nodes;
+public:
+	void add_node(nd::input_node n) { _nodes.push_back(move(n)); }
+	void update();
+	void key_down(int k) { _keys[k] = true; }
+	void key_up(int k) { _keys[k] = false; }
+	bool pressed(int k) { return _keys[k]; }
+};
+
+}
 
 #endif

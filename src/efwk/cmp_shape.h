@@ -18,19 +18,39 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
+#ifndef CMP_SHAPE_H
+#define CMP_SHAPE_H
 
-#include "sys_arms.h"
-#include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
+#include <utility>
+using std::pair;
+using std::make_pair;
+
+#include <memory>
+using std::shared_ptr;
+
+#include <vector>
+using std::vector;
+
+namespace cmp {
+
+class circle;
+class complex_shape;
+
+class shape {
+public:
+	virtual ~shape() {}
+	virtual void shift(double dx, double dy) = 0;
+	virtual void rotate(double dphi) = 0;
+	virtual bool collides_with(shape const& shp) const = 0;
+	virtual bool collides_with_circle(circle const& c) const = 0;
+	virtual pair<double, double> get_random_point() const = 0;
+	virtual void debug_draw() {}
+};
+
+shared_ptr<shape> create_circle(double x, double y, double r);
+shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes);
+
+}
+
 
 #endif

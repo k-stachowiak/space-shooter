@@ -18,19 +18,21 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
-
-#include "sys_arms.h"
-#include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
 #include "sys_score.h"
-#include "sys_wellness.h"
 
-#endif
+namespace sys {
+
+void score_system::update() {
+		for(auto const& n : _nodes) {
+
+			if(n.wellness->is_alive()) {
+				continue;
+			}
+
+			uint64_t receiver = n.wellness->get_last_dmg_id();
+			double score = _class_score_map[n.sc];
+			_ent_score_map[receiver] += score;
+		}
+	}
+
+}

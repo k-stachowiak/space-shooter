@@ -18,19 +18,37 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
+#include "cmp_misc.h"
 
-#include "sys_arms.h"
-#include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
+namespace cmp {
 
-#endif
+shared_ptr<orientation> create_orientation(double x, double y, double theta) {
+	return make_shared<orientation>(x, y, theta);
+}
+
+shared_ptr<bounds> create_bounds(
+		double x_min, double y_min, double x_max, double y_max) {
+	return make_shared<bounds>(x_min, y_min, x_max, y_max);
+}
+
+shared_ptr<coll_queue> create_coll_queue() {
+	return make_shared<coll_queue>();
+}
+
+shared_ptr<ammo> create_ammo_unlimited() {
+	return make_shared<ammo>(-1, -1);
+}
+
+shared_ptr<ammo> create_ammo(int bullets, int rockets) {
+	return make_shared<ammo>(bullets, rockets);
+}
+
+shared_ptr<upgrades> create_upgrades() {
+	return make_shared<upgrades>();
+}
+
+shared_ptr<wellness> create_wellness(double health) {
+	return make_shared<wellness>(health);
+}
+
+}

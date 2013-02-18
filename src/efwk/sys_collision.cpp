@@ -18,19 +18,31 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
-
-#include "sys_arms.h"
-#include "sys_base.h"
 #include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
 
-#endif
+namespace sys {
+
+void collision_system::check_collision(nd::collision_node const& a,
+			 nd::collision_node const& b) {
+
+	cmp::shape const& shp_a = *(a.shape);
+	cmp::shape const& shp_b = *(b.shape);
+
+	if(shp_a.collides_with(shp_b)) {
+		a.coll_queue->push_report({ b.id, b.origin_id, b.cp, b.shape });
+		b.coll_queue->push_report({ a.id, a.origin_id, a.cp, a.shape });
+	}
+}
+
+void collision_system::update() {
+	// Clear the collision queues first.
+	for(auto a = begin(_nodes); a != end(_nodes); ++a)
+		a->coll_queue->clear();
+
+	// Perform the collision checks.
+	for(auto a = begin(_nodes); a != end(_nodes); ++a)
+		for(auto b = a + 1; b != end(_nodes); ++b)
+			check_collision(*a, *b);
+}
+
+}

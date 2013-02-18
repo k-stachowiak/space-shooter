@@ -36,15 +36,16 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - Upgrades
-//     - drop proper pickups
 //     - decide whether they should increase the speed or the damage
 //     - implement and test them
 //         - balance the damages so that it takes few shots to kill something
 //         - make sure that after the upgrade it's way easier to kill something
+// - Make the bullets and missiles not hit each other.
 // - Full HUD
+// - Consider separate collision spaces for different systems (e.g. pain, pickup, etc.)
 // - Large ship pieces
-// - wavess and patterns
-// - Dryrun the stars generator so that the screen starts filled with some initial stars.
+// - waves and patterns
+// - Dry-run the stars generator so that the screen starts filled with some initial stars.
 
 class test_state : public state {
 
@@ -109,38 +110,45 @@ class test_state : public state {
 				break;
 
 			case comm::msg_t::spawn_bullet:
-				_ef.create_bullet(msg.spawn_bullet.x,
+				_ef.create_bullet(
+						msg.spawn_bullet.x,
 						msg.spawn_bullet.y,
 						msg.spawn_bullet.theta,
 						msg.spawn_bullet.vx,
 						msg.spawn_bullet.vy,
+						msg.spawn_bullet.upgrade_lvl,
 						msg.spawn_bullet.enemy,
 						msg.spawn_bullet.origin_id);
 				break;
 
 			case comm::msg_t::spawn_missile:
-				_ef.create_missile(msg.spawn_missile.x,
+				_ef.create_missile(
+						msg.spawn_missile.x,
 						msg.spawn_missile.y,
 						msg.spawn_missile.theta,
 						msg.spawn_missile.vx,
 						msg.spawn_missile.vy,
+						msg.spawn_missile.upgrade_lvl,
 						msg.spawn_missile.enemy,
 						msg.spawn_missile.origin_id);
 				break;
 
 			case comm::msg_t::spawn_explosion:
-				_ef.create_explosion(msg.spawn_explosion.x,
+				_ef.create_explosion(
+						msg.spawn_explosion.x,
 						msg.spawn_explosion.y);
 				break;
 
 			case comm::msg_t::spawn_smoke:
-				_ef.create_smoke(msg.spawn_smoke.x,
-					     msg.spawn_smoke.y,
-					     msg.spawn_smoke.size);
+				_ef.create_smoke(
+						msg.spawn_smoke.x,
+					    msg.spawn_smoke.y,
+					    msg.spawn_smoke.size);
 				break;
 
 			case comm::msg_t::spawn_debris:
-				_ef.create_debris(msg.spawn_debris.x,
+				_ef.create_debris(
+						msg.spawn_debris.x,
 						msg.spawn_debris.y,
 						msg.spawn_debris.vx,
 						msg.spawn_debris.vy,
@@ -154,19 +162,29 @@ class test_state : public state {
 				break;
 
 			case comm::msg_t::spawn_health_pickup:
-				_ef.create_health_pickup(msg.spawn_health_pickup.x,
+				_ef.create_health_pickup(
+						msg.spawn_health_pickup.x,
 						msg.spawn_health_pickup.y,
 						msg.spawn_health_pickup.vx,
 						msg.spawn_health_pickup.vy);
 				break;
 
 			case comm::msg_t::spawn_missiles_pickup:
-				_ef.create_missiles_pickup(msg.spawn_missiles_pickup.x,
+				_ef.create_missiles_pickup(
+						msg.spawn_missiles_pickup.x,
 						msg.spawn_missiles_pickup.y,
 						msg.spawn_missiles_pickup.vx,
 						msg.spawn_missiles_pickup.vy);
 				break;
 				
+			case comm::msg_t::spawn_bullet_upgrade_pickup:
+				_ef.create_bullet_upgrade_pickup(
+						msg.spawn_bullet_upgrade_pickup.x,
+						msg.spawn_bullet_upgrade_pickup.y,
+						msg.spawn_bullet_upgrade_pickup.vx,
+						msg.spawn_bullet_upgrade_pickup.vy);
+				break;
+
 			default:
 				break;
 			}

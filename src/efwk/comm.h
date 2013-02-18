@@ -31,12 +31,17 @@ using std::vector;
 
 #include <utility>
 using std::pair;
+using std::move;
 
 #include "../resources/resman.h"
 
 namespace comm {
 
-enum class smoke_size { tiny, medium, big };
+enum class smoke_size {
+	tiny,
+	medium,
+	big
+};
 
 enum class msg_t {
 	remove_entity,
@@ -46,7 +51,8 @@ enum class msg_t {
 	spawn_smoke,
 	spawn_debris,
 	spawn_health_pickup,
-	spawn_missiles_pickup
+	spawn_missiles_pickup,
+	spawn_bullet_upgrade_pickup
 };
 
 struct message {
@@ -61,6 +67,7 @@ struct message {
 		double x, y;
 		double theta;
 		double vx, vy;
+		size_t upgrade_lvl;
 		bool enemy;
 		uint64_t origin_id;
 	} spawn_bullet;
@@ -69,6 +76,7 @@ struct message {
 		double x, y;
 		double theta;
 		double vx, vy;
+		size_t upgrade_lvl;
 		bool enemy;
 		uint64_t origin_id;
 	} spawn_missile;
@@ -101,12 +109,18 @@ struct message {
 		double x, y;
 		double vx, vy;
 	} spawn_missiles_pickup;
+
+	struct {
+		double x, y;
+		double vx, vy;
+	} spawn_bullet_upgrade_pickup;
 };
 
 message create_spawn_bullet(
 		double x, double y, 
 		double theta, 
 		double vx, double vy, 
+		size_t upgrade_lvl,
 		bool enemy, 
 		uint64_t origin_id);
 
@@ -114,6 +128,7 @@ message create_spawn_missile(
 		double x, double y,
 		double theta,
 		double vx, double vy,
+		size_t upgrade_lvl,
 		bool enemy,
 		uint64_t origin_id);
 
@@ -130,6 +145,8 @@ message create_spawn_debris(double x, double y,
 
 message create_spawn_health_pickup(double x, double y, double vx, double vy);
 message create_spawn_missiles_pickup(double x, double y, double vx, double vy);
+message create_spawn_bullet_upgrade_pickup(double x, double y, double vx, double vy);
+
 message create_remove_entity(uint64_t id);
 
 // The message queue container.
@@ -147,7 +164,7 @@ public:
 	template<class MsgCallback>
 	void for_each_msg(double dt, MsgCallback mc) {
 		for(std::size_t i = 0; i < _msgs.size();) {
-			auto& pr = _msgs[i];
+			pair<double, message>& pr = _msgs[i];
 			if(pr.first > 0.0) {
 				pr.first -= dt;
 				++i;

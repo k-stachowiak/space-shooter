@@ -18,19 +18,26 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
+#ifndef SYS_COLLISION_H
+#define SYS_COLLISION_H
 
-#include "sys_arms.h"
+#include <vector>
+using std::vector;
+
 #include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
+#include "nodes.h"
+
+namespace sys {
+
+class collision_system : public system {
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	vector<nd::collision_node> _nodes;
+	void check_collision(nd::collision_node const& a, nd::collision_node const& b);
+public:
+	void add_node(nd::collision_node node) { _nodes.push_back(node); }
+	void update();
+};
+
+}
 
 #endif

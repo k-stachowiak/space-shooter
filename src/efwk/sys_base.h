@@ -18,19 +18,31 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
+#ifndef SYS_BASE_H
+#define SYS_BASE_H
 
-#include "sys_arms.h"
-#include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
+#include <stdint.h>
+
+namespace sys {
+
+template<typename SYS>
+void remove_node(SYS& sys, uint64_t id) {
+	for(auto n = begin(sys._nodes); n != end(sys._nodes); ++n) {
+		if(n->id == id) {
+			*n = sys._nodes.back();
+			sys._nodes.pop_back();
+			--n;
+		}
+	}
+}
+
+class system {
+protected:
+	bool _debug_mode;
+public:
+	void set_debug_mode(bool debug_mode) { _debug_mode = debug_mode; }
+};
+
+}
 
 #endif

@@ -18,19 +18,35 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
+#ifndef SYS_WELLNESS_H
+#define SYS_WELLNESS_H
 
-#include "sys_arms.h"
+#include <vector>
+using std::vector;
+
+#include <memory>
+using std::shared_ptr;
+
 #include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
+#include "nodes.h"
+
+namespace sys {
+
+class wellness_system : public system {
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	vector<nd::wellness_node> _nodes;
+
+	uint64_t _tracked_id;
+	shared_ptr<cmp::wellness> _tracked_wellness;
+
+public:
+	void add_node(nd::wellness_node node) { _nodes.push_back(node); }
+	void update(double dt, comm::msg_queue& msgs);
+
+	void set_tracked_id(uint64_t tracked_id) { _tracked_id = tracked_id; }
+	shared_ptr<cmp::wellness> get_tracked_wellness() { return _tracked_wellness; }
+};
+
+}
 
 #endif

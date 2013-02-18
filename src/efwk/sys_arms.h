@@ -18,19 +18,45 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef SYSTEMS_H
-#define SYSTEMS_H
+#ifndef SYS_ARMS_H
+#define SYS_ARMS_H
 
-#include "sys_arms.h"
+#include <vector>
+using std::vector;
+
+#include <memory>
+using std::shared_ptr;
+
+#include <map>
+using std::map;
+
 #include "sys_base.h"
-#include "sys_collision.h"
-#include "sys_drawing.h"
-#include "sys_fx.h"
-#include "sys_input.h"
-#include "sys_movement.h"
-#include "sys_pain.h"
-#include "sys_pickup.h"
-#include "sys_score.h"
-#include "sys_wellness.h"
+#include "nodes.h"
+
+namespace sys {
+
+class arms_system : public system {
+
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+	vector<nd::arms_node> _nodes;
+
+	uint64_t _tracked_id;
+	shared_ptr<cmp::ammo> _tracked_ammo;
+
+public:
+	void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
+
+	void set_tracked_id(uint64_t tracked_id) { _tracked_id = tracked_id; }
+	shared_ptr<cmp::ammo> get_tracked_ammo() { return _tracked_ammo; }
+
+	void update(double dt, comm::msg_queue& msgs);
+	void input(map<int, bool>& keys) {
+		for(auto& n : _nodes) {
+			n.weapon_beh->input(keys);
+		}
+	}
+};
+
+}
 
 #endif

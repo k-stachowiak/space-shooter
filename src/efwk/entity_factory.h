@@ -92,8 +92,10 @@ public:
 	uint64_t create_light_bomber();
 	uint64_t create_heavy_bomber();
 
+	// TODO: Separate the common construction of the pickups
 	uint64_t create_health_pickup(double x, double y, double vx, double vy);
 	uint64_t create_missiles_pickup(double x, double y, double vx, double vy);
+	uint64_t create_bullet_upgrade_pickup(double x, double y, double vx, double vy);
 
 	// TODO: This should rather take the direction vector and compute the velocities
 	//     and the accelerations internally.
@@ -101,6 +103,7 @@ public:
 			double x, double y,
 			double theta,
 			double vx, double vy,
+			size_t upgrade_lvl,
 			bool enemy,
 			uint64_t origin_id);
 
@@ -108,6 +111,7 @@ public:
 			double x, double y,
 			double theta,
 			double vx, double vy,
+			size_t upgrade_lvl,
 			bool enemy,
 			uint64_t origin_id);
 };

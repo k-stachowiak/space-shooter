@@ -29,19 +29,15 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	// Load simple images.
 	add_bitmap(res_id::PLAYER_SHIP, "data/player_ship.png");
 	add_bitmap(res_id::PLAYER_BULLET, "data/player_bullet.png");
-	add_bitmap(res_id::ENEMY_EYE, "data/enemy_eye.png");
 	add_bitmap(res_id::ENEMY_BOMBER, "data/light_bomber.png");
 	add_bitmap(res_id::ENEMY_LIGHT_FIGHTER, "data/light_fighter.png");
 	add_bitmap(res_id::ENEMY_HEAVY_FIGHTER, "data/heavy_fighter.png");
 	add_bitmap(res_id::ENEMY_LIGHT_BOMBER, "data/light_bomber.png");
 	add_bitmap(res_id::ENEMY_HEAVY_BOMBER, "data/heavy_bomber.png");
-	add_bitmap(res_id::BOMBER_DEBRIS_1, "data/enemy_bomber2_piece_1.png");
-	add_bitmap(res_id::BOMBER_DEBRIS_2, "data/enemy_bomber2_piece_2.png");
-	add_bitmap(res_id::BOMBER_DEBRIS_3, "data/enemy_bomber2_piece_3.png");
-	add_bitmap(res_id::BOMBER_DEBRIS_4, "data/enemy_bomber2_piece_4.png");
 	add_bitmap(res_id::EYE_BULLET, "data/eye_bullet.png");
 	add_bitmap(res_id::MISSILE, "data/missile.png");
 	add_bitmap(res_id::MISSILES, "data/missiles.png");
+	add_bitmap(res_id::B_UPGRADE, "data/bullet_upgrade.png");
 	add_bitmap(res_id::DEBRIS1, "data/debris1.png");
 	add_bitmap(res_id::DEBRIS2, "data/debris2.png");
 	add_bitmap(res_id::DEBRIS3, "data/debris3.png");
@@ -57,7 +53,6 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 
 	// Generate flashes.
 	flash(res_id::PLAYER_SHIP_FLASH, res_id::PLAYER_SHIP);
-	flash(res_id::ENEMY_EYE_FLASH, res_id::ENEMY_EYE);
 	flash(res_id::ENEMY_BOMBER_FLASH, res_id::ENEMY_BOMBER);
 	flash(res_id::ENEMY_LIGHT_FIGHTER_FLASH, res_id::ENEMY_LIGHT_FIGHTER);
 	flash(res_id::ENEMY_HEAVY_FIGHTER_FLASH, res_id::ENEMY_HEAVY_FIGHTER);

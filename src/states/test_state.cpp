@@ -35,7 +35,6 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Limit player's movement area.
 // - Upgrades can wear out after a given number of shots.
 // - Create "HUD system"
 // - Large ship pieces

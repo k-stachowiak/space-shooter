@@ -278,9 +278,12 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 
 	// Movement components.
 	// --------------------
-	auto life_bounds = shared_ptr<cmp::bounds>(); 
-	auto movement_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
+	auto life_bounds = shared_ptr<cmp::bounds>();
 	auto dynamics = cmp::create_player_controlled_dynamics();
+	auto movement_bounds = cmp::create_bounds(
+			0.0, 0.0,
+			_config.get_screen_w(),
+			_config.get_screen_h() - 120.0);
 
 	// Arms components.
 	// ----------------

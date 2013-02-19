@@ -89,8 +89,12 @@ public:
 	bool trigger(shared_ptr<wellness> w,
 				 shared_ptr<ammo> a,
 				 shared_ptr<upgrades> up) {
-		up->upgrade_gun();
-		return true;
+		if(up->can_upgrade_gun()) {
+			up->upgrade_gun();
+			return true;
+		} else {
+			return false;
+		}
 	}
 };
 
@@ -99,8 +103,12 @@ public:
 	bool trigger(shared_ptr<wellness> w,
 				 shared_ptr<ammo> a,
 				 shared_ptr<upgrades> up) {
-		up->upgrade_rl();
-		return true;
+		if(up->can_upgrade_rl()) {
+			up->upgrade_rl();
+			return true;
+		} else {
+			return false;
+		}
 	}
 };
 

@@ -159,7 +159,11 @@ public:
 	{}
 
 	void deal_dmg(double dmg, uint64_t source_id) {
-		_health -= dmg;
+		_shield -= dmg;
+		if(_shield < 0) {
+			_health += _shield;
+			_shield = 0;
+		}
 		_last_dmg_id = source_id;
 	}
 
@@ -187,10 +191,18 @@ public:
 class upgrades {
 	size_t _gun_lvl;
 	size_t _rl_lvl;
+	size_t _gun_lvl_max;
+	size_t _rl_lvl_max;
 public:
-	upgrades() : _gun_lvl(1), _rl_lvl(1) {}
-	void upgrade_gun() { ++_gun_lvl; }
-	void upgrade_rl() { ++_rl_lvl; }
+	upgrades(size_t gun_lvl_max, size_t rl_lvl_max)
+	: _gun_lvl(1), _rl_lvl(1)
+	, _gun_lvl_max(gun_lvl_max), _rl_lvl_max(rl_lvl_max)
+	{}
+
+	void upgrade_gun() { if(_gun_lvl < _gun_lvl_max) ++_gun_lvl; }
+	void upgrade_rl() { if(_rl_lvl < _rl_lvl_max) ++_rl_lvl; }
+	bool can_upgrade_gun() const { return _gun_lvl < _gun_lvl_max; }
+	bool can_upgrade_rl() const { return _rl_lvl < _rl_lvl_max; }
 	size_t gun_lvl() const { return _gun_lvl; }
 	size_t rl_lvl() const { return _rl_lvl; }
 };
@@ -203,7 +215,7 @@ shared_ptr<bounds> create_bounds(double x_min, double y_min, double x_max, doubl
 shared_ptr<coll_queue> create_coll_queue();
 shared_ptr<ammo> create_ammo_unlimited();
 shared_ptr<ammo> create_ammo(int bullets, int rockets);
-shared_ptr<upgrades> create_upgrades();
+shared_ptr<upgrades> create_upgrades(size_t gun_lvl_max, size_t rl_lvl_max);
 shared_ptr<wellness> create_wellness(double health, double shield);
 
 }

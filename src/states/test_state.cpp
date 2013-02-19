@@ -35,9 +35,7 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Shield
-// - Full HUD
-// - Upgrades have the maximum value.
+// - Limit player's movement area.
 // - Upgrades can wear out after a given number of shots.
 // - Create "HUD system"
 // - Large ship pieces
@@ -243,22 +241,24 @@ class test_state : public state {
 			al_map_rgba_f(1.0f, 1.0f, 1.0f, 1.0f),
 			10.0f, 10.0f, 0,
 			"Score: %d", player_score);
-
-		// Ammo.
-		int player_rockets = _arms_system.get_tracked_node().get().ammo->get_rockets();
-		al_draw_textf(
-			_resman.get_font(res_id::FONT),
-			al_map_rgba_f(0.333f, 0.667f, 0.333f, 1),
-			10.0f, 50.0f, 0,
-			"Rockets: %d", player_rockets);
 	
-		// Health 
+		// Health and shield.
 		double max_health = _wellness_system.get_tracked_node().get().wellness->get_max_health();
 		double health = _wellness_system.get_tracked_node().get().wellness->get_health();
-		double ratio = health / max_health;
-		if(ratio < 0.0) ratio = 0.0;
-		draw_bar(20.0, 1.0, 20.0, 2.0, al_map_rgb(0, 0, 0));
-		draw_bar(20.0, ratio, 20.0, 0.0, health_color(ratio));
+		double h_ratio = health / max_health;
+		if(h_ratio < 0.0) h_ratio = 0.0;
+		draw_bar(20.0, 1.0, 5.0, 2.0, al_map_rgb(0, 0, 0));
+		draw_bar(20.0, h_ratio, 5.0, 0.0, health_color(h_ratio));
+
+		double max_shield = _wellness_system.get_tracked_node().get().wellness->get_max_shield();
+		double shield = _wellness_system.get_tracked_node().get().wellness->get_shield();
+		double s_ratio = shield / max_shield;
+		if(s_ratio < 0.0) s_ratio = 0.0;
+		draw_bar(50.0, 1.0, 5.0, 2.0, al_map_rgb(0, 0, 0));
+		draw_bar(50.0, s_ratio, 5.0, 0.0, al_map_rgb(113, 197, 255));
+
+		al_draw_bitmap(_resman.get_bitmap(res_id::HEALTH), 75.0, _config.get_screen_h() - 20.0 - 20.0, 0);
+		al_draw_bitmap(_resman.get_bitmap(res_id::BATTERY), 75.0, _config.get_screen_h() - 50.0 - 20.0, 0);
 
 		// Upgrades
 		size_t gun_lvl = _arms_system.get_tracked_node().get().upgrades->gun_lvl();
@@ -280,6 +280,24 @@ class test_state : public state {
 		al_draw_bitmap((rl_lvl > 2) ? don : doff, x_right, y_base - 50, 0);
 		al_draw_bitmap((rl_lvl > 3) ? don : doff, x_right, y_base - 70, 0);
 		al_draw_bitmap((rl_lvl > 4) ? don : doff, x_right, y_base - 90, 0);
+
+		// NOTE: This system will light n diodes for n-1 upgrade level.
+		// This way the initial upgrade levels = 1 are indicated by no diodes.
+
+		al_draw_bitmap(_resman.get_bitmap(res_id::B_UPGRADE), x_left + 2.0, y_base, 0);
+		al_draw_bitmap(_resman.get_bitmap(res_id::M_UPGRADE), x_right + 2.0, y_base, 0);
+
+		// Ammo.
+		int player_rockets = _arms_system.get_tracked_node().get().ammo->get_rockets();
+		double ammo_x = 75.0;
+		double ammo_y = _config.get_screen_h() - 130.0;
+
+		al_draw_bitmap(_resman.get_bitmap(res_id::MISSILES), ammo_x, ammo_y, 0);
+		al_draw_textf(
+			_resman.get_font(res_id::TINY_FONT),
+			al_map_rgba_f(1, 1, 1, 1),
+			ammo_x + 20, ammo_y + 20, 0,
+			"%d", player_rockets);
 	}
 
 	// This seems necessary for the clock declarations...

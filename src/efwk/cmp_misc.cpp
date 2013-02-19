@@ -43,8 +43,8 @@ shared_ptr<ammo> create_ammo(int bullets, int rockets) {
 	return make_shared<ammo>(bullets, rockets);
 }
 
-shared_ptr<upgrades> create_upgrades() {
-	return make_shared<upgrades>();
+shared_ptr<upgrades> create_upgrades(size_t gun_lvl_max, size_t rl_lvl_max) {
+	return make_shared<upgrades>(gun_lvl_max, rl_lvl_max);
 }
 
 shared_ptr<wellness> create_wellness(double health, double shield) {

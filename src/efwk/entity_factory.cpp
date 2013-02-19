@@ -286,7 +286,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// ----------------
 	auto weapon_beh = cmp::create_player_controlled_weapon_beh();
 	auto ammo = cmp::create_ammo(-1, 3);
-	auto upgrades = cmp::create_upgrades();
+	auto upgrades = cmp::create_upgrades(5, 5);
 
 	// Collision components.
 	// ---------------------
@@ -378,7 +378,7 @@ uint64_t entity_factory::create_light_fighter() {
 	// Arms components.
 	// ----------------
 	auto ammo = cmp::create_ammo_unlimited();
-	auto upgrades = cmp::create_upgrades();
+	auto upgrades = cmp::create_upgrades(0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(3.0, 3.0, +17.0, -3.0),
 			cmp::create_period_bullet(3.0, 3.0, -17.0, -3.0) });
@@ -504,7 +504,7 @@ uint64_t entity_factory::create_heavy_fighter() {
 	// Arms components.
 	// ----------------
 	auto ammo = cmp::create_ammo_unlimited();
-	auto upgrades = cmp::create_upgrades();
+	auto upgrades = cmp::create_upgrades(0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(1.5, 1.5, +25.0, -5.0),
 			cmp::create_period_bullet(1.5, 1.5, -25.0, -5.0),
@@ -626,7 +626,7 @@ uint64_t entity_factory::create_light_bomber() {
 	// Arms components.
 	// ----------------
 	auto ammo = cmp::create_ammo_unlimited();
-	auto upgrades = cmp::create_upgrades();
+	auto upgrades = cmp::create_upgrades(0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 		cmp::create_period_bullet(1.0, 1.0, +55.0, -30.0),
 		cmp::create_period_bullet(1.0, 1.0, -55.0, -30.0),
@@ -750,7 +750,7 @@ uint64_t entity_factory::create_heavy_bomber() {
 	// Arms components.
 	// ----------------
 	auto ammo = cmp::create_ammo_unlimited();
-	auto upgrades = cmp::create_upgrades();
+	auto upgrades = cmp::create_upgrades(0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(1.0, 1.0, +55.0, -30.0),
 			cmp::create_period_bullet(1.0, 1.0, -55.0, -30.0),

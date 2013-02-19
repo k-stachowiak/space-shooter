@@ -149,8 +149,14 @@ class wellness {
 	uint64_t _last_dmg_id; // NOTE that this is used to grant points for kill.
 	double _max_health;
 	double _health;
+	double _max_shield;
+	double _shield;
 public:
-	wellness(double health) : _last_dmg_id(0), _max_health(health), _health(health) {}
+	wellness(double health, double shield)
+	: _last_dmg_id(0)
+	, _max_health(health), _health(health)
+	, _max_shield(shield), _shield(shield)
+	{}
 
 	void deal_dmg(double dmg, uint64_t source_id) {
 		_health -= dmg;
@@ -160,6 +166,9 @@ public:
 	void add_health(double dh) { _health += dh; }
 	double get_max_health() const { return _max_health; }
 	double get_health() const { return _health; }
+	void add_shield(double ds) { _shield += ds; }
+	double get_max_shield() const { return _max_shield; }
+	double get_shield() const { return _shield; }
 	bool is_alive() const { return _health > 0.0; }
 	uint64_t get_last_dmg_id() const { return _last_dmg_id; }
 };
@@ -195,7 +204,7 @@ shared_ptr<coll_queue> create_coll_queue();
 shared_ptr<ammo> create_ammo_unlimited();
 shared_ptr<ammo> create_ammo(int bullets, int rockets);
 shared_ptr<upgrades> create_upgrades();
-shared_ptr<wellness> create_wellness(double health);
+shared_ptr<wellness> create_wellness(double health, double shield);
 
 }
 

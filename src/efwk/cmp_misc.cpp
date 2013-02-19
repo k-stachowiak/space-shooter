@@ -47,8 +47,8 @@ shared_ptr<upgrades> create_upgrades() {
 	return make_shared<upgrades>();
 }
 
-shared_ptr<wellness> create_wellness(double health) {
-	return make_shared<wellness>(health);
+shared_ptr<wellness> create_wellness(double health, double shield) {
+	return make_shared<wellness>(health, shield);
 }
 
 }

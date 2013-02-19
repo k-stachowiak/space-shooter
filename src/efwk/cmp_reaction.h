@@ -43,6 +43,7 @@ public:
 
 shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs);
 shared_ptr<reaction> create_health_drop_reaction();
+shared_ptr<reaction> create_battery_drop_reaction();
 shared_ptr<reaction> create_missile_drop_reaction();
 shared_ptr<reaction> create_bullet_upgrade_drop_reaction();
 shared_ptr<reaction> create_missile_upgrade_drop_reaction();

@@ -66,6 +66,7 @@ enum class res_id : int {
 	DEBRIS4,
 	DEBRIS5,
 	HEALTH,
+	BATTERY,
 	HUD_BG,
 	DIODE_ON,
 	DIODE_OFF,

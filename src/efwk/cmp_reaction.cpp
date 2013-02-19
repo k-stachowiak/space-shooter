@@ -58,6 +58,17 @@ public:
 	}
 };
 
+class battery_drop_reaction : public reaction {
+public:
+	void trigger(double x, double y, double phi,
+			shared_ptr<shape> shape,
+			double vx, double vy,
+			uint64_t origin_id,
+			comm::msg_queue& queue) {
+		queue.push(comm::create_spawn_battery_pickup(x, y, vx, vy));
+	}
+};
+
 class missile_drop_reaction : public reaction {
 public:
 	void trigger(double x, double y, double phi,
@@ -97,6 +108,10 @@ shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs) {
 
 shared_ptr<reaction> create_health_drop_reaction() {
 	return shared_ptr<reaction>(new health_drop_reaction);
+}
+
+shared_ptr<reaction> create_battery_drop_reaction() {
+	return shared_ptr<reaction>(new battery_drop_reaction);
 }
 
 shared_ptr<reaction> create_missile_drop_reaction() {

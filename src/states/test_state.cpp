@@ -35,7 +35,10 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
+// - Shield
 // - Full HUD
+// - Upgrades have the maximum value.
+// - Upgrades can wear out after a given number of shots.
 // - Create "HUD system"
 // - Large ship pieces
 // - waves and patterns
@@ -163,6 +166,14 @@ class test_state : public state {
 						msg.spawn_health_pickup.vy);
 				break;
 
+			case comm::msg_t::spawn_battery_pickup:
+				_ef.create_battery_pickup(
+						msg.spawn_battery_pickup.x,
+						msg.spawn_battery_pickup.y,
+						msg.spawn_battery_pickup.vx,
+						msg.spawn_battery_pickup.vy);
+				break;
+
 			case comm::msg_t::spawn_missiles_pickup:
 				_ef.create_missiles_pickup(
 						msg.spawn_missiles_pickup.x,
@@ -246,8 +257,8 @@ class test_state : public state {
 		double health = _wellness_system.get_tracked_node().get().wellness->get_health();
 		double ratio = health / max_health;
 		if(ratio < 0.0) ratio = 0.0;
-		draw_bar(20.0, 1.0, 5.0, 1.0, al_map_rgb(0, 0, 0));
-		draw_bar(20.0, ratio, 5.0, 0.0, health_color(ratio));
+		draw_bar(20.0, 1.0, 20.0, 2.0, al_map_rgb(0, 0, 0));
+		draw_bar(20.0, ratio, 20.0, 0.0, health_color(ratio));
 
 		// Upgrades
 		size_t gun_lvl = _arms_system.get_tracked_node().get().upgrades->gun_lvl();

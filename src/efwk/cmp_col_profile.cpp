@@ -52,6 +52,26 @@ public:
 	}
 };
 
+class battery_pickup_profile : public pickup_profile {
+	double _amount;
+public:
+	battery_pickup_profile(double amount) : _amount(amount) {}
+	bool trigger(shared_ptr<wellness> w,
+			shared_ptr<ammo> a,
+			shared_ptr<upgrades> up) {
+
+		double s = w->get_shield();
+		double S = w->get_max_shield();
+
+		if(s >= S) return false;
+
+		if(s + _amount >= S) w->add_shield(S - s);
+		else w->add_shield(_amount);
+
+		return true;
+	}
+};
+
 class missiles_pickup_profile : public pickup_profile {
 	double _amount;
 public:
@@ -106,6 +126,10 @@ unique_ptr<damage_profile> create_simple_damage_profile(double amount) {
 
 unique_ptr<pickup_profile> create_health_pickup_profile(double amount) {
 	return unique_ptr<pickup_profile>(new health_pickup_profile(amount));
+}
+
+unique_ptr<pickup_profile> create_battery_pickup_profile(double amount) {
+	return unique_ptr<pickup_profile>(new battery_pickup_profile(amount));
 }
 
 unique_ptr<pickup_profile> create_missiles_pickup_profile(double amount) {

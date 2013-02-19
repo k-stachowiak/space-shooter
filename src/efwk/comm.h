@@ -51,6 +51,7 @@ enum class msg_t {
 	spawn_smoke,
 	spawn_debris,
 	spawn_health_pickup,
+	spawn_battery_pickup,
 	spawn_missiles_pickup,
 	spawn_bullet_upgrade_pickup,
 	spawn_missile_upgrade_pickup
@@ -109,6 +110,11 @@ struct message {
 	struct {
 		double x, y;
 		double vx, vy;
+	} spawn_battery_pickup;
+
+	struct {
+		double x, y;
+		double vx, vy;
 	} spawn_missiles_pickup;
 
 	struct {
@@ -150,6 +156,7 @@ message create_spawn_debris(double x, double y,
 		uint64_t origin_id);
 
 message create_spawn_health_pickup(double x, double y, double vx, double vy);
+message create_spawn_battery_pickup(double x, double y, double vx, double vy);
 message create_spawn_missiles_pickup(double x, double y, double vx, double vy);
 message create_spawn_bullet_upgrade_pickup(double x, double y, double vx, double vy);
 message create_spawn_missile_upgrade_pickup(double x, double y, double vx, double vy);

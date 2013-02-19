@@ -45,6 +45,7 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	add_bitmap(res_id::DEBRIS4, "data/debris4.png");
 	add_bitmap(res_id::DEBRIS5, "data/debris5.png");
 	add_bitmap(res_id::HEALTH, "data/health.png");
+	add_bitmap(res_id::BATTERY, "data/battery.png");
 	add_bitmap(res_id::HUD_BG, "data/hud_bg.png");
 	add_bitmap(res_id::DIODE_ON, "data/diode_on.png");
 	add_bitmap(res_id::DIODE_OFF, "data/diode_off.png");

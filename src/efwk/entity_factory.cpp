@@ -421,6 +421,10 @@ uint64_t entity_factory::create_light_fighter() {
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
+	bernoulli_distribution drop_mis_up(0.05);
+		if(drop_mis_up(rnd::engine))
+			reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
+
 	auto on_death = cmp::create_complex_reaction(reactions);
 	shared_ptr<cmp::timer> ttl;
 
@@ -540,6 +544,10 @@ uint64_t entity_factory::create_heavy_fighter() {
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
+	bernoulli_distribution drop_mis_up(0.1);
+		if(drop_mis_up(rnd::engine))
+			reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
+
 	auto on_death = cmp::create_complex_reaction(reactions);
 
 	// Fx components.
@@ -655,6 +663,10 @@ uint64_t entity_factory::create_light_bomber() {
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
+	bernoulli_distribution drop_mis_up(0.125);
+		if(drop_mis_up(rnd::engine))
+			reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
+
 	auto on_death = cmp::create_complex_reaction(reactions);
 	shared_ptr<cmp::timer> ttl;
 
@@ -769,6 +781,10 @@ uint64_t entity_factory::create_heavy_bomber() {
 	bernoulli_distribution drop_bul_up(0.333);
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
+
+	bernoulli_distribution drop_mis_up(0.333);
+		if(drop_mis_up(rnd::engine))
+			reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
 
 	auto on_death = cmp::create_complex_reaction(reactions);
 	shared_ptr<cmp::timer> ttl;
@@ -965,6 +981,66 @@ uint64_t entity_factory::create_bullet_upgrade_pickup(double x, double y, double
 		false,
 		nullptr,
 		cmp::create_bullet_upgrade_pickup_profile());
+
+	// Register nodes.
+	// ---------------
+	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
+	_collision_system.add_node({ id, id, cp, shape, coll_queue });
+
+	return id;
+}
+
+uint64_t entity_factory::create_missile_upgrade_pickup(double x, double y, double vx, double vy) {
+
+	// Helpers.
+	// --------
+	bernoulli_distribution dir_dist;
+
+	uniform_real_distribution<double> mv_dist(15.0, 25.0);
+	double base_vx = mv_dist(rnd::engine);
+	double base_vy = mv_dist(rnd::engine);
+	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
+	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
+
+	uniform_real_distribution<double> rot_dist(3.0, 9.0);
+	double base_av = rot_dist(rnd::engine);
+	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
+
+	// Initialize components.
+	// ----------------------
+	uint64_t id = ++_last_id;
+	auto orientation = cmp::create_orientation(x, y, 0.0);
+	auto shape = cmp::create_circle(x, y, 16.0);
+	auto pain_flash = make_shared<double>(0.0);
+
+	// Drawing components.
+	// -------------------
+	auto draw_plane = cmp::draw_plane::FX;
+	auto appearance = cmp::create_static_bmp(
+			_resman.get_bitmap(res_id::M_UPGRADE),
+			_resman.get_bitmap(res_id::M_UPGRADE));
+
+	// Movement components.
+	// --------------------
+	auto movement_bounds = shared_ptr<cmp::bounds>();
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
+	auto dynamics = cmp::create_complex_dynamics({
+		cmp::create_const_velocity_dynamics(
+			vx + base_vx * mul_vx,
+			vy + base_vy * mul_vy),
+		cmp::create_const_ang_vel_dynamics(
+			base_av * mul_av) });
+
+	// Collision components.
+	// ---------------------
+	auto coll_queue = cmp::create_coll_queue();
+	auto cp = cmp::create_collision_profile(
+		cmp::pain_team::NONE,
+		cmp::pain_profile::PAPER,
+		false,
+		nullptr,
+		cmp::create_missile_upgrade_pickup_profile());
 
 	// Register nodes.
 	// ---------------

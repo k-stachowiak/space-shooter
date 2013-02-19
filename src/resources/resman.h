@@ -57,6 +57,7 @@ enum class res_id : int {
 	MISSILE,
 	MISSILES,
 	B_UPGRADE,
+	M_UPGRADE,
 	TINY_FONT,
 	FONT,
 	DEBRIS1,
@@ -65,6 +66,9 @@ enum class res_id : int {
 	DEBRIS4,
 	DEBRIS5,
 	HEALTH,
+	HUD_BG,
+	DIODE_ON,
+	DIODE_OFF,
 
 	// Generated bitmaps.
 	SMOKE,

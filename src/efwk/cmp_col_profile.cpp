@@ -74,6 +74,16 @@ public:
 	}
 };
 
+class missile_upgrade_pickup_profile : public pickup_profile {
+public:
+	bool trigger(shared_ptr<wellness> w,
+				 shared_ptr<ammo> a,
+				 shared_ptr<upgrades> up) {
+		up->upgrade_rl();
+		return true;
+	}
+};
+
 shared_ptr<collision_profile> create_collision_profile(
 		pain_team pain_t,
 		pain_profile pain_p,
@@ -104,6 +114,10 @@ unique_ptr<pickup_profile> create_missiles_pickup_profile(double amount) {
 
 unique_ptr<pickup_profile> create_bullet_upgrade_pickup_profile() {
 	return unique_ptr<pickup_profile>(new bullet_upgrade_pickup_profile());
+}
+
+unique_ptr<pickup_profile> create_missile_upgrade_pickup_profile() {
+	return unique_ptr<pickup_profile>(new missile_upgrade_pickup_profile());
 }
 
 }

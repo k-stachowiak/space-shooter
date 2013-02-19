@@ -30,6 +30,7 @@ using std::shared_ptr;
 #include <map>
 using std::map;
 
+#include "../misc/maybe.h"
 #include "sys_base.h"
 #include "nodes.h"
 
@@ -41,13 +42,13 @@ class arms_system : public system {
 	vector<nd::arms_node> _nodes;
 
 	uint64_t _tracked_id;
-	shared_ptr<cmp::ammo> _tracked_ammo;
+	maybe<nd::arms_node> _tracked_node;
 
 public:
 	void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
 
 	void set_tracked_id(uint64_t tracked_id) { _tracked_id = tracked_id; }
-	shared_ptr<cmp::ammo> get_tracked_ammo() { return _tracked_ammo; }
+	maybe<nd::arms_node> const& get_tracked_node() { return _tracked_node; }
 
 	void update(double dt, comm::msg_queue& msgs);
 	void input(map<int, bool>& keys) {

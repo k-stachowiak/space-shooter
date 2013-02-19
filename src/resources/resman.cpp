@@ -38,12 +38,16 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	add_bitmap(res_id::MISSILE, "data/missile.png");
 	add_bitmap(res_id::MISSILES, "data/missiles.png");
 	add_bitmap(res_id::B_UPGRADE, "data/bullet_upgrade.png");
+	add_bitmap(res_id::M_UPGRADE, "data/missile_upgrade.png");
 	add_bitmap(res_id::DEBRIS1, "data/debris1.png");
 	add_bitmap(res_id::DEBRIS2, "data/debris2.png");
 	add_bitmap(res_id::DEBRIS3, "data/debris3.png");
 	add_bitmap(res_id::DEBRIS4, "data/debris4.png");
 	add_bitmap(res_id::DEBRIS5, "data/debris5.png");
 	add_bitmap(res_id::HEALTH, "data/health.png");
+	add_bitmap(res_id::HUD_BG, "data/hud_bg.png");
+	add_bitmap(res_id::DIODE_ON, "data/diode_on.png");
+	add_bitmap(res_id::DIODE_OFF, "data/diode_off.png");
 
 	// Load/generate animations
 	expand_fade(res_id::SMOKE, "data/smoke_single.png", 15, 3.0);

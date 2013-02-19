@@ -80,6 +80,7 @@ unique_ptr<damage_profile> create_simple_damage_profile(double amount);
 unique_ptr<pickup_profile> create_health_pickup_profile(double amount);
 unique_ptr<pickup_profile> create_missiles_pickup_profile(double amount);
 unique_ptr<pickup_profile> create_bullet_upgrade_pickup_profile();
+unique_ptr<pickup_profile> create_missile_upgrade_pickup_profile();
 
 }
 

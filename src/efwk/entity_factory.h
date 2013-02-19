@@ -96,6 +96,7 @@ public:
 	uint64_t create_health_pickup(double x, double y, double vx, double vy);
 	uint64_t create_missiles_pickup(double x, double y, double vx, double vy);
 	uint64_t create_bullet_upgrade_pickup(double x, double y, double vx, double vy);
+	uint64_t create_missile_upgrade_pickup(double x, double y, double vx, double vy);
 
 	// TODO: This should rather take the direction vector and compute the velocities
 	//     and the accelerations internally.

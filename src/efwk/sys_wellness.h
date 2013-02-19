@@ -27,6 +27,7 @@ using std::vector;
 #include <memory>
 using std::shared_ptr;
 
+#include "../misc/maybe.h"
 #include "sys_base.h"
 #include "nodes.h"
 
@@ -37,14 +38,14 @@ class wellness_system : public system {
 	vector<nd::wellness_node> _nodes;
 
 	uint64_t _tracked_id;
-	shared_ptr<cmp::wellness> _tracked_wellness;
+	maybe<nd::wellness_node> _tracked_node;
 
 public:
 	void add_node(nd::wellness_node node) { _nodes.push_back(node); }
 	void update(double dt, comm::msg_queue& msgs);
 
 	void set_tracked_id(uint64_t tracked_id) { _tracked_id = tracked_id; }
-	shared_ptr<cmp::wellness> get_tracked_wellness() { return _tracked_wellness; }
+	maybe<nd::wellness_node> const& get_tracked_node() { return _tracked_node; }
 };
 
 }

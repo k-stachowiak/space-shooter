@@ -80,6 +80,17 @@ public:
 	}
 };
 
+class missile_upgrade_drop_reaction : public reaction {
+public:
+	void trigger(double x, double y, double phi,
+			shared_ptr<shape> shape,
+			double vx, double vy,
+			uint64_t origin_id,
+			comm::msg_queue& queue) {
+		queue.push(comm::create_spawn_missile_upgrade_pickup(x, y, vx, vy));
+	}
+};
+
 shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs) {
 	return shared_ptr<reaction>(new complex_reaction(rs));
 }
@@ -94,6 +105,10 @@ shared_ptr<reaction> create_missile_drop_reaction() {
 
 shared_ptr<reaction> create_bullet_upgrade_drop_reaction() {
 	return shared_ptr<reaction>(new bullet_upgrade_drop_reaction);
+}
+
+shared_ptr<reaction> create_missile_upgrade_drop_reaction() {
+	return shared_ptr<reaction>(new missile_upgrade_drop_reaction);
 }
 
 class debris_reaction : public reaction {

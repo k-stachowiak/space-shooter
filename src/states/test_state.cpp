@@ -1,4 +1,4 @@
-/* Copyright (C) 2012 Krzysztof Stachowiak */
+/* Copyright (C) 2012,2013 Krzysztof Stachowiak */
 
 /*
 * This file is part of space-shooter.
@@ -35,10 +35,8 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Make the bullets and missiles not hit each other.
 // - Full HUD
-// - Consider separate collision spaces for different systems (e.g. pain, pickup, etc.)
-// - Generalize the concept of the entity (node) tacking in the systems.
+// - Create "HUD system"
 // - Large ship pieces
 // - waves and patterns
 // - Dry-run the stars generator so that the screen starts filled with some initial stars.
@@ -181,6 +179,14 @@ class test_state : public state {
 						msg.spawn_bullet_upgrade_pickup.vy);
 				break;
 
+			case comm::msg_t::spawn_missile_upgrade_pickup:
+				_ef.create_missile_upgrade_pickup(
+						msg.spawn_missile_upgrade_pickup.x,
+						msg.spawn_missile_upgrade_pickup.y,
+						msg.spawn_missile_upgrade_pickup.vx,
+						msg.spawn_missile_upgrade_pickup.vy);
+				break;
+
 			default:
 				break;
 			}
@@ -201,16 +207,24 @@ class test_state : public state {
 		return al_map_rgb_f(r, g, 0.0);
 	}
 
-	void draw_bar(double from_bottom, double ratio, ALLEGRO_COLOR color) {
-		double x1 = _config.get_screen_w() * 0.05;
-		double x2 = _config.get_screen_w() * 0.95;
-		double y1 = _config.get_screen_h() - from_bottom - 5.0f;
-		double y2 = _config.get_screen_h() - from_bottom;
+	void draw_bar(
+			double from_bottom,
+			double ratio,
+			double thickness,
+			double margin,
+			ALLEGRO_COLOR color) {
+		double x1 = _config.get_screen_w() * 0.15 - margin;
+		double x2 = _config.get_screen_w() * 0.9 + margin;
+		double y1 = _config.get_screen_h() - from_bottom - thickness - margin;
+		double y2 = _config.get_screen_h() - from_bottom + margin;
 		double hx2 = x1 + ratio * (x2 - x1);
 		al_draw_filled_rectangle(x1, y1, hx2, y2, color);
 	}	
 
 	void draw_hud() {
+		// BG.
+		al_draw_bitmap(_resman.get_bitmap(res_id::HUD_BG), 0, 0, 0);
+
 		// Score.
 		int player_score = int(_score_system.get_score(_player_id));
 		al_draw_textf(
@@ -220,7 +234,7 @@ class test_state : public state {
 			"Score: %d", player_score);
 
 		// Ammo.
-		int player_rockets = _arms_system.get_tracked_ammo()->get_rockets();
+		int player_rockets = _arms_system.get_tracked_node().get().ammo->get_rockets();
 		al_draw_textf(
 			_resman.get_font(res_id::FONT),
 			al_map_rgba_f(0.333f, 0.667f, 0.333f, 1),
@@ -228,11 +242,33 @@ class test_state : public state {
 			"Rockets: %d", player_rockets);
 	
 		// Health 
-		double max_health = _wellness_system.get_tracked_wellness()->get_max_health();
-		double health = _wellness_system.get_tracked_wellness()->get_health();
+		double max_health = _wellness_system.get_tracked_node().get().wellness->get_max_health();
+		double health = _wellness_system.get_tracked_node().get().wellness->get_health();
 		double ratio = health / max_health;
 		if(ratio < 0.0) ratio = 0.0;
-		draw_bar(10.0, ratio, health_color(ratio));
+		draw_bar(20.0, 1.0, 5.0, 1.0, al_map_rgb(0, 0, 0));
+		draw_bar(20.0, ratio, 5.0, 0.0, health_color(ratio));
+
+		// Upgrades
+		size_t gun_lvl = _arms_system.get_tracked_node().get().upgrades->gun_lvl();
+		size_t rl_lvl = _arms_system.get_tracked_node().get().upgrades->rl_lvl();
+
+		auto doff = _resman.get_bitmap(res_id::DIODE_OFF);
+		auto don = _resman.get_bitmap(res_id::DIODE_ON);
+
+		double y_base = _config.get_screen_h() - 22.0 - al_get_bitmap_height(doff) / 2;
+		double x_left = 23.0 - al_get_bitmap_width(doff) / 2;
+		double x_right = _config.get_screen_w() - 23.0 - al_get_bitmap_width(doff) / 2;
+
+		al_draw_bitmap((gun_lvl > 1) ? don : doff, x_left, y_base - 30, 0);
+		al_draw_bitmap((gun_lvl > 2) ? don : doff, x_left, y_base - 50, 0);
+		al_draw_bitmap((gun_lvl > 3) ? don : doff, x_left, y_base - 70, 0);
+		al_draw_bitmap((gun_lvl > 4) ? don : doff, x_left, y_base - 90, 0);
+
+		al_draw_bitmap((rl_lvl > 1) ? don : doff, x_right, y_base - 30, 0);
+		al_draw_bitmap((rl_lvl > 2) ? don : doff, x_right, y_base - 50, 0);
+		al_draw_bitmap((rl_lvl > 3) ? don : doff, x_right, y_base - 70, 0);
+		al_draw_bitmap((rl_lvl > 4) ? don : doff, x_right, y_base - 90, 0);
 	}
 
 	// This seems necessary for the clock declarations...
@@ -306,8 +342,8 @@ public:
 		_input_system.update();
 
 		// Hacky hud pass...
-		auto player_wellness = _wellness_system.get_tracked_wellness();
-		if(player_wellness && player_wellness->is_alive())
+		auto nd = _wellness_system.get_tracked_node();
+		if(nd && nd.get().wellness && nd.get().wellness->is_alive())
 			draw_hud();
 
 		// Handle messages.

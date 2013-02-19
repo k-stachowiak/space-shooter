@@ -24,7 +24,7 @@ namespace sys {
 
 void wellness_system::update(double dt, comm::msg_queue& msgs) {
 
-	_tracked_wellness.reset();
+	_tracked_node.reset();
 
 	for(auto const& n : _nodes) {
 
@@ -65,7 +65,7 @@ void wellness_system::update(double dt, comm::msg_queue& msgs) {
 		}
 
 		if(n.id == _tracked_id) {
-			_tracked_wellness = n.wellness;
+			_tracked_node = n;
 		}
 	}
 }

@@ -88,6 +88,7 @@ public:
 
 			if(ammo->get_bullets() != 0) {
 				ammo->add_bullets(-1);
+				up->tick_down_gun();
 				msgs.push(comm::create_spawn_bullet(
 					x + _x_off, y + _y_off,
 					1.57, 0.0,
@@ -137,6 +138,7 @@ public:
 
 			if(ammo->get_bullets() != 0) {
 				ammo->add_rockets(-1);
+				up->tick_down_rl();
 				msgs.push(comm::create_spawn_missile(
 					x + _x_offset,
 					y + _y_offset,
@@ -177,6 +179,7 @@ public:
 		// -------------
 		if(_minigun.update(dt) && ammo->get_bullets() != 0) {
 			ammo->add_bullets(-1);
+			up->tick_down_gun();
 			if(_prev_left) {
 				_prev_left = false;
 				msgs.push(comm::create_spawn_bullet(
@@ -202,6 +205,7 @@ public:
 		// ---------------------
 		if(_rpg.update(dt) && ammo->get_rockets() != 0) {
 			ammo->add_rockets(-1);
+			up->tick_down_rl();
 			msgs.push(comm::create_spawn_missile(
 					x + 25.0, y,
 					-1.57, 0.0,

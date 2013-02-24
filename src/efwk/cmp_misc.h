@@ -188,23 +188,75 @@ public:
 	void add_rockets(int delta) { _rockets += delta; }
 };
 
-class upgrades {
-	size_t _gun_lvl;
-	size_t _rl_lvl;
-	size_t _gun_lvl_max;
-	size_t _rl_lvl_max;
+class upgrade_atom {
+	size_t _level;
+	size_t _ticks;
+	const size_t _ticks_per_level;
+	const size_t _level_max;
 public:
-	upgrades(size_t gun_lvl_max, size_t rl_lvl_max)
-	: _gun_lvl(1), _rl_lvl(1)
-	, _gun_lvl_max(gun_lvl_max), _rl_lvl_max(rl_lvl_max)
+	upgrade_atom(size_t level, size_t ticks_per_level, size_t level_max)
+	: _level(level)
+	, _ticks(ticks_per_level)
+	, _ticks_per_level(ticks_per_level)
+	, _level_max(level_max)
 	{}
 
-	void upgrade_gun() { if(_gun_lvl < _gun_lvl_max) ++_gun_lvl; }
-	void upgrade_rl() { if(_rl_lvl < _rl_lvl_max) ++_rl_lvl; }
-	bool can_upgrade_gun() const { return _gun_lvl < _gun_lvl_max; }
-	bool can_upgrade_rl() const { return _rl_lvl < _rl_lvl_max; }
-	size_t gun_lvl() const { return _gun_lvl; }
-	size_t rl_lvl() const { return _rl_lvl; }
+	bool can_level_up() const {
+		return _level < _level_max;
+	}
+
+	void level_up() {
+		if(can_level_up()) {
+			++_level;
+		}
+	}
+
+	void tick_down() {
+		// Don't decrease ticks at the bottom level.
+		if(_level == 1) {
+			_ticks = _ticks_per_level;
+			return;
+		}
+
+		if(_ticks > 0) {
+			// Decrement the ticks if there are any.
+			--_ticks;
+		} else {
+			// Reset the ticks and decrement the level
+			// if there are no ticks left.
+			_ticks = _ticks_per_level;
+			--_level;
+		}
+	}
+
+	size_t get_level() const { return _level; }
+	size_t get_ticks() const { return _ticks; }
+	size_t get_ticks_per_level() const { return _ticks_per_level; }
+};
+
+class upgrades {
+	upgrade_atom _gun;
+	upgrade_atom _rl;
+
+public:
+	upgrades(size_t gun_lvl_max, size_t rl_lvl_max)
+	: _gun(1, 100, gun_lvl_max)
+	, _rl(1, 20, rl_lvl_max)
+	{}
+
+	bool can_upgrade_gun() const { return _gun.can_level_up(); }
+	size_t gun_lvl() const { return _gun.get_level(); }
+	size_t gun_ticks() const { return _gun.get_ticks(); }
+	size_t gun_ticks_per_level() const { return _gun.get_ticks_per_level(); }
+	void upgrade_gun() { _gun.level_up(); }
+	void tick_down_gun() { _gun.tick_down(); }
+
+	bool can_upgrade_rl() const { return _rl.can_level_up(); }
+	size_t rl_lvl() const { return _rl.get_level(); }
+	size_t rl_ticks() const { return _rl.get_ticks(); }
+	size_t rl_ticks_per_level() const { return _rl.get_ticks_per_level(); }
+	void upgrade_rl() { _rl.level_up(); }
+	void tick_down_rl() { _rl.tick_down(); }
 };
 
 // Constructors.

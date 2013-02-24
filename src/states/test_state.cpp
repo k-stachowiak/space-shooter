@@ -35,7 +35,6 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Upgrades can wear out after a given number of shots.
 // - Create "HUD system"
 // - Large ship pieces
 // - waves and patterns
@@ -261,7 +260,12 @@ class test_state : public state {
 
 		// Upgrades
 		size_t gun_lvl = _arms_system.get_tracked_node().get().upgrades->gun_lvl();
+		size_t gun_ticks = _arms_system.get_tracked_node().get().upgrades->gun_ticks();
+		size_t gun_max_ticks = _arms_system.get_tracked_node().get().upgrades->gun_ticks_per_level();
+
 		size_t rl_lvl = _arms_system.get_tracked_node().get().upgrades->rl_lvl();
+		size_t rl_ticks = _arms_system.get_tracked_node().get().upgrades->rl_ticks();
+		size_t rl_max_ticks = _arms_system.get_tracked_node().get().upgrades->rl_ticks_per_level();
 
 		auto doff = _resman.get_bitmap(res_id::DIODE_OFF);
 		auto don = _resman.get_bitmap(res_id::DIODE_ON);
@@ -285,6 +289,20 @@ class test_state : public state {
 
 		al_draw_bitmap(_resman.get_bitmap(res_id::B_UPGRADE), x_left + 2.0, y_base, 0);
 		al_draw_bitmap(_resman.get_bitmap(res_id::M_UPGRADE), x_right + 2.0, y_base, 0);
+
+		double gun_ticks_ratio = (double)gun_ticks / (double)gun_max_ticks;
+		double rl_ticks_ratio = (double)rl_ticks / (double)rl_max_ticks;
+
+		double y_from = y_base;
+		double y_to = y_base - 90.0;
+
+		double y_gun_inter = y_base - 90.0 * gun_ticks_ratio;
+		double y_rl_inter = y_base - 90.0 * rl_ticks_ratio;
+
+		al_draw_line(x_left, y_from, x_left, y_to, al_map_rgb_f(0,0,0), 8);
+		al_draw_line(x_right, y_from, x_right, y_to, al_map_rgb_f(0,0,0), 8);
+		al_draw_line(x_left, y_from, x_left, y_gun_inter, al_map_rgb_f(1,1,0), 4);
+		al_draw_line(x_right, y_from, x_right, y_rl_inter, al_map_rgb_f(1,1,0), 4);
 
 		// Ammo.
 		int player_rockets = _arms_system.get_tracked_node().get().ammo->get_rockets();

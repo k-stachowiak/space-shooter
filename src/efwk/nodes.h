@@ -135,14 +135,12 @@ struct pain_node {
 	// coll_queue - contains candidates for the pain dealing
 	// pain_map   - determines, how much damage should be dealt by given collision class
 	// wellness   - is modified upon taking damage
-	// upgrades   - this is stored in system for each entity, to be used by the damaged
 	// pain_flash - to be modified upon hit
 
 	uint64_t id;
 	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::collision_profile> cp;
 	shared_ptr<cmp::wellness> wellness;
-	shared_ptr<cmp::upgrades> upgrades;
 	shared_ptr<double> pain_flash;
 };
 

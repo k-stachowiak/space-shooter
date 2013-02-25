@@ -128,6 +128,8 @@ struct message {
 	} spawn_missile_upgrade_pickup;
 };
 
+message create_remove_entity(uint64_t id);
+
 message create_spawn_bullet(
 		double x, double y, 
 		double theta, 
@@ -161,8 +163,6 @@ message create_spawn_missiles_pickup(double x, double y, double vx, double vy);
 message create_spawn_bullet_upgrade_pickup(double x, double y, double vx, double vy);
 message create_spawn_missile_upgrade_pickup(double x, double y, double vx, double vy);
 
-message create_remove_entity(uint64_t id);
-
 // The message queue container.
 // ----------------------------
 
@@ -186,7 +186,7 @@ public:
 				mc(pr.second);
 				_msgs[i] = move(_msgs.back());
 				_msgs.pop_back();
-				// Note: no increment.
+				// Note: no increment in this case.
 			}
 		}
 	}

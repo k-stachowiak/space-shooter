@@ -21,9 +21,6 @@
 #ifndef SYS_SCORE_H
 #define SYS_SCORE_H
 
-#include <vector>
-using std::vector;
-
 #include <map>
 using std::map;
 
@@ -33,26 +30,19 @@ using std::map;
 namespace sys {
 
 class score_system : public system {
-	template<typename SYS> friend void remove_node(SYS&, uint64_t);
-	vector<nd::score_node> _nodes;
-	map<cmp::score_class, double> _class_score_map;
-	map<uint64_t, double> _ent_score_map;
+	map<uint64_t, nd::score_node> _nodes;
+	const map<cmp::score_class, double> _class_score_map;
 public:
-	// TODO: Provide the score map from outside.
-	score_system()
-	: _class_score_map(map<cmp::score_class, double> {
-			{ cmp::score_class::ENEMY_EYE, 1.0 },
-			{ cmp::score_class::ENEMY_BOMBER, 5.0 },
-			{ cmp::score_class::ENEMY_LIGHT_FIGHTER, 1.0 },
-			{ cmp::score_class::ENEMY_HEAVY_FIGHTER, 3.0 },
-			{ cmp::score_class::ENEMY_LIGHT_BOMBER, 5.0 },
-			{ cmp::score_class::ENEMY_HEAVY_BOMBER, 7.0 }
-		})
+	score_system(map<cmp::score_class, double> score_map)
+	: _class_score_map(score_map)
 	{}
 
-	void add_node(nd::score_node n) { _nodes.push_back(n); }
+	void add_node(nd::score_node n) { _nodes[n.id] = n; }
 	void update();
-	double get_score(uint64_t id) { return _ent_score_map[id]; }
+
+	friend void remove_node(score_system& sys, uint64_t id) {
+		sys._nodes.erase(id);
+	}
 };
 
 }

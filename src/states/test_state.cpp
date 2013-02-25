@@ -35,10 +35,11 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Consider "tracked entities" once the hud system works.
 // - Large ship pieces
 // - waves and patterns
 // - Dry-run the stars generator so that the screen starts filled with some initial stars.
+
+// imgur.com/a/DHhC7/all
 
 class test_state : public state {
 
@@ -197,6 +198,8 @@ class test_state : public state {
 				break;
 
 			default:
+				cerr << "Unrecognized message type found." << endl;
+				exit(1);
 				break;
 			}
 		});
@@ -217,6 +220,14 @@ public:
 	, _l_bomber_spawn_clk(uni_distr(6.0, 8.0), bind(&entity_factory::create_light_bomber, &_ef))
 	, _h_bomber_spawn_clk(uni_distr(8.0, 10.0), bind(&entity_factory::create_heavy_bomber, &_ef))
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
+	, _score_system(map<cmp::score_class, double> {
+			{ cmp::score_class::PLAYER, 0.0 },
+			{ cmp::score_class::ENEMY_EYE, 1.0 },
+			{ cmp::score_class::ENEMY_BOMBER, 5.0 },
+			{ cmp::score_class::ENEMY_LIGHT_FIGHTER, 1.0 },
+			{ cmp::score_class::ENEMY_HEAVY_FIGHTER, 3.0 },
+			{ cmp::score_class::ENEMY_LIGHT_BOMBER, 5.0 },
+			{ cmp::score_class::ENEMY_HEAVY_BOMBER, 7.0 } })
 	, _hud_system(
 			_resman.get_bitmap(res_id::HUD_BG),
 			_resman.get_bitmap(res_id::HEALTH),

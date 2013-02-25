@@ -23,20 +23,39 @@
 namespace sys {
 
 void score_system::update() {
-		for(auto const& n : _nodes) {
 
-			if(n.score && (_ent_score_map.find(n.id) != end(_ent_score_map))) {
-				*(n.score) = _ent_score_map[n.id];
-			}
+	// Kind of a short-circuit internal message queue.
+	std::multimap<uint64_t, double> score_increments;
 
-			if(n.wellness->is_alive()) {
-				continue;
-			}
+	// Detect deaths and store the point increments for them.
+	for(auto const& pr : _nodes) {
 
-			uint64_t receiver = n.wellness->get_last_dmg_id();
-			double score = _class_score_map[n.sc];
-			_ent_score_map[receiver] += score;
-		}
+		auto const& n = pr.second;
+
+		if(n.wellness->is_alive())
+			continue;
+
+		uint64_t receiver = n.wellness->get_last_dmg_id();
+		double score = _class_score_map.at(n.sc);
+
+		score_increments.insert(make_pair(receiver, score));
 	}
+
+	// Grant the score increments to the according nodes.
+	for(auto const& pr : score_increments) {
+
+		uint64_t const& id = pr.first;
+		double const& increment = pr.second;
+
+		auto nit = _nodes.find(id);
+		if(nit == end(_nodes))
+			continue;
+
+		auto const& n = nit->second;
+
+		if(n.score)
+			*(n.score) += increment;
+	}
+}
 
 }

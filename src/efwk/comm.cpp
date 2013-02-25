@@ -22,6 +22,13 @@
 
 namespace comm {
 
+message create_remove_entity(uint64_t id) {
+	message msg;
+	msg.type = msg_t::remove_entity;
+	msg.remove_entity = { id };
+	return msg;
+}
+
 message create_spawn_bullet(
 		double x, double y,
 		double theta,
@@ -124,13 +131,6 @@ message create_spawn_missile_upgrade_pickup(
 	message msg;
 	msg.type = msg_t::spawn_missile_upgrade_pickup;
 	msg.spawn_missile_upgrade_pickup = { x, y, vx, vy };
-	return msg;
-}
-
-message create_remove_entity(uint64_t id) {
-	message msg;
-	msg.type = msg_t::remove_entity;
-	msg.remove_entity.id = id;
 	return msg;
 }
 

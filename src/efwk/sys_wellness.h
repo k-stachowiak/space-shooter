@@ -37,15 +37,9 @@ class wellness_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::wellness_node> _nodes;
 
-	uint64_t _tracked_id;
-	maybe<nd::wellness_node> _tracked_node;
-
 public:
 	void add_node(nd::wellness_node node) { _nodes.push_back(node); }
 	void update(double dt, comm::msg_queue& msgs);
-
-	void set_tracked_id(uint64_t tracked_id) { _tracked_id = tracked_id; }
-	maybe<nd::wellness_node> const& get_tracked_node() { return _tracked_node; }
 };
 
 }

@@ -24,7 +24,6 @@ namespace sys {
 
 void arms_system::update(double dt, comm::msg_queue& msgs) {
 	double x, y;
-	_tracked_node.reset();
 	for(auto const& n : _nodes) {
 
 		x = n.orientation->get_x();
@@ -32,9 +31,6 @@ void arms_system::update(double dt, comm::msg_queue& msgs) {
 
 		if(n.weapon_beh)
 			n.weapon_beh->update(n.id, n.ammo, n.upgrades, dt, x, y, msgs);
-
-		if(n.id == _tracked_id)
-			_tracked_node = n;
 	}
 }
 

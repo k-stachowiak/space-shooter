@@ -35,14 +35,15 @@ class entity_factory {
 
 	sys::movement_system&	_movement_system;
 	sys::collision_system&	_collision_system;
-	sys::arms_system&	_arms_system;
-	sys::pain_system&	_pain_system;
+	sys::arms_system&		_arms_system;
+	sys::pain_system&		_pain_system;
 	sys::wellness_system&	_wellness_system;
-	sys::fx_system&		_fx_system;
+	sys::fx_system&			_fx_system;
 	sys::drawing_system&	_drawing_system;
-	sys::score_system&	_score_system;
-	sys::pickup_system&	_pickup_system;
-	sys::input_system&	_input_system;
+	sys::score_system&		_score_system;
+	sys::pickup_system&		_pickup_system;
+	sys::input_system&		_input_system;
+	sys::hud_system&		_hud_system;
 
 public:
 	entity_factory(
@@ -50,14 +51,15 @@ public:
 		resman const& rm,
 		sys::movement_system&	movement_system,
 		sys::collision_system&	collision_system,
-		sys::arms_system&	arms_system,
-		sys::pain_system&	pain_system,
+		sys::arms_system&		arms_system,
+		sys::pain_system&		pain_system,
 		sys::wellness_system&	wellness_system,
-		sys::fx_system&		fx_system,
+		sys::fx_system&			fx_system,
 		sys::drawing_system&	drawing_system,
-		sys::score_system&	score_system,
-		sys::pickup_system&	pickup_system,
-		sys::input_system&	input_system)
+		sys::score_system&		score_system,
+		sys::pickup_system&		pickup_system,
+		sys::input_system&		input_system,
+		sys::hud_system&		hud_system)
 	: _last_id(0)
 	, _config(cfg)
 	, _resman(rm)
@@ -71,6 +73,7 @@ public:
 	, _score_system (score_system) 
 	, _pickup_system (pickup_system)
 	, _input_system (input_system)  
+	, _hud_system(hud_system)
 	{}
 
 	uint64_t create_explosion(double x, double y);

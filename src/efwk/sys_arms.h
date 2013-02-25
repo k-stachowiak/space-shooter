@@ -41,14 +41,8 @@ class arms_system : public system {
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::arms_node> _nodes;
 
-	uint64_t _tracked_id;
-	maybe<nd::arms_node> _tracked_node;
-
 public:
 	void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
-
-	void set_tracked_id(uint64_t tracked_id) { _tracked_id = tracked_id; }
-	maybe<nd::arms_node> const& get_tracked_node() { return _tracked_node; }
 
 	void update(double dt, comm::msg_queue& msgs);
 	void input(map<int, bool>& keys) {

@@ -37,11 +37,13 @@ namespace nd {
 
 struct score_node {
 
-	// wellness - tells if dead and who receives points
 	// sc       - tells how much points to grant
+	// score	- the amount of the entitie's score.
+	// wellness - tells if dead and who receives points
 
 	uint64_t id;
 	cmp::score_class sc;
+	shared_ptr<double> score;
 	shared_ptr<cmp::wellness> wellness;
 };
 
@@ -174,6 +176,20 @@ struct wellness_node {
 	shared_ptr<cmp::dynamics> dynamics;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::timer> ttl;
+};
+
+struct hud_node {
+
+	// score	- the value to be displayed
+	// wellness	- for the health and shield display
+	// upgrade	- the upgrades' status
+	// ammo		- display ammo
+
+	uint64_t id;
+	shared_ptr<double> score;
+	shared_ptr<cmp::wellness> wellness;
+	shared_ptr<cmp::upgrades> upgrades;
+	shared_ptr<cmp::ammo> ammo;
 };
 
 }

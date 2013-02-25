@@ -52,6 +52,7 @@ enum class draw_plane {
 
 // Score class id.
 enum class score_class {
+	PLAYER,
 	ENEMY_EYE,
 	ENEMY_BOMBER,
 	ENEMY_LIGHT_FIGHTER,

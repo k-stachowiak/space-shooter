@@ -323,6 +323,11 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// --------------
 	auto fxs = cmp::create_smoke_when_hurt(cmp::create_const_int_timer(0.125), 0.25);
 
+	// Score components.
+	// -----------------
+	auto score = make_shared<double>();
+	auto sc = cmp::score_class::PLAYER;
+
 	// Register nodes.
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
@@ -334,6 +339,8 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_pickup_system.add_node({ id, coll_queue, wellness, ammo, upgrades });
 	_input_system.add_node({ id, dynamics, weapon_beh });
+	_score_system.add_node({ id, sc, score, wellness });
+	_hud_system.add_node({id, score, wellness, upgrades, ammo });
 
 	return id;
 }
@@ -440,6 +447,7 @@ uint64_t entity_factory::create_light_fighter() {
 
 	// Score components.
 	// -----------------
+	auto score = make_shared<double>();
 	auto sc = cmp::score_class::ENEMY_LIGHT_FIGHTER;
 
 	// Register components.
@@ -451,7 +459,7 @@ uint64_t entity_factory::create_light_fighter() {
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
-	_score_system.add_node({ id, sc, wellness });
+	_score_system.add_node({ id, sc, score, wellness });
 
 	return id;
 }
@@ -566,6 +574,7 @@ uint64_t entity_factory::create_heavy_fighter() {
 
 	// Score components.
 	// -----------------
+	auto score = make_shared<double>();
 	auto sc = cmp::score_class::ENEMY_HEAVY_FIGHTER;
 
 	// Register the components.
@@ -577,7 +586,7 @@ uint64_t entity_factory::create_heavy_fighter() {
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
-	_score_system.add_node({ id, sc, wellness });
+	_score_system.add_node({ id, sc, score, wellness });
 
 	return id;
 }
@@ -690,6 +699,7 @@ uint64_t entity_factory::create_light_bomber() {
 
 	// Score components.
 	// -----------------
+	auto score = make_shared<double>();
 	auto sc = cmp::score_class::ENEMY_LIGHT_BOMBER;
 
 	// Register the components.
@@ -701,7 +711,7 @@ uint64_t entity_factory::create_light_bomber() {
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
-	_score_system.add_node({ id, sc, wellness });
+	_score_system.add_node({ id, sc, score, wellness });
 
 	return id;
 }
@@ -813,6 +823,7 @@ uint64_t entity_factory::create_heavy_bomber() {
 
 	// Score components.
 	// -----------------
+	auto score = make_shared<double>();
 	auto sc = cmp::score_class::ENEMY_HEAVY_BOMBER;
 
 	// Register the components.
@@ -824,7 +835,7 @@ uint64_t entity_factory::create_heavy_bomber() {
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
-	_score_system.add_node({ id, sc, wellness });
+	_score_system.add_node({ id, sc, score, wellness });
 
 	return id;
 }

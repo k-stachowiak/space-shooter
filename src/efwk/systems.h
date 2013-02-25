@@ -26,6 +26,7 @@
 #include "sys_collision.h"
 #include "sys_drawing.h"
 #include "sys_fx.h"
+#include "sys_hud.h"
 #include "sys_input.h"
 #include "sys_movement.h"
 #include "sys_pain.h"

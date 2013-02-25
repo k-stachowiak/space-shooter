@@ -33,12 +33,12 @@ using std::map;
 namespace sys {
 
 class score_system : public system {
-	// TODO: implement a score component instead of the map here.
 	template<typename SYS> friend void remove_node(SYS&, uint64_t);
 	vector<nd::score_node> _nodes;
 	map<cmp::score_class, double> _class_score_map;
 	map<uint64_t, double> _ent_score_map;
 public:
+	// TODO: Provide the score map from outside.
 	score_system()
 	: _class_score_map(map<cmp::score_class, double> {
 			{ cmp::score_class::ENEMY_EYE, 1.0 },

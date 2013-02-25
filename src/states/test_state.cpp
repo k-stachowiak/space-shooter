@@ -35,7 +35,7 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Create "HUD system"
+// - Consider "tracked entities" once the hud system works.
 // - Large ship pieces
 // - waves and patterns
 // - Dry-run the stars generator so that the screen starts filled with some initial stars.
@@ -66,14 +66,15 @@ class test_state : public state {
 	// --------
 	sys::movement_system	_movement_system;
 	sys::collision_system	_collision_system;
-	sys::arms_system	_arms_system;
-	sys::pain_system	_pain_system;
+	sys::arms_system		_arms_system;
+	sys::pain_system		_pain_system;
 	sys::wellness_system	_wellness_system;
-	sys::fx_system		_fx_system;
-	sys::drawing_system	_drawing_system;
-	sys::score_system	_score_system;
-	sys::pickup_system	_pickup_system;
-	sys::input_system	_input_system;
+	sys::fx_system			_fx_system;
+	sys::drawing_system		_drawing_system;
+	sys::score_system		_score_system;
+	sys::pickup_system		_pickup_system;
+	sys::input_system		_input_system;
+	sys::hud_system			_hud_system;
 
 	// Factories.
 	// ----------
@@ -100,6 +101,7 @@ class test_state : public state {
 				remove_node(_score_system, id);
 				remove_node(_pickup_system, id);
 				remove_node(_input_system, id);
+				remove_node(_hud_system, id);
 				break;
 
 			case comm::msg_t::spawn_bullet:
@@ -199,124 +201,7 @@ class test_state : public state {
 			}
 		});
 	}
-
-	// GUI drawing.
-	// ------------
-	ALLEGRO_COLOR health_color(double health_ratio) {
-		double r, g;
-		if(health_ratio >= 0.5) {
-			g = 1.0;
-			r = 1.0 - (health_ratio - 0.5) * 2.0;
-		} else {
-			r = 1.0;
-			g = health_ratio * 2.0;
-		}
-		return al_map_rgb_f(r, g, 0.0);
-	}
-
-	void draw_bar(
-			double from_bottom,
-			double ratio,
-			double thickness,
-			double margin,
-			ALLEGRO_COLOR color) {
-		double x1 = _config.get_screen_w() * 0.15 - margin;
-		double x2 = _config.get_screen_w() * 0.9 + margin;
-		double y1 = _config.get_screen_h() - from_bottom - thickness - margin;
-		double y2 = _config.get_screen_h() - from_bottom + margin;
-		double hx2 = x1 + ratio * (x2 - x1);
-		al_draw_filled_rectangle(x1, y1, hx2, y2, color);
-	}	
-
-	void draw_hud() {
-		// BG.
-		al_draw_bitmap(_resman.get_bitmap(res_id::HUD_BG), 0, 0, 0);
-
-		// Score.
-		int player_score = int(_score_system.get_score(_player_id));
-		al_draw_textf(
-			_resman.get_font(res_id::FONT),
-			al_map_rgba_f(1.0f, 1.0f, 1.0f, 1.0f),
-			10.0f, 10.0f, 0,
-			"Score: %d", player_score);
 	
-		// Health and shield.
-		double max_health = _wellness_system.get_tracked_node().get().wellness->get_max_health();
-		double health = _wellness_system.get_tracked_node().get().wellness->get_health();
-		double h_ratio = health / max_health;
-		if(h_ratio < 0.0) h_ratio = 0.0;
-		draw_bar(20.0, 1.0, 5.0, 2.0, al_map_rgb(0, 0, 0));
-		draw_bar(20.0, h_ratio, 5.0, 0.0, health_color(h_ratio));
-
-		double max_shield = _wellness_system.get_tracked_node().get().wellness->get_max_shield();
-		double shield = _wellness_system.get_tracked_node().get().wellness->get_shield();
-		double s_ratio = shield / max_shield;
-		if(s_ratio < 0.0) s_ratio = 0.0;
-		draw_bar(50.0, 1.0, 5.0, 2.0, al_map_rgb(0, 0, 0));
-		draw_bar(50.0, s_ratio, 5.0, 0.0, al_map_rgb(113, 197, 255));
-
-		al_draw_bitmap(_resman.get_bitmap(res_id::HEALTH), 75.0, _config.get_screen_h() - 20.0 - 20.0, 0);
-		al_draw_bitmap(_resman.get_bitmap(res_id::BATTERY), 75.0, _config.get_screen_h() - 50.0 - 20.0, 0);
-
-		// Upgrades
-		size_t gun_lvl = _arms_system.get_tracked_node().get().upgrades->gun_lvl();
-		size_t gun_ticks = _arms_system.get_tracked_node().get().upgrades->gun_ticks();
-		size_t gun_max_ticks = _arms_system.get_tracked_node().get().upgrades->gun_ticks_per_level();
-
-		size_t rl_lvl = _arms_system.get_tracked_node().get().upgrades->rl_lvl();
-		size_t rl_ticks = _arms_system.get_tracked_node().get().upgrades->rl_ticks();
-		size_t rl_max_ticks = _arms_system.get_tracked_node().get().upgrades->rl_ticks_per_level();
-
-		auto doff = _resman.get_bitmap(res_id::DIODE_OFF);
-		auto don = _resman.get_bitmap(res_id::DIODE_ON);
-
-		double y_base = _config.get_screen_h() - 22.0 - al_get_bitmap_height(doff) / 2;
-		double x_left = 23.0 - al_get_bitmap_width(doff) / 2;
-		double x_right = _config.get_screen_w() - 23.0 - al_get_bitmap_width(doff) / 2;
-
-		al_draw_bitmap((gun_lvl > 1) ? don : doff, x_left, y_base - 30, 0);
-		al_draw_bitmap((gun_lvl > 2) ? don : doff, x_left, y_base - 50, 0);
-		al_draw_bitmap((gun_lvl > 3) ? don : doff, x_left, y_base - 70, 0);
-		al_draw_bitmap((gun_lvl > 4) ? don : doff, x_left, y_base - 90, 0);
-
-		al_draw_bitmap((rl_lvl > 1) ? don : doff, x_right, y_base - 30, 0);
-		al_draw_bitmap((rl_lvl > 2) ? don : doff, x_right, y_base - 50, 0);
-		al_draw_bitmap((rl_lvl > 3) ? don : doff, x_right, y_base - 70, 0);
-		al_draw_bitmap((rl_lvl > 4) ? don : doff, x_right, y_base - 90, 0);
-
-		// NOTE: This system will light n diodes for n-1 upgrade level.
-		// This way the initial upgrade levels = 1 are indicated by no diodes.
-
-		al_draw_bitmap(_resman.get_bitmap(res_id::B_UPGRADE), x_left + 2.0, y_base, 0);
-		al_draw_bitmap(_resman.get_bitmap(res_id::M_UPGRADE), x_right + 2.0, y_base, 0);
-
-		double gun_ticks_ratio = (double)gun_ticks / (double)gun_max_ticks;
-		double rl_ticks_ratio = (double)rl_ticks / (double)rl_max_ticks;
-
-		double y_from = y_base;
-		double y_to = y_base - 90.0;
-
-		double y_gun_inter = y_base - 90.0 * gun_ticks_ratio;
-		double y_rl_inter = y_base - 90.0 * rl_ticks_ratio;
-
-		al_draw_line(x_left, y_from, x_left, y_to, al_map_rgb_f(0,0,0), 8);
-		al_draw_line(x_right, y_from, x_right, y_to, al_map_rgb_f(0,0,0), 8);
-		al_draw_line(x_left, y_from, x_left, y_gun_inter, al_map_rgb_f(1,1,0), 4);
-		al_draw_line(x_right, y_from, x_right, y_rl_inter, al_map_rgb_f(1,1,0), 4);
-
-		// Ammo.
-		int player_rockets = _arms_system.get_tracked_node().get().ammo->get_rockets();
-		double ammo_x = 75.0;
-		double ammo_y = _config.get_screen_h() - 130.0;
-
-		al_draw_bitmap(_resman.get_bitmap(res_id::MISSILES), ammo_x, ammo_y, 0);
-		al_draw_textf(
-			_resman.get_font(res_id::TINY_FONT),
-			al_map_rgba_f(1, 1, 1, 1),
-			ammo_x + 20, ammo_y + 20, 0,
-			"%d", player_rockets);
-	}
-
 	// This seems necessary for the clock declarations...
 	using uni_distr = uniform_real_distribution<double>;
 
@@ -332,6 +217,19 @@ public:
 	, _l_bomber_spawn_clk(uni_distr(6.0, 8.0), bind(&entity_factory::create_light_bomber, &_ef))
 	, _h_bomber_spawn_clk(uni_distr(8.0, 10.0), bind(&entity_factory::create_heavy_bomber, &_ef))
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
+	, _hud_system(
+			_resman.get_bitmap(res_id::HUD_BG),
+			_resman.get_bitmap(res_id::HEALTH),
+			_resman.get_bitmap(res_id::BATTERY),
+			_resman.get_bitmap(res_id::MISSILES),
+			_resman.get_bitmap(res_id::DIODE_ON),
+			_resman.get_bitmap(res_id::DIODE_OFF),
+			_resman.get_bitmap(res_id::B_UPGRADE),
+			_resman.get_bitmap(res_id::M_UPGRADE),
+			_resman.get_font(res_id::FONT),
+			_resman.get_font(res_id::TINY_FONT),
+			_config.get_screen_w(),
+			_config.get_screen_h())
 	, _ef(_config,
 		_resman,
 		_movement_system,
@@ -343,11 +241,10 @@ public:
 		_drawing_system,
 		_score_system,
 		_pickup_system,
-		_input_system)
+		_input_system,
+		_hud_system)
 	{
 		_player_id = _ef.create_player_ship(200.0, 200.0);
-		_arms_system.set_tracked_id(_player_id);
-		_wellness_system.set_tracked_id(_player_id);
 	}
 
 	void sigkill() { _done = true; }
@@ -374,6 +271,7 @@ public:
 		_score_system.set_debug_mode(_debug);
 		_pickup_system.set_debug_mode(_debug);
 		_input_system.set_debug_mode(_debug);
+		_hud_system.set_debug_mode(_debug);
 
 		// Update the systems.
 		_movement_system.update(dt, _messages);
@@ -386,11 +284,7 @@ public:
 		_score_system.update();
 		_pickup_system.update(_messages); 
 		_input_system.update();
-
-		// Hacky hud pass...
-		auto nd = _wellness_system.get_tracked_node();
-		if(nd && nd.get().wellness && nd.get().wellness->is_alive())
-			draw_hud();
+		_hud_system.update();
 
 		// Handle messages.
 		handle_messages(dt);

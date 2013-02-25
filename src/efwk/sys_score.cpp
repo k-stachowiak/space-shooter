@@ -25,6 +25,10 @@ namespace sys {
 void score_system::update() {
 		for(auto const& n : _nodes) {
 
+			if(n.score && (_ent_score_map.find(n.id) != end(_ent_score_map))) {
+				*(n.score) = _ent_score_map[n.id];
+			}
+
 			if(n.wellness->is_alive()) {
 				continue;
 			}

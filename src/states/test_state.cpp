@@ -39,8 +39,6 @@ using std::uniform_real_distribution;
 // - waves and patterns
 // - Dry-run the stars generator so that the screen starts filled with some initial stars.
 
-// imgur.com/a/DHhC7/all
-
 class test_state : public state {
 
 	// External dependencies.
@@ -303,12 +301,12 @@ public:
 
 	void key_up(int k) {
 		if(k == ALLEGRO_KEY_ESCAPE) _done = true;
-		if(k == ALLEGRO_KEY_SPACE) _debug = true;
+		if(k == ALLEGRO_KEY_SPACE) _debug = false;
 		_input_system.key_up(k);
 	}
 
 	void key_down(int k) {
-		if(k == ALLEGRO_KEY_SPACE) _debug = false;
+		if(k == ALLEGRO_KEY_SPACE) _debug = true;
 		_input_system.key_down(k);
 	}
 };

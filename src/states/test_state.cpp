@@ -31,13 +31,45 @@ using std::uniform_real_distribution;
 #include "../efwk/systems.h"
 #include "../efwk/comm.h"
 #include "../efwk/entity_factory.h"
+#include "../gameplay/enemy_manager.h"
 
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
 // - Large ship pieces
-// - waves and patterns
 // - Dry-run the stars generator so that the screen starts filled with some initial stars.
+
+static vector<pattern::element> element_pair(enemy_type type) {
+	return { { -70.0, 0.0, type },
+			 {  70.0, 0.0, type } };
+}
+
+static vector<pattern::element> element_triangle(enemy_type type) {
+	return { { -70.0, -40.0, type },
+			 {  70.0, -40.0, type },
+			 {   0.0,  30.0, type }};
+}
+
+static vector<pattern::element> element_quad(enemy_type type) {
+	return { { -70.0, -35.0, type },
+			 {  70.0, -35.0, type },
+			 { -70.0,  35.0, type },
+			 {  70.0,  35.0, type }};
+}
+
+static wave prepare_wave_0() {
+	return wave {{
+		{ 5.0, { element_triangle(enemy_type::light_fighter), movement_type::vertical }},
+		{ 2.0, { element_triangle(enemy_type::light_fighter), movement_type::vertical }},
+		{ 5.0, { element_pair(enemy_type::light_bomber), movement_type::diagonal }},
+		{ 2.0, { element_pair(enemy_type::light_bomber), movement_type::diagonal }},
+		{ 5.0, { element_quad(enemy_type::heavy_fighter), movement_type::zorro }}
+	}};
+}
+
+static vector<wave> prepare_waves() {
+	return { prepare_wave_0() };
+}
 
 class test_state : public state {
 
@@ -52,14 +84,6 @@ class test_state : public state {
 	bool _done;
 	uint64_t _player_id;
 	comm::msg_queue _messages;
-
-	// Generation processes.
-	// ---------------------
-	random_clock<uniform_real_distribution<double>> _star_spawn_clk;
-	random_clock<uniform_real_distribution<double>> _l_fighter_spawn_clk;
-	random_clock<uniform_real_distribution<double>> _h_fighter_spawn_clk;
-	random_clock<uniform_real_distribution<double>> _l_bomber_spawn_clk;
-	random_clock<uniform_real_distribution<double>> _h_bomber_spawn_clk;
 
 	// Systems.
 	// --------
@@ -78,6 +102,11 @@ class test_state : public state {
 	// Factories.
 	// ----------
 	entity_factory _ef;
+
+	// Generation processes.
+	// ---------------------
+	random_clock<uniform_real_distribution<double>> _star_spawn_clk;
+	enemy_manager _en_man;
 
 	// Message handling.
 	// -----------------
@@ -202,9 +231,6 @@ class test_state : public state {
 			}
 		});
 	}
-	
-	// This seems necessary for the clock declarations...
-	using uni_distr = uniform_real_distribution<double>;
 
 public:
 	test_state(const config& config, const resman& resman)
@@ -212,11 +238,6 @@ public:
 	, _resman(resman)
 	, _debug(false)
 	, _done(false)
-	, _star_spawn_clk(uni_distr(0.125, 0.25), bind(&entity_factory::create_star, &_ef))
-	, _l_fighter_spawn_clk(uni_distr(2.0, 4.0), bind(&entity_factory::create_light_fighter, &_ef))
-	, _h_fighter_spawn_clk(uni_distr(4.0, 6.0), bind(&entity_factory::create_heavy_fighter, &_ef))
-	, _l_bomber_spawn_clk(uni_distr(6.0, 8.0), bind(&entity_factory::create_light_bomber, &_ef))
-	, _h_bomber_spawn_clk(uni_distr(8.0, 10.0), bind(&entity_factory::create_heavy_bomber, &_ef))
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
 	, _score_system(map<cmp::score_class, double> {
 			{ cmp::score_class::PLAYER, 0.0 },
@@ -252,6 +273,10 @@ public:
 		_pickup_system,
 		_input_system,
 		_hud_system)
+	, _star_spawn_clk(
+			uniform_real_distribution<double>(0.125, 0.25),
+			bind(&entity_factory::create_star, &_ef))
+	, _en_man(prepare_waves())
 	{
 		_player_id = _ef.create_player_ship(200.0, 200.0);
 	}
@@ -264,10 +289,7 @@ public:
 
 		// Trigger the clocks.
 		_star_spawn_clk.tick(dt);
-		_l_fighter_spawn_clk.tick(dt);
-		_h_fighter_spawn_clk.tick(dt);
-		_l_bomber_spawn_clk.tick(dt);
-		_h_bomber_spawn_clk.tick(dt);
+		_en_man.tick(dt, _ef, _config.get_screen_w(), _config.get_screen_h());
 
 		// Manage the debug ouptut. 
 		_movement_system.set_debug_mode(_debug);

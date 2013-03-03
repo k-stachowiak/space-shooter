@@ -28,21 +28,23 @@ using std::vector;
 #include "wave.h"
 
 class enemy_manager {
-	entity_factory& _ef;
-
 	vector<wave> _waves;
 	size_t _current_wave;
 
 public:
-	enemy_manager(entity_factory& ef)
-	: _ef(ef)
-	, _waves({})
+	enemy_manager(vector<wave> waves)
+	: _waves(waves)
 	, _current_wave(0)
 	{}
 
-	bool tick(double dt) {
+	bool tick(double dt, entity_factory& ef, double screen_w, double screen_h) {
+
+		if(_current_wave >= _waves.size()) {
+			return false;
+		}
+
 		wave& current =_waves[_current_wave];
-		if(!current.tick(dt, _ef)) {
+		if(!current.tick(dt, ef, screen_w, screen_h)) {
 			current.reset();
 			_current_wave += 1;
 			if(_current_wave == _waves.size()) {

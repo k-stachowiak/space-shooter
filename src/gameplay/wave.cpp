@@ -21,7 +21,7 @@
 #include "../misc/rand.h"
 #include "wave.h"
 
-static const double offscreen = 40.0;
+static const double narrow_offscreen = 40.0;
 
 static void zorro_loc_dyn(
 		double screen_w,
@@ -36,9 +36,9 @@ static void zorro_loc_dyn(
 
 	const double x_margin = x_margin_dist(rnd::engine);
 
-	const double y0 = -offscreen;
+	const double y0 = -narrow_offscreen;
 	const double y1 = screen_h * 0.5;
-	const double y2 = screen_h + offscreen;
+	const double y2 = screen_h + narrow_offscreen;
 
 	bernoulli_distribution left_right_dist(0.5);
 	const bool left = left_right_dist(rnd::engine);
@@ -65,14 +65,14 @@ static void diag_loc_dyn(
 	// ----------------------------------
 	bernoulli_distribution xdir_dist;
 	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
-	const double vx = dir * 75.0;
-	const double vy = 75.0;
+	const double vx = dir * 175.0;
+	const double vy = 175.0;
 
 	// Set the result.
 	// ---------------
 	dyn = cmp::create_const_velocity_dynamics(vx, vy);
-	x = (dir > 0.0) ? -offscreen : screen_w + offscreen;
-	y = -offscreen;
+	x = (dir > 0.0) ? -narrow_offscreen : screen_w + narrow_offscreen;
+	y = -narrow_offscreen;
 }
 
 static void vert_loc_dyn(
@@ -88,13 +88,13 @@ static void vert_loc_dyn(
 			50.0, screen_w - 50.0);
 
 	const double vx = 0.0;
-	const double vy = 30.0;
+	const double vy = 130.0;
 
 	// Set the result.
 	// ---------------
 	dyn = cmp::create_const_velocity_dynamics(vx, vy);
 	x = x_dist(rnd::engine);
-	y = -offscreen;
+	y = -narrow_offscreen;
 }
 
 static void hori_loc_dyn(
@@ -109,13 +109,13 @@ static void hori_loc_dyn(
 	uniform_real_distribution<double> y_dist(
 			50.0, screen_w - 50.0);
 
-	const double vx = 30.0;
+	const double vx = 600.0;
 	const double vy = 0.0;
 
 	// Set the result.
 	// ---------------
 	dyn = cmp::create_const_velocity_dynamics(vx, vy);
-	x = -offscreen;
+	x = -narrow_offscreen;
 	y = y_dist(rnd::engine);
 }
 
@@ -181,6 +181,10 @@ static void spawn_pattern(
 }
 
 bool wave::tick(double dt, entity_factory& ef, double screen_w, double screen_h) {
+
+	if(_current_pattern >= _patterns.size()) {
+		return false;
+	}
 
 	pair<double, pattern>& current = _patterns[_current_pattern];
 	double& delay = current.first;

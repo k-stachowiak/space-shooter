@@ -28,8 +28,6 @@ using std::pair;
 
 #include "pattern.h"
 
-// TODO: Require the configuration or the screen dimensions here somehow...
-
 class wave {
 	double _clock;
 	vector<pair<double, pattern>> _patterns;

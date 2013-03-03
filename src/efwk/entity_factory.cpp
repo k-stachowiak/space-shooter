@@ -26,7 +26,7 @@ using std::endl;
 #include "../geometry/bezier.h"
 #include "entity_factory.h"
 
-static const double offscreen = 40.0;
+static const double wide_offscreen = 500.0;
 
 uint64_t entity_factory::create_explosion(double x, double y) {
 
@@ -367,10 +367,10 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 	// --------------------
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
-		-offscreen - 1.0,
-		-offscreen - 1.0,
-		_config.get_screen_w() + offscreen + 1.0,
-		_config.get_screen_h() + offscreen + 1.0);
+		-wide_offscreen - 1.0,
+		-wide_offscreen - 1.0,
+		_config.get_screen_w() + wide_offscreen + 1.0,
+		_config.get_screen_h() + wide_offscreen + 1.0);
 
 	// Arms components.
 	// ----------------
@@ -472,10 +472,10 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 	// --------------------
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
-		-offscreen,
-		-offscreen - 1.0, // -1 ensures that the starting position is valid
-		_config.get_screen_w() + offscreen,
-		_config.get_screen_h() + offscreen - 1.0); // -1 ensures that the
+		-wide_offscreen,
+		-wide_offscreen - 1.0, // -1 ensures that the starting position is valid
+		_config.get_screen_w() + wide_offscreen,
+		_config.get_screen_h() + wide_offscreen - 1.0); // -1 ensures that the
 							   // end position is invalid
 
 	// Arms components.
@@ -582,10 +582,10 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 	// --------------------
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
-		-offscreen - 1.0,
-		-offscreen - 1.0,
-		_config.get_screen_w() + offscreen + 1.0,
-		_config.get_screen_h() + offscreen + 1.0);
+		-wide_offscreen - 1.0,
+		-wide_offscreen - 1.0,
+		_config.get_screen_w() + wide_offscreen + 1.0,
+		_config.get_screen_h() + wide_offscreen + 1.0);
 
 	// Arms components.
 	// ----------------
@@ -693,10 +693,10 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 	// --------------------
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
-		-offscreen - 1.0,
-		-offscreen - 1.0,
-		_config.get_screen_w() + offscreen + 1.0,
-		_config.get_screen_h() + offscreen + 1.0);
+		-wide_offscreen - 1.0,
+		-wide_offscreen - 1.0,
+		_config.get_screen_w() + wide_offscreen + 1.0,
+		_config.get_screen_h() + wide_offscreen + 1.0);
 
 	// Arms components.
 	// ----------------
@@ -791,8 +791,8 @@ uint64_t entity_factory::create_light_fighter() {
 	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 
 	// Default position.
-	const double x = (dir > 0.0) ? -offscreen : _config.get_screen_w() + offscreen;
-	const double y = -offscreen;
+	const double x = (dir > 0.0) ? -wide_offscreen : _config.get_screen_w() + wide_offscreen;
+	const double y = -wide_offscreen;
 
 	// Create.
 	return create_light_bomber_dyn(x, y, dynamics);
@@ -805,9 +805,9 @@ uint64_t entity_factory::create_heavy_fighter() {
 
 	const double x_margin = x_margin_dist(rnd::engine);
 
-	const double y0 = -offscreen;
+	const double y0 = -wide_offscreen;
 	const double y1 = _config.get_screen_h() * 0.5;
-	const double y2 = _config.get_screen_h() + offscreen;
+	const double y2 = _config.get_screen_h() + wide_offscreen;
 
 	bernoulli_distribution left_right_dist(0.5);
 	const bool left = left_right_dist(rnd::engine);
@@ -840,8 +840,8 @@ uint64_t entity_factory::create_light_bomber() {
 	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 
 	// Default position.
-	const double x = (dir > 0.0) ? -offscreen : _config.get_screen_w() + offscreen;
-	const double y = -offscreen;
+	const double x = (dir > 0.0) ? -wide_offscreen : _config.get_screen_w() + wide_offscreen;
+	const double y = -wide_offscreen;
 
 	// Create.
 	return create_light_bomber_dyn(x, y, dynamics);
@@ -859,7 +859,7 @@ uint64_t entity_factory::create_heavy_bomber() {
 	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 
 	// Default position.
-	const double x = -offscreen;
+	const double x = -wide_offscreen;
 	const double y = y_dist(rnd::engine);
 
 	// Create.

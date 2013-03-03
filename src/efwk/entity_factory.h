@@ -90,6 +90,11 @@ public:
 	uint64_t create_star();
 	uint64_t create_player_ship(double x, double y);
 
+	uint64_t create_light_fighter_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
+	uint64_t create_heavy_fighter_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
+	uint64_t create_light_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
+	uint64_t create_heavy_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
+
 	uint64_t create_light_fighter();
 	uint64_t create_heavy_fighter();
 	uint64_t create_light_bomber();

@@ -26,6 +26,8 @@ using std::endl;
 #include "../geometry/bezier.h"
 #include "entity_factory.h"
 
+static const double offscreen = 40.0;
+
 uint64_t entity_factory::create_explosion(double x, double y) {
 
 	// Helpers.
@@ -345,20 +347,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	return id;
 }
 
-uint64_t entity_factory::create_light_fighter() {
-
-	// Helpers.
-	// --------
-	bernoulli_distribution xdir_dist;
-
-	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
-	
-	const double vx = dir * 75.0;
-	const double vy = 75.0;
-
-	const double offscreen = 30.0;
-	const double x = (dir > 0.0) ? -offscreen : _config.get_screen_w() + offscreen;
-	const double y = -offscreen;
+uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics) {
 
 	// Common components.
 	// ------------------
@@ -376,7 +365,6 @@ uint64_t entity_factory::create_light_fighter() {
 
 	// Movement components.
 	// --------------------
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
 		-offscreen - 1.0,
@@ -464,33 +452,13 @@ uint64_t entity_factory::create_light_fighter() {
 	return id;
 }
 
-uint64_t entity_factory::create_heavy_fighter() {
-
-	// Helpers.
-	// --------
-
-	// Path points.
-	uniform_real_distribution<double> x_margin_dist(50.0, 200.0);
-	
-	const double offscreen = 30.0;
-	const double x_margin = x_margin_dist(rnd::engine);
-
-	const double y0 = -offscreen;
-	const double y1 = _config.get_screen_h() * 0.5;
-	const double y2 = _config.get_screen_h() + offscreen;
-
-	bernoulli_distribution left_right_dist(0.5);
-	const bool left = left_right_dist(rnd::engine);
-	const double x0 = left ? x_margin : _config.get_screen_w() - x_margin;
-	const double x1 = left ? _config.get_screen_w() - x_margin : x_margin;
-
-	vector<point> points { { x0, y0 }, { x0, y1 }, { x1, y1 }, { x1, y2 } };
+uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics) {
 
 	// Common components.
 	// ------------------
 	uint64_t id = ++_last_id;
-	auto orientation = cmp::create_orientation(points.front().x, points.front().y, 1.57);
-	auto shape = cmp::create_circle(points.front().x, points.front().y, 55.0);
+	auto orientation = cmp::create_orientation(x, y, 1.57);
+	auto shape = cmp::create_circle(x, y, 55.0);
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Drawing components.
@@ -502,7 +470,6 @@ uint64_t entity_factory::create_heavy_fighter() {
 
 	// Movement components.
 	// --------------------
-	auto dynamics = cmp::create_path_dynamics(points);
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
 		-offscreen,
@@ -591,20 +558,7 @@ uint64_t entity_factory::create_heavy_fighter() {
 	return id;
 }
 
-uint64_t entity_factory::create_light_bomber() {
-
-	// Helpers.
-	// --------
-	bernoulli_distribution xdir_dist;
-
-	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
-	
-	const double vx = dir * 50.0;
-	const double vy = 50.0;
-
-	const double offscreen = 30.0;
-	const double x = (dir > 0.0) ? -offscreen : _config.get_screen_w() + offscreen;
-	const double y = -offscreen;
+uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics) {
 
 	// Common components.
 	// ------------------
@@ -626,7 +580,6 @@ uint64_t entity_factory::create_light_bomber() {
 
 	// Movement components.
 	// --------------------
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
 		-offscreen - 1.0,
@@ -716,20 +669,7 @@ uint64_t entity_factory::create_light_bomber() {
 	return id;
 }
 
-uint64_t entity_factory::create_heavy_bomber() {
-
-	// Helpers.
-	// --------
-	bernoulli_distribution xdir_dist;
-	uniform_real_distribution<double> y_dist(
-			50.0, _config.get_screen_h() * 0.5);
-
-	const double vx = 40.0;
-	const double vy = 10.0;
-
-	const double offscreen = 100.0;
-	const double x = -offscreen;
-	const double y = y_dist(rnd::engine);
+uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics) {
 
 	// Common components.
 	// -----------------------
@@ -751,7 +691,6 @@ uint64_t entity_factory::create_heavy_bomber() {
 
 	// Movement components.
 	// --------------------
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
 		-offscreen - 1.0,
@@ -838,6 +777,93 @@ uint64_t entity_factory::create_heavy_bomber() {
 	_score_system.add_node({ id, sc, score, wellness });
 
 	return id;
+}
+
+uint64_t entity_factory::create_light_fighter() {
+
+	// Default dynamics.
+	bernoulli_distribution xdir_dist;
+
+	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
+	const double vx = dir * 75.0;
+	const double vy = 75.0;
+
+	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+
+	// Default position.
+	const double x = (dir > 0.0) ? -offscreen : _config.get_screen_w() + offscreen;
+	const double y = -offscreen;
+
+	// Create.
+	return create_light_bomber_dyn(x, y, dynamics);
+}
+
+uint64_t entity_factory::create_heavy_fighter() {
+
+	// Create path.
+	uniform_real_distribution<double> x_margin_dist(50.0, 200.0);
+
+	const double x_margin = x_margin_dist(rnd::engine);
+
+	const double y0 = -offscreen;
+	const double y1 = _config.get_screen_h() * 0.5;
+	const double y2 = _config.get_screen_h() + offscreen;
+
+	bernoulli_distribution left_right_dist(0.5);
+	const bool left = left_right_dist(rnd::engine);
+	const double x0 = left ? x_margin : _config.get_screen_w() - x_margin;
+	const double x1 = left ? _config.get_screen_w() - x_margin : x_margin;
+
+	vector<point> points { { x0, y0 }, { x0, y1 }, { x1, y1 }, { x1, y2 } };
+
+	// Create dynamics.
+	auto dynamics = cmp::create_path_dynamics(points);
+
+	// Infer position.
+	double x = points.front().x;
+	double y = points.front().y;
+
+	// Create.
+	return create_heavy_fighter_dyn(x, y, dynamics);
+}
+
+uint64_t entity_factory::create_light_bomber() {
+
+	// Default dynamics.
+	bernoulli_distribution xdir_dist;
+
+	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
+
+	const double vx = dir * 50.0;
+	const double vy = 50.0;
+
+	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+
+	// Default position.
+	const double x = (dir > 0.0) ? -offscreen : _config.get_screen_w() + offscreen;
+	const double y = -offscreen;
+
+	// Create.
+	return create_light_bomber_dyn(x, y, dynamics);
+}
+
+uint64_t entity_factory::create_heavy_bomber() {
+
+	// Default dynamics.
+	uniform_real_distribution<double> y_dist(
+			50.0, _config.get_screen_h() * 0.5);
+
+	const double vx = 40.0;
+	const double vy = 10.0;
+
+	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+
+	// Default position.
+	const double x = -offscreen;
+	const double y = y_dist(rnd::engine);
+
+	// Create.
+	return create_heavy_bomber_dyn(x, y, dynamics);
 }
 
 uint64_t entity_factory::create_health_pickup(double x, double y, double vx, double vy) {

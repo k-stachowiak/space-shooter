@@ -67,8 +67,8 @@ struct message {
 
 	struct {
 		double x, y;
-		double theta;
-		double vx, vy;
+		double dir_x, dir_y;
+		double lin_vel;
 		size_t upgrade_lvl;
 		bool enemy;
 		uint64_t origin_id;
@@ -76,8 +76,8 @@ struct message {
 
 	struct {
 		double x, y;
-		double theta;
-		double vx, vy;
+		double dir_x, dir_y;
+		double lin_vel;
 		size_t upgrade_lvl;
 		bool enemy;
 		uint64_t origin_id;
@@ -131,17 +131,17 @@ struct message {
 message create_remove_entity(uint64_t id);
 
 message create_spawn_bullet(
-		double x, double y, 
-		double theta, 
-		double vx, double vy, 
+		double x, double y,
+		double dir_x, double dir_y,
+		double lin_vel,
 		size_t upgrade_lvl,
 		bool enemy, 
 		uint64_t origin_id);
 
 message create_spawn_missile(
 		double x, double y,
-		double theta,
-		double vx, double vy,
+		double dir_x, double dir_y,
+		double lin_vel,
 		size_t upgrade_lvl,
 		bool enemy,
 		uint64_t origin_id);

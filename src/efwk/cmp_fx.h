@@ -38,7 +38,7 @@ public:
 			double dt,
 			double health_ratio,
 			double x, double y,
-			shared_ptr<shape> shp, // TODO: Only pass reference to the systems. shared pointers are overkill here.
+			shape const& shp,
 			comm::msg_queue& msgs) = 0;
 };
 

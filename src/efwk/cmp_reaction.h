@@ -35,7 +35,7 @@ public:
 	virtual ~reaction() {}
 	virtual void trigger(
 		double x, double y, double phi,
-		shared_ptr<shape> shape,
+		shape const& shape,
 		double vx, double vy,
 		uint64_t origin_id,
 		comm::msg_queue& queue) = 0;

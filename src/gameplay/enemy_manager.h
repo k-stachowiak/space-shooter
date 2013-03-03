@@ -53,6 +53,10 @@ public:
 		}
 		return true;
 	}
+
+	void reset() {
+		_current_wave = 0;
+	}
 };
 
 #endif

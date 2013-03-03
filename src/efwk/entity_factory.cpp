@@ -866,7 +866,10 @@ uint64_t entity_factory::create_heavy_bomber() {
 	return create_heavy_bomber_dyn(x, y, dynamics);
 }
 
-uint64_t entity_factory::create_health_pickup(double x, double y, double vx, double vy) {
+uint64_t entity_factory::create_common_pickup(
+		double x, double y,
+		double vx, double vy,
+		pickup_type type) {
 
 	// Helpers.
 	// --------
@@ -882,24 +885,52 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
-	// Components.
-	// -----------
+	// Type dependent components.
+	// --------------------------
+	res_id image_id;
+	unique_ptr<cmp::pickup_profile> pp;
+	switch(type) {
+	case pickup_type::health:
+		image_id = res_id::HEALTH;
+		pp = cmp::create_health_pickup_profile(10.0);
+		break;
+	case pickup_type::battery:
+		image_id = res_id::BATTERY;
+		pp = cmp::create_battery_pickup_profile(10.0);
+		break;
+	case pickup_type::missiles:
+		image_id = res_id::MISSILES;
+		pp = cmp::create_missiles_pickup_profile(7.0);
+		break;
+	case pickup_type::bullet_up:
+		image_id = res_id::B_UPGRADE;
+		pp = cmp::create_bullet_upgrade_pickup_profile();
+		break;
+	case pickup_type::missile_up:
+		image_id = res_id::M_UPGRADE;
+		pp = cmp::create_missile_upgrade_pickup_profile();
+		break;
+
+	default:
+		break;
+	}
+
+	// Common components.
+	// ------------------
 	uint64_t id = ++_last_id;
-	auto orientation = cmp::create_orientation(x, y, 0.0); 
-	auto shape = cmp::create_circle(x, y, 16.0); 
+	auto orientation = cmp::create_orientation(x, y, 0.0);
+	auto shape = cmp::create_circle(x, y, 16.0);
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Drawing components.
-	// -------------------
 	auto draw_plane = cmp::draw_plane::FX;
 	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::HEALTH),
-			_resman.get_bitmap(res_id::HEALTH));
+			_resman.get_bitmap(image_id),
+			_resman.get_bitmap(image_id));
 
 	// Movement components.
-	// --------------------
-	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
+	auto movement_bounds = shared_ptr<cmp::bounds>();
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
 	auto dynamics = cmp::create_complex_dynamics({
 		cmp::create_const_velocity_dynamics(
 			vx + base_vx * mul_vx,
@@ -908,14 +939,13 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 			base_av * mul_av) });
 
 	// Collision components.
-	// ---------------------
-	auto coll_queue = cmp::create_coll_queue(); 
-	auto cp = cmp::create_collision_profile( 
+	auto coll_queue = cmp::create_coll_queue();
+	auto cp = cmp::create_collision_profile(
 		cmp::pain_team::NONE,
 		cmp::pain_profile::PAPER,
 		false,
 		nullptr,
-		cmp::create_health_pickup_profile(10.0));
+		move(pp));
 
 	// Register nodes.
 	// ---------------
@@ -924,262 +954,48 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 
 	return id;
+}
+
+uint64_t entity_factory::create_health_pickup(double x, double y, double vx, double vy) {
+	return create_common_pickup(x, y, vx, vy, pickup_type::health);
 }
 
 uint64_t entity_factory::create_battery_pickup(double x, double y, double vx, double vy) {
-
-	// Helpers.
-	// --------
-	bernoulli_distribution dir_dist;
-
-	uniform_real_distribution<double> mv_dist(15.0, 25.0);
-	double base_vx = mv_dist(rnd::engine);
-	double base_vy = mv_dist(rnd::engine);
-	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
-	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
-
-	uniform_real_distribution<double> rot_dist(3.0, 9.0);
-	double base_av = rot_dist(rnd::engine);
-	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
-
-	// Components.
-	// -----------
-	uint64_t id = ++_last_id;
-	auto orientation = cmp::create_orientation(x, y, 0.0);
-	auto shape = cmp::create_circle(x, y, 16.0);
-	auto pain_flash = make_shared<double>(0.0);
-
-	// Drawing components.
-	// -------------------
-	auto draw_plane = cmp::draw_plane::FX;
-	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::BATTERY),
-			_resman.get_bitmap(res_id::BATTERY));
-
-	// Movement components.
-	// --------------------
-	auto movement_bounds = shared_ptr<cmp::bounds>();
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
-	auto dynamics = cmp::create_complex_dynamics({
-		cmp::create_const_velocity_dynamics(
-			vx + base_vx * mul_vx,
-			vy + base_vy * mul_vy),
-		cmp::create_const_ang_vel_dynamics(
-			base_av * mul_av) });
-
-	// Collision components.
-	// ---------------------
-	auto coll_queue = cmp::create_coll_queue();
-	auto cp = cmp::create_collision_profile(
-		cmp::pain_team::NONE,
-		cmp::pain_profile::PAPER,
-		false,
-		nullptr,
-		cmp::create_battery_pickup_profile(10.0));
-
-	// Register nodes.
-	// ---------------
-	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-	_collision_system.add_node({ id, id, cp, shape, coll_queue });
-
-	return id;
+	return create_common_pickup(x, y, vx, vy, pickup_type::battery);
 }
 
 uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, double vy) {
-
-	// Helpers.
-	// --------
-	bernoulli_distribution dir_dist;
-
-	uniform_real_distribution<double> mv_dist(15.0, 25.0);
-	double base_vx = mv_dist(rnd::engine);
-	double base_vy = mv_dist(rnd::engine);
-	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
-	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
-
-	uniform_real_distribution<double> rot_dist(3.0, 9.0);
-	double base_av = rot_dist(rnd::engine);
-	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
-
-	// Initialize components.
-	// ----------------------
-	uint64_t id = ++_last_id;
-	auto orientation = cmp::create_orientation(x, y, 0.0); 
-	auto shape = cmp::create_circle(x, y, 16.0); 
-	auto pain_flash = make_shared<double>(0.0);
-
-	// Drawing components.
-	// -------------------
-	auto draw_plane = cmp::draw_plane::FX;
-	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::MISSILES),
-			_resman.get_bitmap(res_id::MISSILES));
-
-	// Movement components.
-	// --------------------
-	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h()); 
-	auto dynamics = cmp::create_complex_dynamics({
-		cmp::create_const_velocity_dynamics(
-			vx + base_vx * mul_vx,
-			vy + base_vy * mul_vy),
-		cmp::create_const_ang_vel_dynamics(
-			base_av * mul_av) });
-
-	// Collision components.
-	// ---------------------
-	auto coll_queue = cmp::create_coll_queue(); 
-	auto cp = cmp::create_collision_profile( 
-		cmp::pain_team::NONE,
-		cmp::pain_profile::PAPER,
-		false,
-		nullptr,
-		cmp::create_missiles_pickup_profile(7.0));
-
-	// Register nodes.
-	// ---------------
-	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-	_collision_system.add_node({ id, id, cp, shape, coll_queue });
-
-	return id;
+	return create_common_pickup(x, y, vx, vy, pickup_type::missiles);
 }
 
 uint64_t entity_factory::create_bullet_upgrade_pickup(double x, double y, double vx, double vy) {
-
-	// Helpers.
-	// --------
-	bernoulli_distribution dir_dist;
-
-	uniform_real_distribution<double> mv_dist(15.0, 25.0);
-	double base_vx = mv_dist(rnd::engine);
-	double base_vy = mv_dist(rnd::engine);
-	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
-	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
-
-	uniform_real_distribution<double> rot_dist(3.0, 9.0);
-	double base_av = rot_dist(rnd::engine);
-	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
-
-	// Initialize components.
-	// ----------------------
-	uint64_t id = ++_last_id;
-	auto orientation = cmp::create_orientation(x, y, 0.0);
-	auto shape = cmp::create_circle(x, y, 16.0);
-	auto pain_flash = make_shared<double>(0.0);
-
-	// Drawing components.
-	// -------------------
-	auto draw_plane = cmp::draw_plane::FX;
-	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::B_UPGRADE),
-			_resman.get_bitmap(res_id::B_UPGRADE));
-
-	// Movement components.
-	// --------------------
-	auto movement_bounds = shared_ptr<cmp::bounds>();
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
-	auto dynamics = cmp::create_complex_dynamics({
-		cmp::create_const_velocity_dynamics(
-			vx + base_vx * mul_vx,
-			vy + base_vy * mul_vy),
-		cmp::create_const_ang_vel_dynamics(
-			base_av * mul_av) });
-
-	// Collision components.
-	// ---------------------
-	auto coll_queue = cmp::create_coll_queue();
-	auto cp = cmp::create_collision_profile(
-		cmp::pain_team::NONE,
-		cmp::pain_profile::PAPER,
-		false,
-		nullptr,
-		cmp::create_bullet_upgrade_pickup_profile());
-
-	// Register nodes.
-	// ---------------
-	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-	_collision_system.add_node({ id, id, cp, shape, coll_queue });
-
-	return id;
+	return create_common_pickup(x, y, vx, vy, pickup_type::bullet_up);
 }
 
 uint64_t entity_factory::create_missile_upgrade_pickup(double x, double y, double vx, double vy) {
-
-	// Helpers.
-	// --------
-	bernoulli_distribution dir_dist;
-
-	uniform_real_distribution<double> mv_dist(15.0, 25.0);
-	double base_vx = mv_dist(rnd::engine);
-	double base_vy = mv_dist(rnd::engine);
-	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
-	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
-
-	uniform_real_distribution<double> rot_dist(3.0, 9.0);
-	double base_av = rot_dist(rnd::engine);
-	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
-
-	// Initialize components.
-	// ----------------------
-	uint64_t id = ++_last_id;
-	auto orientation = cmp::create_orientation(x, y, 0.0);
-	auto shape = cmp::create_circle(x, y, 16.0);
-	auto pain_flash = make_shared<double>(0.0);
-
-	// Drawing components.
-	// -------------------
-	auto draw_plane = cmp::draw_plane::FX;
-	auto appearance = cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::M_UPGRADE),
-			_resman.get_bitmap(res_id::M_UPGRADE));
-
-	// Movement components.
-	// --------------------
-	auto movement_bounds = shared_ptr<cmp::bounds>();
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, _config.get_screen_w(), _config.get_screen_h());
-	auto dynamics = cmp::create_complex_dynamics({
-		cmp::create_const_velocity_dynamics(
-			vx + base_vx * mul_vx,
-			vy + base_vy * mul_vy),
-		cmp::create_const_ang_vel_dynamics(
-			base_av * mul_av) });
-
-	// Collision components.
-	// ---------------------
-	auto coll_queue = cmp::create_coll_queue();
-	auto cp = cmp::create_collision_profile(
-		cmp::pain_team::NONE,
-		cmp::pain_profile::PAPER,
-		false,
-		nullptr,
-		cmp::create_missile_upgrade_pickup_profile());
-
-	// Register nodes.
-	// ---------------
-	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-	_collision_system.add_node({ id, id, cp, shape, coll_queue });
-
-	return id;
+	return create_common_pickup(x, y, vx, vy, pickup_type::missile_up);
 }
 
 uint64_t entity_factory::create_missile(
 		double x, double y,
-		double theta,
-		double vx, double vy,
+		double dir_x, double dir_y,
+		double lin_vel,
 		size_t upgrade_lvl,
 		bool enemy,
 		uint64_t origin_id) {
+
+	// Interpret direction.
+	// --------------------
+	const double vx = dir_x * lin_vel;
+	const double vy = dir_y * lin_vel;
+	const double ax = 0;
+	const double ay = (vy > 0) ? 500.0 : -500.0;
+	const double theta = atan2(dir_y, dir_x);
 
 	// Helpers.
 	// ----------
 	const double missile_health = 1.0;
 	const double missile_shield = 0.0;
-	const double ax = 0;
-	const double ay = (vy > 0) ? 500.0 : -500.0;
 
 	double damage_base = 25.0;
 	double multiplier = upgrade_lvl;
@@ -1253,11 +1069,17 @@ uint64_t entity_factory::create_missile(
 
 uint64_t entity_factory::create_bullet(
 		double x, double y,
-		double theta,
-		double vx, double vy,
+		double dir_x, double dir_y,
+		double lin_vel,
 		size_t upgrade_lvl,
 		bool enemy,
 		uint64_t origin_id) {
+
+	// Interpret direction.
+	// --------------------
+	const double vx = dir_x * lin_vel;
+	const double vy = dir_y * lin_vel;
+	const double theta = atan2(dir_y, dir_x);
 
 	// Helpers.
 	// --------

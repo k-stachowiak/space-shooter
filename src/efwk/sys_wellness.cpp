@@ -53,7 +53,7 @@ void wellness_system::update(double dt, comm::msg_queue& msgs) {
 					n.orientation->get_x(),
 					n.orientation->get_y(),
 					n.orientation->get_phi(),
-					n.shape,
+					*(n.shape),
 					vx, vy,
 					n.id,
 					msgs);

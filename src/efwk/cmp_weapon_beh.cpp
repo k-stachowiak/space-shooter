@@ -35,14 +35,14 @@ public:
 	complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs) : _wbs(wbs) {}
 
 	void update(uint64_t id,
-			shared_ptr<ammo> ammo,
-			shared_ptr<upgrades> up,
+			ammo& a,
+			upgrades& up,
 			double dt,
 			double x, double y,
 			comm::msg_queue& msgs) {
 
 		for(auto& wb : _wbs) {
-			wb->update(id, ammo, up, dt, x, y, msgs);
+			wb->update(id, a, up, dt, x, y, msgs);
 		}
 	}
 
@@ -76,8 +76,8 @@ public:
 	}
 
 	void update(uint64_t id,
-			shared_ptr<ammo> ammo,
-			shared_ptr<upgrades> up,
+			ammo& a,
+			upgrades& up,
 			double dt,
 			double x,
 			double y,
@@ -86,14 +86,13 @@ public:
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
 
-			if(ammo->get_bullets() != 0) {
-				ammo->add_bullets(-1);
-				up->tick_down_gun();
+			if(a.get_bullets() != 0) {
+				a.add_bullets(-1);
+				up.tick_down_gun();
 				msgs.push(comm::create_spawn_bullet(
 					x + _x_off, y + _y_off,
-					1.57, 0.0,
-					500.0,
-					up->gun_lvl(),
+					0.0, 1.0, 500.0,
+					up.gun_lvl(),
 					true,
 					id));
 			}
@@ -126,8 +125,8 @@ public:
 	}
 
 	void update(uint64_t id,
-			shared_ptr<ammo> ammo,
-			shared_ptr<upgrades> up,
+			ammo& a,
+			upgrades& up,
 			double dt,
 			double x,
 			double y,
@@ -136,15 +135,14 @@ public:
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
 
-			if(ammo->get_bullets() != 0) {
-				ammo->add_rockets(-1);
-				up->tick_down_rl();
+			if(a.get_rockets() != 0) {
+				a.add_rockets(-1);
+				up.tick_down_rl();
 				msgs.push(comm::create_spawn_missile(
 					x + _x_offset,
 					y + _y_offset,
-					1.57, 0.0,
-					150.0,
-					up->rl_lvl(),
+					0.0, 1.0, 150.0,
+					up.rl_lvl(),
 					true,
 					id));
 			}
@@ -168,8 +166,8 @@ public:
 	{}
 
 	void update(uint64_t id,
-			shared_ptr<ammo> ammo,
-			shared_ptr<upgrades> up,
+			ammo& a,
+			upgrades& up,
 			double dt,
 			double x,
 			double y,
@@ -177,25 +175,23 @@ public:
 
 		// Minigun fire.
 		// -------------
-		if(_minigun.update(dt) && ammo->get_bullets() != 0) {
-			ammo->add_bullets(-1);
-			up->tick_down_gun();
+		if(_minigun.update(dt) && a.get_bullets() != 0) {
+			a.add_bullets(-1);
+			up.tick_down_gun();
 			if(_prev_left) {
 				_prev_left = false;
 				msgs.push(comm::create_spawn_bullet(
 						x + 15.0, y,
-						-1.57, 0.0,
-						-800.0,
-						up->gun_lvl(),
+						0.0, -1.0, 800.0,
+						up.gun_lvl(),
 						false,
 						id));
 			} else {
 				_prev_left = true;
 				msgs.push(comm::create_spawn_bullet(
 						x - 15.0, y,
-						-1.57, 0.0,
-						-800.0,
-						up->gun_lvl(),
+						0.0, -1.0, 800.0,
+						up.gun_lvl(),
 						false,
 						id));
 			}
@@ -203,21 +199,19 @@ public:
 
 		// Rocket launcher fire.
 		// ---------------------
-		if(_rpg.update(dt) && ammo->get_rockets() != 0) {
-			ammo->add_rockets(-1);
-			up->tick_down_rl();
+		if(_rpg.update(dt) && a.get_rockets() != 0) {
+			a.add_rockets(-1);
+			up.tick_down_rl();
 			msgs.push(comm::create_spawn_missile(
 					x + 25.0, y,
-					-1.57, 0.0,
-					-300.0,
-					up->rl_lvl(),
+					0.0, -1.0, 300.0,
+					up.rl_lvl(),
 					false,
 					id));
 			msgs.push(comm::create_spawn_missile(
 					x - 25.0, y,
-					-1.57, 0.0,
-					-300.0,
-					up->rl_lvl(),
+					0.0, -1.0, 300.0,
+					up.rl_lvl(),
 					false,
 					id));
 		}

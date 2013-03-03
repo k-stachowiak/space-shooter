@@ -25,6 +25,8 @@
 using std::shared_ptr;
 using std::unique_ptr;
 
+#include "../misc/maybe.h"
+
 namespace cmp {
 
 class wellness;
@@ -54,14 +56,10 @@ public:
 class pickup_profile {
 public:
 	virtual ~pickup_profile() {}
-	virtual bool trigger(
-			shared_ptr<wellness> w,
-			shared_ptr<ammo> a,
-			shared_ptr<upgrades> up) = 0;
+	virtual bool trigger(wellness& w, ammo& a, upgrades& up) = 0;
 };
 
 struct collision_profile {
-	// TODO: Consider some kind of a "maybe" container here.
 	pain_team pt;
 	pain_profile pp;
 	bool is_projectile;

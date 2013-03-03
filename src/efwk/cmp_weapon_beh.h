@@ -42,8 +42,8 @@ public:
 
 	virtual void update(
 			uint64_t id,
-			shared_ptr<ammo> a,
-			shared_ptr<upgrades> up,
+			ammo& a,
+			upgrades& up,
 			double dt,
 			double x, double y,
 			comm::msg_queue& msgs) = 0;

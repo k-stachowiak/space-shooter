@@ -26,6 +26,14 @@
 #include "../config.h"
 #include "../resources/resman.h"
 
+enum class pickup_type {
+	health,
+	battery,
+	missiles,
+	bullet_up,
+	missile_up
+};
+
 class entity_factory {
 
 	uint64_t _last_id;
@@ -100,27 +108,26 @@ public:
 	uint64_t create_light_bomber();
 	uint64_t create_heavy_bomber();
 
-	// TODO: Separate the common construction of the pickups
+	uint64_t create_common_pickup(double x, double y, double vx, double vy, pickup_type type);
+
 	uint64_t create_health_pickup(double x, double y, double vx, double vy);
 	uint64_t create_battery_pickup(double x, double y, double vx, double vy);
 	uint64_t create_missiles_pickup(double x, double y, double vx, double vy);
 	uint64_t create_bullet_upgrade_pickup(double x, double y, double vx, double vy);
 	uint64_t create_missile_upgrade_pickup(double x, double y, double vx, double vy);
 
-	// TODO: This should rather take the direction vector and compute the velocities
-	//     and the accelerations internally.
 	uint64_t create_missile(
 			double x, double y,
-			double theta,
-			double vx, double vy,
+			double dir_x, double dir_y,
+			double lin_vel,
 			size_t upgrade_lvl,
 			bool enemy,
 			uint64_t origin_id);
 
 	uint64_t create_bullet(
 			double x, double y,
-			double theta,
-			double vx, double vy,
+			double dir_x, double dir_y,
+			double lin_vel,
 			size_t upgrade_lvl,
 			bool enemy,
 			uint64_t origin_id);

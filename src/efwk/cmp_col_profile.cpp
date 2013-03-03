@@ -36,17 +36,15 @@ class health_pickup_profile : public pickup_profile {
 	double _amount;
 public:
 	health_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(shared_ptr<wellness> w,
-			shared_ptr<ammo> a,
-			shared_ptr<upgrades> up) {
+	bool trigger(wellness& w, ammo& a, upgrades& up) {
 
-		double h = w->get_health();
-		double H = w->get_max_health();
+		double h = w.get_health();
+		double H = w.get_max_health();
 
 		if(h >= H) return false;
 
-		if(h + _amount >= H) w->add_health(H - h);
-		else w->add_health(_amount);
+		if(h + _amount >= H) w.add_health(H - h);
+		else w.add_health(_amount);
 
 		return true;
 	}
@@ -56,17 +54,15 @@ class battery_pickup_profile : public pickup_profile {
 	double _amount;
 public:
 	battery_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(shared_ptr<wellness> w,
-			shared_ptr<ammo> a,
-			shared_ptr<upgrades> up) {
+	bool trigger(wellness& w, ammo& a, upgrades& up) {
 
-		double s = w->get_shield();
-		double S = w->get_max_shield();
+		double s = w.get_shield();
+		double S = w.get_max_shield();
 
 		if(s >= S) return false;
 
-		if(s + _amount >= S) w->add_shield(S - s);
-		else w->add_shield(_amount);
+		if(s + _amount >= S) w.add_shield(S - s);
+		else w.add_shield(_amount);
 
 		return true;
 	}
@@ -76,21 +72,17 @@ class missiles_pickup_profile : public pickup_profile {
 	double _amount;
 public:
 	missiles_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(shared_ptr<wellness> w,
-			shared_ptr<ammo> a,
-			shared_ptr<upgrades> up) {
-		a->add_rockets(_amount);
+	bool trigger(wellness& w, ammo& a, upgrades& up) {
+		a.add_rockets(_amount);
 		return true;
 	}
 };
 
 class bullet_upgrade_pickup_profile : public pickup_profile {
 public:
-	bool trigger(shared_ptr<wellness> w,
-				 shared_ptr<ammo> a,
-				 shared_ptr<upgrades> up) {
-		if(up->can_upgrade_gun()) {
-			up->upgrade_gun();
+	bool trigger(wellness& w, ammo& a, upgrades& up) {
+		if(up.can_upgrade_gun()) {
+			up.upgrade_gun();
 			return true;
 		} else {
 			return false;
@@ -100,11 +92,9 @@ public:
 
 class missile_upgrade_pickup_profile : public pickup_profile {
 public:
-	bool trigger(shared_ptr<wellness> w,
-				 shared_ptr<ammo> a,
-				 shared_ptr<upgrades> up) {
-		if(up->can_upgrade_rl()) {
-			up->upgrade_rl();
+	bool trigger(wellness& w, ammo& a, upgrades& up) {
+		if(up.can_upgrade_rl()) {
+			up.upgrade_rl();
 			return true;
 		} else {
 			return false;

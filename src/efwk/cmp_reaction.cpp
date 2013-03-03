@@ -38,7 +38,7 @@ class complex_reaction : public reaction {
 public:
 	complex_reaction(vector<shared_ptr<reaction>> rs) : _rs(rs) {}
 	void trigger(double x, double y, double phi,
-			shared_ptr<shape> shape,
+			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
 			comm::msg_queue& queue) {
@@ -50,7 +50,7 @@ public:
 class health_drop_reaction : public reaction {
 public:
 	void trigger(double x, double y, double phi,
-			shared_ptr<shape> shape,
+			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
 			comm::msg_queue& queue) {
@@ -61,7 +61,7 @@ public:
 class battery_drop_reaction : public reaction {
 public:
 	void trigger(double x, double y, double phi,
-			shared_ptr<shape> shape,
+			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
 			comm::msg_queue& queue) {
@@ -72,7 +72,7 @@ public:
 class missile_drop_reaction : public reaction {
 public:
 	void trigger(double x, double y, double phi,
-			shared_ptr<shape> shape,
+			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
 			comm::msg_queue& queue) {
@@ -83,7 +83,7 @@ public:
 class bullet_upgrade_drop_reaction : public reaction {
 public:
 	void trigger(double x, double y, double phi,
-			shared_ptr<shape> shape,
+			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
 			comm::msg_queue& queue) {
@@ -94,7 +94,7 @@ public:
 class missile_upgrade_drop_reaction : public reaction {
 public:
 	void trigger(double x, double y, double phi,
-			shared_ptr<shape> shape,
+			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
 			comm::msg_queue& queue) {
@@ -152,7 +152,7 @@ public:
 	{}
 
 	void trigger(double x, double y, double phi,
-			shared_ptr<shape> shape,
+			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
 			comm::msg_queue& queue) {
@@ -164,7 +164,7 @@ public:
 				: (i % _images.size());
 			res_id bmp = _images[index];
 			double deb_x, deb_y;
-			tie(deb_x, deb_y) = shape->get_random_point();
+			tie(deb_x, deb_y) = shape.get_random_point();
 			queue.push(comm::create_spawn_debris(
 						deb_x, deb_y,
 						vx, vy,
@@ -200,7 +200,7 @@ public:
 	{}
 
 	void trigger(double x, double y, double phi,
-			shared_ptr<shape> shape,
+			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
 			comm::msg_queue& queue) {
@@ -209,7 +209,7 @@ public:
 		uniform_real_distribution<double> delay_dist(0.125, 0.25);
 		for(uint32_t i = 0; i < _num_explosions; ++i) {
 			double expl_x, expl_y;
-			tie(expl_x, expl_y) = shape->get_random_point();
+			tie(expl_x, expl_y) = shape.get_random_point();
 			queue.push(comm::create_spawn_explosion(expl_x, expl_y), delay);
 			delay += delay_dist(rnd::engine);
 		}

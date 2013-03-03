@@ -36,7 +36,7 @@ void fx_system::update(
 		n.effects->update(dt,
 				health / max_health,
 				x, y,
-				n.shape,
+				*(n.shape),
 				msgs);
 	}
 }

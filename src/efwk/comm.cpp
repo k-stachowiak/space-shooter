@@ -31,27 +31,27 @@ message create_remove_entity(uint64_t id) {
 
 message create_spawn_bullet(
 		double x, double y,
-		double theta,
-		double vx, double vy,
+		double dir_x, double dir_y,
+		double lin_vel,
 		size_t upgrade_lvl,
 		bool enemy,
 		uint64_t origin_id) {
 	message msg;
 	msg.type = msg_t::spawn_bullet;
-	msg.spawn_bullet = { x, y, theta, vx, vy, upgrade_lvl, enemy, origin_id };
+	msg.spawn_bullet = { x, y, dir_x, dir_y, lin_vel, upgrade_lvl, enemy, origin_id };
 	return msg;
 }
 
 message create_spawn_missile(
 		double x, double y,
-		double theta,
-		double vx, double vy,
+		double dir_x, double dir_y,
+		double lin_vel,
 		size_t upgrade_lvl,
 		bool enemy,
 		uint64_t origin_id) {
 	message msg;
 	msg.type = msg_t::spawn_missile;
-	msg.spawn_missile = { x, y, theta, vx, vy, upgrade_lvl, enemy, origin_id };
+	msg.spawn_missile = { x, y, dir_x, dir_y, lin_vel, upgrade_lvl, enemy, origin_id };
 	return msg;
 }
 

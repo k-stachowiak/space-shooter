@@ -46,7 +46,7 @@ public:
 			double dt,
 			double health_ratio,
 			double x, double y,
-			shared_ptr<cmp::shape> shape,
+			cmp::shape const& shape,
 			comm::msg_queue& msgs) {
 
 		if(health_ratio > _pain_threshold)
@@ -55,7 +55,7 @@ public:
 		_timer->update(dt);
 		for(uint32_t i = 0; i < _timer->get_ticks(); ++i) {
 			double rnd_x, rnd_y;
-			tie(rnd_x, rnd_y) = shape->get_random_point();
+			tie(rnd_x, rnd_y) = shape.get_random_point();
 			msgs.push(comm::create_spawn_smoke(rnd_x, rnd_y, comm::smoke_size::medium));
 		}
 		_timer->clear();
@@ -82,7 +82,7 @@ public:
 	void update(	double dt,
 			double health_ratio,
 			double x, double y,
-			shared_ptr<cmp::shape> shape,
+			cmp::shape const& shape,
 			comm::msg_queue& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {

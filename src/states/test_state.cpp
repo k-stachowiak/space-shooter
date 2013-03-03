@@ -136,9 +136,9 @@ class test_state : public state {
 				_ef.create_bullet(
 						msg.spawn_bullet.x,
 						msg.spawn_bullet.y,
-						msg.spawn_bullet.theta,
-						msg.spawn_bullet.vx,
-						msg.spawn_bullet.vy,
+						msg.spawn_bullet.dir_x,
+						msg.spawn_bullet.dir_y,
+						msg.spawn_bullet.lin_vel,
 						msg.spawn_bullet.upgrade_lvl,
 						msg.spawn_bullet.enemy,
 						msg.spawn_bullet.origin_id);
@@ -148,9 +148,9 @@ class test_state : public state {
 				_ef.create_missile(
 						msg.spawn_missile.x,
 						msg.spawn_missile.y,
-						msg.spawn_missile.theta,
-						msg.spawn_missile.vx,
-						msg.spawn_missile.vy,
+						msg.spawn_missile.dir_x,
+						msg.spawn_missile.dir_y,
+						msg.spawn_missile.lin_vel,
 						msg.spawn_missile.upgrade_lvl,
 						msg.spawn_missile.enemy,
 						msg.spawn_missile.origin_id);
@@ -289,7 +289,11 @@ public:
 
 		// Trigger the clocks.
 		_star_spawn_clk.tick(dt);
-		_en_man.tick(dt, _ef, _config.get_screen_w(), _config.get_screen_h());
+
+		bool done_patterns = _en_man.tick(dt, _ef, _config.get_screen_w(), _config.get_screen_h());
+		if(done_patterns) {
+			_en_man.reset();
+		}
 
 		// Manage the debug ouptut. 
 		_movement_system.set_debug_mode(_debug);

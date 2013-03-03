@@ -49,7 +49,7 @@ public:
 
 	void tick(double dt) {
 		_timer -= dt;
-		if(_timer <= 0.0) {
+		while(_timer <= 0.0) {
 			schedule(-_timer);
 			_callback();
 		}

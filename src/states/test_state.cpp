@@ -37,33 +37,14 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - Large ship pieces
-// - Dry-run the stars generator so that the screen starts filled with some initial stars.
-
-static vector<pattern::element> element_pair(enemy_type type) {
-	return { { -70.0, 0.0, type },
-			 {  70.0, 0.0, type } };
-}
-
-static vector<pattern::element> element_triangle(enemy_type type) {
-	return { { -70.0, -40.0, type },
-			 {  70.0, -40.0, type },
-			 {   0.0,  30.0, type }};
-}
-
-static vector<pattern::element> element_quad(enemy_type type) {
-	return { { -70.0, -35.0, type },
-			 {  70.0, -35.0, type },
-			 { -70.0,  35.0, type },
-			 {  70.0,  35.0, type }};
-}
 
 static wave prepare_wave_0() {
 	return wave {{
-		{ 5.0, { element_triangle(enemy_type::light_fighter), movement_type::vertical }},
-		{ 2.0, { element_triangle(enemy_type::light_fighter), movement_type::vertical }},
-		{ 5.0, { element_pair(enemy_type::light_bomber), movement_type::diagonal }},
-		{ 2.0, { element_pair(enemy_type::light_bomber), movement_type::diagonal }},
-		{ 5.0, { element_quad(enemy_type::heavy_fighter), movement_type::zorro }}
+		{ 5.0, { pattern::el_triangle(enemy_type::light_fighter), movement_type::vertical }},
+		{ 2.0, { pattern::el_triangle(enemy_type::light_fighter), movement_type::vertical }},
+		{ 5.0, { pattern::el_pair(enemy_type::light_bomber), movement_type::diagonal }},
+		{ 2.0, { pattern::el_pair(enemy_type::light_bomber), movement_type::diagonal }},
+		{ 5.0, { pattern::el_quad(enemy_type::heavy_fighter), movement_type::zorro }}
 	}};
 }
 
@@ -274,10 +255,18 @@ public:
 		_input_system,
 		_hud_system)
 	, _star_spawn_clk(
-			uniform_real_distribution<double>(0.125, 0.25),
+			uniform_real_distribution<double>(0.05, 0.1),
 			bind(&entity_factory::create_star, &_ef))
 	, _en_man(prepare_waves())
 	{
+		// Spawn initial stars.
+		uniform_real_distribution<double> x_dist(1.0, _config.get_screen_w() - 1);
+		uniform_real_distribution<double> y_dist(1.0, _config.get_screen_h() - 1);
+		for(size_t i = 0; i < 50; ++i) {
+			const double x = x_dist(rnd::engine);
+			const double y = x_dist(rnd::engine);
+			_ef.create_star_xy(x, y);
+		}
 		_player_id = _ef.create_player_ship(200.0, 200.0);
 	}
 
@@ -290,8 +279,13 @@ public:
 		// Trigger the clocks.
 		_star_spawn_clk.tick(dt);
 
-		bool done_patterns = _en_man.tick(dt, _ef, _config.get_screen_w(), _config.get_screen_h());
-		if(done_patterns) {
+		bool keep_going = _en_man.tick(
+				dt,
+				_ef,
+				_config.get_screen_w(),
+				_config.get_screen_h());
+
+		if(!keep_going) {
 			_en_man.reset();
 		}
 

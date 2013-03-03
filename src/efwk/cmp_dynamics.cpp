@@ -19,6 +19,7 @@
 */
 
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_primitives.h>
 
 #include "../geometry/misc.h"
 #include "cmp_dynamics.h"
@@ -157,7 +158,7 @@ public:
 		// -------------------------------------------
 
 		// The direction derived from the current segment.
-		double dir_x = _points[_next_point].x - _points[_next_point - 1].x;
+ 		double dir_x = _points[_next_point].x - _points[_next_point - 1].x;
 		double dir_y = _points[_next_point].y - _points[_next_point - 1].y;
 		double rsqrt = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
 

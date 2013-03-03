@@ -73,7 +73,7 @@ public:
 
 int main() {
 	try {
-		application app;
+        application app;
 		app.loop();
 		return 0;
 	} catch (initialization_error& e) {

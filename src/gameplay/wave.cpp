@@ -23,15 +23,13 @@
 
 static const double narrow_offscreen = 40.0;
 
-static void zorro_loc_dyn(
+static vector<spawn_desc> spawn_zorro_pattern(
+		pattern& pat,
 		double screen_w,
-		double screen_h,
-		double& x,
-		double& y,
-		shared_ptr<cmp::dynamics>& dyn) {
+		double screen_h) {
 
-	// Create path.
-	// ------------
+	// Determine base points.
+	// ----------------------
 	uniform_real_distribution<double> x_margin_dist(50.0, 200.0);
 
 	const double x_margin = x_margin_dist(rnd::engine);
@@ -45,21 +43,31 @@ static void zorro_loc_dyn(
 	const double x0 = left ? x_margin : screen_w - x_margin;
 	const double x1 = left ? screen_w - x_margin : x_margin;
 
-	vector<point> points { { x0, y0 }, { x0, y1 }, { x1, y1 }, { x1, y2 } };
+	// Generate the shifted elements.
+	// ------------------------------
+	vector<spawn_desc> result;
+	for(pattern::element const& e : pat.elements) {
 
-	// Set the result.
-	// ---------------
-	dyn = cmp::create_path_dynamics(points);
-	x = points.front().x;
-	y = points.front().y;
+		vector<point> points {
+			{ x0 + e.x_off, y0 + e.y_off },
+			{ x0 + e.x_off, y1 + e.y_off },
+			{ x1 + e.x_off, y1 + e.y_off },
+			{ x1 + e.x_off, y2 + e.y_off } };
+
+		double x = points.front().x + e.x_off;
+		double y = points.front().y + e.y_off;
+		auto dynamics = cmp::create_path_dynamics(points);
+
+		result.push_back({ e.type, x, y, dynamics });
+	}
+
+	return result;
 }
 
-static void diag_loc_dyn(
+static vector<spawn_desc> spawn_diagonal_pattern(
+		pattern& pat,
 		double screen_w,
-		double screen_h,
-		double& x,
-		double& y,
-		shared_ptr<cmp::dynamics>& dyn) {
+		double screen_h) {
 
 	// Determine location and velocities.
 	// ----------------------------------
@@ -68,55 +76,74 @@ static void diag_loc_dyn(
 	const double vx = dir * 175.0;
 	const double vy = 175.0;
 
-	// Set the result.
-	// ---------------
-	dyn = cmp::create_const_velocity_dynamics(vx, vy);
-	x = (dir > 0.0) ? -narrow_offscreen : screen_w + narrow_offscreen;
-	y = -narrow_offscreen;
+	double base_x = (dir > 0.0) ? -narrow_offscreen : screen_w + narrow_offscreen;
+	double base_y = -narrow_offscreen;
+
+	// Generate the shifted elements.
+	// ------------------------------
+	vector<spawn_desc> result;
+	for(pattern::element const& e : pat.elements) {
+		double x = base_x + e.x_off;
+		double y = base_y + e.y_off;
+		auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+		result.push_back({ e.type, x, y, dynamics });
+	}
+
+	return result;
 }
 
-static void vert_loc_dyn(
+static vector<spawn_desc> spawn_vertical_pattern(
+		pattern& pat,
 		double screen_w,
-		double screen_h,
-		double& x,
-		double& y,
-		shared_ptr<cmp::dynamics>& dyn) {
+		double screen_h) {
 
 	// Select random parameters.
 	// -------------------------
-	uniform_real_distribution<double> x_dist(
-			50.0, screen_w - 50.0);
-
+	uniform_real_distribution<double> x_dist(50.0, screen_w - 50.0);
 	const double vx = 0.0;
 	const double vy = 130.0;
 
-	// Set the result.
-	// ---------------
-	dyn = cmp::create_const_velocity_dynamics(vx, vy);
-	x = x_dist(rnd::engine);
-	y = -narrow_offscreen;
+	double base_x = x_dist(rnd::engine);
+	double base_y = -narrow_offscreen;
+
+	// Generate the shifted elements.
+	// ------------------------------
+	vector<spawn_desc> result;
+	for(pattern::element const& e : pat.elements) {
+		double x = base_x + e.x_off;
+		double y = base_y + e.y_off;
+		auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+		result.push_back({ e.type, x, y, dynamics });
+	}
+
+	return result;
 }
 
-static void hori_loc_dyn(
+static vector<spawn_desc> spawn_horizontal_pattern(
+		pattern& pat,
 		double screen_w,
-		double screen_h,
-		double& x,
-		double& y,
-		shared_ptr<cmp::dynamics>& dyn) {
+		double screen_h) {
 
 	// Select random parameters.
 	// -------------------------
-	uniform_real_distribution<double> y_dist(
-			50.0, screen_w - 50.0);
-
-	const double vx = 600.0;
+	uniform_real_distribution<double> x_dist(50.0, screen_w - 50.0);
+	const double vx = 60.0;
 	const double vy = 0.0;
 
-	// Set the result.
-	// ---------------
-	dyn = cmp::create_const_velocity_dynamics(vx, vy);
-	x = -narrow_offscreen;
-	y = y_dist(rnd::engine);
+	double base_x = x_dist(rnd::engine);
+	double base_y = -narrow_offscreen;
+
+	// Generate the shifted elements.
+	// ------------------------------
+	vector<spawn_desc> result;
+	for(pattern::element const& e : pat.elements) {
+		double x = base_x + e.x_off;
+		double y = base_y + e.y_off;
+		auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
+		result.push_back({ e.type, x, y, dynamics });
+	}
+
+	return result;
 }
 
 static void spawn_pattern(
@@ -125,53 +152,48 @@ static void spawn_pattern(
 		double screen_w,
 		double screen_h) {
 
-	// Determine the location and dynamics.
-	// ------------------------------------
-	double x, y;
-	shared_ptr<cmp::dynamics> dynamics;
+	// Create the spawn descriptors based on the movement type.
+	// --------------------------------------------------------
+	vector<spawn_desc> spawn_descs;
 	switch(pat.movement) {
 	case movement_type::zorro:
-		zorro_loc_dyn(screen_w, screen_h, x, y, dynamics);
+		spawn_descs = spawn_zorro_pattern(pat, screen_w, screen_h);
 		break;
 
 	case movement_type::diagonal:
-		diag_loc_dyn(screen_w, screen_h, x, y, dynamics);
+		spawn_descs = spawn_diagonal_pattern(pat,screen_w, screen_h);
 		break;
 
 	case movement_type::vertical:
-		vert_loc_dyn(screen_w, screen_h, x, y, dynamics);
+		spawn_descs = spawn_vertical_pattern(pat, screen_w, screen_h);
 		break;
 
 	case movement_type::horizontal:
-		hori_loc_dyn(screen_w, screen_h, x, y, dynamics);
+		spawn_descs = spawn_horizontal_pattern(pat, screen_w, screen_h);
 		break;
 
 	default:
 		break;
 	}
 
-	// Create an enemy for each pattern element.
-	// -----------------------------------------
-	for(pattern::element const& e : pat.elements) {
-
-		const double ex = x + e.x_off;
-		const double ey = y + e.y_off;
-
-		switch(e.type) {
+	// Spawn all the elements based on the spawn descriptors.
+	// ------------------------------------------------------
+	for(spawn_desc const& sd : spawn_descs) {
+		switch(sd.type) {
 		case enemy_type::light_fighter:
-			ef.create_light_fighter_dyn(ex, ey, dynamics);
+			ef.create_light_fighter_dyn(sd.x, sd.y, sd.dynamics);
 			break;
 
 		case enemy_type::heavy_fighter:
-			ef.create_heavy_fighter_dyn(ex, ey, dynamics);
+			ef.create_heavy_fighter_dyn(sd.x, sd.y, sd.dynamics);
 			break;
 
 		case enemy_type::light_bomber:
-			ef.create_light_bomber_dyn(ex, ey, dynamics);
+			ef.create_light_bomber_dyn(sd.x, sd.y, sd.dynamics);
 			break;
 
 		case enemy_type::heavy_bomber:
-			ef.create_heavy_bomber_dyn(ex, ey, dynamics);
+			ef.create_heavy_bomber_dyn(sd.x, sd.y, sd.dynamics);
 			break;
 
 		default:

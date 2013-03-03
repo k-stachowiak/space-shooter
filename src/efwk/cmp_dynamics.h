@@ -44,6 +44,7 @@ public:
 	virtual ~dynamics() {}
 	virtual void update(double dt) = 0;
 	virtual void input(map<int, bool>& keys) = 0;
+
 	double get_vx() const { return _vx; }
 	double get_vy() const { return _vy; }
 	double get_theta() const { return _theta; }

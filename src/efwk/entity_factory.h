@@ -96,6 +96,7 @@ public:
 			uint64_t origin_id);
 
 	uint64_t create_star();
+	uint64_t create_star_xy(double x, double y);
 	uint64_t create_player_ship(double x, double y);
 
 	uint64_t create_light_fighter_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);

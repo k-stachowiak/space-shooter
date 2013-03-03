@@ -43,7 +43,7 @@ public:
 			return false;
 		}
 
-		wave& current =_waves[_current_wave];
+		wave& current = _waves[_current_wave];
 		if(!current.tick(dt, ef, screen_w, screen_h)) {
 			current.reset();
 			_current_wave += 1;

@@ -45,6 +45,24 @@ struct pattern {
 
 	vector<element> elements;
 	movement_type movement;
+
+	static vector<pattern::element> el_pair(enemy_type type) {
+		return { { -70.0, 0.0, type },
+				 {  70.0, 0.0, type } };
+	}
+
+	static vector<pattern::element> el_triangle(enemy_type type) {
+		return { { -70.0, -40.0, type },
+				 {  70.0, -40.0, type },
+				 {   0.0,  30.0, type }};
+	}
+
+	static vector<pattern::element> el_quad(enemy_type type) {
+		return { { -40.0, -35.0, type },
+				 {  40.0, -35.0, type },
+				 { -40.0,  35.0, type },
+				 {  40.0,  35.0, type }};
+	}
 };
 
 #endif

@@ -41,18 +41,9 @@ void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes
 			n.appearance->draw(x, y, phi);
 		}
 
-		if(_debug_mode && n.shape) {
-			n.shape->debug_draw();
-			if(n.dynamics) {
-				al_draw_textf(
-					_debug_font,
-					al_map_rgb_f(1.0f, 1.0f, 1.0f),
-					x + 10, y + 10,
-					0,
-					"(%.1f, %.1f, %.1f),",
-						n.dynamics->get_vx(),
-						n.dynamics->get_vy(),
-						n.dynamics->get_theta());
+		if(_debug_mode) {
+			if(n.shape) {
+				n.shape->debug_draw();
 			}
 		}
 	}

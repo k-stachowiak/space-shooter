@@ -28,6 +28,12 @@ using std::pair;
 
 #include "pattern.h"
 
+struct spawn_desc {
+	enemy_type type;
+	double x, y;
+	shared_ptr<cmp::dynamics> dynamics;
+};
+
 class wave {
 	double _clock;
 	vector<pair<double, pattern>> _patterns;
@@ -37,7 +43,7 @@ public:
 	wave(vector<pair<double, pattern>> patterns)
 	: _clock(0) , _patterns(patterns) , _current_pattern(0) {}
 
-	void reset() { _clock =_current_pattern = 0; }
+	void reset() { _clock = _current_pattern = 0; }
 	bool tick(double dt, entity_factory& ef, double screen_w, double screen_h);
 };
 

@@ -39,7 +39,7 @@ using std::uniform_real_distribution;
 // - Large ship pieces
 // - Deal with all the magic numbers.
 // - Tweak the enemy ships' speeds
-
+// - Move the shape's location outside the shape class - read it from the context (orientation component).
 
 static wave prepare_wave_0() {
 	return wave {{

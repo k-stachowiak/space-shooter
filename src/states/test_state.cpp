@@ -37,6 +37,9 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - Large ship pieces
+// - Deal with all the magic numbers.
+// - Tweak the enemy ships' speeds
+
 
 static wave prepare_wave_0() {
 	return wave {{

@@ -35,14 +35,13 @@ public:
 	complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs) : _wbs(wbs) {}
 
 	void update(uint64_t id,
-			ammo& a,
 			upgrades& up,
 			double dt,
 			double x, double y,
 			comm::msg_queue& msgs) {
 
 		for(auto& wb : _wbs) {
-			wb->update(id, a, up, dt, x, y, msgs);
+			wb->update(id, up, dt, x, y, msgs);
 		}
 	}
 
@@ -76,7 +75,6 @@ public:
 	}
 
 	void update(uint64_t id,
-			ammo& a,
 			upgrades& up,
 			double dt,
 			double x,
@@ -85,17 +83,13 @@ public:
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
-
-			if(a.get_bullets() != 0) {
-				a.add_bullets(-1);
-				up.tick_down_gun();
-				msgs.push(comm::create_spawn_bullet(
-					x + _x_off, y + _y_off,
-					0.0, 1.0, 500.0,
-					up.gun_lvl(),
-					true,
-					id));
-			}
+			up.tick_down_gun();
+			msgs.push(comm::create_spawn_bullet(
+				x + _x_off, y + _y_off,
+				0.0, 1.0, 500.0,
+				up.gun_lvl(),
+				true,
+				id));
 		}
 	}
 
@@ -125,7 +119,6 @@ public:
 	}
 
 	void update(uint64_t id,
-			ammo& a,
 			upgrades& up,
 			double dt,
 			double x,
@@ -134,18 +127,14 @@ public:
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
-
-			if(a.get_rockets() != 0) {
-				a.add_rockets(-1);
-				up.tick_down_rl();
-				msgs.push(comm::create_spawn_missile(
-					x + _x_offset,
-					y + _y_offset,
-					0.0, 1.0, 150.0,
-					up.rl_lvl(),
-					true,
-					id));
-			}
+			up.tick_down_rl();
+			msgs.push(comm::create_spawn_missile(
+				x + _x_offset,
+				y + _y_offset,
+				0.0, 1.0, 150.0,
+				up.rl_lvl(),
+				true,
+				id));
 		}
 	}
 
@@ -166,7 +155,6 @@ public:
 	{}
 
 	void update(uint64_t id,
-			ammo& a,
 			upgrades& up,
 			double dt,
 			double x,
@@ -175,8 +163,7 @@ public:
 
 		// Minigun fire.
 		// -------------
-		if(_minigun.update(dt) && a.get_bullets() != 0) {
-			a.add_bullets(-1);
+		if(_minigun.update(dt)) {
 			up.tick_down_gun();
 			if(_prev_left) {
 				_prev_left = false;
@@ -199,8 +186,7 @@ public:
 
 		// Rocket launcher fire.
 		// ---------------------
-		if(_rpg.update(dt) && a.get_rockets() != 0) {
-			a.add_rockets(-1);
+		if(_rpg.update(dt)) {
 			up.tick_down_rl();
 			msgs.push(comm::create_spawn_missile(
 					x + 25.0, y,

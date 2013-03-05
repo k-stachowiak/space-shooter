@@ -107,15 +107,6 @@ message create_spawn_battery_pickup(
 	return msg;
 }
 
-message create_spawn_missiles_pickup(
-		double x, double y,
-		double vx, double vy) {
-	message msg;
-	msg.type = msg_t::spawn_missiles_pickup;
-	msg.spawn_missiles_pickup = { x, y, vx, vy };
-	return msg;
-}
-
 message create_spawn_bullet_upgrade_pickup(
 		double x, double y,
 		double vx, double vy) {

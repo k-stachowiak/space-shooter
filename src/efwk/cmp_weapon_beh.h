@@ -34,15 +34,12 @@ using std::map;
 
 namespace cmp {
 
-class ammo;
-
 class weapon_beh {
 public:
 	virtual ~weapon_beh() {}
 
 	virtual void update(
 			uint64_t id,
-			ammo& a,
 			upgrades& up,
 			double dt,
 			double x, double y,

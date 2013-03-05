@@ -36,7 +36,7 @@ class health_pickup_profile : public pickup_profile {
 	double _amount;
 public:
 	health_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(wellness& w, ammo& a, upgrades& up) {
+	bool trigger(wellness& w, upgrades& up) {
 
 		double h = w.get_health();
 		double H = w.get_max_health();
@@ -54,7 +54,7 @@ class battery_pickup_profile : public pickup_profile {
 	double _amount;
 public:
 	battery_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(wellness& w, ammo& a, upgrades& up) {
+	bool trigger(wellness& w, upgrades& up) {
 
 		double s = w.get_shield();
 		double S = w.get_max_shield();
@@ -68,19 +68,9 @@ public:
 	}
 };
 
-class missiles_pickup_profile : public pickup_profile {
-	double _amount;
-public:
-	missiles_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(wellness& w, ammo& a, upgrades& up) {
-		a.add_rockets(_amount);
-		return true;
-	}
-};
-
 class bullet_upgrade_pickup_profile : public pickup_profile {
 public:
-	bool trigger(wellness& w, ammo& a, upgrades& up) {
+	bool trigger(wellness& w, upgrades& up) {
 		if(up.can_upgrade_gun()) {
 			up.upgrade_gun();
 			return true;
@@ -92,7 +82,7 @@ public:
 
 class missile_upgrade_pickup_profile : public pickup_profile {
 public:
-	bool trigger(wellness& w, ammo& a, upgrades& up) {
+	bool trigger(wellness& w, upgrades& up) {
 		if(up.can_upgrade_rl()) {
 			up.upgrade_rl();
 			return true;
@@ -128,10 +118,6 @@ unique_ptr<pickup_profile> create_health_pickup_profile(double amount) {
 
 unique_ptr<pickup_profile> create_battery_pickup_profile(double amount) {
 	return unique_ptr<pickup_profile>(new battery_pickup_profile(amount));
-}
-
-unique_ptr<pickup_profile> create_missiles_pickup_profile(double amount) {
-	return unique_ptr<pickup_profile>(new missiles_pickup_profile(amount));
 }
 
 unique_ptr<pickup_profile> create_bullet_upgrade_pickup_profile() {

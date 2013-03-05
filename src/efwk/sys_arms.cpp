@@ -30,7 +30,7 @@ void arms_system::update(double dt, comm::msg_queue& msgs) {
 		y = n.orientation->get_y();
 
 		if(n.weapon_beh)
-			n.weapon_beh->update(n.id, *(n.ammo), *(n.upgrades), dt, x, y, msgs);
+			n.weapon_beh->update(n.id, *(n.upgrades), dt, x, y, msgs);
 	}
 }
 

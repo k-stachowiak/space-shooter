@@ -292,7 +292,6 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// Arms components.
 	// ----------------
 	auto weapon_beh = cmp::create_player_controlled_weapon_beh();
-	auto ammo = cmp::create_ammo(-1, 3);
 	auto upgrades = cmp::create_upgrades(5, 5);
 
 	// Collision components.
@@ -337,15 +336,15 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, ammo, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
-	_pickup_system.add_node({ id, coll_queue, wellness, ammo, upgrades });
+	_pickup_system.add_node({ id, coll_queue, wellness, upgrades });
 	_input_system.add_node({ id, dynamics, weapon_beh });
 	_score_system.add_node({ id, sc, score, wellness });
-	_hud_system.add_node({id, score, wellness, upgrades, ammo });
+	_hud_system.add_node({id, score, wellness, upgrades });
 
 	return id;
 }
@@ -377,7 +376,6 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 
 	// Arms components.
 	// ----------------
-	auto ammo = cmp::create_ammo_unlimited();
 	auto upgrades = cmp::create_upgrades(0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(3.0, 3.0, +17.0, -3.0),
@@ -417,10 +415,6 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 	if(drop_battery(rnd::engine))
 		reactions.push_back(cmp::create_battery_drop_reaction());
 
-	bernoulli_distribution drop_missile(0.05);
-	if(drop_missile(rnd::engine))
-		reactions.push_back(cmp::create_missile_drop_reaction());
-
 	bernoulli_distribution drop_bul_up(0.05);
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
@@ -445,7 +439,7 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 	// --------------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, ammo, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
@@ -483,7 +477,6 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 
 	// Arms components.
 	// ----------------
-	auto ammo = cmp::create_ammo_unlimited();
 	auto upgrades = cmp::create_upgrades(0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(1.5, 1.5, +25.0, -5.0),
@@ -525,9 +518,6 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 	if(drop_battery(rnd::engine))
 		reactions.push_back(cmp::create_battery_drop_reaction());
 
-	bernoulli_distribution drop_missile(0.1);
-	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
-
 	bernoulli_distribution drop_bul_up(0.1);
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
@@ -551,7 +541,7 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 	// ------------------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, ammo, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
@@ -592,7 +582,6 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 
 	// Arms components.
 	// ----------------
-	auto ammo = cmp::create_ammo_unlimited();
 	auto upgrades = cmp::create_upgrades(0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 		cmp::create_period_bullet(1.0, 1.0, +55.0, -30.0),
@@ -635,9 +624,6 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 	if(drop_battery(rnd::engine))
 		reactions.push_back(cmp::create_battery_drop_reaction());
 
-	bernoulli_distribution drop_missile(0.125);
-	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
-
 	bernoulli_distribution drop_bul_up(0.125);
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
@@ -662,7 +648,7 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 	// ------------------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, ammo, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
@@ -703,7 +689,6 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 
 	// Arms components.
 	// ----------------
-	auto ammo = cmp::create_ammo_unlimited();
 	auto upgrades = cmp::create_upgrades(0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(1.0, 1.0, +55.0, -30.0),
@@ -745,9 +730,6 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 	if(drop_battery(rnd::engine))
 		reactions.push_back(cmp::create_battery_drop_reaction());
 
-	bernoulli_distribution drop_missile(0.333);
-	if(drop_missile(rnd::engine)) reactions.push_back(cmp::create_missile_drop_reaction());
-
 	bernoulli_distribution drop_bul_up(0.333);
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
@@ -772,7 +754,7 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 	// ------------------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, ammo, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
@@ -901,10 +883,6 @@ uint64_t entity_factory::create_common_pickup(
 		image_id = res_id::BATTERY;
 		pp = cmp::create_battery_pickup_profile(10.0);
 		break;
-	case pickup_type::missiles:
-		image_id = res_id::MISSILES;
-		pp = cmp::create_missiles_pickup_profile(7.0);
-		break;
 	case pickup_type::bullet_up:
 		image_id = res_id::B_UPGRADE;
 		pp = cmp::create_bullet_upgrade_pickup_profile();
@@ -965,10 +943,6 @@ uint64_t entity_factory::create_health_pickup(double x, double y, double vx, dou
 
 uint64_t entity_factory::create_battery_pickup(double x, double y, double vx, double vy) {
 	return create_common_pickup(x, y, vx, vy, pickup_type::battery);
-}
-
-uint64_t entity_factory::create_missiles_pickup(double x, double y, double vx, double vy) {
-	return create_common_pickup(x, y, vx, vy, pickup_type::missiles);
 }
 
 uint64_t entity_factory::create_bullet_upgrade_pickup(double x, double y, double vx, double vy) {

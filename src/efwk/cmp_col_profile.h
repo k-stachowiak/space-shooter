@@ -30,7 +30,6 @@ using std::unique_ptr;
 namespace cmp {
 
 class wellness;
-class ammo;
 class upgrades;
 
 enum class pain_team {
@@ -56,7 +55,7 @@ public:
 class pickup_profile {
 public:
 	virtual ~pickup_profile() {}
-	virtual bool trigger(wellness& w, ammo& a, upgrades& up) = 0;
+	virtual bool trigger(wellness& w, upgrades& up) = 0;
 };
 
 struct collision_profile {
@@ -77,7 +76,6 @@ shared_ptr<collision_profile> create_collision_profile(
 unique_ptr<damage_profile> create_simple_damage_profile(double amount);
 unique_ptr<pickup_profile> create_health_pickup_profile(double amount);
 unique_ptr<pickup_profile> create_battery_pickup_profile(double amount);
-unique_ptr<pickup_profile> create_missiles_pickup_profile(double amount);
 unique_ptr<pickup_profile> create_bullet_upgrade_pickup_profile();
 unique_ptr<pickup_profile> create_missile_upgrade_pickup_profile();
 

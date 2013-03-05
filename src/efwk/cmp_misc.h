@@ -178,17 +178,6 @@ public:
 	uint64_t get_last_dmg_id() const { return _last_dmg_id; }
 };
 
-class ammo {
-	int _bullets;
-	int _rockets;
-public:
-	ammo(int bullets, int rockets) : _bullets(bullets), _rockets(rockets) {}
-	int get_bullets() const { return _bullets; }
-	int get_rockets() const { return _rockets; }
-	void add_bullets(int delta) { _bullets += delta; }
-	void add_rockets(int delta) { _rockets += delta; }
-};
-
 class upgrade_atom {
 	size_t _level;
 	size_t _ticks;
@@ -266,8 +255,6 @@ public:
 shared_ptr<orientation> create_orientation(double x, double y, double theta);
 shared_ptr<bounds> create_bounds(double x_min, double y_min, double x_max, double y_max);
 shared_ptr<coll_queue> create_coll_queue();
-shared_ptr<ammo> create_ammo_unlimited();
-shared_ptr<ammo> create_ammo(int bullets, int rockets);
 shared_ptr<upgrades> create_upgrades(size_t gun_lvl_max, size_t rl_lvl_max);
 shared_ptr<wellness> create_wellness(double health, double shield);
 

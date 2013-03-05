@@ -131,18 +131,6 @@ void hud_system::draw_upgrades(nd::hud_node const& n) {
 	al_draw_line(x_right, y_from, x_right, y_rl_inter, al_map_rgb_f(1,1,0), 4);
 }
 
-void hud_system::draw_ammo(nd::hud_node const& n) {
-	int player_rockets = n.ammo->get_rockets();
-	double ammo_x = 75.0;
-	double ammo_y = _screen_h - 130.0;
-	al_draw_bitmap(_hud_missiles, ammo_x, ammo_y, 0);
-	al_draw_textf(
-		_hud_font,
-		al_map_rgba_f(1, 1, 1, 1),
-		ammo_x + 20, ammo_y + 20, 0,
-		"%d", player_rockets);
-}
-
 
 void hud_system::update() {
 	for(auto const& n : _nodes) {
@@ -150,7 +138,6 @@ void hud_system::update() {
 		draw_score(n);
 		draw_wellness(n);
 		draw_upgrades(n);
-		draw_ammo(n);
 	}
 }
 

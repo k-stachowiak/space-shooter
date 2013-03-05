@@ -36,7 +36,8 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Large ship pieces
+// Make sure the debris deal damage.
+// - Large ship pieces.
 // - Deal with all the magic numbers.
 // - Tweak the enemy ships' speeds
 // - Move the shape's location outside the shape class - read it from the context (orientation component).
@@ -182,14 +183,6 @@ class test_state : public state {
 						msg.spawn_battery_pickup.y,
 						msg.spawn_battery_pickup.vx,
 						msg.spawn_battery_pickup.vy);
-				break;
-
-			case comm::msg_t::spawn_missiles_pickup:
-				_ef.create_missiles_pickup(
-						msg.spawn_missiles_pickup.x,
-						msg.spawn_missiles_pickup.y,
-						msg.spawn_missiles_pickup.vx,
-						msg.spawn_missiles_pickup.vy);
 				break;
 				
 			case comm::msg_t::spawn_bullet_upgrade_pickup:

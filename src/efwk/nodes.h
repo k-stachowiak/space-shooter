@@ -108,13 +108,11 @@ struct arms_node {
 
 	// orientation - determines the location base for spawning the bullets etc.
 	// weapon_beh  - determines the projectiles spawning patterns
-	// ammo        - enables limiting of the projectiles spawning
 	// upgrades    - provides the information about the current player's upgrades
 
 	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::weapon_beh> weapon_beh;
-	shared_ptr<cmp::ammo> ammo;
 	shared_ptr<cmp::upgrades> upgrades;
 };
 
@@ -148,7 +146,7 @@ struct pain_node {
 
 struct pickup_node {
 
-	// coll_queue - contains candidated for the pickup
+	// coll_queue - contains candidates for the pickup
 	// wellness   - to be modified if health picked up
 	// ammo       - to be modified if ammo picked up
 	// upgrades   - to be modified if upgrade picked up
@@ -156,7 +154,6 @@ struct pickup_node {
 	uint64_t id;
 	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::wellness> wellness;
-	shared_ptr<cmp::ammo> ammo;
 	shared_ptr<cmp::upgrades> upgrades;
 };
 
@@ -183,13 +180,11 @@ struct hud_node {
 	// score	- the value to be displayed
 	// wellness	- for the health and shield display
 	// upgrade	- the upgrades' status
-	// ammo		- display ammo
 
 	uint64_t id;
 	shared_ptr<double> score;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::upgrades> upgrades;
-	shared_ptr<cmp::ammo> ammo;
 };
 
 }

@@ -55,7 +55,7 @@ shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy);
 shared_ptr<dynamics> create_const_acc_dynamics(double vx0, double vy0, double ax, double ay);
 shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta);
 shared_ptr<dynamics> create_player_controlled_dynamics();
-shared_ptr<dynamics> create_path_dynamics(vector<point> points);
+shared_ptr<dynamics> create_path_dynamics(vector<point> points, double lin_vel);
 
 }
 

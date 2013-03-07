@@ -54,7 +54,10 @@ shared_ptr<reaction> create_debris_reaction(
 		double theta_min, double theta_max,
 		bool explode, bool randomize);
 
-shared_ptr<reaction> create_explosion_sequence_reaction(uint32_t num_explosions);
+shared_ptr<reaction> create_explosion_sequence_reaction(
+		uint32_t num_explosions,
+		double min_delay,
+		double max_delay);
 
 }
 

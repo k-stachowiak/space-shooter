@@ -22,16 +22,15 @@
 #include <memory>
 using namespace std;
 
-#include "config.h"
 #include "allegro.h"
+#include "misc/config.h"
 #include "resources/resman.h"
 #include "states/state.h"
 
 class application {
-	config _config;
 
-	double _fps;
-	double _spf;
+	const double _fps;
+	const double _spf;
 	uint32_t _overdue_frames;
 
 	allegro _allegro;
@@ -39,15 +38,15 @@ class application {
 
 public:
 	application()
-		: _fps(_config.get_fps())
+		: _fps(cfg::gfx::fps)
 		, _spf(1.0 / _fps)
 		, _overdue_frames(0)
-		, _allegro(_config.get_screen_w(), _config.get_screen_h(), "Framework", _fps)
+		, _allegro(cfg::gfx::screen_w, cfg::gfx::screen_h, "Framework", _fps)
 		, _resman(_allegro.get_display()) {
 	}
 
 	void loop() {
-		unique_ptr<state> current_state = create_test_state(_config, _resman);
+		unique_ptr<state> current_state = create_test_state(_resman);
 		while(current_state) {
 
 			// Handle events.

@@ -53,8 +53,6 @@ enum class draw_plane {
 // Score class id.
 enum class score_class {
 	PLAYER,
-	ENEMY_EYE,
-	ENEMY_BOMBER,
 	ENEMY_LIGHT_FIGHTER,
 	ENEMY_HEAVY_FIGHTER,
 	ENEMY_LIGHT_BOMBER,
@@ -229,9 +227,12 @@ class upgrades {
 	upgrade_atom _rl;
 
 public:
-	upgrades(size_t gun_lvl_max, size_t rl_lvl_max)
-	: _gun(1, 100, gun_lvl_max)
-	, _rl(1, 20, rl_lvl_max)
+	upgrades(size_t gun_lvl_max,
+			size_t rl_lvl_max,
+			size_t gun_upgrade_ammo,
+			size_t rl_upgrade_ammo)
+	: _gun(1, gun_upgrade_ammo, gun_lvl_max)
+	, _rl(1, rl_upgrade_ammo, rl_lvl_max)
 	{}
 
 	bool can_upgrade_gun() const { return _gun.can_level_up(); }
@@ -255,7 +256,11 @@ public:
 shared_ptr<orientation> create_orientation(double x, double y, double theta);
 shared_ptr<bounds> create_bounds(double x_min, double y_min, double x_max, double y_max);
 shared_ptr<coll_queue> create_coll_queue();
-shared_ptr<upgrades> create_upgrades(size_t gun_lvl_max, size_t rl_lvl_max);
+shared_ptr<upgrades> create_upgrades(
+		size_t gun_lvl_max,
+		size_t rl_lvl_max,
+		size_t gun_upgrade_ammo,
+		size_t rl_upgrade_ammo);
 shared_ptr<wellness> create_wellness(double health, double shield);
 
 }

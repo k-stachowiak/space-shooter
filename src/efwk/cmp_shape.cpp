@@ -25,6 +25,7 @@ using std::uniform_int_distribution;
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
 
+#include "../misc/config.h"
 #include "../misc/rand.h"
 #include "../geometry/misc.h"
 
@@ -66,7 +67,7 @@ public:
 
 	pair<double, double> get_random_point() const {
 		uniform_real_distribution<double> dist;
-		double t = 6.28 * dist(rnd::engine);
+		double t = cfg::math::two_pi * dist(rnd::engine);
 		double u = dist(rnd::engine) + dist(rnd::engine);
 		double r = (u > 1.0) ? (2.0 - u) : u;
 		return make_pair(_x + _r * r * cos(t),
@@ -74,7 +75,12 @@ public:
 	}
 
 	void debug_draw() {
-		al_draw_circle(_x, _y, _r, al_map_rgb_f(1.0, 0.0, 0.0), 1.0);
+		al_draw_circle(
+				_x, _y, _r,
+				al_map_rgb_f(cfg::debug::shape_r,
+							 cfg::debug::shape_g,
+							 cfg::debug::shape_b),
+				1.0);
 	}
 };
 

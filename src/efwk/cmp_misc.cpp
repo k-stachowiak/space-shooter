@@ -35,8 +35,16 @@ shared_ptr<coll_queue> create_coll_queue() {
 	return make_shared<coll_queue>();
 }
 
-shared_ptr<upgrades> create_upgrades(size_t gun_lvl_max, size_t rl_lvl_max) {
-	return make_shared<upgrades>(gun_lvl_max, rl_lvl_max);
+shared_ptr<upgrades> create_upgrades(
+		size_t gun_lvl_max,
+		size_t rl_lvl_max,
+		size_t gun_upgrade_ammo,
+		size_t rl_upgrade_ammo) {
+	return make_shared<upgrades>(
+			gun_lvl_max,
+			rl_lvl_max,
+			gun_upgrade_ammo,
+			rl_upgrade_ammo);
 }
 
 shared_ptr<wellness> create_wellness(double health, double shield) {

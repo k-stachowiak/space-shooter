@@ -18,6 +18,7 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include "../misc/config.h"
 #include "resman.h"
 
 resman::resman(ALLEGRO_DISPLAY* dpy)
@@ -51,10 +52,17 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	add_bitmap(res_id::DIODE_OFF, "data/diode_off.png");
 
 	// Load/generate animations
-	expand_fade(res_id::SMOKE, "data/smoke_single.png", 15, 3.0);
-	scaled_copy(res_id::SMOKE_SMALL, res_id::SMOKE, 0.5);
-	scaled_copy(res_id::SMOKE_BIG, res_id::SMOKE, 2.0);
-	fade_frames(res_id::EXPLOSION, "data/explosion.png", 16);
+	expand_fade(res_id::SMOKE,
+			"data/smoke_single.png",
+			cfg::gfx::smoke_num_frames,
+			cfg::gfx::smoke_expand_scale);
+
+	scaled_copy(res_id::SMOKE_SMALL, res_id::SMOKE, cfg::gfx::smoke_scale_tiny);
+	scaled_copy(res_id::SMOKE_BIG, res_id::SMOKE, cfg::gfx::smoke_scale_big);
+
+	fade_frames(res_id::EXPLOSION,
+			"data/explosion.png",
+			cfg::gfx::explosion_num_frames);
 
 	// Generate flashes.
 	flash(res_id::PLAYER_SHIP_FLASH, res_id::PLAYER_SHIP);
@@ -65,8 +73,8 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	flash(res_id::ENEMY_HEAVY_BOMBER_FLASH, res_id::ENEMY_HEAVY_BOMBER);
 
 	// Load fonts.
-	add_font(res_id::TINY_FONT, "data/prstartk.ttf", 10);
-	add_font(res_id::FONT, "data/prstartk.ttf", 24);
+	add_font(res_id::TINY_FONT, "data/prstartk.ttf", cfg::gfx::font_tiny_size);
+	add_font(res_id::FONT, "data/prstartk.ttf", cfg::gfx::font_base_size);
 }
 
 ALLEGRO_BITMAP* resman::get_bitmap(res_id id) const {

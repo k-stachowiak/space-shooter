@@ -21,6 +21,7 @@
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
 
+#include "../misc/config.h"
 #include "../geometry/misc.h"
 #include "cmp_dynamics.h"
 
@@ -111,8 +112,8 @@ public:
 	{}
 
 	void update(double dt) {
-		_vx = _throttle_x * 400.0;
-		_vy = _throttle_y * 300.0;
+		_vx = _throttle_x * cfg::gameplay::player_vx;
+		_vy = _throttle_y * cfg::gameplay::player_vy;
 	}
 
 	void input(map<int, bool>& keys) {
@@ -131,7 +132,8 @@ shared_ptr<dynamics> create_player_controlled_dynamics() {
 
 class path_dynamics : public dynamics {
 	// Configuration.
-	vector<point> _points;
+	const vector<point> _points;
+	const double _lin_vel;
 
 	// State.
 	double _x, _y;
@@ -139,8 +141,9 @@ class path_dynamics : public dynamics {
 	bool _done;
 
 public:
-	path_dynamics(vector<point> points)
+	path_dynamics(vector<point> points, double lin_vel)
 	: _points(points)
+	, _lin_vel(lin_vel)
 	, _x(points.front().x)
 	, _y(points.front().y)
 	, _next_point(1)
@@ -152,8 +155,6 @@ public:
 		if(_done)
 			return;
 
-		const double vel = 100.0;
-
 		// Compute the translation towards next point.
 		// -------------------------------------------
 
@@ -163,8 +164,8 @@ public:
 		double rsqrt = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
 
 		// Compute the result velocity.
-		_vx = dir_x * rsqrt * vel;
-		_vy = dir_y * rsqrt * vel;
+		_vx = dir_x * rsqrt * _lin_vel;
+		_vy = dir_y * rsqrt * _lin_vel;
 
 		// Compute the translation for the given dt and analyze it.
 		double dx = _vx * dt;
@@ -200,8 +201,8 @@ public:
 	void input(map<int, bool>& keys) {}
 };
 
-shared_ptr<dynamics> create_path_dynamics(vector<point> points) {
-	return shared_ptr<dynamics>(new path_dynamics(points));
+shared_ptr<dynamics> create_path_dynamics(vector<point> points, double lin_vel) {
+	return shared_ptr<dynamics>(new path_dynamics(points, lin_vel));
 }
 
 }

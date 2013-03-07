@@ -38,9 +38,15 @@ using std::uniform_real_distribution;
 // TODO:
 // Make sure the debris deal damage.
 // - Large ship pieces.
-// - Deal with all the magic numbers.
-// - Tweak the enemy ships' speeds
+// - Tweak the enemy ships' speeds.
 // - Move the shape's location outside the shape class - read it from the context (orientation component).
+// - Sound.
+// - Load from a config file:
+//     - config values,
+//     - resources,
+//     - waves definitions.
+// - Customizable key bindings?
+// - Visualization of the upgrades.
 
 static wave prepare_wave_0() {
 	return wave {{
@@ -60,7 +66,6 @@ class test_state : public state {
 
 	// External dependencies.
 	// ----------------------
-	config const& _config;
 	resman const& _resman;
 
 	// State.
@@ -210,20 +215,17 @@ class test_state : public state {
 	}
 
 public:
-	test_state(const config& config, const resman& resman)
-	: _config(config)
-	, _resman(resman)
+	test_state(const resman& resman)
+	: _resman(resman)
 	, _debug(false)
 	, _done(false)
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
 	, _score_system(map<cmp::score_class, double> {
-			{ cmp::score_class::PLAYER, 0.0 },
-			{ cmp::score_class::ENEMY_EYE, 1.0 },
-			{ cmp::score_class::ENEMY_BOMBER, 5.0 },
-			{ cmp::score_class::ENEMY_LIGHT_FIGHTER, 1.0 },
-			{ cmp::score_class::ENEMY_HEAVY_FIGHTER, 3.0 },
-			{ cmp::score_class::ENEMY_LIGHT_BOMBER, 5.0 },
-			{ cmp::score_class::ENEMY_HEAVY_BOMBER, 7.0 } })
+			{ cmp::score_class::PLAYER, cfg::gameplay::score_for_player },
+			{ cmp::score_class::ENEMY_LIGHT_FIGHTER, cfg::gameplay::score_for_lfighter },
+			{ cmp::score_class::ENEMY_HEAVY_FIGHTER, cfg::gameplay::score_for_hfighter },
+			{ cmp::score_class::ENEMY_LIGHT_BOMBER, cfg::gameplay::score_for_lbomber},
+			{ cmp::score_class::ENEMY_HEAVY_BOMBER, cfg::gameplay::score_for_hbomber } })
 	, _hud_system(
 			_resman.get_bitmap(res_id::HUD_BG),
 			_resman.get_bitmap(res_id::HEALTH),
@@ -235,10 +237,9 @@ public:
 			_resman.get_bitmap(res_id::M_UPGRADE),
 			_resman.get_font(res_id::FONT),
 			_resman.get_font(res_id::TINY_FONT),
-			_config.get_screen_w(),
-			_config.get_screen_h())
-	, _ef(_config,
-		_resman,
+			cfg::gfx::screen_w,
+			cfg::gfx::screen_h)
+	, _ef(_resman,
 		_movement_system,
 		_collision_system,
 		_arms_system,
@@ -251,19 +252,23 @@ public:
 		_input_system,
 		_hud_system)
 	, _star_spawn_clk(
-			uniform_real_distribution<double>(0.05, 0.1),
+			uniform_real_distribution<double>(
+					cfg::gfx::star_interval_min,
+					cfg::gfx::star_interval_max),
 			bind(&entity_factory::create_star, &_ef))
 	, _en_man(prepare_waves())
 	{
 		// Spawn initial stars.
-		uniform_real_distribution<double> x_dist(1.0, _config.get_screen_w() - 1);
-		uniform_real_distribution<double> y_dist(1.0, _config.get_screen_h() - 1);
-		for(size_t i = 0; i < 50; ++i) {
+		uniform_real_distribution<double> x_dist(1.0, cfg::gfx::screen_w - 1);
+		uniform_real_distribution<double> y_dist(1.0, cfg::gfx::screen_h - 1);
+		for(size_t i = 0; i < cfg::gfx::star_initial_count; ++i) {
 			const double x = x_dist(rnd::engine);
 			const double y = x_dist(rnd::engine);
 			_ef.create_star_xy(x, y);
 		}
-		_player_id = _ef.create_player_ship(200.0, 200.0);
+		_player_id = _ef.create_player_ship(
+				cfg::gameplay::player_start_x,
+				cfg::gameplay::player_start_y);
 	}
 
 	void sigkill() { _done = true; }
@@ -278,8 +283,8 @@ public:
 		bool keep_going = _en_man.tick(
 				dt,
 				_ef,
-				_config.get_screen_w(),
-				_config.get_screen_h());
+				cfg::gfx::screen_w,
+				cfg::gfx::screen_h);
 
 		if(!keep_going) {
 			_en_man.reset();
@@ -327,6 +332,6 @@ public:
 	}
 };
 
-unique_ptr<state> create_test_state(const config& config, const resman& res) {
-	return unique_ptr<state>(new test_state(config, res));
+unique_ptr<state> create_test_state(const resman& res) {
+	return unique_ptr<state>(new test_state(res));
 }

@@ -18,6 +18,7 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include "../misc/config.h"
 #include "sys_drawing.h"
 
 namespace sys {
@@ -50,7 +51,12 @@ void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes
 }
 
 void drawing_system::update(double dt) {
-	al_clear_to_color(al_map_rgb_f(0.0f, 0.0f, 0.0f));
+
+	al_clear_to_color(al_map_rgb_f(
+			cfg::gfx::background_r,
+			cfg::gfx::background_g,
+			cfg::gfx::background_b));
+
 	draw_plane(dt, _nodes[cmp::draw_plane::BACKGROUND]);
 	draw_plane(dt, _nodes[cmp::draw_plane::SHIPS]);
 	draw_plane(dt, _nodes[cmp::draw_plane::PROJECTILES]);

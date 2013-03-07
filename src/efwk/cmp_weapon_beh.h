@@ -52,11 +52,15 @@ shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> 
 
 shared_ptr<weapon_beh> create_period_bullet(
 		double dt_min, double dt_max,
-		double x_off, double y_off);
+		double x_off, double y_off,
+		double x_dir, double y_dir,
+		double lin_vel);
 
 shared_ptr<weapon_beh> create_period_missile(
 		double dt_min, double dt_max,
-		double x_off, double y_off);
+		double x_off, double y_off,
+		double x_dir, double y_dir,
+		double lin_vel);
 
 shared_ptr<weapon_beh> create_player_controlled_weapon_beh();
 

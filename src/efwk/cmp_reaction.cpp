@@ -178,10 +178,18 @@ shared_ptr<reaction> create_debris_reaction(
 }
 
 class explosion_sequence_reaction : public reaction {
-	uint32_t _num_explosions;
+	const uint32_t _num_explosions;
+	const double _min_delay;
+	const double _max_delay;
+
 public:
-	explosion_sequence_reaction(uint32_t num_explosions)
+	explosion_sequence_reaction(
+			uint32_t num_explosions,
+			double min_delay,
+			double max_delay)
 	: _num_explosions(num_explosions)
+	, _min_delay(min_delay)
+	, _max_delay(max_delay)
 	{}
 
 	void trigger(double x, double y, double phi,
@@ -191,7 +199,7 @@ public:
 			comm::msg_queue& queue) {
 
 		double delay = 0.0;
-		uniform_real_distribution<double> delay_dist(0.125, 0.25);
+		uniform_real_distribution<double> delay_dist(_min_delay, _max_delay);
 		for(uint32_t i = 0; i < _num_explosions; ++i) {
 			double expl_x, expl_y;
 			tie(expl_x, expl_y) = shape.get_random_point();
@@ -201,8 +209,14 @@ public:
 	}
 };
 
-shared_ptr<reaction> create_explosion_sequence_reaction(uint32_t num_explosions) {
-	return shared_ptr<reaction>(new explosion_sequence_reaction(num_explosions));
+shared_ptr<reaction> create_explosion_sequence_reaction(
+		uint32_t num_explosions,
+		double min_delay,
+		double max_delay) {
+	return shared_ptr<reaction>(new explosion_sequence_reaction(
+			num_explosions,
+			min_delay,
+			max_delay));
 }
 
 

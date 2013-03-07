@@ -22,6 +22,7 @@
 using std::array;
 
 #include "cmp_appearance.h"
+#include "../misc/config.h"
 
 namespace cmp {
 
@@ -84,12 +85,12 @@ class simple_anim : public appearance {
 	// The information about the particular frames.
 	uint32_t _frame_width;
 	uint32_t _num_frames;
-	array<ALLEGRO_BITMAP*, 128> _frame_images;
-	array<ALLEGRO_BITMAP*, 128> _flash_images;
+	array<ALLEGRO_BITMAP*, cfg::type_bounds::max_num_frames> _frame_images;
+	array<ALLEGRO_BITMAP*, cfg::type_bounds::max_num_frames> _flash_images;
 
 	// The information about the frame definitions.
 	uint32_t _num_defs;
-	array<frame_def, 128> _frame_defs;
+	array<frame_def, cfg::type_bounds::max_frame_defs> _frame_defs;
 
 	// How many times should we repeat?
 	int _rep_count;

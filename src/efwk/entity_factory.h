@@ -23,7 +23,7 @@
 
 #include "comm.h"
 #include "systems.h"
-#include "../config.h"
+#include "../misc/config.h"
 #include "../resources/resman.h"
 
 enum class pickup_type {
@@ -37,7 +37,6 @@ class entity_factory {
 
 	uint64_t _last_id;
 
-	config const& _config;
 	resman const& _resman;
 
 	sys::movement_system&	_movement_system;
@@ -54,7 +53,6 @@ class entity_factory {
 
 public:
 	entity_factory(
-		config const& cfg,
 		resman const& rm,
 		sys::movement_system&	movement_system,
 		sys::collision_system&	collision_system,
@@ -68,7 +66,6 @@ public:
 		sys::input_system&		input_system,
 		sys::hud_system&		hud_system)
 	: _last_id(0)
-	, _config(cfg)
 	, _resman(rm)
 	, _movement_system (movement_system)
 	, _collision_system (collision_system)
@@ -103,10 +100,12 @@ public:
 	uint64_t create_light_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
 	uint64_t create_heavy_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
 
+	/*
 	uint64_t create_light_fighter();
 	uint64_t create_heavy_fighter();
 	uint64_t create_light_bomber();
 	uint64_t create_heavy_bomber();
+	*/
 
 	uint64_t create_common_pickup(double x, double y, double vx, double vy, pickup_type type);
 

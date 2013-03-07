@@ -22,6 +22,7 @@
 using std::uniform_real_distribution;
 using std::uniform_int_distribution;
 
+#include "../misc/config.h"
 #include "../misc/rand.h"
 
 #include "cmp_misc.h"
@@ -57,6 +58,9 @@ class period_bullet : public weapon_beh {
 	double _dt_max;
 	double _x_off;
 	double _y_off;
+	double _x_dir;
+	double _y_dir;
+	double _lin_vel;
 	double _counter;
 
 	void init_counter(double remainder = 0.0) {
@@ -65,11 +69,18 @@ class period_bullet : public weapon_beh {
 	}
 
 public:
-	period_bullet(double dt_min, double dt_max, double x_off, double y_off)
+	period_bullet(
+			double dt_min, double dt_max,
+			double x_off, double y_off,
+			double x_dir, double y_dir,
+			double lin_vel)
 	: _dt_min(dt_min)
 	, _dt_max(dt_max)
 	, _x_off(x_off)
 	, _y_off(y_off)
+	, _x_dir(x_dir)
+	, _y_dir(y_dir)
+	, _lin_vel(lin_vel)
        	, _counter(0) {
 		init_counter();
 	}
@@ -86,7 +97,7 @@ public:
 			up.tick_down_gun();
 			msgs.push(comm::create_spawn_bullet(
 				x + _x_off, y + _y_off,
-				0.0, 1.0, 500.0,
+				_x_dir, _y_dir, _lin_vel,
 				up.gun_lvl(),
 				true,
 				id));
@@ -99,8 +110,11 @@ public:
 class period_missile : public weapon_beh {
 	double _dt_min;
 	double _dt_max;
-	double _x_offset;
-	double _y_offset;
+	double _x_off;
+	double _y_off;
+	double _x_dir;
+	double _y_dir;
+	double _lin_vel;
 	double _counter;
 
 	void init_counter(double remainder = 0.0) {
@@ -109,12 +123,19 @@ class period_missile : public weapon_beh {
 	}
 
 public:
-	period_missile(double dt_min, double dt_max, double x_offset, double y_offset)
+	period_missile(
+			double dt_min, double dt_max,
+			double x_off, double y_off,
+			double x_dir, double y_dir,
+			double lin_vel)
 	: _dt_min(dt_min)
 	, _dt_max(dt_max)
-	, _x_offset(x_offset)
-	, _y_offset(y_offset)
-	, _counter(0) {
+	, _x_off(x_off)
+	, _y_off(y_off)
+	, _x_dir(x_dir)
+	, _y_dir(y_dir)
+	, _lin_vel(lin_vel)
+	{
 		init_counter();
 	}
 
@@ -129,9 +150,8 @@ public:
 			init_counter(-_counter);
 			up.tick_down_rl();
 			msgs.push(comm::create_spawn_missile(
-				x + _x_offset,
-				y + _y_offset,
-				0.0, 1.0, 150.0,
+				x + _x_off, y + _y_off,
+				_x_dir, _y_dir, _lin_vel,
 				up.rl_lvl(),
 				true,
 				id));
@@ -150,8 +170,8 @@ class player_controlled_weapon_beh : public weapon_beh {
 public:
 	player_controlled_weapon_beh()
 	: _prev_left(false)
-	, _minigun(0.1)
-	, _rpg(0.75)
+	, _minigun(cfg::gameplay::player_gun_interval)
+	, _rpg(cfg::gameplay::player_rl_interval)
 	{}
 
 	void update(uint64_t id,
@@ -168,16 +188,16 @@ public:
 			if(_prev_left) {
 				_prev_left = false;
 				msgs.push(comm::create_spawn_bullet(
-						x + 15.0, y,
-						0.0, -1.0, 800.0,
+						x + cfg::gfx::player_gun_offset, y,
+						0.0, -1.0, cfg::gameplay::bullet_lin_vel,
 						up.gun_lvl(),
 						false,
 						id));
 			} else {
 				_prev_left = true;
 				msgs.push(comm::create_spawn_bullet(
-						x - 15.0, y,
-						0.0, -1.0, 800.0,
+						x - cfg::gfx::player_gun_offset, y,
+						0.0, -1.0, cfg::gameplay::bullet_lin_vel,
 						up.gun_lvl(),
 						false,
 						id));
@@ -189,14 +209,14 @@ public:
 		if(_rpg.update(dt)) {
 			up.tick_down_rl();
 			msgs.push(comm::create_spawn_missile(
-					x + 25.0, y,
-					0.0, -1.0, 300.0,
+					x + cfg::gfx::player_rl_offset, y,
+					0.0, -1.0, cfg::gameplay::bullet_lin_vel,
 					up.rl_lvl(),
 					false,
 					id));
 			msgs.push(comm::create_spawn_missile(
-					x - 25.0, y,
-					0.0, -1.0, 300.0,
+					x - cfg::gfx::player_rl_offset, y,
+					0.0, -1.0, cfg::gameplay::bullet_lin_vel,
 					up.rl_lvl(),
 					false,
 					id));
@@ -214,21 +234,21 @@ shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> 
 }
 
 shared_ptr<weapon_beh> create_period_bullet(
-		double dt_min,
-		double dt_max,
-		double x_off,
-		double y_off) {
+		double dt_min, double dt_max,
+		double x_off, double y_off,
+		double x_dir, double y_dir,
+		double lin_vel) {
 	return shared_ptr<weapon_beh>(new period_bullet(
-				dt_min, dt_max, x_off, y_off));
+				dt_min, dt_max, x_off, y_off, x_dir, y_dir, lin_vel));
 }
 
 shared_ptr<weapon_beh> create_period_missile(
-		double dt_min,
-		double dt_max,
-		double x_off,
-		double y_off) {
+		double dt_min, double dt_max,
+		double x_off, double y_off,
+		double x_dir, double y_dir,
+		double lin_vel) {
 	return shared_ptr<weapon_beh>(new period_missile(
-				dt_min, dt_max, x_off, y_off));
+				dt_min, dt_max, x_off, y_off, x_dir, y_dir, lin_vel));
 }
 
 shared_ptr<weapon_beh> create_player_controlled_weapon_beh() {

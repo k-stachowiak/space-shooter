@@ -18,6 +18,7 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include "../misc/config.h"
 #include "sys_pain.h"
 
 namespace sys {
@@ -55,7 +56,7 @@ void pain_system::update(comm::msg_queue& msgs) {
 			n.wellness->deal_dmg(pain, r.origin_id);
 
 			// Handle the pain flash
-			if(pain > 0.0) *(n.pain_flash) = 0.025;
+			if(pain > 0.0) *(n.pain_flash) = cfg::gfx::pain_flash_timer;
 		});
 
 		// Destroy if paper.

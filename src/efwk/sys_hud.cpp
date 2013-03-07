@@ -23,6 +23,12 @@
 #include <allegro5/allegro_primitives.h>
 #include "sys_hud.h"
 
+/*
+ * This file contains a lot of magic numbers, but the HUD is defined
+ * "pixel perfect", so it's not really configurable. Let's hope this
+ * will never have to change.
+ */
+
 ALLEGRO_COLOR health_color(double health_ratio) {
 	double r, g;
 	if(health_ratio >= 0.5) {
@@ -133,6 +139,11 @@ void hud_system::draw_upgrades(nd::hud_node const& n) {
 
 
 void hud_system::update() {
+	// This loop is a sloppy replacement for a "maybe type"
+	// if the vector is empty, nothing will be drawn, otherwise
+	// we will see the HUD for all the nodes defined here.
+	// Only one node should be ever added to this lousy excuse
+	// for a system.
 	for(auto const& n : _nodes) {
 		draw_background();
 		draw_score(n);

@@ -56,7 +56,7 @@ void pain_system::update(comm::msg_queue& msgs) {
 			n.wellness->deal_dmg(pain, r.origin_id);
 
 			// Handle the pain flash
-			if(pain > 0.0) *(n.pain_flash) = cfg::gfx::pain_flash_timer;
+			if(pain > 0.0) *(n.pain_flash) = cfg::real("gfx_pain_flash_timer");
 		});
 
 		// Destroy if paper.

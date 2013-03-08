@@ -77,9 +77,9 @@ public:
 	void debug_draw() {
 		al_draw_circle(
 				_x, _y, _r,
-				al_map_rgb_f(cfg::debug::shape_r,
-							 cfg::debug::shape_g,
-							 cfg::debug::shape_b),
+				al_map_rgb_f(cfg::real("debug_shape_r"),
+							 cfg::real("debug_shape_g"),
+							 cfg::real("debug_shape_b")),
 				1.0);
 	}
 };

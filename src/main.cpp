@@ -38,10 +38,10 @@ class application {
 
 public:
 	application()
-		: _fps(cfg::gfx::fps)
+		: _fps(cfg::real("gfx_fps"))
 		, _spf(1.0 / _fps)
 		, _overdue_frames(0)
-		, _allegro(cfg::gfx::screen_w, cfg::gfx::screen_h, "Framework", _fps)
+		, _allegro(cfg::integer("gfx_screen_w"), cfg::integer("gfx_screen_h"), "Framework", _fps)
 		, _resman(_allegro.get_display()) {
 	}
 
@@ -72,6 +72,7 @@ public:
 
 int main() {
 	try {
+		cfg::load_from_file("config");
         application app;
 		app.loop();
 		return 0;

@@ -50,54 +50,54 @@ struct pattern {
 
 	static vector<pattern::element> el_pair(enemy_type type) {
 		return {{
-					cfg::gameplay::pat_pair_1_xoffset,
-					cfg::gameplay::pat_pair_1_yoffset,
+					cfg::real("gameplay_pat_pair_1_xoffset"),
+					cfg::real("gameplay_pat_pair_1_yoffset"),
 					type
 				},
 				{
-					cfg::gameplay::pat_pair_2_xoffset,
-					cfg::gameplay::pat_pair_2_yoffset,
+					cfg::real("gameplay_pat_pair_2_xoffset"),
+					cfg::real("gameplay_pat_pair_2_yoffset"),
 					type
 				}};
 	}
 
 	static vector<pattern::element> el_triangle(enemy_type type) {
 		return {{
-					cfg::gameplay::pat_tri_1_xoffset,
-					cfg::gameplay::pat_tri_1_yoffset,
+					cfg::real("gameplay_pat_tri_1_xoffset"),
+					cfg::real("gameplay_pat_tri_1_yoffset"),
 					type
 				},
 				{
-					cfg::gameplay::pat_tri_2_xoffset,
-					cfg::gameplay::pat_tri_2_yoffset,
+					cfg::real("gameplay_pat_tri_2_xoffset"),
+					cfg::real("gameplay_pat_tri_2_yoffset"),
 					type
 				},
 				{
-					cfg::gameplay::pat_tri_3_xoffset,
-					cfg::gameplay::pat_tri_3_yoffset,
+					cfg::real("gameplay_pat_tri_3_xoffset"),
+					cfg::real("gameplay_pat_tri_3_yoffset"),
 					type
 				}};
 	}
 
 	static vector<pattern::element> el_quad(enemy_type type) {
 		return {{
-					cfg::gameplay::pat_quad_1_xoffset,
-					cfg::gameplay::pat_quad_1_yoffset,
+					cfg::real("gameplay_pat_quad_1_xoffset"),
+					cfg::real("gameplay_pat_quad_1_yoffset"),
 					type
 				},
 				{
-					cfg::gameplay::pat_quad_2_xoffset,
-					cfg::gameplay::pat_quad_2_yoffset,
+					cfg::real("gameplay_pat_quad_2_xoffset"),
+					cfg::real("gameplay_pat_quad_2_yoffset"),
 					type
 				},
 				{
-					cfg::gameplay::pat_quad_3_xoffset,
-					cfg::gameplay::pat_quad_3_yoffset,
+					cfg::real("gameplay_pat_quad_3_xoffset"),
+					cfg::real("gameplay_pat_quad_3_yoffset"),
 					type
 				},
 				{
-					cfg::gameplay::pat_quad_4_xoffset,
-					cfg::gameplay::pat_quad_4_yoffset,
+					cfg::real("gameplay_pat_quad_4_xoffset"),
+					cfg::real("gameplay_pat_quad_4_yoffset"),
 					type
 				}};
 	}

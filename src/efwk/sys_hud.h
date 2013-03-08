@@ -34,7 +34,6 @@ class hud_system : public system {
 	ALLEGRO_BITMAP* _hud_bg;
 	ALLEGRO_BITMAP* _hud_health;
 	ALLEGRO_BITMAP* _hud_battery;
-	ALLEGRO_BITMAP* _hud_missiles;
 	ALLEGRO_BITMAP* _hud_diode_on;
 	ALLEGRO_BITMAP* _hud_diode_off;
 	ALLEGRO_BITMAP* _b_upgrade;
@@ -58,7 +57,6 @@ public:
 			ALLEGRO_BITMAP* hud_bg,
 			ALLEGRO_BITMAP* hud_health,
 			ALLEGRO_BITMAP* hud_battery,
-			ALLEGRO_BITMAP* hud_missiles,
 			ALLEGRO_BITMAP* hud_diode_on,
 			ALLEGRO_BITMAP* hud_diode_off,
 			ALLEGRO_BITMAP* b_upgrade,
@@ -70,7 +68,6 @@ public:
 	: _hud_bg        (hud_bg)
 	, _hud_health    (hud_health)
 	, _hud_battery   (hud_battery)
-	, _hud_missiles  (hud_missiles)
 	, _hud_diode_on  (hud_diode_on)
 	, _hud_diode_off (hud_diode_off)
 	, _b_upgrade     (b_upgrade)

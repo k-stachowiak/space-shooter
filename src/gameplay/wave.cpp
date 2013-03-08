@@ -32,8 +32,8 @@ static vector<spawn_desc> spawn_zorro_pattern(
 	// Determine base points.
 	// ----------------------
 	uniform_real_distribution<double> x_margin_dist(
-			cfg::gameplay::zorro_x_margin_min,
-			cfg::gameplay::zorro_x_margin_max);
+			cfg::real("gameplay_zorro_x_margin_min"),
+			cfg::real("gameplay_zorro_x_margin_max"));
 
 	const double x_margin = x_margin_dist(rnd::engine);
 
@@ -41,7 +41,7 @@ static vector<spawn_desc> spawn_zorro_pattern(
 	const double y1 = screen_h * 0.5;
 	const double y2 = screen_h + narrow_offscreen;
 
-	bernoulli_distribution left_right_dist(cfg::gameplay::zorro_left_right_ratio);
+	bernoulli_distribution left_right_dist(cfg::real("gameplay_zorro_left_right_ratio"));
 	const bool left = left_right_dist(rnd::engine);
 	const double x0 = left ? x_margin : screen_w - x_margin;
 	const double x1 = left ? screen_w - x_margin : x_margin;
@@ -59,7 +59,7 @@ static vector<spawn_desc> spawn_zorro_pattern(
 
 		double x = points.front().x + e.x_off;
 		double y = points.front().y + e.y_off;
-		auto dynamics = cmp::create_path_dynamics(points, cfg::gameplay::zorro_lin_vel);
+		auto dynamics = cmp::create_path_dynamics(points, cfg::real("gameplay_zorro_lin_vel"));
 
 		result.push_back({ e.type, x, y, dynamics });
 	}
@@ -76,8 +76,8 @@ static vector<spawn_desc> spawn_diagonal_pattern(
 	// ----------------------------------
 	bernoulli_distribution xdir_dist;
 	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
-	const double vx = dir * cfg::gameplay::diagonal_vel;
-	const double vy = cfg::gameplay::diagonal_vel;
+	const double vx = dir * cfg::real("gameplay_diagonal_vel");
+	const double vy = cfg::real("gameplay_diagonal_vel");
 
 	double base_x = (dir > 0.0) ? -narrow_offscreen : screen_w + narrow_offscreen;
 	double base_y = -narrow_offscreen;
@@ -103,10 +103,10 @@ static vector<spawn_desc> spawn_vertical_pattern(
 	// Select random parameters.
 	// -------------------------
 	uniform_real_distribution<double> x_dist(
-			cfg::gameplay::vertical_x_margin,
-			screen_w - cfg::gameplay::vertical_x_margin);
+			cfg::real("gameplay_vertical_x_margin"),
+			screen_w - cfg::real("gameplay_vertical_x_margin"));
 	const double vx = 0.0;
-	const double vy = cfg::gameplay::vertical_vel;
+	const double vy = cfg::real("gameplay_vertical_vel");
 
 	double base_x = x_dist(rnd::engine);
 	double base_y = -narrow_offscreen;
@@ -132,9 +132,9 @@ static vector<spawn_desc> spawn_horizontal_pattern(
 	// Select random parameters.
 	// -------------------------
 	uniform_real_distribution<double> y_dist(
-			cfg::gameplay::horizontal_y_margin,
-			screen_w - cfg::gameplay::horizontal_y_margin);
-	const double vx = cfg::gameplay::horizontal_vel;
+			cfg::real("gameplay_horizontal_y_margin"),
+			screen_w - cfg::real("gameplay_horizontal_y_margin"));
+	const double vx = cfg::real("gameplay_horizontal_vel");
 	const double vy = 0.0;
 
 	double base_x = -narrow_offscreen;

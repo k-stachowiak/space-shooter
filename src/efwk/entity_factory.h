@@ -100,13 +100,6 @@ public:
 	uint64_t create_light_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
 	uint64_t create_heavy_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
 
-	/*
-	uint64_t create_light_fighter();
-	uint64_t create_heavy_fighter();
-	uint64_t create_light_bomber();
-	uint64_t create_heavy_bomber();
-	*/
-
 	uint64_t create_common_pickup(double x, double y, double vx, double vy, pickup_type type);
 
 	uint64_t create_health_pickup(double x, double y, double vx, double vy);

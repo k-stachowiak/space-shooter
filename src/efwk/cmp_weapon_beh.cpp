@@ -170,8 +170,8 @@ class player_controlled_weapon_beh : public weapon_beh {
 public:
 	player_controlled_weapon_beh()
 	: _prev_left(false)
-	, _minigun(cfg::gameplay::player_gun_interval)
-	, _rpg(cfg::gameplay::player_rl_interval)
+	, _minigun(cfg::real("gameplay_player_gun_interval"))
+	, _rpg(cfg::real("gameplay_player_rl_interval"))
 	{}
 
 	void update(uint64_t id,
@@ -188,16 +188,16 @@ public:
 			if(_prev_left) {
 				_prev_left = false;
 				msgs.push(comm::create_spawn_bullet(
-						x + cfg::gfx::player_gun_offset, y,
-						0.0, -1.0, cfg::gameplay::bullet_lin_vel,
+						x + cfg::real("gfx_player_gun_offset"), y,
+						0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),
 						up.gun_lvl(),
 						false,
 						id));
 			} else {
 				_prev_left = true;
 				msgs.push(comm::create_spawn_bullet(
-						x - cfg::gfx::player_gun_offset, y,
-						0.0, -1.0, cfg::gameplay::bullet_lin_vel,
+						x - cfg::real("gfx_player_gun_offset"), y,
+						0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),
 						up.gun_lvl(),
 						false,
 						id));
@@ -209,14 +209,14 @@ public:
 		if(_rpg.update(dt)) {
 			up.tick_down_rl();
 			msgs.push(comm::create_spawn_missile(
-					x + cfg::gfx::player_rl_offset, y,
-					0.0, -1.0, cfg::gameplay::bullet_lin_vel,
+					x + cfg::real("gfx_player_rl_offset"), y,
+					0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),
 					up.rl_lvl(),
 					false,
 					id));
 			msgs.push(comm::create_spawn_missile(
-					x - cfg::gfx::player_rl_offset, y,
-					0.0, -1.0, cfg::gameplay::bullet_lin_vel,
+					x - cfg::real("gfx_player_rl_offset"), y,
+					0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),
 					up.rl_lvl(),
 					false,
 					id));

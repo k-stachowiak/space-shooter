@@ -1,0 +1,233 @@
+(	
+	
+	(gfx_fps 50.0)
+	(gfx_screen_w 800)
+	(gfx_screen_h 800)
+	
+	(gfx_player_gun_offset 15.0)
+	(gfx_player_rl_offset 25.0)
+	
+	(gfx_lfighter_gun_xoffset 17.0)
+	(gfx_lfighter_gun_yoffset -3.0)
+	
+	(gfx_hfighter_gun_xoffset 25.0)
+	(gfx_hfighter_gun_yoffset -5.0)
+	(gfx_hfighter_rl_xoffset 40.0)
+	(gfx_hfighter_rl_yoffset -5.0)
+	
+	(gfx_lbomber_gun_xoffset 55.0)
+	(gfx_lbomber_gun_yoffset -30.0)
+	(gfx_lbomber_rl_xoffset 65.0)
+	(gfx_lbomber_rl_yoffset -30.0)
+	
+	(gfx_hbomber_gun_xoffset 55.0)
+	(gfx_hbomber_gun_yoffset -30.0)
+	(gfx_hbomber_rl_xoffset 65.0)
+	(gfx_hbomber_rl_yoffset -30.0)
+	
+	(gfx_explosion_frame_width 70)
+	(gfx_explosion_num_frames 16)
+	(gfx_explosion_frame_time 0.05)
+	(gfx_explosion_seq_min_delay 0.25)
+	(gfx_explosion_seq_max_delay 0.75)
+	
+	(gfx_smoke_scale_tiny 0.5)
+	(gfx_smoke_scale_medium 1.0)
+	(gfx_smoke_scale_big 2.0)
+	
+	(gfx_smoke_expand_scale 3.0)
+	(gfx_smoke_frame_width_base (* gfx_smoke_expand_scale 32))
+	(gfx_smoke_num_frames 10)
+	(gfx_smoke_frame_time 0.05)
+	
+	(gfx_font_base_size 24)
+	(gfx_font_tiny_size 10)
+	
+	(gfx_background_r 0.0)
+	(gfx_background_g 0.0)
+	(gfx_background_b 0.0)
+	
+	(gfx_pain_flash_timer 0.025)
+	
+	# The three properties below must be synchronized, so that
+	# the initial amount of stars isn't noticeably different than
+	# the average stars count on the screen while playing.		
+	(gfx_star_interval_min 0.05)
+	(gfx_star_interval_max 0.1)
+	(gfx_star_initial_count 50)
+	
+	# The two below define the area that is off the screen, but it makes sense
+	# for the entities to live there, this will make entities smoothly enter
+	# the screen and leave it instead of appearing and disappearing immediately.
+	# At the same time the life bounds for the entities are needed, so that they get
+	# destroyed eventually.
+	#
+	# gameplay_wide_offscreen_bound :	Entities can't live past this.
+	# gameplay_narrow_offscreen_bound :	Entities will be created within this.
+	(gameplay_wide_offscreen_bound 500.0)
+	(gameplay_narrow_offscreen_bound 100.0)
+	
+	(gameplay_zorro_x_margin_min 50.0)
+	(gameplay_zorro_x_margin_max 200.0)
+	(gameplay_zorro_left_right_ratio 0.5)
+	(gameplay_zorro_lin_vel 150.0)
+	
+	(gameplay_diagonal_vel 75.0)
+	
+	(gameplay_vertical_x_margin 75.0)
+	(gameplay_vertical_vel 100.0)
+	
+	(gameplay_horizontal_y_margin 75.0)
+	(gameplay_horizontal_vel 60.0)
+	
+	(gameplay_player_vx 400.0)
+	(gameplay_player_vy 300.0)
+	
+	(gameplay_player_gun_interval 0.1)
+	(gameplay_player_rl_interval 0.5)
+	(gameplay_player_shape_radius 32.0)
+	(gameplay_player_bottom_bound_offset 120.0)
+	(gameplay_player_max_gun_upgrades 5)
+	(gameplay_player_max_rl_upgrades 5)
+	(gameplay_player_max_gun_upgrade_ammo 150)
+	(gameplay_player_max_rl_upgrade_ammo 5)
+	(gameplay_player_ship_damage 50.0)
+	(gameplay_player_max_health 100.0)
+	(gameplay_player_max_shield 100.0)
+	(gameplay_player_num_debris 10)
+	(gameplay_player_num_explosions 7)
+	(gameplay_player_start_x (* gfx_screen_w 0.5))
+	(gameplay_player_start_y (* gfx_screen_h 0.75))
+	
+	(gameplay_lfighter_shape_radius 32.0)
+	(gameplay_lfighter_bullet_interval 3.0)
+	(gameplay_lfighter_damage 50.0)
+	(gameplay_lfighter_max_health 30.0)
+	(gameplay_lfighter_max_shield 0.0)
+	(gameplay_lfighter_num_debris 3)
+	(gameplay_lfighter_num_explosions 1)
+	(gameplay_lfighter_health_drop_dist 0.1)
+	(gameplay_lfighter_battery_drop_dist 0.1)
+	(gameplay_lfighter_gun_up_drop_dist 0.05)
+	(gameplay_lfighter_ml_up_drop_dist 0.05)
+	
+	(gameplay_hfighter_shape_radius 55.0)
+	(gameplay_hfighter_bullet_interval 1.5)
+	(gameplay_hfighter_missile_interval 2.3)
+	(gameplay_hfighter_damage 75.0)
+	(gameplay_hfighter_max_health 50.0)
+	(gameplay_hfighter_max_shield 0.0)
+	(gameplay_hfighter_num_debris 5)
+	(gameplay_hfighter_num_explosions 3)
+	(gameplay_hfighter_health_drop_dist 0.125)
+	(gameplay_hfighter_battery_drop_dist 0.125)
+	(gameplay_hfighter_gun_up_drop_dist 0.1)
+	(gameplay_hfighter_ml_up_drop_dist 0.1)
+	
+	(gameplay_lbomber_shape_radius 36.0)
+	(gameplay_lbomber_shape1_xoffset -25.0)
+	(gameplay_lbomber_shape1_yoffset -36.0)
+	(gameplay_lbomber_shape2_xoffset +25.0)
+	(gameplay_lbomber_shape2_yoffset -36.0)
+	(gameplay_lbomber_shape3_xoffset 0.0)
+	(gameplay_lbomber_shape3_yoffset 36.0)
+	(gameplay_lbomber_bullet_interval 1.0)
+	(gameplay_lbomber_missile_interval 3.0)
+	(gameplay_lbomber_damage 75.0)
+	(gameplay_lbomber_max_health 70.0)
+	(gameplay_lbomber_max_shield 0.0)
+	(gameplay_lbomber_num_debris 7)
+	(gameplay_lbomber_num_explosions 5)
+	(gameplay_lbomber_health_drop_dist 0.333)
+	(gameplay_lbomber_battery_drop_dist 0.333)
+	(gameplay_lbomber_gun_up_drop_dist 0.125)
+	(gameplay_lbomber_ml_up_drop_dist 0.125)
+	
+	(gameplay_hbomber_shape_radius 50.0)
+	(gameplay_hbomber_shape1_xoffset -100.0)
+	(gameplay_hbomber_shape1_yoffset 15.0)
+	(gameplay_hbomber_shape2_xoffset 0.0)
+	(gameplay_hbomber_shape2_yoffset 15.0)
+	(gameplay_hbomber_shape3_xoffset 100.0)
+	(gameplay_hbomber_shape3_yoffset 15.0)
+	(gameplay_hbomber_bullet_interval 1.0)
+	(gameplay_hbomber_missile_interval 3.0)
+	(gameplay_hbomber_damage 100.0)
+	(gameplay_hbomber_max_health 90.0)
+	(gameplay_hbomber_max_shield 0.0)
+	(gameplay_hbomber_num_debris 13)
+	(gameplay_hbomber_num_explosions 7)
+	(gameplay_hbomber_health_drop_dist 0.5)
+	(gameplay_hbomber_battery_drop_dist 0.5)
+	(gameplay_hbomber_gun_up_drop_dist 0.333)
+	(gameplay_hbomber_ml_up_drop_dist 0.333)
+	
+	(gameplay_pickup_min_vel 15.0)
+	(gameplay_pickup_max_vel 25.0)
+	(gameplay_pickup_min_theta 3.0)
+	(gameplay_pickup_max_theta 9.0)
+	(gameplay_pickup_health_amount 10.0)
+	(gameplay_pickup_shield_amount 10.0)
+	(gameplay_pickup_shape_radius 16.0)
+	
+	(gameplay_bullet_lin_vel 800.0)
+	(gameplay_bullet_damage_base 5.0)
+	(gameplay_bullet_shape_radius 8.0)
+	
+	(gameplay_missile_lin_vel 150.0)
+	(gameplay_missile_lin_acc 200.0)
+	(gameplay_missile_damage_base 50.0)
+	(gameplay_missile_shape_radius 8.0)
+	(gameplay_missile_num_debris 3)
+	
+	(gameplay_debris_ttl_min 0.25)
+	(gameplay_debris_ttl_max 1.0)
+	(gameplay_debris_shape_radius 8.0)
+	(gameplay_debris_damage 5.0)
+	(gameplay_debris_min_vel 100.0)
+	(gameplay_debris_max_vel 100.0)
+	(gameplay_debris_min_theta 3.0)
+	(gameplay_debris_max_theta 7.0)
+	
+	(gameplay_smoke_health_ratio_threshold 0.667)
+	(gameplay_smoke_interval 0.025)
+	
+	(gameplay_star_vel_base 200.0)
+	(gameplay_star_vel_grade_scale 0.5)
+	(gameplay_star_vel_grade_offset 0.5)
+	(gameplay_star_shade_grade_scale 0.9)
+	(gameplay_star_shade_grade_offset 0.1)
+	
+	(gameplay_pat_pair_1_xoffset -70.0)
+	(gameplay_pat_pair_1_yoffset 0.0)
+	(gameplay_pat_pair_2_xoffset +70.0)
+	(gameplay_pat_pair_2_yoffset 0.0)
+	
+	(gameplay_pat_tri_1_xoffset -70.0)
+	(gameplay_pat_tri_1_yoffset -40.0)
+	(gameplay_pat_tri_2_xoffset +70.0)
+	(gameplay_pat_tri_2_yoffset -40.0)
+	(gameplay_pat_tri_3_xoffset 0.0)
+	(gameplay_pat_tri_3_yoffset 30.0)
+	
+	(gameplay_pat_quad_1_xoffset -40.0)
+	(gameplay_pat_quad_1_yoffset -40.0)
+	(gameplay_pat_quad_2_xoffset +40.0)
+	(gameplay_pat_quad_2_yoffset -40.0)
+	(gameplay_pat_quad_3_xoffset -40.0)
+	(gameplay_pat_quad_3_yoffset +40.0)
+	(gameplay_pat_quad_4_xoffset +40.0)
+	(gameplay_pat_quad_4_yoffset +40.0)
+	
+	(gameplay_score_for_player 0.0)
+	(gameplay_score_for_lfighter 1.0)
+	(gameplay_score_for_hfighter 3.0)
+	(gameplay_score_for_lbomber 5.0)
+	(gameplay_score_for_hbomber 7.0)
+	
+	
+	(debug_shape_r 1.0)
+	(debug_shape_g 1.0)
+	(debug_shape_b 0.0)
+
+)

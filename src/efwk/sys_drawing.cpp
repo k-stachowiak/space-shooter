@@ -53,9 +53,9 @@ void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes
 void drawing_system::update(double dt) {
 
 	al_clear_to_color(al_map_rgb_f(
-			cfg::gfx::background_r,
-			cfg::gfx::background_g,
-			cfg::gfx::background_b));
+			cfg::real("gfx_background_r"),
+			cfg::real("gfx_background_g"),
+			cfg::real("gfx_background_b")));
 
 	draw_plane(dt, _nodes[cmp::draw_plane::BACKGROUND]);
 	draw_plane(dt, _nodes[cmp::draw_plane::SHIPS]);

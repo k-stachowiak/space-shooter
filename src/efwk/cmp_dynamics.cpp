@@ -112,13 +112,13 @@ public:
 	{}
 
 	void update(double dt) {
-		_vx = _throttle_x * cfg::gameplay::player_vx;
-		_vy = _throttle_y * cfg::gameplay::player_vy;
+		_vx = _throttle_x * cfg::real("gameplay_player_vx");
+		_vy = _throttle_y * cfg::real("gameplay_player_vy");
 	}
 
 	void input(map<int, bool>& keys) {
 		_throttle_x = 0.0;
-	       	_throttle_y = 0.0;
+	    _throttle_y = 0.0;
 		if(keys[ALLEGRO_KEY_RIGHT]) _throttle_x += 1.0;
 		if(keys[ALLEGRO_KEY_LEFT]) _throttle_x -= 1.0;
 		if(keys[ALLEGRO_KEY_DOWN]) _throttle_y += 1.0;

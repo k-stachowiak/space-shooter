@@ -31,9 +31,9 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 
 	// Helpers.
 	// --------
-	uint32_t frame_width = cfg::gfx::explosion_frame_width;
-	uint32_t num_frames = cfg::gfx::explosion_num_frames;
-	double frame_time = cfg::gfx::explosion_frame_time;
+	uint32_t frame_width = cfg::integer("gfx_explosion_frame_width");
+	uint32_t num_frames = cfg::integer("gfx_explosion_num_frames");
+	double frame_time = cfg::real("gfx_explosion_frame_time");
 
 	vector<cmp::frame_def> frame_defs;
 	for(uint32_t i = 0; i < num_frames; ++i)
@@ -83,17 +83,17 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	switch(size) {
 		case comm::smoke_size::tiny:
 			rid = res_id::SMOKE_SMALL;
-			scale = cfg::gfx::smoke_scale_tiny;
+			scale = cfg::real("gfx_smoke_scale_tiny");
 			break;
 
 		case comm::smoke_size::medium:
 			rid = res_id::SMOKE;
-			scale = cfg::gfx::smoke_scale_medium;
+			scale = cfg::real("gfx_smoke_scale_medium");
 			break;
 			
 		case comm::smoke_size::big:
 			rid = res_id::SMOKE_BIG;
-			scale = cfg::gfx::smoke_scale_big;
+			scale = cfg::real("gfx_smoke_scale_big");
 			break;
 
 		default:
@@ -101,9 +101,9 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	}
 
 	// Prepare animation frame definitions.
-	uint32_t frame_width = cfg::gfx::smoke_frame_width_base * scale;
-	uint32_t num_frames = cfg::gfx::smoke_num_frames;
-	double frame_time = cfg::gfx::smoke_frame_time;
+	uint32_t frame_width = cfg::real("gfx_smoke_frame_width_base") * scale;
+	uint32_t num_frames = cfg::integer("gfx_smoke_num_frames");
+	double frame_time = cfg::real("gfx_smoke_frame_time");
 	vector<cmp::frame_def> frame_defs;
 	for(uint32_t i = 0; i < num_frames; ++i)
 		frame_defs.emplace_back(i, frame_time);
@@ -156,8 +156,8 @@ uint64_t entity_factory::create_debris(double x, double y,
 
 	// TTL generation.
 	uniform_real_distribution<double> ttl_dist(
-			cfg::gameplay::debris_ttl_min,
-			cfg::gameplay::debris_ttl_max);
+			cfg::real("gameplay_debris_ttl_min"),
+			cfg::real("gameplay_debris_ttl_max"));
 	double ttl_time = ttl_dist(rnd::engine);
 
 	// Random movement.
@@ -178,7 +178,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 	uint64_t id = ++_last_id;
 	auto orientation = cmp::create_orientation(x, y, 0.0); 
 	auto pain_flash = make_shared<double>(0.0);
-	auto shape = cmp::create_circle(x, y, cfg::gameplay::debris_shape_radius);
+	auto shape = cmp::create_circle(x, y, cfg::real("gameplay_debris_shape_radius"));
 
 	// Drawing components.
 	// -------------------
@@ -193,14 +193,14 @@ uint64_t entity_factory::create_debris(double x, double y,
 	auto ttl = cmp::create_const_int_timer(ttl_time); 
 	auto on_death = explode
 		? cmp::create_explosion_sequence_reaction(1,
-				cfg::gfx::explosion_seq_min_delay,
-				cfg::gfx::explosion_seq_min_delay)
+				cfg::real("gfx_explosion_seq_min_delay"),
+				cfg::real("gfx_explosion_seq_min_delay"))
 		: shared_ptr<cmp::reaction>();
 
 	// Movement nodes.
 	// ---------------
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::gfx::screen_w, cfg::gfx::screen_h);
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::integer("gfx_screen_w"), cfg::integer("gfx_screen_h"));
 	auto dynamics = cmp::create_complex_dynamics({
 		cmp::create_const_velocity_dynamics(bvx + base_vx * mul_vx, bvy + base_vy * mul_vy),
 		cmp::create_const_ang_vel_dynamics(base_av * mul_av)
@@ -213,7 +213,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 		cmp::pain_team::NONE,
 		cmp::pain_profile::LIGHT,
 		true,
-		cmp::create_simple_damage_profile(cfg::gameplay::debris_damage),
+		cmp::create_simple_damage_profile(cfg::real("gameplay_debris_damage")),
 		nullptr);
 
 	// Register nodes.
@@ -229,7 +229,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 
 uint64_t entity_factory::create_star() {
 	uniform_real_distribution<double> uni_dist;
-	double x = uni_dist(rnd::engine) * cfg::gfx::screen_w;
+	double x = uni_dist(rnd::engine) * cfg::integer("gfx_screen_w");
 	return create_star_xy(x, 1.0);
 }
 
@@ -239,12 +239,12 @@ uint64_t entity_factory::create_star_xy(double x, double y) {
 	// --------
 	uniform_real_distribution<double> uni_dist;
 	double grade = uni_dist(rnd::engine);
-	double vy = cfg::gameplay::star_vel_base
-			* (grade * cfg::gameplay::star_vel_grade_scale +
-			+  cfg::gameplay::star_vel_grade_offset);
+	double vy = cfg::real("gameplay_star_vel_base")
+			* (grade * cfg::real("gameplay_star_vel_grade_scale") +
+			+  cfg::real("gameplay_star_vel_grade_offset"));
 	double shade = grade
-			* cfg::gameplay::star_shade_grade_scale
-			+ cfg::gameplay::star_shade_grade_offset;
+			* cfg::real("gameplay_star_shade_grade_scale")
+			+ cfg::real("gameplay_star_shade_grade_offset");
 	
 	// Common components.
 	// ------------------
@@ -262,7 +262,7 @@ uint64_t entity_factory::create_star_xy(double x, double y) {
 	// --------------------
 	auto dynamics = cmp::create_const_velocity_dynamics(0.0, vy);
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::gfx::screen_w, cfg::gfx::screen_h);
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::integer("gfx_screen_w"), cfg::integer("gfx_screen_h"));
 
 	// Register nodes.
 	// ---------------
@@ -277,7 +277,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// Initialize components.
 	uint64_t id = ++_last_id;
 	auto orientation = cmp::create_orientation(x, y, -cfg::math::half_pi);
-	auto shape = cmp::create_circle(x, y, cfg::gameplay::player_shape_radius);
+	auto shape = cmp::create_circle(x, y, cfg::real("gameplay_player_shape_radius"));
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Drawing components.
@@ -293,18 +293,18 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	auto dynamics = cmp::create_player_controlled_dynamics();
 	auto movement_bounds = cmp::create_bounds(
 			0.0, 0.0,
-			cfg::gfx::screen_w,
-			cfg::gfx::screen_h
-				- cfg::gameplay::player_bottom_bound_offset);
+			cfg::integer("gfx_screen_w"),
+			cfg::integer("gfx_screen_h")
+				- cfg::real("gameplay_player_bottom_bound_offset"));
 
 	// Arms components.
 	// ----------------
 	auto weapon_beh = cmp::create_player_controlled_weapon_beh();
 	auto upgrades = cmp::create_upgrades(
-			cfg::gameplay::player_max_gun_upgrades,
-			cfg::gameplay::player_max_rl_upgrades,
-			cfg::gameplay::player_max_gun_upgrade_ammo,
-			cfg::gameplay::player_max_rl_upgrade_ammo);
+			cfg::integer("gameplay_player_max_gun_upgrades"),
+			cfg::integer("gameplay_player_max_rl_upgrades"),
+			cfg::integer("gameplay_player_max_gun_upgrade_ammo"),
+			cfg::integer("gameplay_player_max_rl_upgrade_ammo"));
 
 	// Collision components.
 	// ---------------------
@@ -313,17 +313,17 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 		cmp::pain_team::PLAYER,
 		cmp::pain_profile::MEDIUM,
 		false,
-		cmp::create_simple_damage_profile(cfg::gameplay::player_ship_damage),
+		cmp::create_simple_damage_profile(cfg::real("gameplay_player_ship_damage")),
 		nullptr);
 
 	// Wellness components.
 	// --------------------
 	auto wellness = cmp::create_wellness(
-			cfg::gameplay::player_max_health,
-			cfg::gameplay::player_max_shield);
+			cfg::real("gameplay_player_max_health"),
+			cfg::real("gameplay_player_max_shield"));
 	auto on_death = cmp::create_complex_reaction({
 		cmp::create_debris_reaction(
-			cfg::gameplay::player_num_debris,
+			cfg::integer("gameplay_player_num_debris"),
 			{
 				res_id::DEBRIS1,
 				res_id::DEBRIS2,
@@ -331,16 +331,16 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 				res_id::DEBRIS4,
 				res_id::DEBRIS5
 			},
-			cfg::gameplay::debris_min_vel,
-			cfg::gameplay::debris_max_vel,
-			cfg::gameplay::debris_min_theta,
-			cfg::gameplay::debris_max_theta,
+			cfg::real("gameplay_debris_min_vel"),
+			cfg::real("gameplay_debris_max_vel"),
+			cfg::real("gameplay_debris_min_theta"),
+			cfg::real("gameplay_debris_max_theta"),
 			/* explode = */ false,
 			/* randomize = */ true),
 		cmp::create_explosion_sequence_reaction(
-				cfg::gameplay::player_num_explosions,
-				cfg::gfx::explosion_seq_min_delay,
-				cfg::gfx::explosion_seq_min_delay)
+				cfg::integer("gameplay_player_num_explosions"),
+				cfg::real("gfx_explosion_seq_min_delay"),
+				cfg::real("gfx_explosion_seq_min_delay"))
 	});
 
 	shared_ptr<cmp::timer> ttl; 
@@ -348,8 +348,8 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	// Fx components.
 	// --------------
 	auto fxs = cmp::create_smoke_when_hurt(
-			cmp::create_const_int_timer(cfg::gameplay::smoke_interval),
-			cfg::gameplay::smoke_health_ratio_threshold);
+			cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+			cfg::real("gameplay_smoke_health_ratio_threshold"));
 
 	// Score components.
 	// -----------------
@@ -379,7 +379,7 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 	// ------------------
 	uint64_t id = ++_last_id;
 	auto orientation = cmp::create_orientation(x, y, cfg::math::half_pi);
-	auto shape = cmp::create_circle(x, y, cfg::gameplay::lfighter_shape_radius);
+	auto shape = cmp::create_circle(x, y, cfg::real("gameplay_lfighter_shape_radius"));
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Drawing components.
@@ -393,30 +393,30 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 	// --------------------
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
-		-cfg::gameplay::wide_offscreen_bound - 1.0,
-		-cfg::gameplay::wide_offscreen_bound - 1.0,
-		cfg::gfx::screen_w + cfg::gameplay::wide_offscreen_bound + 1.0,
-		cfg::gfx::screen_h + cfg::gameplay::wide_offscreen_bound + 1.0);
+		-cfg::real("gameplay_wide_offscreen_bound") - 1.0,
+		-cfg::real("gameplay_wide_offscreen_bound") - 1.0,
+		cfg::integer("gfx_screen_w") + cfg::real("gameplay_wide_offscreen_bound") + 1.0,
+		cfg::integer("gfx_screen_h") + cfg::real("gameplay_wide_offscreen_bound") + 1.0);
 
 	// Arms components.
 	// ----------------
 	auto upgrades = cmp::create_upgrades(0, 0, 0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(
-					cfg::gameplay::lfighter_bullet_interval,
-					cfg::gameplay::lfighter_bullet_interval,
-					+cfg::gfx::lfighter_gun_xoffset,
-					cfg::gfx::lfighter_gun_yoffset,
+					cfg::real("gameplay_lfighter_bullet_interval"),
+					cfg::real("gameplay_lfighter_bullet_interval"),
+					+cfg::real("gfx_lfighter_gun_xoffset"),
+					cfg::real("gfx_lfighter_gun_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::bullet_lin_vel),
+					cfg::real("gameplay_bullet_lin_vel")),
 
 			cmp::create_period_bullet(
-					cfg::gameplay::lfighter_bullet_interval,
-					cfg::gameplay::lfighter_bullet_interval,
-					-cfg::gfx::lfighter_gun_xoffset,
-					cfg::gfx::lfighter_gun_yoffset,
+					cfg::real("gameplay_lfighter_bullet_interval"),
+					cfg::real("gameplay_lfighter_bullet_interval"),
+					-cfg::real("gfx_lfighter_gun_xoffset"),
+					cfg::real("gfx_lfighter_gun_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::bullet_lin_vel) });
+					cfg::real("gameplay_bullet_lin_vel")) });
 
 	// Collision components.
 	// ---------------------
@@ -425,17 +425,17 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 		cmp::pain_team::ENEMY,
 		cmp::pain_profile::LIGHT,
 		false,
-		cmp::create_simple_damage_profile(cfg::gameplay::lfighter_damage),
+		cmp::create_simple_damage_profile(cfg::real("gameplay_lfighter_damage")),
 		nullptr);
 
 	// Wellness components.
 	// --------------------
 	auto wellness = cmp::create_wellness(
-			cfg::gameplay::lfighter_max_health,
-			cfg::gameplay::lfighter_max_shield);
+			cfg::real("gameplay_lfighter_max_health"),
+			cfg::real("gameplay_lfighter_max_shield"));
 	vector<shared_ptr<cmp::reaction>> reactions {
 		cmp::create_debris_reaction(
-				cfg::gameplay::lfighter_num_debris,
+				cfg::integer("gameplay_lfighter_num_debris"),
 				{
 					res_id::DEBRIS1,
 					res_id::DEBRIS2,
@@ -443,30 +443,30 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 					res_id::DEBRIS4,
 					res_id::DEBRIS5
 				},
-				cfg::gameplay::debris_min_vel,
-				cfg::gameplay::debris_max_vel,
-				cfg::gameplay::debris_min_theta,
-				cfg::gameplay::debris_max_theta,
+				cfg::real("gameplay_debris_min_vel"),
+				cfg::real("gameplay_debris_max_vel"),
+				cfg::real("gameplay_debris_min_theta"),
+				cfg::real("gameplay_debris_max_theta"),
 				/* explode = */ false,
 				/* randomize = */ true),
 				cmp::create_explosion_sequence_reaction(
-						cfg::gameplay::lfighter_num_explosions,
-						cfg::gfx::explosion_seq_min_delay,
-						cfg::gfx::explosion_seq_min_delay) };
+						cfg::integer("gameplay_lfighter_num_explosions"),
+						cfg::real("gfx_explosion_seq_min_delay"),
+						cfg::real("gfx_explosion_seq_min_delay")) };
 
-	bernoulli_distribution drop_health(cfg::gameplay::lfighter_health_drop_dist);
+	bernoulli_distribution drop_health(cfg::real("gameplay_lfighter_health_drop_dist"));
 	if(drop_health(rnd::engine))
 		reactions.push_back(cmp::create_health_drop_reaction());
 
-	bernoulli_distribution drop_battery(cfg::gameplay::lfighter_battery_drop_dist);
+	bernoulli_distribution drop_battery(cfg::real("gameplay_lfighter_battery_drop_dist"));
 	if(drop_battery(rnd::engine))
 		reactions.push_back(cmp::create_battery_drop_reaction());
 
-	bernoulli_distribution drop_bul_up(cfg::gameplay::lfighter_gun_up_drop_dist);
+	bernoulli_distribution drop_bul_up(cfg::real("gameplay_lfighter_gun_up_drop_dist"));
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
-	bernoulli_distribution drop_mis_up(cfg::gameplay::lfighter_ml_up_drop_dist);
+	bernoulli_distribution drop_mis_up(cfg::real("gameplay_lfighter_ml_up_drop_dist"));
 		if(drop_mis_up(rnd::engine))
 			reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
 
@@ -476,8 +476,8 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 	// Fx components.
 	// --------------
 	auto fxs = cmp::create_smoke_when_hurt(
-			cmp::create_const_int_timer(cfg::gameplay::smoke_interval),
-			cfg::gameplay::smoke_health_ratio_threshold);
+			cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+			cfg::real("gameplay_smoke_health_ratio_threshold"));
 
 	// Score components.
 	// -----------------
@@ -504,7 +504,7 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 	// ------------------
 	uint64_t id = ++_last_id;
 	auto orientation = cmp::create_orientation(x, y, cfg::math::half_pi);
-	auto shape = cmp::create_circle(x, y, cfg::gameplay::hfighter_shape_radius);
+	auto shape = cmp::create_circle(x, y, cfg::real("gameplay_hfighter_shape_radius"));
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Drawing components.
@@ -518,43 +518,43 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 	// --------------------
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
-		-cfg::gameplay::wide_offscreen_bound - 1.0,
-		-cfg::gameplay::wide_offscreen_bound - 1.0,
-		cfg::gfx::screen_w + cfg::gameplay::wide_offscreen_bound + 1.0,
-		cfg::gfx::screen_h + cfg::gameplay::wide_offscreen_bound + 1.0);
+		-cfg::real("gameplay_wide_offscreen_bound") - 1.0,
+		-cfg::real("gameplay_wide_offscreen_bound") - 1.0,
+		cfg::integer("gfx_screen_w") + cfg::real("gameplay_wide_offscreen_bound") + 1.0,
+		cfg::integer("gfx_screen_h") + cfg::real("gameplay_wide_offscreen_bound") + 1.0);
 
 	// Arms components.
 	// ----------------
 	auto upgrades = cmp::create_upgrades(0, 0, 0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(
-					cfg::gameplay::hfighter_bullet_interval,
-					cfg::gameplay::hfighter_bullet_interval,
-					+cfg::gfx::hfighter_gun_xoffset,
-					cfg::gfx::hfighter_gun_yoffset,
+					cfg::real("gameplay_hfighter_bullet_interval"),
+					cfg::real("gameplay_hfighter_bullet_interval"),
+					+cfg::real("gfx_hfighter_gun_xoffset"),
+					cfg::real("gfx_hfighter_gun_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::bullet_lin_vel),
+					cfg::real("gameplay_bullet_lin_vel")),
 			cmp::create_period_bullet(
-					cfg::gameplay::hfighter_bullet_interval,
-					cfg::gameplay::hfighter_bullet_interval,
-					-cfg::gfx::hfighter_gun_xoffset,
-					cfg::gfx::hfighter_gun_yoffset,
+					cfg::real("gameplay_hfighter_bullet_interval"),
+					cfg::real("gameplay_hfighter_bullet_interval"),
+					-cfg::real("gfx_hfighter_gun_xoffset"),
+					cfg::real("gfx_hfighter_gun_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::bullet_lin_vel),
+					cfg::real("gameplay_bullet_lin_vel")),
 			cmp::create_period_missile(
-					cfg::gameplay::hfighter_missile_interval,
-					cfg::gameplay::hfighter_missile_interval,
-					+cfg::gfx::hfighter_rl_xoffset,
-					cfg::gfx::hfighter_rl_yoffset,
+					cfg::real("gameplay_hfighter_missile_interval"),
+					cfg::real("gameplay_hfighter_missile_interval"),
+					+cfg::real("gfx_hfighter_rl_xoffset"),
+					cfg::real("gfx_hfighter_rl_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::missile_lin_vel),
+					cfg::real("gameplay_missile_lin_vel")),
 			cmp::create_period_missile(
-					cfg::gameplay::hfighter_missile_interval,
-					cfg::gameplay::hfighter_missile_interval,
-					-cfg::gfx::hfighter_rl_xoffset,
-					cfg::gfx::hfighter_rl_yoffset,
+					cfg::real("gameplay_hfighter_missile_interval"),
+					cfg::real("gameplay_hfighter_missile_interval"),
+					-cfg::real("gfx_hfighter_rl_xoffset"),
+					cfg::real("gfx_hfighter_rl_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::missile_lin_vel) });
+					cfg::real("gameplay_missile_lin_vel")) });
 
 	// Collision components.
 	// ---------------------
@@ -563,18 +563,18 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 		cmp::pain_team::ENEMY,
 		cmp::pain_profile::MEDIUM,
 		false,
-		cmp::create_simple_damage_profile(cfg::gameplay::hfighter_damage),
+		cmp::create_simple_damage_profile(cfg::real("gameplay_hfighter_damage")),
 		nullptr);
 
 	// Wellness components.
 	// --------------------
 	auto wellness = cmp::create_wellness(
-			cfg::gameplay::hfighter_max_health,
-			cfg::gameplay::hfighter_max_shield);
+			cfg::real("gameplay_hfighter_max_health"),
+			cfg::real("gameplay_hfighter_max_shield"));
 	shared_ptr<cmp::timer> ttl;
 	vector<shared_ptr<cmp::reaction>> reactions {
 		cmp::create_debris_reaction(
-				cfg::gameplay::hfighter_num_debris,
+				cfg::integer("gameplay_hfighter_num_debris"),
 				{
 					res_id::DEBRIS1,
 					res_id::DEBRIS2,
@@ -582,29 +582,29 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 					res_id::DEBRIS4,
 					res_id::DEBRIS5
 				},
-				cfg::gameplay::debris_min_vel,
-				cfg::gameplay::debris_max_vel,
-				cfg::gameplay::debris_min_theta,
-				cfg::gameplay::debris_max_theta,
+				cfg::real("gameplay_debris_min_vel"),
+				cfg::real("gameplay_debris_max_vel"),
+				cfg::real("gameplay_debris_min_theta"),
+				cfg::real("gameplay_debris_max_theta"),
 			/* explode = */ false,
 			/* randomize = */ true),
 		cmp::create_explosion_sequence_reaction(
-				cfg::gameplay::hfighter_num_explosions,
-				cfg::gfx::explosion_seq_min_delay,
-				cfg::gfx::explosion_seq_min_delay) };
+				cfg::integer("gameplay_hfighter_num_explosions"),
+				cfg::real("gfx_explosion_seq_min_delay"),
+				cfg::real("gfx_explosion_seq_min_delay")) };
 
-	bernoulli_distribution drop_health(cfg::gameplay::hfighter_health_drop_dist);
+	bernoulli_distribution drop_health(cfg::real("gameplay_hfighter_health_drop_dist"));
 	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
 
-	bernoulli_distribution drop_battery(cfg::gameplay::hfighter_battery_drop_dist);
+	bernoulli_distribution drop_battery(cfg::real("gameplay_hfighter_battery_drop_dist"));
 	if(drop_battery(rnd::engine))
 		reactions.push_back(cmp::create_battery_drop_reaction());
 
-	bernoulli_distribution drop_bul_up(cfg::gameplay::hfighter_gun_up_drop_dist);
+	bernoulli_distribution drop_bul_up(cfg::real("gameplay_hfighter_gun_up_drop_dist"));
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
-	bernoulli_distribution drop_mis_up(cfg::gameplay::hfighter_ml_up_drop_dist);
+	bernoulli_distribution drop_mis_up(cfg::real("gameplay_hfighter_ml_up_drop_dist"));
 		if(drop_mis_up(rnd::engine))
 			reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
 
@@ -613,8 +613,8 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 	// Fx components.
 	// --------------
 	auto fxs = cmp::create_smoke_when_hurt(
-			cmp::create_const_int_timer(cfg::gameplay::smoke_interval),
-			cfg::gameplay::smoke_health_ratio_threshold);
+			cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+			cfg::real("gameplay_smoke_health_ratio_threshold"));
 
 	// Score components.
 	// -----------------
@@ -643,15 +643,15 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 	auto orientation = cmp::create_orientation(x, y, cfg::math::half_pi);
 	auto pain_flash = make_shared<double>(0.0);
 	auto shape = cmp::create_complex_shape({
-		cmp::create_circle(x + cfg::gameplay::lbomber_shape1_xoffset,
-				y + cfg::gameplay::lbomber_shape1_yoffset,
-				cfg::gameplay::lbomber_shape_radius),
-		cmp::create_circle(x + cfg::gameplay::lbomber_shape2_xoffset,
-				y + cfg::gameplay::lbomber_shape2_yoffset,
-				cfg::gameplay::lbomber_shape_radius),
-		cmp::create_circle(x + cfg::gameplay::lbomber_shape3_xoffset,
-				y + cfg::gameplay::lbomber_shape3_yoffset,
-				cfg::gameplay::lbomber_shape_radius)
+		cmp::create_circle(x + cfg::real("gameplay_lbomber_shape1_xoffset"),
+				y + cfg::real("gameplay_lbomber_shape1_yoffset"),
+				cfg::real("gameplay_lbomber_shape_radius")),
+		cmp::create_circle(x + cfg::real("gameplay_lbomber_shape2_xoffset"),
+				y + cfg::real("gameplay_lbomber_shape2_yoffset"),
+				cfg::real("gameplay_lbomber_shape_radius")),
+		cmp::create_circle(x + cfg::real("gameplay_lbomber_shape3_xoffset"),
+				y + cfg::real("gameplay_lbomber_shape3_yoffset"),
+				cfg::real("gameplay_lbomber_shape_radius"))
 	});
 
 	// Drawing components.
@@ -665,43 +665,43 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 	// --------------------
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
-		-cfg::gameplay::wide_offscreen_bound - 1.0,
-		-cfg::gameplay::wide_offscreen_bound - 1.0,
-		cfg::gfx::screen_w + cfg::gameplay::wide_offscreen_bound + 1.0,
-		cfg::gfx::screen_h + cfg::gameplay::wide_offscreen_bound + 1.0);
+		-cfg::real("gameplay_wide_offscreen_bound") - 1.0,
+		-cfg::real("gameplay_wide_offscreen_bound") - 1.0,
+		cfg::integer("gfx_screen_w") + cfg::real("gameplay_wide_offscreen_bound") + 1.0,
+		cfg::integer("gfx_screen_h") + cfg::real("gameplay_wide_offscreen_bound") + 1.0);
 
 	// Arms components.
 	// ----------------
 	auto upgrades = cmp::create_upgrades(0, 0, 0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(
-					cfg::gameplay::lbomber_bullet_interval,
-					cfg::gameplay::lbomber_bullet_interval,
-					+cfg::gfx::lbomber_gun_xoffset,
-					cfg::gfx::lbomber_gun_yoffset,
+					cfg::real("gameplay_lbomber_bullet_interval"),
+					cfg::real("gameplay_lbomber_bullet_interval"),
+					+cfg::real("gfx_lbomber_gun_xoffset"),
+					cfg::real("gfx_lbomber_gun_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::bullet_lin_vel),
+					cfg::real("gameplay_bullet_lin_vel")),
 			cmp::create_period_bullet(
-					cfg::gameplay::lbomber_bullet_interval,
-					cfg::gameplay::lbomber_bullet_interval,
-					-cfg::gfx::lbomber_gun_xoffset,
-					cfg::gfx::lbomber_gun_yoffset,
+					cfg::real("gameplay_lbomber_bullet_interval"),
+					cfg::real("gameplay_lbomber_bullet_interval"),
+					-cfg::real("gfx_lbomber_gun_xoffset"),
+					cfg::real("gfx_lbomber_gun_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::bullet_lin_vel),
+					cfg::real("gameplay_bullet_lin_vel")),
 			cmp::create_period_missile(
-					cfg::gameplay::lbomber_missile_interval,
-					cfg::gameplay::lbomber_missile_interval,
-					+cfg::gfx::lbomber_rl_xoffset,
-					cfg::gfx::lbomber_rl_yoffset,
+					cfg::real("gameplay_lbomber_missile_interval"),
+					cfg::real("gameplay_lbomber_missile_interval"),
+					+cfg::real("gfx_lbomber_rl_xoffset"),
+					cfg::real("gfx_lbomber_rl_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::missile_lin_vel),
+					cfg::real("gameplay_missile_lin_vel")),
 			cmp::create_period_missile(
-					cfg::gameplay::lbomber_missile_interval,
-					cfg::gameplay::lbomber_missile_interval,
-					-cfg::gfx::lbomber_rl_xoffset,
-					cfg::gfx::lbomber_rl_yoffset,
+					cfg::real("gameplay_lbomber_missile_interval"),
+					cfg::real("gameplay_lbomber_missile_interval"),
+					-cfg::real("gfx_lbomber_rl_xoffset"),
+					cfg::real("gfx_lbomber_rl_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::missile_lin_vel) });
+					cfg::real("gameplay_missile_lin_vel")) });
 
 	// Collision components.
 	// ---------------------
@@ -710,17 +710,17 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 		cmp::pain_team::ENEMY,
 		cmp::pain_profile::MEDIUM,
 		false,
-		cmp::create_simple_damage_profile(cfg::gameplay::lbomber_damage),
+		cmp::create_simple_damage_profile(cfg::real("gameplay_lbomber_damage")),
 		nullptr);
 
 	// Wellness components.
 	// --------------------
 	auto wellness = cmp::create_wellness(
-			cfg::gameplay::lbomber_max_health,
-			cfg::gameplay::lbomber_max_shield);
+			cfg::real("gameplay_lbomber_max_health"),
+			cfg::real("gameplay_lbomber_max_shield"));
 	vector<shared_ptr<cmp::reaction>> reactions {
 		cmp::create_debris_reaction(
-				cfg::gameplay::lbomber_num_debris,
+				cfg::integer("gameplay_lbomber_num_debris"),
 				{
 					res_id::DEBRIS1,
 					res_id::DEBRIS2,
@@ -728,30 +728,30 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 					res_id::DEBRIS4,
 					res_id::DEBRIS5
 				},
-				cfg::gameplay::debris_min_vel,
-				cfg::gameplay::debris_max_vel,
-				cfg::gameplay::debris_min_theta,
-				cfg::gameplay::debris_max_theta,
+				cfg::real("gameplay_debris_min_vel"),
+				cfg::real("gameplay_debris_max_vel"),
+				cfg::real("gameplay_debris_min_theta"),
+				cfg::real("gameplay_debris_max_theta"),
 			/* explode = */ false,
 			/* randomize = */ true),
 		cmp::create_explosion_sequence_reaction(
-				cfg::gameplay::lbomber_num_explosions,
-				cfg::gfx::explosion_seq_min_delay,
-				cfg::gfx::explosion_seq_min_delay)
+				cfg::integer("gameplay_lbomber_num_explosions"),
+				cfg::real("gfx_explosion_seq_min_delay"),
+				cfg::real("gfx_explosion_seq_min_delay"))
 	};
 
-	bernoulli_distribution drop_health(cfg::gameplay::lbomber_health_drop_dist);
+	bernoulli_distribution drop_health(cfg::real("gameplay_lbomber_health_drop_dist"));
 	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
 
-	bernoulli_distribution drop_battery(cfg::gameplay::lbomber_battery_drop_dist);
+	bernoulli_distribution drop_battery(cfg::real("gameplay_lbomber_battery_drop_dist"));
 	if(drop_battery(rnd::engine))
 		reactions.push_back(cmp::create_battery_drop_reaction());
 
-	bernoulli_distribution drop_bul_up(cfg::gameplay::lbomber_gun_up_drop_dist);
+	bernoulli_distribution drop_bul_up(cfg::real("gameplay_lbomber_gun_up_drop_dist"));
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
-	bernoulli_distribution drop_mis_up(cfg::gameplay::lbomber_ml_up_drop_dist);
+	bernoulli_distribution drop_mis_up(cfg::real("gameplay_lbomber_ml_up_drop_dist"));
 		if(drop_mis_up(rnd::engine))
 			reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
 
@@ -761,8 +761,8 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 	// Fx components.
 	// --------------
 	auto fxs = cmp::create_smoke_when_hurt(
-			cmp::create_const_int_timer(cfg::gameplay::smoke_interval),
-			cfg::gameplay::smoke_health_ratio_threshold);
+			cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+			cfg::real("gameplay_smoke_health_ratio_threshold"));
 
 	// Score components.
 	// -----------------
@@ -791,15 +791,15 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 	auto orientation = cmp::create_orientation(x, y, 0.0);
 	auto pain_flash = make_shared<double>(0.0);
 	auto shape = cmp::create_complex_shape({
-		cmp::create_circle(x + cfg::gameplay::hbomber_shape1_xoffset,
-				y + cfg::gameplay::hbomber_shape1_yoffset,
-				cfg::gameplay::hbomber_shape_radius),
-		cmp::create_circle(x + cfg::gameplay::hbomber_shape2_xoffset,
-				y + cfg::gameplay::hbomber_shape2_yoffset,
-				cfg::gameplay::hbomber_shape_radius),
-		cmp::create_circle(x + cfg::gameplay::hbomber_shape3_xoffset,
-				y + cfg::gameplay::hbomber_shape3_yoffset,
-				cfg::gameplay::hbomber_shape_radius)
+		cmp::create_circle(x + cfg::real("gameplay_hbomber_shape1_xoffset"),
+				y + cfg::real("gameplay_hbomber_shape1_yoffset"),
+				cfg::real("gameplay_hbomber_shape_radius")),
+		cmp::create_circle(x + cfg::real("gameplay_hbomber_shape2_xoffset"),
+				y + cfg::real("gameplay_hbomber_shape2_yoffset"),
+				cfg::real("gameplay_hbomber_shape_radius")),
+		cmp::create_circle(x + cfg::real("gameplay_hbomber_shape3_xoffset"),
+				y + cfg::real("gameplay_hbomber_shape3_yoffset"),
+				cfg::real("gameplay_hbomber_shape_radius"))
 	});
 
 	// Drawing components.
@@ -813,43 +813,43 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 	// --------------------
 	auto movement_bounds = shared_ptr<cmp::bounds>();
 	auto life_bounds = cmp::create_bounds(
-		-cfg::gameplay::wide_offscreen_bound - 1.0,
-		-cfg::gameplay::wide_offscreen_bound - 1.0,
-		cfg::gfx::screen_w + cfg::gameplay::wide_offscreen_bound + 1.0,
-		cfg::gfx::screen_h + cfg::gameplay::wide_offscreen_bound + 1.0);
+		-cfg::real("gameplay_wide_offscreen_bound") - 1.0,
+		-cfg::real("gameplay_wide_offscreen_bound") - 1.0,
+		cfg::integer("gfx_screen_w") + cfg::real("gameplay_wide_offscreen_bound") + 1.0,
+		cfg::integer("gfx_screen_h") + cfg::real("gameplay_wide_offscreen_bound") + 1.0);
 
 	// Arms components.
 	// ----------------
 	auto upgrades = cmp::create_upgrades(0, 0, 0, 0);
 	auto weapon_beh = cmp::create_complex_weapon_beh({
 			cmp::create_period_bullet(
-					cfg::gameplay::hbomber_bullet_interval,
-					cfg::gameplay::hbomber_bullet_interval,
-					+cfg::gfx::hbomber_gun_xoffset,
-					cfg::gfx::hbomber_gun_yoffset,
+					cfg::real("gameplay_hbomber_bullet_interval"),
+					cfg::real("gameplay_hbomber_bullet_interval"),
+					+cfg::real("gfx_hbomber_gun_xoffset"),
+					cfg::real("gfx_hbomber_gun_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::bullet_lin_vel),
+					cfg::real("gameplay_bullet_lin_vel")),
 			cmp::create_period_bullet(
-					cfg::gameplay::hbomber_bullet_interval,
-					cfg::gameplay::hbomber_bullet_interval,
-					-cfg::gfx::hbomber_gun_xoffset,
-					cfg::gfx::hbomber_gun_yoffset,
+					cfg::real("gameplay_hbomber_bullet_interval"),
+					cfg::real("gameplay_hbomber_bullet_interval"),
+					-cfg::real("gfx_hbomber_gun_xoffset"),
+					cfg::real("gfx_hbomber_gun_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::bullet_lin_vel),
+					cfg::real("gameplay_bullet_lin_vel")),
 			cmp::create_period_missile(
-					cfg::gameplay::hbomber_missile_interval,
-					cfg::gameplay::hbomber_missile_interval,
-					+cfg::gfx::hbomber_rl_xoffset,
-					cfg::gfx::hbomber_rl_yoffset,
+					cfg::real("gameplay_hbomber_missile_interval"),
+					cfg::real("gameplay_hbomber_missile_interval"),
+					+cfg::real("gfx_hbomber_rl_xoffset"),
+					cfg::real("gfx_hbomber_rl_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::missile_lin_vel),
+					cfg::real("gameplay_missile_lin_vel")),
 			cmp::create_period_missile(
-					cfg::gameplay::hbomber_missile_interval,
-					cfg::gameplay::hbomber_missile_interval,
-					-cfg::gfx::hbomber_rl_xoffset,
-					cfg::gfx::hbomber_rl_yoffset,
+					cfg::real("gameplay_hbomber_missile_interval"),
+					cfg::real("gameplay_hbomber_missile_interval"),
+					-cfg::real("gfx_hbomber_rl_xoffset"),
+					cfg::real("gfx_hbomber_rl_yoffset"),
 					0.0, 1.0,
-					cfg::gameplay::missile_lin_vel) });
+					cfg::real("gameplay_missile_lin_vel")) });
 
 	// Collision components.
 	// ---------------------
@@ -858,17 +858,17 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 		cmp::pain_team::ENEMY,
 		cmp::pain_profile::HEAVY,
 		false,
-		cmp::create_simple_damage_profile(cfg::gameplay::hbomber_damage),
+		cmp::create_simple_damage_profile(cfg::real("gameplay_hbomber_damage")),
 		nullptr);
 
 	// Wellness components.
 	// --------------------
 	auto wellness = cmp::create_wellness(
-			cfg::gameplay::hbomber_max_health,
-			cfg::gameplay::hbomber_max_shield);
+			cfg::real("gameplay_hbomber_max_health"),
+			cfg::real("gameplay_hbomber_max_shield"));
 	vector<shared_ptr<cmp::reaction>> reactions {
 		cmp::create_debris_reaction(
-				cfg::gameplay::hbomber_num_debris,
+				cfg::integer("gameplay_hbomber_num_debris"),
 				{
 					res_id::DEBRIS1,
 					res_id::DEBRIS2,
@@ -876,30 +876,30 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 					res_id::DEBRIS4,
 					res_id::DEBRIS5
 				},
-				cfg::gameplay::debris_min_vel,
-				cfg::gameplay::debris_max_vel,
-				cfg::gameplay::debris_min_theta,
-				cfg::gameplay::debris_max_theta,
+				cfg::real("gameplay_debris_min_vel"),
+				cfg::real("gameplay_debris_max_vel"),
+				cfg::real("gameplay_debris_min_theta"),
+				cfg::real("gameplay_debris_max_theta"),
 			/* explode = */ false,
 			/* randomize = */ true),
 		cmp::create_explosion_sequence_reaction(
-				cfg::gameplay::hbomber_num_explosions,
-				cfg::gfx::explosion_seq_min_delay,
-				cfg::gfx::explosion_seq_min_delay)
+				cfg::integer("gameplay_hbomber_num_explosions"),
+				cfg::real("gfx_explosion_seq_min_delay"),
+				cfg::real("gfx_explosion_seq_min_delay"))
 	};
 
-	bernoulli_distribution drop_health(cfg::gameplay::hbomber_health_drop_dist);
+	bernoulli_distribution drop_health(cfg::real("gameplay_hbomber_health_drop_dist"));
 	if(drop_health(rnd::engine)) reactions.push_back(cmp::create_health_drop_reaction());
 
-	bernoulli_distribution drop_battery(cfg::gameplay::hbomber_battery_drop_dist);
+	bernoulli_distribution drop_battery(cfg::real("gameplay_hbomber_battery_drop_dist"));
 	if(drop_battery(rnd::engine))
 		reactions.push_back(cmp::create_battery_drop_reaction());
 
-	bernoulli_distribution drop_bul_up(cfg::gameplay::hbomber_gun_up_drop_dist);
+	bernoulli_distribution drop_bul_up(cfg::real("gameplay_hbomber_gun_up_drop_dist"));
 		if(drop_bul_up(rnd::engine))
 			reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
-	bernoulli_distribution drop_mis_up(cfg::gameplay::hbomber_ml_up_drop_dist);
+	bernoulli_distribution drop_mis_up(cfg::real("gameplay_hbomber_ml_up_drop_dist"));
 		if(drop_mis_up(rnd::engine))
 			reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
 
@@ -909,8 +909,8 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 	// Fx Components.
 	// --------------
 	auto fxs = cmp::create_smoke_when_hurt(
-			cmp::create_const_int_timer(cfg::gameplay::smoke_interval),
-			cfg::gameplay::smoke_health_ratio_threshold);
+			cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+			cfg::real("gameplay_smoke_health_ratio_threshold"));
 
 	// Score components.
 	// -----------------
@@ -930,97 +930,6 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 
 	return id;
 }
-/*
-uint64_t entity_factory::create_light_fighter() {
-
-	// Default dynamics.
-	bernoulli_distribution xdir_dist;
-
-	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
-	const double vx = dir * 75.0;
-	const double vy = 75.0;
-
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
-
-	// Default position.
-	const double x = (dir > 0.0)
-			? -cfg::gameplay::wide_offscreen_bound
-			: cfg::gfx::screen_w + cfg::gameplay::wide_offscreen_bound;
-
-	const double y = -cfg::gameplay::wide_offscreen_bound;
-
-	// Create.
-	return create_light_bomber_dyn(x, y, dynamics);
-}
-
-uint64_t entity_factory::create_heavy_fighter() {
-
-	// Create path.
-	uniform_real_distribution<double> x_margin_dist(50.0, 200.0);
-
-	const double x_margin = x_margin_dist(rnd::engine);
-
-	const double y0 = -wide_offscreen;
-	const double y1 = cfg::gfx::screen_h * 0.5;
-	const double y2 = cfg::gfx::screen_h + wide_offscreen;
-
-	bernoulli_distribution left_right_dist(0.5);
-	const bool left = left_right_dist(rnd::engine);
-	const double x0 = left ? x_margin : cfg::gfx::screen_w - x_margin;
-	const double x1 = left ? cfg::gfx::screen_w - x_margin : x_margin;
-
-	vector<point> points { { x0, y0 }, { x0, y1 }, { x1, y1 }, { x1, y2 } };
-
-	// Create dynamics.
-	auto dynamics = cmp::create_path_dynamics(points);
-
-	// Infer position.
-	double x = points.front().x;
-	double y = points.front().y;
-
-	// Create.
-	return create_heavy_fighter_dyn(x, y, dynamics);
-}
-
-uint64_t entity_factory::create_light_bomber() {
-
-	// Default dynamics.
-	bernoulli_distribution xdir_dist;
-
-	const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
-
-	const double vx = dir * 50.0;
-	const double vy = 50.0;
-
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
-
-	// Default position.
-	const double x = (dir > 0.0) ? -wide_offscreen : cfg::gfx::screen_w + wide_offscreen;
-	const double y = -wide_offscreen;
-
-	// Create.
-	return create_light_bomber_dyn(x, y, dynamics);
-}
-
-uint64_t entity_factory::create_heavy_bomber() {
-
-	// Default dynamics.
-	uniform_real_distribution<double> y_dist(
-			50.0, cfg::gfx::screen_h * 0.5);
-
-	const double vx = 40.0;
-	const double vy = 10.0;
-
-	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
-
-	// Default position.
-	const double x = -wide_offscreen;
-	const double y = y_dist(rnd::engine);
-
-	// Create.
-	return create_heavy_bomber_dyn(x, y, dynamics);
-}
-*/
 
 uint64_t entity_factory::create_common_pickup(
 		double x, double y,
@@ -1032,16 +941,16 @@ uint64_t entity_factory::create_common_pickup(
 	bernoulli_distribution dir_dist;
 
 	uniform_real_distribution<double> mv_dist(
-			cfg::gameplay::pickup_min_vel,
-			cfg::gameplay::pickup_max_vel);
+			cfg::real("gameplay_pickup_min_vel"),
+			cfg::real("gameplay_pickup_max_vel"));
 	double base_vx = mv_dist(rnd::engine);
 	double base_vy = mv_dist(rnd::engine);
 	double mul_vx = dir_dist(rnd::engine) ? 1.0 : -1.0;
 	double mul_vy = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
 	uniform_real_distribution<double> rot_dist(
-			cfg::gameplay::pickup_min_theta,
-			cfg::gameplay::pickup_max_theta);
+			cfg::real("gameplay_pickup_min_theta"),
+			cfg::real("gameplay_pickup_max_theta"));
 	double base_av = rot_dist(rnd::engine);
 	double mul_av = dir_dist(rnd::engine) ? 1.0 : -1.0;
 
@@ -1052,11 +961,11 @@ uint64_t entity_factory::create_common_pickup(
 	switch(type) {
 	case pickup_type::health:
 		image_id = res_id::HEALTH;
-		pp = cmp::create_health_pickup_profile(cfg::gameplay::pickup_health_amount);
+		pp = cmp::create_health_pickup_profile(cfg::real("gameplay_pickup_health_amount"));
 		break;
 	case pickup_type::battery:
 		image_id = res_id::BATTERY;
-		pp = cmp::create_battery_pickup_profile(cfg::gameplay::pickup_shield_amount);
+		pp = cmp::create_battery_pickup_profile(cfg::real("gameplay_pickup_shield_amount"));
 		break;
 	case pickup_type::bullet_up:
 		image_id = res_id::B_UPGRADE;
@@ -1075,7 +984,7 @@ uint64_t entity_factory::create_common_pickup(
 	// ------------------
 	uint64_t id = ++_last_id;
 	auto orientation = cmp::create_orientation(x, y, 0.0);
-	auto shape = cmp::create_circle(x, y, cfg::gameplay::pickup_shape_radius);
+	auto shape = cmp::create_circle(x, y, cfg::real("gameplay_pickup_shape_radius"));
 	auto pain_flash = make_shared<double>(0.0);
 
 	// Drawing components.
@@ -1086,7 +995,7 @@ uint64_t entity_factory::create_common_pickup(
 
 	// Movement components.
 	auto movement_bounds = shared_ptr<cmp::bounds>();
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::gfx::screen_w, cfg::gfx::screen_h);
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::integer("gfx_screen_w"), cfg::integer("gfx_screen_h"));
 	auto dynamics = cmp::create_complex_dynamics({
 		cmp::create_const_velocity_dynamics(
 			vx + base_vx * mul_vx,
@@ -1142,8 +1051,8 @@ uint64_t entity_factory::create_missile(
 	const double vy = dir_y * lin_vel;
 	const double ax = 0;
 	const double ay = (vy > 0)
-			? +cfg::gameplay::missile_lin_acc
-			: -cfg::gameplay::missile_lin_acc;
+			? +cfg::real("gameplay_missile_lin_acc")
+			: -cfg::real("gameplay_missile_lin_acc");
 	const double theta = atan2(dir_y, dir_x);
 
 	// Helpers.
@@ -1151,7 +1060,7 @@ uint64_t entity_factory::create_missile(
 	const double missile_health = 1.0;
 	const double missile_shield = 0.0;
 
-	double damage_base = cfg::gameplay::missile_damage_base;
+	double damage_base = cfg::real("gameplay_missile_damage_base");
 	double multiplier = upgrade_lvl;
 	double damage = damage_base * multiplier;
 
@@ -1159,7 +1068,7 @@ uint64_t entity_factory::create_missile(
 	// ------------------
 	uint64_t id = ++_last_id;
 	auto orientation = cmp::create_orientation(x, y, theta); 
-	auto shape = cmp::create_circle(x, y, cfg::gameplay::missile_shape_radius);
+	auto shape = cmp::create_circle(x, y, cfg::real("gameplay_missile_shape_radius"));
 	auto pain_flash = make_shared<double>(0.0);
 	shared_ptr<cmp::upgrades> upgrades;
 
@@ -1174,7 +1083,7 @@ uint64_t entity_factory::create_missile(
 	// --------------------
 	auto dynamics = cmp::create_const_acc_dynamics(vx, vy, ax, ay);
 	auto movement_bounds = shared_ptr<cmp::bounds>(); 
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::gfx::screen_w, cfg::gfx::screen_h);
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::integer("gfx_screen_w"), cfg::integer("gfx_screen_h"));
 
 	// Collision components.
 	// ---------------------
@@ -1192,7 +1101,7 @@ uint64_t entity_factory::create_missile(
 	auto wellness = cmp::create_wellness(missile_health, missile_shield);
 	auto on_death = cmp::create_complex_reaction({
 			cmp::create_debris_reaction(
-					cfg::gameplay::missile_num_debris,
+					cfg::integer("gameplay_missile_num_debris"),
 					{
 						res_id::DEBRIS1,
 						res_id::DEBRIS2,
@@ -1200,23 +1109,23 @@ uint64_t entity_factory::create_missile(
 						res_id::DEBRIS4,
 						res_id::DEBRIS5
 					},
-					cfg::gameplay::debris_min_vel,
-					cfg::gameplay::debris_max_vel,
-					cfg::gameplay::debris_min_theta,
-					cfg::gameplay::debris_max_theta,
+					cfg::real("gameplay_debris_min_vel"),
+					cfg::real("gameplay_debris_max_vel"),
+					cfg::real("gameplay_debris_min_theta"),
+					cfg::real("gameplay_debris_max_theta"),
 					/* explode = */ false,
 					/* randomize = */ true),
 			cmp::create_explosion_sequence_reaction(1,
-					cfg::gfx::explosion_seq_min_delay,
-					cfg::gfx::explosion_seq_min_delay) });
+					cfg::real("gfx_explosion_seq_min_delay"),
+					cfg::real("gfx_explosion_seq_min_delay")) });
 
 	shared_ptr<cmp::timer> ttl;
 
 	// Fx components.
 	// --------------
 	auto fxs = cmp::create_period_smoke(
-			cfg::gameplay::smoke_interval,
-			cfg::gameplay::smoke_interval);
+			cfg::real("gameplay_smoke_interval"),
+			cfg::real("gameplay_smoke_interval"));
 
 	// Register nodes.
 	// ---------------
@@ -1249,34 +1158,49 @@ uint64_t entity_factory::create_bullet(
 	double bullet_health = 1.0;
 	double bullet_shield = 0.0;
 
-	double damage_base = cfg::gameplay::bullet_damage_base;
+	double damage_base = cfg::real("gameplay_bullet_damage_base");
 	double multiplier = upgrade_lvl;
 	double damage = damage_base * multiplier;
+
+	res_id image;
+	switch(upgrade_lvl) {
+	case 1:
+		image = res_id::BULLET_1;
+		break;
+	case 2:
+		image = res_id::BULLET_2;
+		break;
+	case 3:
+		image = res_id::BULLET_3;
+		break;
+	case 4:
+		image = res_id::BULLET_4;
+		break;
+	case 5:
+		image = res_id::BULLET_5;
+		break;
+	}
 
 	// Common components.
 	// ------------------
 	uint64_t id = ++_last_id;
 	auto orientation = cmp::create_orientation(x, y, theta); 
-	auto shape = cmp::create_circle(x, y, cfg::gameplay::bullet_shape_radius);
+	auto shape = cmp::create_circle(x, y, cfg::real("gameplay_bullet_shape_radius"));
 	auto pain_flash = make_shared<double>(0.0);
 	shared_ptr<cmp::upgrades> upgrades;
 
 	// Drawing components.
 	// -------------------
 	auto draw_plane = cmp::draw_plane::PROJECTILES;
-	auto appearance = enemy
-		? cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::EYE_BULLET),
-			_resman.get_bitmap(res_id::EYE_BULLET))
-		: cmp::create_static_bmp(
-			_resman.get_bitmap(res_id::PLAYER_BULLET),
-			_resman.get_bitmap(res_id::PLAYER_BULLET));
+	auto appearance = cmp::create_static_bmp(
+			_resman.get_bitmap(image),
+			_resman.get_bitmap(image));
 
 	// Movement components.
 	// --------------------
 	auto dynamics = cmp::create_const_velocity_dynamics(vx, vy);
 	auto movement_bounds = shared_ptr<cmp::bounds>();
-	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::gfx::screen_w, cfg::gfx::screen_h);
+	auto life_bounds = cmp::create_bounds(0.0, 0.0, cfg::integer("gfx_screen_w"), cfg::integer("gfx_screen_h"));
 
 	// Collision components.
 	// ---------------------

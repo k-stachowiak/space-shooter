@@ -29,15 +29,16 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	
 	// Load simple images.
 	add_bitmap(res_id::PLAYER_SHIP, "data/player_ship.png");
-	add_bitmap(res_id::PLAYER_BULLET, "data/player_bullet.png");
-	add_bitmap(res_id::ENEMY_BOMBER, "data/light_bomber.png");
 	add_bitmap(res_id::ENEMY_LIGHT_FIGHTER, "data/light_fighter.png");
 	add_bitmap(res_id::ENEMY_HEAVY_FIGHTER, "data/heavy_fighter.png");
 	add_bitmap(res_id::ENEMY_LIGHT_BOMBER, "data/light_bomber.png");
 	add_bitmap(res_id::ENEMY_HEAVY_BOMBER, "data/heavy_bomber.png");
-	add_bitmap(res_id::EYE_BULLET, "data/eye_bullet.png");
+	add_bitmap(res_id::BULLET_1, "data/bullet1.png");
+	add_bitmap(res_id::BULLET_2, "data/bullet2.png");
+	add_bitmap(res_id::BULLET_3, "data/bullet3.png");
+	add_bitmap(res_id::BULLET_4, "data/bullet4.png");
+	add_bitmap(res_id::BULLET_5, "data/bullet5.png");
 	add_bitmap(res_id::MISSILE, "data/missile.png");
-	add_bitmap(res_id::MISSILES, "data/missiles.png");
 	add_bitmap(res_id::B_UPGRADE, "data/bullet_upgrade.png");
 	add_bitmap(res_id::M_UPGRADE, "data/missile_upgrade.png");
 	add_bitmap(res_id::DEBRIS1, "data/debris1.png");
@@ -54,27 +55,26 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	// Load/generate animations
 	expand_fade(res_id::SMOKE,
 			"data/smoke_single.png",
-			cfg::gfx::smoke_num_frames,
-			cfg::gfx::smoke_expand_scale);
+			cfg::integer("gfx_smoke_num_frames"),
+			cfg::real("gfx_smoke_expand_scale"));
 
-	scaled_copy(res_id::SMOKE_SMALL, res_id::SMOKE, cfg::gfx::smoke_scale_tiny);
-	scaled_copy(res_id::SMOKE_BIG, res_id::SMOKE, cfg::gfx::smoke_scale_big);
+	scaled_copy(res_id::SMOKE_SMALL, res_id::SMOKE, cfg::real("gfx_smoke_scale_tiny"));
+	scaled_copy(res_id::SMOKE_BIG, res_id::SMOKE, cfg::real("gfx_smoke_scale_big"));
 
 	fade_frames(res_id::EXPLOSION,
 			"data/explosion.png",
-			cfg::gfx::explosion_num_frames);
+			cfg::integer("gfx_explosion_num_frames"));
 
 	// Generate flashes.
 	flash(res_id::PLAYER_SHIP_FLASH, res_id::PLAYER_SHIP);
-	flash(res_id::ENEMY_BOMBER_FLASH, res_id::ENEMY_BOMBER);
 	flash(res_id::ENEMY_LIGHT_FIGHTER_FLASH, res_id::ENEMY_LIGHT_FIGHTER);
 	flash(res_id::ENEMY_HEAVY_FIGHTER_FLASH, res_id::ENEMY_HEAVY_FIGHTER);
 	flash(res_id::ENEMY_LIGHT_BOMBER_FLASH, res_id::ENEMY_LIGHT_BOMBER);
 	flash(res_id::ENEMY_HEAVY_BOMBER_FLASH, res_id::ENEMY_HEAVY_BOMBER);
 
 	// Load fonts.
-	add_font(res_id::TINY_FONT, "data/prstartk.ttf", cfg::gfx::font_tiny_size);
-	add_font(res_id::FONT, "data/prstartk.ttf", cfg::gfx::font_base_size);
+	add_font(res_id::TINY_FONT, "data/prstartk.ttf", cfg::integer("gfx_font_tiny_size"));
+	add_font(res_id::FONT, "data/prstartk.ttf", cfg::integer("gfx_font_base_size"));
 }
 
 ALLEGRO_BITMAP* resman::get_bitmap(res_id id) const {
@@ -105,7 +105,7 @@ void resman::add_bitmap(res_id id, string path) {
 	if(!bitmap) {
 		stringstream msg;
 		msg << "Failed loading image at " << path;
-		throw initialization_error(msg.str());
+		throw resource_not_found_error(msg.str());
 	}
 
 	_bitmaps[id] = move(bitmap);
@@ -122,7 +122,7 @@ void resman::add_font(res_id id, string path, int size) {
 	if(!font) {
 		stringstream msg;
 		msg << "Failed loading font at " << path;
-		throw initialization_error(msg.str());
+		throw resource_not_found_error(msg.str());
 	}
 
 	_fonts[id] = move(font);
@@ -144,7 +144,7 @@ void resman::expand_fade(
 	if(!base_bitmap) {
 		stringstream msg;
 		msg << "Failed loading image at " << path;
-		throw initialization_error(msg.str());
+		throw resource_not_found_error(msg.str());
 	}
 
 	// Basic analysis.
@@ -256,7 +256,7 @@ void resman::fade_frames(res_id id,
 	// Load the bitmap from file.
 	// --------------------------
 	if(_bitmaps.find(id) != end(_bitmaps))
-		throw initialization_error("Loading resource at duplicate id");
+		throw resource_not_found_error("Loading resource at duplicate id");
 
 	p_bmp base_bitmap(al_load_bitmap(path.c_str()));
 

@@ -116,8 +116,7 @@ void resman::add_font(res_id id, string path, int size) {
 		throw initialization_error("Loading resource at duplicate id");
 	}
 
-	unique_ptr<ALLEGRO_FONT, font_deleter> font(al_load_font(
-		path.c_str(), -size, 0));
+	p_font font(al_load_font(path.c_str(), -size, 0));
 
 	if(!font) {
 		stringstream msg;

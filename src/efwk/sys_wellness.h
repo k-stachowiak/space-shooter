@@ -38,6 +38,7 @@ class wellness_system : public system {
 	vector<nd::wellness_node> _nodes;
 
 public:
+	unsigned num_nodes() const { return _nodes.size(); }
 	void add_node(nd::wellness_node node) { _nodes.push_back(node); }
 	void update(double dt, comm::msg_queue& msgs);
 };

@@ -43,7 +43,7 @@ class arms_system : public system {
 
 public:
 	void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
-
+	unsigned num_nodes() const { return _nodes.size(); }
 	void update(double dt, comm::msg_queue& msgs);
 	void input(map<int, bool>& keys) {
 		for(auto& n : _nodes) {

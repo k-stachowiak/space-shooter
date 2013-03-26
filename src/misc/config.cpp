@@ -194,7 +194,7 @@ void load_from_file(string const& name) {
 	int_vars.clear();
 	real_vars.clear();
 
-	ifstream in(name.c_str(), fstream::binary);
+	ifstream in(name.c_str(), ifstream::binary);
 	if(!in.is_open()) {
 		throw resource_not_found_error("Couldn't load a configuration file \"" + name + "\".");
 	}
@@ -203,10 +203,6 @@ void load_from_file(string const& name) {
 	parse_doc(tok, int_vars, real_vars);
 
 	in.close();
-
-	for(auto const& pr : real_vars) {
-		cout << pr.first << " -> " << pr.second << endl;
-	}
 }
 
 }

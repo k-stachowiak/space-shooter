@@ -33,6 +33,7 @@ using std::stringstream;
 using std::cout;
 using std::endl;
 using std::istream;
+using std::ios_base;
 
 namespace lparse {
 
@@ -92,7 +93,7 @@ namespace lparse {
 
 					if(c == '(' || c == ')') {
 						_last_atom = ss.str();
-						_in.seekg(-1, ios::cur);
+						_in.seekg(-1, ios_base::cur);
 						on_atom(_last_atom);
 						state = tok_state::in_wspace;
 						return true;
@@ -140,7 +141,7 @@ namespace lparse {
 		// ---------------------
 
 		token_t expect(unsigned int flags) {
-			token_t result;
+			token_t result = token_t::lpar;
 			seek_next(
 				[&result, flags]() mutable {
 					if(!(flags & (unsigned int)token_t::lpar)) {

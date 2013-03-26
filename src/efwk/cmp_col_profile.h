@@ -38,18 +38,10 @@ enum class pain_team {
 	ENEMY
 };
 
-enum class pain_profile {
-	NONE,	// Ignore collisions
-	PAPER,	// Die immediately
-	LIGHT,	// |
-	MEDIUM, // | Scaled damage
-	HEAVY	// |
-};
-
-class damage_profile {
-public:
-	virtual ~damage_profile() {}
-	virtual double compute_pain(pain_profile other) = 0;
+enum class coll_class {
+	SHIP,
+	PROJECTILE,
+	PICKUP
 };
 
 class pickup_profile {
@@ -60,20 +52,19 @@ public:
 
 struct collision_profile {
 	pain_team pt;
-	pain_profile pp;
+	coll_class cc;
 	bool is_projectile;
-	unique_ptr<damage_profile> dmg;
+	double dmg;
 	unique_ptr<pickup_profile> pickup;
 };
 
 shared_ptr<collision_profile> create_collision_profile(
 		pain_team pain_t,
-		pain_profile pain_p,
+		coll_class coll_c,
 		bool is_projectile,
-		unique_ptr<damage_profile> dmg_p,
+		double dmg,
 		unique_ptr<pickup_profile> pick_p);
 
-unique_ptr<damage_profile> create_simple_damage_profile(double amount);
 unique_ptr<pickup_profile> create_health_pickup_profile(double amount);
 unique_ptr<pickup_profile> create_battery_pickup_profile(double amount);
 unique_ptr<pickup_profile> create_bullet_upgrade_pickup_profile();

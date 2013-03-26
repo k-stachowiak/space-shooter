@@ -22,7 +22,10 @@
 #define EXCEPTIONS_H
 
 #include <stdexcept>
-using namespace std;
+using std::runtime_error;
+
+#include <string>
+using std::string;
 
 class initialization_error : public runtime_error {
 public:

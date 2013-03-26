@@ -40,7 +40,9 @@ class system {
 protected:
 	bool _debug_mode;
 public:
+	virtual ~system() {}
 	void set_debug_mode(bool debug_mode) { _debug_mode = debug_mode; }
+	virtual unsigned num_nodes() const = 0;
 };
 
 }

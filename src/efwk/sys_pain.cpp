@@ -23,46 +23,40 @@
 
 namespace sys {
 
-static bool is_dont_care(shared_ptr<cmp::collision_profile> cp) {
-	bool ignore_team = cp->pt == cmp::pain_team::NONE;
-	bool ignore_magnitude = cp->pp == cmp::pain_profile::NONE;
-	return ignore_team || ignore_magnitude;
-}
-
 void pain_system::update(comm::msg_queue& msgs) {
+
 	for(auto const& n : _nodes) {
 
-		// Skip "don't care" nodes
-		if(is_dont_care(n.cp)) continue;
+		cmp::coll_queue const& cq = *n.coll_queue;
+		cq.for_each_report([this, &n, &msgs](cmp::coll_report const& r) {
 
-		size_t hits = 0;
+			uint64_t id = n.id;
+			cmp::wellness& w = *n.wellness;
+			shared_ptr<double> pf = n.pain_flash;
+			cmp::collision_profile const& this_cp = *n.cp;
+			cmp::collision_profile const& other_cp = *r.cp;
 
-		n.coll_queue->for_each_report([this, &hits, &n, &msgs](cmp::coll_report const& r) {
+			switch(this_cp.cc) {
+			case cmp::coll_class::SHIP:
+				if ((other_cp.cc == cmp::coll_class::SHIP ||
+						other_cp.cc == cmp::coll_class::PROJECTILE) &&
+						this_cp.pt != other_cp.pt) {
 
-			// Skip "don't care" collisions.
-			if(is_dont_care(r.cp)) return;
+					w.deal_dmg(other_cp.dmg, r.origin_id);
+					*(pf) = cfg::real("gfx_pain_flash_timer");
+				}
+				break;
 
-			// Skip friendly fire.
-			if(r.cp->pt == n.cp->pt) return;
+			case cmp::coll_class::PROJECTILE:
+				if(other_cp.cc == cmp::coll_class::SHIP && this_cp.pt != other_cp.pt)
+					msgs.push(comm::create_remove_entity(id));
+				break;
 
-			// Skip projectile - projectile collisions.
-			if(r.cp->is_projectile && n.cp->is_projectile) return;
-
-			// Record hit.
-			++hits;
-
-			// Compute and deal the pain.
-			double pain = r.cp->dmg->compute_pain(r.cp->pp);
-			n.wellness->deal_dmg(pain, r.origin_id);
-
-			// Handle the pain flash
-			if(pain > 0.0) *(n.pain_flash) = cfg::real("gfx_pain_flash_timer");
+			case cmp::coll_class::PICKUP:
+			default:
+				break;
+			}
 		});
-
-		// Destroy if paper.
-		if(n.cp->pp == cmp::pain_profile::PAPER && hits) {
-			msgs.push(comm::create_remove_entity(n.id));
-		}
 	}
 
 }

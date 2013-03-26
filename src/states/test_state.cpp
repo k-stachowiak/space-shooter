@@ -37,16 +37,9 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - VALGRIND
+// - WTF crash?
 // - Visualization for the missiles?
-// - No missile upgrades. Missile ammo instead.
-// - New HUD
-// - Y debris no deal damage?
-// - Large ship pieces.
 // - Sound.
-// - Load from a config file:
-//     - resources,
-//     - waves definitions.
-// - Customizable key bindings?
 
 static wave prepare_wave_0() {
 	return wave {{

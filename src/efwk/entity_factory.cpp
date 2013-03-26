@@ -211,9 +211,9 @@ uint64_t entity_factory::create_debris(double x, double y,
 	auto coll_queue = cmp::create_coll_queue();
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::NONE,
-		cmp::pain_profile::LIGHT,
+		cmp::coll_class::PROJECTILE,
 		true,
-		cmp::create_simple_damage_profile(cfg::real("gameplay_debris_damage")),
+		cfg::real("gameplay_debris_damage"),
 		nullptr);
 
 	// Register nodes.
@@ -311,9 +311,9 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	auto coll_queue = cmp::create_coll_queue(); 
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::PLAYER,
-		cmp::pain_profile::MEDIUM,
+		cmp::coll_class::SHIP,
 		false,
-		cmp::create_simple_damage_profile(cfg::real("gameplay_player_ship_damage")),
+		cfg::real("gameplay_player_ship_damage"),
 		nullptr);
 
 	// Wellness components.
@@ -423,9 +423,9 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 	auto coll_queue = cmp::create_coll_queue();
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::ENEMY,
-		cmp::pain_profile::LIGHT,
+		cmp::coll_class::SHIP,
 		false,
-		cmp::create_simple_damage_profile(cfg::real("gameplay_lfighter_damage")),
+		cfg::real("gameplay_lfighter_damage"),
 		nullptr);
 
 	// Wellness components.
@@ -561,9 +561,9 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 	auto coll_queue = cmp::create_coll_queue();
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::ENEMY,
-		cmp::pain_profile::MEDIUM,
+		cmp::coll_class::SHIP,
 		false,
-		cmp::create_simple_damage_profile(cfg::real("gameplay_hfighter_damage")),
+		cfg::real("gameplay_hfighter_damage"),
 		nullptr);
 
 	// Wellness components.
@@ -708,9 +708,9 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 	auto coll_queue = cmp::create_coll_queue();
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::ENEMY,
-		cmp::pain_profile::MEDIUM,
+		cmp::coll_class::SHIP,
 		false,
-		cmp::create_simple_damage_profile(cfg::real("gameplay_lbomber_damage")),
+		cfg::real("gameplay_lbomber_damage"),
 		nullptr);
 
 	// Wellness components.
@@ -856,9 +856,9 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 	auto coll_queue = cmp::create_coll_queue();
 	auto cp = cmp::create_collision_profile( 
 		cmp::pain_team::ENEMY,
-		cmp::pain_profile::HEAVY,
+		cmp::coll_class::SHIP,
 		false,
-		cmp::create_simple_damage_profile(cfg::real("gameplay_hbomber_damage")),
+		cfg::real("gameplay_hbomber_damage"),
 		nullptr);
 
 	// Wellness components.
@@ -1007,9 +1007,9 @@ uint64_t entity_factory::create_common_pickup(
 	auto coll_queue = cmp::create_coll_queue();
 	auto cp = cmp::create_collision_profile(
 		cmp::pain_team::NONE,
-		cmp::pain_profile::PAPER,
+		cmp::coll_class::PICKUP,
 		false,
-		nullptr,
+		-1,
 		move(pp));
 
 	// Register nodes.
@@ -1091,9 +1091,9 @@ uint64_t entity_factory::create_missile(
 	auto pain_team = enemy ? cmp::pain_team::ENEMY : cmp::pain_team::PLAYER;
 	auto cp = cmp::create_collision_profile( 
 		pain_team,
-		cmp::pain_profile::PAPER,
+		cmp::coll_class::PROJECTILE,
 		true,
-		cmp::create_simple_damage_profile(damage),
+		damage,
 		nullptr);
 
 	// Wellness components.
@@ -1208,9 +1208,9 @@ uint64_t entity_factory::create_bullet(
 	auto pain_team = enemy ? cmp::pain_team::ENEMY : cmp::pain_team::PLAYER;
 	auto cp = cmp::create_collision_profile( 
 		pain_team,
-		cmp::pain_profile::PAPER,
+		cmp::coll_class::PROJECTILE,
 		true,
-		cmp::create_simple_damage_profile(damage),
+		damage,
 		nullptr);
 
 	// Wellness components.

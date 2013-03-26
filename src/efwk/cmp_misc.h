@@ -138,7 +138,7 @@ class coll_queue {
 public:
 	void clear() { _queue.clear(); }
 	void push_report(coll_report cr) { _queue.push_back(cr); }
-	void for_each_report(function<void(coll_report const&)> f) {
+	void for_each_report(function<void(coll_report const&)> f) const {
 		for_each(begin(_queue), end(_queue), f);
 	}
 };
@@ -190,12 +190,13 @@ public:
 	{}
 
 	bool can_level_up() const {
-		return _level < _level_max;
+		return _level < _level_max || _ticks < _ticks_per_level;
 	}
 
 	void level_up() {
 		if(can_level_up()) {
 			++_level;
+			_ticks = _ticks_per_level;
 		}
 	}
 

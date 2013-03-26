@@ -23,15 +23,6 @@
 
 namespace cmp {
 
-class simple_damage_profile : public damage_profile {
-	double _amount;
-public:
-	simple_damage_profile(double amount) : _amount(amount) {}
-	double compute_pain(pain_profile) {
-		return _amount;
-	}
-};
-
 class health_pickup_profile : public pickup_profile {
 	double _amount;
 public:
@@ -94,22 +85,18 @@ public:
 
 shared_ptr<collision_profile> create_collision_profile(
 		pain_team pain_t,
-		pain_profile pain_p,
+		coll_class coll_c,
 		bool is_projectile,
-		unique_ptr<damage_profile> dmg_p,
+		double dmg,
 		unique_ptr<pickup_profile> pick_p) {
 
 	return shared_ptr<collision_profile>(new collision_profile {
 		pain_t,
-		pain_p,
+		coll_c,
 		is_projectile,
-		move(dmg_p),
+		dmg,
 		move(pick_p)
 	});
-}
-
-unique_ptr<damage_profile> create_simple_damage_profile(double amount) {
-	return unique_ptr<damage_profile>(new simple_damage_profile(amount));
 }
 
 unique_ptr<pickup_profile> create_health_pickup_profile(double amount) {

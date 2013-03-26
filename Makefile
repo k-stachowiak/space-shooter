@@ -1,20 +1,40 @@
 EXENAME := shoot
 
 CXX = g++
-# LIBS = -lallegro_monolith		# GNU/Linux
-LIBS = -lallegro-5.0.8-monolith-md	# Win
+LIBS = -lallegro_monolith		# GNU/Linux
+# LIBS = -lallegro-5.0.8-monolith-md	# Win
 CXXFLAGS := -Wall --std=gnu++11 -g
 
-OBJS := src/efwk/comm.o \
-	src/efwk/components.o \
-	src/efwk/entity_factory.o \
-	src/efwk/systems.o \
-	src/geometry/bezier.o \
-	src/misc/rand.o \
-	src/resources/resman.o \
-	src/states/test_state.o \
-	src/allegro.o \
-	src/main.o
+OBJS := src/resources/resman.o \
+        src/states/test_state.o \
+        src/geometry/bezier.o \
+        src/gameplay/wave.o \
+        src/efwk/sys_arms.o \
+        src/efwk/sys_wellness.o \
+        src/efwk/cmp_col_profile.o \
+        src/efwk/cmp_timer.o \
+        src/efwk/cmp_weapon_beh.o \
+        src/efwk/sys_hud.o \
+        src/efwk/cmp_misc.o \
+        src/efwk/sys_input.o \
+        src/efwk/sys_movement.o \
+        src/efwk/sys_collision.o \
+        src/efwk/comm.o \
+        src/efwk/entity_factory.o \
+        src/efwk/sys_score.o \
+        src/efwk/sys_fx.o \
+        src/efwk/sys_pain.o \
+        src/efwk/sys_pickup.o \
+        src/efwk/cmp_dynamics.o \
+        src/efwk/cmp_fx.o \
+        src/efwk/sys_drawing.o \
+        src/efwk/cmp_shape.o \
+        src/efwk/cmp_reaction.o \
+        src/efwk/cmp_appearance.o \
+        src/misc/rand.o \
+        src/misc/config.o \
+        src/main.o \
+        src/allegro.o
 
 # Link.
 # -----
@@ -41,3 +61,4 @@ clean:
 	find src -name "*.o" -o -name "*.d" | xargs rm -f
 
 .PHONY: clean
+

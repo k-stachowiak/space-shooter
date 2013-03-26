@@ -1179,6 +1179,9 @@ uint64_t entity_factory::create_bullet(
 	case 5:
 		image = res_id::BULLET_5;
 		break;
+	default:
+		cerr << "Level = " << (unsigned)upgrade_lvl << " :O";
+		exit(1);
 	}
 
 	// Common components.

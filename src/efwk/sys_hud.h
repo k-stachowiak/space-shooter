@@ -77,6 +77,7 @@ public:
 	, _screen_w      (screen_w)
 	, _screen_h      (screen_h)
 	{}
+	unsigned num_nodes() const { return _nodes.size(); }
 	void add_node(nd::hud_node node) { _nodes.push_back(node); }
 	void update();
 };

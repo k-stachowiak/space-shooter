@@ -40,6 +40,7 @@ class input_system : public system {
 	map<int, bool> _keys;
 	vector<nd::input_node> _nodes;
 public:
+	unsigned num_nodes() const { return _nodes.size(); }
 	void add_node(nd::input_node n) { _nodes.push_back(move(n)); }
 	void update();
 	void key_down(int k) { _keys[k] = true; }

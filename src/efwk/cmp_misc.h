@@ -197,6 +197,13 @@ public:
 		if(can_level_up()) {
 			++_level;
 			_ticks = _ticks_per_level;
+
+			// If at max level, but not max ticks, then technically
+			// still can "level up", but only the ticks get refilled
+			// but the level itself must not be increased. Something
+			// is wrong with the semantics here...
+			if(_level > _level_max)
+				_level = _level_max;
 		}
 	}
 

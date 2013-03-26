@@ -38,8 +38,18 @@ class drawing_system : public system {
 	ALLEGRO_FONT* _debug_font;
 	void draw_plane(double dt, vector<nd::drawing_node> const& nodes);
 public:
+	unsigned num_nodes() const {
+		unsigned sizes = 0;
+		for(auto const& pr : _nodes) {
+			sizes += pr.second.size();
+		}
+		return sizes;
+	}
+
 	drawing_system(ALLEGRO_FONT* debug_font) : _debug_font(debug_font) {}
+
 	void add_node(nd::drawing_node n) { _nodes[n.draw_plane].push_back(n); }
+
 	void update(double dt);
 	friend void remove_node(drawing_system& sys, uint64_t id) {
 		for(auto& pr : sys._nodes) {

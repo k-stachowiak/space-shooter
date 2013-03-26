@@ -94,11 +94,12 @@ class resman {
 
 	// Helper typedef.
 	typedef unique_ptr<ALLEGRO_BITMAP, bitmap_deleter> p_bmp;
+	typedef unique_ptr<ALLEGRO_FONT, font_deleter> p_font;
 
 	ALLEGRO_DISPLAY* _dpy;
 
 	map<res_id, p_bmp> _bitmaps;
-	map<res_id, unique_ptr<ALLEGRO_FONT, font_deleter>> _fonts;
+	map<res_id, p_font> _fonts;
 
 public:
 	resman(ALLEGRO_DISPLAY* dpy);

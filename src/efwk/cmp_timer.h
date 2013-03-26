@@ -22,6 +22,7 @@
 #define CMP_TIMER_H
 
 #include <stdint.h>
+#include <cstddef>
 
 #include <memory>
 using std::shared_ptr;

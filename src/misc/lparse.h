@@ -141,7 +141,7 @@ namespace lparse {
 		// ---------------------
 
 		token_t expect(unsigned int flags) {
-			token_t result;
+			token_t result = token_t::lpar;
 			seek_next(
 				[&result, flags]() mutable {
 					if(!(flags & (unsigned int)token_t::lpar)) {

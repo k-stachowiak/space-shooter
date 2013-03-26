@@ -33,6 +33,7 @@ class score_system : public system {
 	map<uint64_t, nd::score_node> _nodes;
 	const map<cmp::score_class, double> _class_score_map;
 public:
+	unsigned num_nodes() const { return _nodes.size(); }
 	score_system(map<cmp::score_class, double> score_map)
 	: _class_score_map(score_map)
 	{}

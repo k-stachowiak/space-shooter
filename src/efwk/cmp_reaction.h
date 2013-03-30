@@ -38,6 +38,7 @@ public:
 		shape const& shape,
 		double vx, double vy,
 		uint64_t origin_id,
+                noise_queue& nqueue,
 		comm::msg_queue& queue) = 0;
 };
 

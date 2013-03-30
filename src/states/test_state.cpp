@@ -36,18 +36,17 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - VALGRIND
-// - WTF crash?
-// - Visualization for the missiles?
-// - Sound.
+// - Big ship
+// - Music
+// - Menu/highscore
 
 static wave prepare_wave_0() {
 	return wave {{
-		{ 5.0, { pattern::el_triangle(enemy_type::light_fighter), movement_type::vertical }},
 		{ 2.0, { pattern::el_triangle(enemy_type::light_fighter), movement_type::vertical }},
-		{ 5.0, { pattern::el_pair(enemy_type::light_bomber), movement_type::diagonal }},
+		{ 4.0, { pattern::el_pair(enemy_type::light_bomber), movement_type::diagonal }},
 		{ 2.0, { pattern::el_pair(enemy_type::light_bomber), movement_type::diagonal }},
-		{ 5.0, { pattern::el_quad(enemy_type::heavy_fighter), movement_type::zorro }}
+		{ 5.0, { pattern::el_quad(enemy_type::heavy_fighter), movement_type::zorro }},
+		{ 3.0, { pattern::el_uno(enemy_type::heavy_bomber), movement_type::horizontal }}
 	}};
 }
 
@@ -72,15 +71,16 @@ class test_state : public state {
 	// --------
 	sys::movement_system	_movement_system;
 	sys::collision_system	_collision_system;
-	sys::arms_system		_arms_system;
-	sys::pain_system		_pain_system;
+	sys::arms_system	_arms_system;
+	sys::pain_system	_pain_system;
 	sys::wellness_system	_wellness_system;
-	sys::fx_system			_fx_system;
-	sys::drawing_system		_drawing_system;
-	sys::score_system		_score_system;
-	sys::pickup_system		_pickup_system;
-	sys::input_system		_input_system;
-	sys::hud_system			_hud_system;
+	sys::fx_system		_fx_system;
+	sys::drawing_system	_drawing_system;
+	sys::score_system	_score_system;
+	sys::pickup_system	_pickup_system;
+	sys::input_system	_input_system;
+	sys::hud_system		_hud_system;
+        sys::sound_system       _sound_system;
 
 	// Factories.
 	// ----------
@@ -96,7 +96,7 @@ class test_state : public state {
 
 	void handle_messages(double dt) {
 
-		_messages.for_each_msg(dt, [this](comm::message const& msg) {
+		_messages.visit(dt, [this](comm::message const& msg) {
 
 			uint64_t id;
 			switch(msg.type) {
@@ -113,90 +113,91 @@ class test_state : public state {
 				remove_node(_pickup_system, id);
 				remove_node(_input_system, id);
 				remove_node(_hud_system, id);
+				remove_node(_sound_system, id);
 				break;
 
 			case comm::msg_t::spawn_bullet:
 				_ef.create_bullet(
-						msg.spawn_bullet.x,
-						msg.spawn_bullet.y,
-						msg.spawn_bullet.dir_x,
-						msg.spawn_bullet.dir_y,
-						msg.spawn_bullet.lin_vel,
-						msg.spawn_bullet.upgrade_lvl,
-						msg.spawn_bullet.enemy,
-						msg.spawn_bullet.origin_id);
+                                        msg.spawn_bullet.x,
+                                        msg.spawn_bullet.y,
+                                        msg.spawn_bullet.dir_x,
+                                        msg.spawn_bullet.dir_y,
+                                        msg.spawn_bullet.lin_vel,
+                                        msg.spawn_bullet.upgrade_lvl,
+                                        msg.spawn_bullet.enemy,
+                                        msg.spawn_bullet.origin_id);
 				break;
 
 			case comm::msg_t::spawn_missile:
 				_ef.create_missile(
-						msg.spawn_missile.x,
-						msg.spawn_missile.y,
-						msg.spawn_missile.dir_x,
-						msg.spawn_missile.dir_y,
-						msg.spawn_missile.lin_vel,
-						msg.spawn_missile.upgrade_lvl,
-						msg.spawn_missile.enemy,
-						msg.spawn_missile.origin_id);
+                                        msg.spawn_missile.x,
+                                        msg.spawn_missile.y,
+                                        msg.spawn_missile.dir_x,
+                                        msg.spawn_missile.dir_y,
+                                        msg.spawn_missile.lin_vel,
+                                        msg.spawn_missile.upgrade_lvl,
+                                        msg.spawn_missile.enemy,
+                                        msg.spawn_missile.origin_id);
 				break;
 
 			case comm::msg_t::spawn_explosion:
 				_ef.create_explosion(
-						msg.spawn_explosion.x,
-						msg.spawn_explosion.y);
+                                        msg.spawn_explosion.x,
+                                        msg.spawn_explosion.y);
 				break;
 
 			case comm::msg_t::spawn_smoke:
 				_ef.create_smoke(
-						msg.spawn_smoke.x,
-					    msg.spawn_smoke.y,
-					    msg.spawn_smoke.size);
+                                        msg.spawn_smoke.x,
+                                        msg.spawn_smoke.y,
+                                        msg.spawn_smoke.size);
 				break;
 
 			case comm::msg_t::spawn_debris:
 				_ef.create_debris(
-						msg.spawn_debris.x,
-						msg.spawn_debris.y,
-						msg.spawn_debris.vx,
-						msg.spawn_debris.vy,
-						msg.spawn_debris.vmin,
-						msg.spawn_debris.vmax,
-						msg.spawn_debris.theta_min,
-						msg.spawn_debris.theta_max,
-						msg.spawn_debris.image,
-						msg.spawn_debris.explode,
-						msg.spawn_debris.origin_id);
+                                        msg.spawn_debris.x,
+                                        msg.spawn_debris.y,
+                                        msg.spawn_debris.vx,
+                                        msg.spawn_debris.vy,
+                                        msg.spawn_debris.vmin,
+                                        msg.spawn_debris.vmax,
+                                        msg.spawn_debris.theta_min,
+                                        msg.spawn_debris.theta_max,
+                                        msg.spawn_debris.image,
+                                        msg.spawn_debris.explode,
+                                        msg.spawn_debris.origin_id);
 				break;
 
 			case comm::msg_t::spawn_health_pickup:
 				_ef.create_health_pickup(
-						msg.spawn_health_pickup.x,
-						msg.spawn_health_pickup.y,
-						msg.spawn_health_pickup.vx,
-						msg.spawn_health_pickup.vy);
+                                        msg.spawn_health_pickup.x,
+                                        msg.spawn_health_pickup.y,
+                                        msg.spawn_health_pickup.vx,
+                                        msg.spawn_health_pickup.vy);
 				break;
 
 			case comm::msg_t::spawn_battery_pickup:
 				_ef.create_battery_pickup(
-						msg.spawn_battery_pickup.x,
-						msg.spawn_battery_pickup.y,
-						msg.spawn_battery_pickup.vx,
-						msg.spawn_battery_pickup.vy);
+                                        msg.spawn_battery_pickup.x,
+                                        msg.spawn_battery_pickup.y,
+                                        msg.spawn_battery_pickup.vx,
+                                        msg.spawn_battery_pickup.vy);
 				break;
 				
 			case comm::msg_t::spawn_bullet_upgrade_pickup:
 				_ef.create_bullet_upgrade_pickup(
-						msg.spawn_bullet_upgrade_pickup.x,
-						msg.spawn_bullet_upgrade_pickup.y,
-						msg.spawn_bullet_upgrade_pickup.vx,
-						msg.spawn_bullet_upgrade_pickup.vy);
+                                        msg.spawn_bullet_upgrade_pickup.x,
+                                        msg.spawn_bullet_upgrade_pickup.y,
+                                        msg.spawn_bullet_upgrade_pickup.vx,
+                                        msg.spawn_bullet_upgrade_pickup.vy);
 				break;
 
 			case comm::msg_t::spawn_missile_upgrade_pickup:
 				_ef.create_missile_upgrade_pickup(
-						msg.spawn_missile_upgrade_pickup.x,
-						msg.spawn_missile_upgrade_pickup.y,
-						msg.spawn_missile_upgrade_pickup.vx,
-						msg.spawn_missile_upgrade_pickup.vy);
+                                        msg.spawn_missile_upgrade_pickup.x,
+                                        msg.spawn_missile_upgrade_pickup.y,
+                                        msg.spawn_missile_upgrade_pickup.vx,
+                                        msg.spawn_missile_upgrade_pickup.vy);
 				break;
 
 			default:
@@ -214,23 +215,24 @@ public:
 	, _done(false)
 	, _drawing_system(resman.get_font(res_id::TINY_FONT))
 	, _score_system(map<cmp::score_class, double> {
-			{ cmp::score_class::PLAYER, cfg::real("gameplay_score_for_player") },
-			{ cmp::score_class::ENEMY_LIGHT_FIGHTER, cfg::real("gameplay_score_for_lfighter") },
-			{ cmp::score_class::ENEMY_HEAVY_FIGHTER, cfg::real("gameplay_score_for_hfighter") },
-			{ cmp::score_class::ENEMY_LIGHT_BOMBER, cfg::real("gameplay_score_for_lbomber")},
-			{ cmp::score_class::ENEMY_HEAVY_BOMBER, cfg::real("gameplay_score_for_hbomber") } })
+                { cmp::score_class::PLAYER, cfg::real("gameplay_score_for_player") },
+                { cmp::score_class::ENEMY_LIGHT_FIGHTER, cfg::real("gameplay_score_for_lfighter") },
+                { cmp::score_class::ENEMY_HEAVY_FIGHTER, cfg::real("gameplay_score_for_hfighter") },
+                { cmp::score_class::ENEMY_LIGHT_BOMBER, cfg::real("gameplay_score_for_lbomber")},
+                { cmp::score_class::ENEMY_HEAVY_BOMBER, cfg::real("gameplay_score_for_hbomber") } })
 	, _hud_system(
-			_resman.get_bitmap(res_id::HUD_BG),
-			_resman.get_bitmap(res_id::HEALTH),
-			_resman.get_bitmap(res_id::BATTERY),
-			_resman.get_bitmap(res_id::DIODE_ON),
-			_resman.get_bitmap(res_id::DIODE_OFF),
-			_resman.get_bitmap(res_id::B_UPGRADE),
-			_resman.get_bitmap(res_id::M_UPGRADE),
-			_resman.get_font(res_id::FONT),
-			_resman.get_font(res_id::TINY_FONT),
-			cfg::integer("gfx_screen_w"),
-			cfg::integer("gfx_screen_h"))
+                _resman.get_bitmap(res_id::HUD_BG),
+                _resman.get_bitmap(res_id::HEALTH),
+                _resman.get_bitmap(res_id::BATTERY),
+                _resman.get_bitmap(res_id::DIODE_ON),
+                _resman.get_bitmap(res_id::DIODE_OFF),
+                _resman.get_bitmap(res_id::B_UPGRADE),
+                _resman.get_bitmap(res_id::M_UPGRADE),
+                _resman.get_font(res_id::FONT),
+                _resman.get_font(res_id::TINY_FONT),
+                cfg::integer("gfx_screen_w"),
+                cfg::integer("gfx_screen_h"))
+        , _sound_system(_resman)
 	, _ef(_resman,
 		_movement_system,
 		_collision_system,
@@ -242,11 +244,12 @@ public:
 		_score_system,
 		_pickup_system,
 		_input_system,
-		_hud_system)
+		_hud_system,
+                _sound_system)
 	, _star_spawn_clk(
 			uniform_real_distribution<double>(
-					cfg::real("gfx_star_interval_min"),
-					cfg::real("gfx_star_interval_max")),
+                                cfg::real("gfx_star_interval_min"),
+                                cfg::real("gfx_star_interval_max")),
 			bind(&entity_factory::create_star, &_ef))
 	, _en_man(prepare_waves())
 	{
@@ -273,10 +276,9 @@ public:
 		_star_spawn_clk.tick(dt);
 
 		bool keep_going = _en_man.tick(
-				dt,
-				_ef,
-				cfg::integer("gfx_screen_w"),
-				cfg::integer("gfx_screen_h"));
+                        dt, _ef,
+                        cfg::integer("gfx_screen_w"),
+                        cfg::integer("gfx_screen_h"));
 
 		if(!keep_going) {
 			_en_man.reset();
@@ -294,6 +296,7 @@ public:
 		_pickup_system.set_debug_mode(_debug);
 		_input_system.set_debug_mode(_debug);
 		_hud_system.set_debug_mode(_debug);
+		_sound_system.set_debug_mode(_debug);
 
 		// Update the systems.
 		_movement_system.update(dt, _messages);
@@ -307,6 +310,7 @@ public:
 		_pickup_system.update(_messages); 
 		_input_system.update();
 		_hud_system.update();
+		_sound_system.update(dt);
 
 		// Handle messages.
 		handle_messages(dt);

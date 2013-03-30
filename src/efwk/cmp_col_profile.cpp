@@ -27,7 +27,9 @@ class health_pickup_profile : public pickup_profile {
 	double _amount;
 public:
 	health_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(wellness& w, upgrades& up) {
+	bool trigger(wellness& w,
+                        upgrades& up,
+                        noise_queue& nqueue) {
 
 		double h = w.get_health();
 		double H = w.get_max_health();
@@ -37,6 +39,8 @@ public:
 		if(h + _amount >= H) w.add_health(H - h);
 		else w.add_health(_amount);
 
+                nqueue.push(res_id::WELLNESS_PICKUP);
+
 		return true;
 	}
 };
@@ -45,7 +49,10 @@ class battery_pickup_profile : public pickup_profile {
 	double _amount;
 public:
 	battery_pickup_profile(double amount) : _amount(amount) {}
-	bool trigger(wellness& w, upgrades& up) {
+
+	bool trigger(wellness& w,
+                        upgrades& up,
+                        noise_queue& nqueue) {
 
 		double s = w.get_shield();
 		double S = w.get_max_shield();
@@ -55,15 +62,20 @@ public:
 		if(s + _amount >= S) w.add_shield(S - s);
 		else w.add_shield(_amount);
 
+                nqueue.push(res_id::WELLNESS_PICKUP);
+
 		return true;
 	}
 };
 
 class bullet_upgrade_pickup_profile : public pickup_profile {
 public:
-	bool trigger(wellness& w, upgrades& up) {
+	bool trigger(wellness& w,
+                        upgrades& up,
+                        noise_queue& nqueue) {
 		if(up.can_upgrade_gun()) {
 			up.upgrade_gun();
+                        nqueue.push(res_id::WEAPON_PICKUP);
 			return true;
 		} else {
 			return false;
@@ -73,9 +85,12 @@ public:
 
 class missile_upgrade_pickup_profile : public pickup_profile {
 public:
-	bool trigger(wellness& w, upgrades& up) {
+	bool trigger(wellness& w,
+                        upgrades& up,
+                        noise_queue& nqueue) {
 		if(up.can_upgrade_rl()) {
 			up.upgrade_rl();
+                        nqueue.push(res_id::WEAPON_PICKUP);
 			return true;
 		} else {
 			return false;

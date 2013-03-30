@@ -38,12 +38,24 @@ class application {
 
 public:
 	application()
-		: _fps(cfg::real("gfx_fps"))
-		, _spf(1.0 / _fps)
-		, _overdue_frames(0)
-		, _allegro(cfg::integer("gfx_screen_w"), cfg::integer("gfx_screen_h"), "Framework", _fps)
-		, _resman(_allegro.get_display()) {
-	}
+        : _fps(cfg::real("gfx_fps"))
+        , _spf(1.0 / _fps)
+        , _overdue_frames(0)
+        , _allegro(
+                cfg::integer("gfx_screen_w"),
+                cfg::integer("gfx_screen_h"),
+                "Framework",
+                _fps)
+        , _resman(
+                _allegro.get_display(),
+                {
+                        { res_id::BULLET_SHOOT, "data/bullet_shoot.wav" },
+                        { res_id::MISSILE_SHOOT, "data/missile_shoot_2.wav" },
+                        { res_id::WEAPON_PICKUP, "data/click.wav" },
+                        { res_id::WELLNESS_PICKUP, "data/wellness.wav" },
+                        { res_id::EXPLOSION_SND, "data/explosion.wav" }
+                })
+        {}
 
 	void loop() {
 		unique_ptr<state> current_state = create_test_state(_resman);

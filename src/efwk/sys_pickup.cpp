@@ -27,7 +27,9 @@ void pickup_system::update(comm::msg_queue& msgs) {
 		n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
 			if(r.cp->pickup) {
 				bool picked_up = r.cp->pickup->trigger(
-						*(n.wellness), *(n.upgrades));
+						*(n.wellness),
+                                                *(n.upgrades),
+                                                *(n.nqueue));
 				if(picked_up) {
 					msgs.push(comm::create_remove_entity(r.id));
 				}

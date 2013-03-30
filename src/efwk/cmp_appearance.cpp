@@ -18,6 +18,9 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include <iostream>
+using std::cout;
+
 #include <array>
 using std::array;
 
@@ -139,8 +142,10 @@ public:
 	}
 
 	~simple_anim() {
-		for(uint32_t i = 0; i < _num_frames; ++i)
+		for(uint32_t i = 0; i < _num_frames; ++i) {
 			al_destroy_bitmap(_frame_images[i]);
+			al_destroy_bitmap(_flash_images[i]);
+                }
 	}
 
 	void update(double dt) {

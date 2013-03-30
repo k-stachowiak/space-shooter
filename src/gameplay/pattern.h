@@ -48,6 +48,10 @@ struct pattern {
 	vector<element> elements;
 	movement_type movement;
 
+        static vector<pattern::element> el_uno(enemy_type type) {
+                return {{ 0.0, 0.0, type }};
+        }
+
 	static vector<pattern::element> el_pair(enemy_type type) {
 		return {{
 					cfg::real("gameplay_pat_pair_1_xoffset"),

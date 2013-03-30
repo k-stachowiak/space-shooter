@@ -33,6 +33,7 @@ using std::vector;
 using std::pair;
 using std::move;
 
+#include "../misc/delq.h"
 #include "../resources/resman.h"
 
 namespace comm {
@@ -158,32 +159,7 @@ message create_spawn_missile_upgrade_pickup(double x, double y, double vx, doubl
 
 // The message queue container.
 // ----------------------------
-
-class msg_queue {
-	vector<pair<double, message>> _msgs;
-public:
-	void push(message const& m, double delay) {
-		_msgs.push_back(pair<double, message>(delay, m));
-	}
-
-	void push(message const& m) { push(m, 0.0); }
-
-	template<class MsgCallback>
-	void for_each_msg(double dt, MsgCallback mc) {
-		for(std::size_t i = 0; i < _msgs.size();) {
-			pair<double, message>& pr = _msgs[i];
-			if(pr.first > 0.0) {
-				pr.first -= dt;
-				++i;
-			} else {
-				mc(pr.second);
-				_msgs[i] = move(_msgs.back());
-				_msgs.pop_back();
-				// Note: no increment in this case.
-			}
-		}
-	}
-};
+typedef del_queue<message> msg_queue;
 
 }
 

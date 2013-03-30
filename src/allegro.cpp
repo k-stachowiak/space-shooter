@@ -37,6 +37,10 @@ allegro::allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps) {
 	if(!al_install_mouse()) {
 		throw initialization_error("Failed initializing allegro mouse");
 	}
+        
+        if(!al_install_audio()) {
+                throw initialization_error("Failed initializing audio");
+        }
 
 	// Initialize add-ons.
 	// -------------------
@@ -52,6 +56,10 @@ allegro::allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps) {
 	if(!al_init_ttf_addon()) {
 		throw initialization_error("Failed initializing TTF add-on");
 	}
+
+        if(!al_init_acodec_addon()) {
+                throw initialization_error("Failed initializing acodec add-on");
+        }
 
 	// Display initialization.
 	// -----------------------
@@ -87,6 +95,7 @@ allegro::~allegro() {
 	al_destroy_timer(_timer);
 	al_destroy_event_queue(_event_queue);
 	al_destroy_display(_display);
+        al_uninstall_audio();
 }
 
 ALLEGRO_DISPLAY* allegro::get_display() {

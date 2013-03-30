@@ -32,6 +32,7 @@ using std::for_each;
 using std::cout;
 using std::endl;
 
+#include "../misc/delq.h"
 #include "comm.h"
 
 namespace cmp {
@@ -59,11 +60,14 @@ enum class score_class {
 	ENEMY_HEAVY_BOMBER
 };
 
+// The queue of the noises to be played by the sound system.
+typedef del_queue<res_id> noise_queue;
+
 // Collision report type.
 //
-// Note: The pain id is the identifier of the node which
+// Note: The origin id is the identifier of the node which
 // deals damage through this node. E.g. If this node is a
-// bullet, the pain_id will be that of the ship, who has
+// bullet, the origin_id will be that of the ship, who has
 // launched the bullet. This way the entity responsible
 // for the damage may be determined.
 struct coll_report {

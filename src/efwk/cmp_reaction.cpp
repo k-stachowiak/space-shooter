@@ -41,9 +41,10 @@ public:
 			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
+                        noise_queue& nqueue,
 			comm::msg_queue& queue) {
 		for(auto r : _rs)
-			r->trigger(x, y, phi, shape, vx, vy, origin_id, queue);
+			r->trigger(x, y, phi, shape, vx, vy, origin_id, nqueue, queue);
 	}
 };
 
@@ -53,6 +54,7 @@ public:
 			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
+                        noise_queue& nqueue,
 			comm::msg_queue& queue) {
 		queue.push(comm::create_spawn_health_pickup(x, y, vx, vy));
 	}
@@ -64,6 +66,7 @@ public:
 			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
+                        noise_queue& nqueue,
 			comm::msg_queue& queue) {
 		queue.push(comm::create_spawn_battery_pickup(x, y, vx, vy));
 	}
@@ -75,6 +78,7 @@ public:
 			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
+                        noise_queue& nqueue,
 			comm::msg_queue& queue) {
 		queue.push(comm::create_spawn_bullet_upgrade_pickup(x, y, vx, vy));
 	}
@@ -86,6 +90,7 @@ public:
 			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
+                        noise_queue& nqueue,
 			comm::msg_queue& queue) {
 		queue.push(comm::create_spawn_missile_upgrade_pickup(x, y, vx, vy));
 	}
@@ -140,6 +145,7 @@ public:
 			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
+                        noise_queue& nqueue,
 			comm::msg_queue& queue) {
 
 		uniform_int_distribution<int> bmp_dist(0, _images.size() - 1);
@@ -196,6 +202,7 @@ public:
 			shape const& shape,
 			double vx, double vy,
 			uint64_t origin_id,
+                        noise_queue& nqueue,
 			comm::msg_queue& queue) {
 
 		double delay = 0.0;
@@ -204,6 +211,7 @@ public:
 			double expl_x, expl_y;
 			tie(expl_x, expl_y) = shape.get_random_point();
 			queue.push(comm::create_spawn_explosion(expl_x, expl_y), delay);
+                        nqueue.push(res_id::EXPLOSION_SND, delay);
 			delay += delay_dist(rnd::engine);
 		}
 	}

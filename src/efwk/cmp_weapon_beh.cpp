@@ -39,10 +39,11 @@ public:
 			upgrades& up,
 			double dt,
 			double x, double y,
+                        noise_queue& nqueue,
 			comm::msg_queue& msgs) {
 
 		for(auto& wb : _wbs) {
-			wb->update(id, up, dt, x, y, msgs);
+			wb->update(id, up, dt, x, y, nqueue, msgs);
 		}
 	}
 
@@ -88,13 +89,14 @@ public:
 	void update(uint64_t id,
 			upgrades& up,
 			double dt,
-			double x,
-			double y,
+			double x, double y,
+                        noise_queue& nqueue,
 			comm::msg_queue& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
 			up.tick_down_gun();
+                        nqueue.push(res_id::BULLET_SHOOT);
 			msgs.push(comm::create_spawn_bullet(
 				x + _x_off, y + _y_off,
 				_x_dir, _y_dir, _lin_vel,
@@ -142,13 +144,14 @@ public:
 	void update(uint64_t id,
 			upgrades& up,
 			double dt,
-			double x,
-			double y,
+			double x, double y,
+                        noise_queue& nqueue,
 			comm::msg_queue& msgs) {
 		_counter -= dt;
 		if(_counter <= 0.0) {
 			init_counter(-_counter);
 			up.tick_down_rl();
+                        nqueue.push(res_id::MISSILE_SHOOT);
 			msgs.push(comm::create_spawn_missile(
 				x + _x_off, y + _y_off,
 				_x_dir, _y_dir, _lin_vel,
@@ -177,8 +180,8 @@ public:
 	void update(uint64_t id,
 			upgrades& up,
 			double dt,
-			double x,
-			double y,
+			double x, double y,
+                        noise_queue& nqueue,
 			comm::msg_queue& msgs) {
 
 		// Minigun fire.
@@ -187,6 +190,7 @@ public:
 			up.tick_down_gun();
 			if(_prev_left) {
 				_prev_left = false;
+                                nqueue.push(res_id::BULLET_SHOOT);
 				msgs.push(comm::create_spawn_bullet(
 						x + cfg::real("gfx_player_gun_offset"), y,
 						0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),
@@ -195,6 +199,7 @@ public:
 						id));
 			} else {
 				_prev_left = true;
+                                nqueue.push(res_id::BULLET_SHOOT);
 				msgs.push(comm::create_spawn_bullet(
 						x - cfg::real("gfx_player_gun_offset"), y,
 						0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),
@@ -208,6 +213,7 @@ public:
 		// ---------------------
 		if(_rpg.update(dt)) {
 			up.tick_down_rl();
+                        nqueue.push(res_id::MISSILE_SHOOT);
 			msgs.push(comm::create_spawn_missile(
 					x + cfg::real("gfx_player_rl_offset"), y,
 					0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),

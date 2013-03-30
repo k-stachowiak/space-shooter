@@ -109,11 +109,13 @@ struct arms_node {
 	// orientation - determines the location base for spawning the bullets etc.
 	// weapon_beh  - determines the projectiles spawning patterns
 	// upgrades    - provides the information about the current player's upgrades
+        // nqueue      - enables scheduling of the samples' playing
 
 	uint64_t id;
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::weapon_beh> weapon_beh;
 	shared_ptr<cmp::upgrades> upgrades;
+        shared_ptr<cmp::noise_queue> nqueue;
 };
 
 struct collision_node {
@@ -150,11 +152,13 @@ struct pickup_node {
 	// wellness   - to be modified if health picked up
 	// ammo       - to be modified if ammo picked up
 	// upgrades   - to be modified if upgrade picked up
+        // nqueue     - to play sound upon pickup
 
 	uint64_t id;
 	shared_ptr<cmp::coll_queue> coll_queue;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::upgrades> upgrades;
+        shared_ptr<cmp::noise_queue> nqueue;
 };
 
 struct wellness_node {
@@ -163,6 +167,7 @@ struct wellness_node {
 	// orientation - for the reaction
 	// shape       - for the reaction
 	// dynamics    - for the reaction
+        // nqueue      - for the reaction
 	// wellness    - monitored to notice, when the entity dies
 	// ttl         - after the time to live runs out the entity dies
 
@@ -171,6 +176,7 @@ struct wellness_node {
 	shared_ptr<cmp::orientation> orientation;
 	shared_ptr<cmp::shape> shape;
 	shared_ptr<cmp::dynamics> dynamics;
+        shared_ptr<cmp::noise_queue> nqueue;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::timer> ttl;
 };
@@ -185,6 +191,14 @@ struct hud_node {
 	shared_ptr<double> score;
 	shared_ptr<cmp::wellness> wellness;
 	shared_ptr<cmp::upgrades> upgrades;
+};
+
+struct sound_node {
+
+        // nqueue - the queue of the noises to be played.
+
+        uint64_t id;
+        shared_ptr<cmp::noise_queue> nqueue;
 };
 
 }

@@ -77,7 +77,7 @@
 	(gameplay_vertical_x_margin 75.0)
 	(gameplay_vertical_vel 100.0)
 	
-	(gameplay_horizontal_y_margin 75.0)
+	(gameplay_horizontal_y_margin 200.0)
 	(gameplay_horizontal_vel 60.0)
 	
 	(gameplay_player_vx 400.0)

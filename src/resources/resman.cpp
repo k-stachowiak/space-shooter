@@ -21,7 +21,8 @@
 #include "../misc/config.h"
 #include "resman.h"
 
-resman::resman(ALLEGRO_DISPLAY* dpy)
+resman::resman(ALLEGRO_DISPLAY* dpy,
+                map<res_id, string> samples)
 : _dpy(dpy) {
 
 	// Initialize all the resources to be needed later here.
@@ -75,6 +76,12 @@ resman::resman(ALLEGRO_DISPLAY* dpy)
 	// Load fonts.
 	add_font(res_id::TINY_FONT, "data/prstartk.ttf", cfg::integer("gfx_font_tiny_size"));
 	add_font(res_id::FONT, "data/prstartk.ttf", cfg::integer("gfx_font_base_size"));
+
+        // Load sounds.
+        al_reserve_samples(samples.size());
+        for(auto const& pr : samples) {
+                add_sample(pr.first, pr.second);
+        }
 }
 
 ALLEGRO_BITMAP* resman::get_bitmap(res_id id) const {
@@ -94,7 +101,15 @@ ALLEGRO_FONT* resman::get_font(res_id id) const {
 	return _fonts.at(id).get();
 }
 
-void resman::add_bitmap(res_id id, string path) {
+ALLEGRO_SAMPLE* resman::get_sample(res_id id) const {
+	if(_samples.find(id) == end(_samples)) {
+		return nullptr;
+	}
+
+	return _samples.at(id).get();
+}
+
+void resman::add_bitmap(res_id id, string const& path) {
 
 	if(_bitmaps.find(id) != end(_bitmaps)) {
 		throw initialization_error("Loading resource at duplicate id");
@@ -111,7 +126,7 @@ void resman::add_bitmap(res_id id, string path) {
 	_bitmaps[id] = move(bitmap);
 }
 
-void resman::add_font(res_id id, string path, int size) {
+void resman::add_font(res_id id, string const& path, int size) {
 	if(_fonts.find(id) != end(_fonts)) {
 		throw initialization_error("Loading resource at duplicate id");
 	}
@@ -125,6 +140,22 @@ void resman::add_font(res_id id, string path, int size) {
 	}
 
 	_fonts[id] = move(font);
+}
+
+void resman::add_sample(res_id id, string const& path) {
+	if(_samples.find(id) != end(_samples)) {
+		throw initialization_error("Loading resource at duplicate id");
+	}
+
+	p_sample sample(al_load_sample(path.c_str()));
+
+	if(!sample) {
+		stringstream msg;
+		msg << "Failed loading sample at " << path;
+		throw resource_not_found_error(msg.str());
+	}
+
+	_samples[id] = move(sample);
 }
 
 void resman::expand_fade(

@@ -22,6 +22,7 @@ OBJS := src/resources/resman.o \
         src/efwk/comm.o \
         src/efwk/entity_factory.o \
         src/efwk/sys_score.o \
+        src/efwk/sys_sound.o \
         src/efwk/sys_fx.o \
         src/efwk/sys_pain.o \
         src/efwk/sys_pickup.o \

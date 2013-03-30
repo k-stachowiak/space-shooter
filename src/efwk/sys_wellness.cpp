@@ -56,6 +56,7 @@ void wellness_system::update(double dt, comm::msg_queue& msgs) {
 					*(n.shape),
 					vx, vy,
 					n.id,
+                                        *(n.nqueue),
 					msgs);
 
 			// Remove the entity.

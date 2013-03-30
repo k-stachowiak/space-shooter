@@ -64,10 +64,15 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 	shared_ptr<cmp::reaction> on_death;
 	shared_ptr<cmp::wellness> wellness; 
 
+        // Sound components.
+        // -----------------
+        auto nqueue = make_shared<cmp::noise_queue>();
+
 	// Register nodes.
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
+        _sound_system.add_node({ id, nqueue });
 
 	return id;
 }
@@ -134,10 +139,15 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 	shared_ptr<cmp::reaction> on_death;
 	shared_ptr<cmp::wellness> wellness; 
 
+        // Sound components.
+        // -----------------
+        auto nqueue = make_shared<cmp::noise_queue>();
+
 	// Register nodes.
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
+        _sound_system.add_node({ id, nqueue });
 
 	return id;
 }
@@ -216,13 +226,18 @@ uint64_t entity_factory::create_debris(double x, double y,
 		cfg::real("gameplay_debris_damage"),
 		nullptr);
 
+        // Sound components.
+        // -----------------
+        auto nqueue = make_shared<cmp::noise_queue>();
+
 	// Register nodes.
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 	_collision_system.add_node({ id, origin_id, cp, shape, coll_queue }); 
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
+        _sound_system.add_node({ id, nqueue });
 
 	return id;
 }
@@ -356,19 +371,24 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 	auto score = make_shared<double>();
 	auto sc = cmp::score_class::PLAYER;
 
+        // Sound components.
+        // -----------------
+        auto nqueue = make_shared<cmp::noise_queue>();
+
 	// Register nodes.
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
-	_pickup_system.add_node({ id, coll_queue, wellness, upgrades });
+	_pickup_system.add_node({ id, coll_queue, wellness, upgrades, nqueue });
 	_input_system.add_node({ id, dynamics, weapon_beh });
 	_score_system.add_node({ id, sc, score, wellness });
-	_hud_system.add_node({id, score, wellness, upgrades });
+	_hud_system.add_node({ id, score, wellness, upgrades });
+        _sound_system.add_node({ id, nqueue });
 
 	return id;
 }
@@ -484,16 +504,21 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 	auto score = make_shared<double>();
 	auto sc = cmp::score_class::ENEMY_LIGHT_FIGHTER;
 
+        // Sound components.
+        // -----------------
+        auto nqueue = make_shared<cmp::noise_queue>();
+
 	// Register components.
 	// --------------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, score, wellness });
+        _sound_system.add_node({ id, nqueue });
 
 	return id;
 }
@@ -621,16 +646,21 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 	auto score = make_shared<double>();
 	auto sc = cmp::score_class::ENEMY_HEAVY_FIGHTER;
 
+        // Sound components.
+        // -----------------
+        auto nqueue = make_shared<cmp::noise_queue>();
+
 	// Register the components.
 	// ------------------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, score, wellness });
+        _sound_system.add_node({ id, nqueue });
 
 	return id;
 }
@@ -769,16 +799,21 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 	auto score = make_shared<double>();
 	auto sc = cmp::score_class::ENEMY_LIGHT_BOMBER;
 
+        // Sound components.
+        // -----------------
+        auto nqueue = make_shared<cmp::noise_queue>();
+
 	// Register the components.
 	// ------------------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, score, wellness });
+        _sound_system.add_node({ id, nqueue });
 
 	return id;
 }
@@ -917,16 +952,21 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 	auto score = make_shared<double>();
 	auto sc = cmp::score_class::ENEMY_HEAVY_BOMBER;
 
+        // Sound components.
+        // -----------------
+        auto nqueue = make_shared<cmp::noise_queue>();
+
 	// Register the components.
 	// ------------------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
-	_arms_system.add_node({ id, orientation, weapon_beh, upgrades });
+	_arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
 	_collision_system.add_node({ id, id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
 	_score_system.add_node({ id, sc, score, wellness });
+        _sound_system.add_node({ id, nqueue });
 
 	return id;
 }
@@ -1127,14 +1167,19 @@ uint64_t entity_factory::create_missile(
 			cfg::real("gameplay_smoke_interval"),
 			cfg::real("gameplay_smoke_interval"));
 
+        // Sound components.
+        // -----------------
+        auto nqueue = make_shared<cmp::noise_queue>();
+
 	// Register nodes.
 	// ---------------
 	_drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
 	_movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
 	_collision_system.add_node({ id, origin_id, cp, shape, coll_queue });
 	_pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
-	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, wellness, ttl });
+	_wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
 	_fx_system.add_node({ id, orientation, shape, wellness, fxs });
+        _sound_system.add_node({ id, nqueue });
 
 	return id;
 }

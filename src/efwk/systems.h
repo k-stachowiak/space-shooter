@@ -32,6 +32,7 @@
 #include "sys_pain.h"
 #include "sys_pickup.h"
 #include "sys_score.h"
+#include "sys_sound.h"
 #include "sys_wellness.h"
 
 #endif

@@ -33,7 +33,9 @@ using namespace std;
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_font.h>
-#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_ttf.h> 
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 
 #include "../misc/exceptions.h"
 
@@ -76,39 +78,58 @@ enum class res_id : int {
 	SMOKE_SMALL,
 	SMOKE_BIG,
 	EXPLOSION,
+
+        // Sounds.
+        BULLET_SHOOT,
+        MISSILE_SHOOT,
+        WEAPON_PICKUP,
+        WELLNESS_PICKUP,
+        EXPLOSION_SND
 };
 
 class resman {
 
-	struct bitmap_deleter {
-		void operator()(ALLEGRO_BITMAP* bitmap) {			
-			al_destroy_bitmap(bitmap);
-		}
-	};
+        struct bitmap_deleter {
+                void operator()(ALLEGRO_BITMAP* bmp) const {
+                        al_destroy_bitmap(bmp);
+                }
+        };
 
 	struct font_deleter {
-		void operator()(ALLEGRO_FONT* font) {
+		void operator()(ALLEGRO_FONT* font) const {
 			al_destroy_font(font);
 		}
 	};
 
+        struct sample_deleter {
+                void operator()(ALLEGRO_SAMPLE* sample) const {
+                        al_destroy_sample(sample);
+                }
+        };
+
 	// Helper typedef.
 	typedef unique_ptr<ALLEGRO_BITMAP, bitmap_deleter> p_bmp;
 	typedef unique_ptr<ALLEGRO_FONT, font_deleter> p_font;
+        typedef unique_ptr<ALLEGRO_SAMPLE, sample_deleter> p_sample;
 
 	ALLEGRO_DISPLAY* _dpy;
 
 	map<res_id, p_bmp> _bitmaps;
 	map<res_id, p_font> _fonts;
+	map<res_id, p_sample> _samples;
 
 public:
-	resman(ALLEGRO_DISPLAY* dpy);
+	resman(ALLEGRO_DISPLAY* dpy,
+                map<res_id, string> samples);
+        ~resman() { _bitmaps.clear(); _fonts.clear(); }
 	ALLEGRO_BITMAP* get_bitmap(res_id id) const;
 	ALLEGRO_FONT* get_font(res_id id) const;
+        ALLEGRO_SAMPLE* get_sample(res_id id) const;
 
 private:
-	void add_bitmap(res_id id, string path);
-	void add_font(res_id id, string path, int size);
+	void add_bitmap(res_id id, string const& path);
+	void add_font(res_id id, string const& path, int size);
+	void add_sample(res_id id, string const& path);
 
 	void expand_fade(
 			res_id id,

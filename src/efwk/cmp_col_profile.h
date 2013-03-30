@@ -26,6 +26,7 @@ using std::shared_ptr;
 using std::unique_ptr;
 
 #include "../misc/maybe.h"
+#include "cmp_misc.h"
 
 namespace cmp {
 
@@ -47,7 +48,10 @@ enum class coll_class {
 class pickup_profile {
 public:
 	virtual ~pickup_profile() {}
-	virtual bool trigger(wellness& w, upgrades& up) = 0;
+	virtual bool trigger(
+                wellness& w,
+                upgrades& up,
+                noise_queue& nqueue) = 0;
 };
 
 struct collision_profile {

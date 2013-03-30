@@ -18,26 +18,26 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "sys_arms.h"
+#ifndef SYS_SOUND_H
+#define SYS_SOUND_H
+
+#include "../resources/resman.h"
+#include "sys_base.h"
+#include "nodes.h"
 
 namespace sys {
 
-void arms_system::update(double dt, comm::msg_queue& msgs) {
-	double x, y;
-	for(auto const& n : _nodes) {
-
-		x = n.orientation->get_x();
-		y = n.orientation->get_y();
-
-		if(n.weapon_beh)
-			n.weapon_beh->update(
-                                n.id,
-                                *(n.upgrades),
-                                dt,
-                                x, y,
-                                *(n.nqueue),
-                                msgs);
-	}
-}
+class sound_system : public system {
+        resman const& _resman;
+	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+        vector<nd::sound_node> _nodes;
+public:
+        sound_system(resman const& rm) : _resman(rm) {}
+        unsigned num_nodes() const { return _nodes.size(); }
+        void add_node(nd::sound_node const& n) { _nodes.push_back(n); }
+	void update(double dt);
+};
 
 }
+
+#endif

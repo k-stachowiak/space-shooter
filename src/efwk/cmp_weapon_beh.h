@@ -43,6 +43,7 @@ public:
 			upgrades& up,
 			double dt,
 			double x, double y,
+                        noise_queue& nqueue,
 			comm::msg_queue& msgs) = 0;
 
 	virtual void input(map<int, bool>& keys) = 0;

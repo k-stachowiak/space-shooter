@@ -45,10 +45,10 @@ public:
 	~allegro();
 	ALLEGRO_DISPLAY* get_display();
 	void dump_events(state& s, uint32_t& overdue_frames);
-	void swap_buffers();
+	void swap_buffers() const;
 
 private:
-	void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame);
+	void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
 };
 
 #endif

@@ -23,7 +23,7 @@
 namespace sys {
 
 void collision_system::check_collision(nd::collision_node const& a,
-			 nd::collision_node const& b) {
+			 nd::collision_node const& b) const {
 
 	cmp::shape const& shp_a = *(a.shape);
 	cmp::shape const& shp_b = *(b.shape);

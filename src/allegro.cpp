@@ -116,11 +116,11 @@ void allegro::dump_events(state& s, uint32_t& overdue_frames) {
 	}
 }
 
-void allegro::swap_buffers() {
+void allegro::swap_buffers() const {
 	al_flip_display();
 }
 
-void allegro::handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) {
+void allegro::handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const {
 	switch(ev.type) {
 	case ALLEGRO_EVENT_DISPLAY_CLOSE:
 		s.sigkill();

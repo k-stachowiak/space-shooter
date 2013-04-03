@@ -23,32 +23,32 @@
 namespace cmp {
 
 shared_ptr<orientation> create_orientation(double x, double y, double theta) {
-	return make_shared<orientation>(x, y, theta);
+        return make_shared<orientation>(x, y, theta);
 }
 
 shared_ptr<bounds> create_bounds(
-		double x_min, double y_min, double x_max, double y_max) {
-	return make_shared<bounds>(x_min, y_min, x_max, y_max);
+                double x_min, double y_min, double x_max, double y_max) {
+        return make_shared<bounds>(x_min, y_min, x_max, y_max);
 }
 
 shared_ptr<coll_queue> create_coll_queue() {
-	return make_shared<coll_queue>();
+        return make_shared<coll_queue>();
 }
 
 shared_ptr<upgrades> create_upgrades(
-		size_t gun_lvl_max,
-		size_t rl_lvl_max,
-		size_t gun_upgrade_ammo,
-		size_t rl_upgrade_ammo) {
-	return make_shared<upgrades>(
-			gun_lvl_max,
-			rl_lvl_max,
-			gun_upgrade_ammo,
-			rl_upgrade_ammo);
+                size_t gun_lvl_max,
+                size_t rl_lvl_max,
+                size_t gun_upgrade_ammo,
+                size_t rl_upgrade_ammo) {
+        return make_shared<upgrades>(
+                        gun_lvl_max,
+                        rl_lvl_max,
+                        gun_upgrade_ammo,
+                        rl_upgrade_ammo);
 }
 
 shared_ptr<wellness> create_wellness(double health, double shield) {
-	return make_shared<wellness>(health, shield);
+        return make_shared<wellness>(health, shield);
 }
 
 }

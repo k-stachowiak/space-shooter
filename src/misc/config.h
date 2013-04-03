@@ -28,21 +28,21 @@ using std::string;
 
 namespace cfg {
 
-	int integer(string const& key);
-	double real(string const& key);
+        int integer(string const& key);
+        double real(string const& key);
 
-	void load_from_file(string const& name);
+        void load_from_file(string const& name);
 
-	namespace math {
-		const double pi = 3.1415;
-		const double two_pi = 6.2830;
-		const double half_pi = 1.577;
-	}
+        namespace math {
+                const double pi = 3.1415;
+                const double two_pi = 6.2830;
+                const double half_pi = 1.577;
+        }
 
-	namespace type_bounds {
-		const size_t max_num_frames = 128;
-		const size_t max_frame_defs = 128;
-	}
+        namespace type_bounds {
+                const size_t max_num_frames = 128;
+                const size_t max_frame_defs = 128;
+        }
 
 }
 

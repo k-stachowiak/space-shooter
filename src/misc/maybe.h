@@ -26,14 +26,14 @@ using std::move;
 
 template<class T>
 class maybe {
-	bool _valid;
-	T _value;
+        bool _valid;
+        T _value;
 public:
-	maybe() : _valid(false), _value(T()) {}
-	maybe(T value) : _valid(true), _value(move(value)) {}
-	void reset() { _valid = false; }
-	T const& get() const { return _value; }
-	operator bool() { return _valid; }
+        maybe() : _valid(false), _value(T()) {}
+        maybe(T value) : _valid(true), _value(move(value)) {}
+        void reset() { _valid = false; }
+        T const& get() const { return _value; }
+        operator bool() { return _valid; }
 };
 
 

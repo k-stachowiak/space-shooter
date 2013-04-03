@@ -41,43 +41,43 @@ using namespace std;
 
 enum class res_id : int {
 
-	// Prepared resources.
-	PLAYER_SHIP,
-	PLAYER_SHIP_FLASH,
-	ENEMY_LIGHT_FIGHTER,
-	ENEMY_LIGHT_FIGHTER_FLASH,
-	ENEMY_HEAVY_FIGHTER,
-	ENEMY_HEAVY_FIGHTER_FLASH,
-	ENEMY_LIGHT_BOMBER,
-	ENEMY_LIGHT_BOMBER_FLASH,
-	ENEMY_HEAVY_BOMBER,
-	ENEMY_HEAVY_BOMBER_FLASH,
-	BULLET_1,
-	BULLET_2,
-	BULLET_3,
-	BULLET_4,
-	BULLET_5,
-	MISSILE,
-	B_UPGRADE,
-	M_UPGRADE,
-	TINY_FONT,
-	FONT,
-	DEBRIS1,
-	DEBRIS2,
-	DEBRIS3,
-	DEBRIS4,
-	DEBRIS5,
-	HEALTH,
-	BATTERY,
-	HUD_BG,
-	DIODE_ON,
-	DIODE_OFF,
+        // Prepared resources.
+        PLAYER_SHIP,
+        PLAYER_SHIP_FLASH,
+        ENEMY_LIGHT_FIGHTER,
+        ENEMY_LIGHT_FIGHTER_FLASH,
+        ENEMY_HEAVY_FIGHTER,
+        ENEMY_HEAVY_FIGHTER_FLASH,
+        ENEMY_LIGHT_BOMBER,
+        ENEMY_LIGHT_BOMBER_FLASH,
+        ENEMY_HEAVY_BOMBER,
+        ENEMY_HEAVY_BOMBER_FLASH,
+        BULLET_1,
+        BULLET_2,
+        BULLET_3,
+        BULLET_4,
+        BULLET_5,
+        MISSILE,
+        B_UPGRADE,
+        M_UPGRADE,
+        TINY_FONT,
+        FONT,
+        DEBRIS1,
+        DEBRIS2,
+        DEBRIS3,
+        DEBRIS4,
+        DEBRIS5,
+        HEALTH,
+        BATTERY,
+        HUD_BG,
+        DIODE_ON,
+        DIODE_OFF,
 
-	// Generated bitmaps.
-	SMOKE,
-	SMOKE_SMALL,
-	SMOKE_BIG,
-	EXPLOSION,
+        // Generated bitmaps.
+        SMOKE,
+        SMOKE_SMALL,
+        SMOKE_BIG,
+        EXPLOSION,
 
         // Sounds.
         BULLET_SHOOT,
@@ -95,11 +95,11 @@ class resman {
                 }
         };
 
-	struct font_deleter {
-		void operator()(ALLEGRO_FONT* font) const {
-			al_destroy_font(font);
-		}
-	};
+        struct font_deleter {
+                void operator()(ALLEGRO_FONT* font) const {
+                        al_destroy_font(font);
+                }
+        };
 
         struct sample_deleter {
                 void operator()(ALLEGRO_SAMPLE* sample) const {
@@ -107,43 +107,43 @@ class resman {
                 }
         };
 
-	// Helper typedef.
-	typedef unique_ptr<ALLEGRO_BITMAP, bitmap_deleter> p_bmp;
-	typedef unique_ptr<ALLEGRO_FONT, font_deleter> p_font;
+        // Helper typedef.
+        typedef unique_ptr<ALLEGRO_BITMAP, bitmap_deleter> p_bmp;
+        typedef unique_ptr<ALLEGRO_FONT, font_deleter> p_font;
         typedef unique_ptr<ALLEGRO_SAMPLE, sample_deleter> p_sample;
 
-	ALLEGRO_DISPLAY* _dpy;
+        ALLEGRO_DISPLAY* _dpy;
 
-	map<res_id, p_bmp> _bitmaps;
-	map<res_id, p_font> _fonts;
-	map<res_id, p_sample> _samples;
+        map<res_id, p_bmp> _bitmaps;
+        map<res_id, p_font> _fonts;
+        map<res_id, p_sample> _samples;
 
 public:
-	resman(ALLEGRO_DISPLAY* dpy,
+        resman(ALLEGRO_DISPLAY* dpy,
                 map<res_id, string> samples);
         ~resman() { _bitmaps.clear(); _fonts.clear(); }
-	ALLEGRO_BITMAP* get_bitmap(res_id id) const;
-	ALLEGRO_FONT* get_font(res_id id) const;
+        ALLEGRO_BITMAP* get_bitmap(res_id id) const;
+        ALLEGRO_FONT* get_font(res_id id) const;
         ALLEGRO_SAMPLE* get_sample(res_id id) const;
 
 private:
-	void add_bitmap(res_id id, string const& path);
-	void add_font(res_id id, string const& path, int size);
-	void add_sample(res_id id, string const& path);
+        void add_bitmap(res_id id, string const& path);
+        void add_font(res_id id, string const& path, int size);
+        void add_sample(res_id id, string const& path);
 
-	void expand_fade(
-			res_id id,
-			string path,
-			uint32_t num_frames,
-			double exp_factor);
+        void expand_fade(
+                        res_id id,
+                        string path,
+                        uint32_t num_frames,
+                        double exp_factor);
 
-	void fade_frames(res_id id,
-			 string path,
-			 uint32_t num_frames);
+        void fade_frames(res_id id,
+                         string path,
+                         uint32_t num_frames);
 
-	void scaled_copy(res_id id, res_id original, double scale);
+        void scaled_copy(res_id id, res_id original, double scale);
 
-	void flash(res_id id, res_id original);
+        void flash(res_id id, res_id original);
 };
 
 #endif

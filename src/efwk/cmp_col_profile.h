@@ -34,40 +34,40 @@ class wellness;
 class upgrades;
 
 enum class pain_team {
-	NONE,
-	PLAYER,
-	ENEMY
+        NONE,
+        PLAYER,
+        ENEMY
 };
 
 enum class coll_class {
-	SHIP,
-	PROJECTILE,
-	PICKUP
+        SHIP,
+        PROJECTILE,
+        PICKUP
 };
 
 class pickup_profile {
 public:
-	virtual ~pickup_profile() {}
-	virtual bool trigger(
+        virtual ~pickup_profile() {}
+        virtual bool trigger(
                 wellness& w,
                 upgrades& up,
                 noise_queue& nqueue) = 0;
 };
 
 struct collision_profile {
-	pain_team pt;
-	coll_class cc;
-	bool is_projectile;
-	double dmg;
-	unique_ptr<pickup_profile> pickup;
+        pain_team pt;
+        coll_class cc;
+        bool is_projectile;
+        double dmg;
+        unique_ptr<pickup_profile> pickup;
 };
 
 shared_ptr<collision_profile> create_collision_profile(
-		pain_team pain_t,
-		coll_class coll_c,
-		bool is_projectile,
-		double dmg,
-		unique_ptr<pickup_profile> pick_p);
+                pain_team pain_t,
+                coll_class coll_c,
+                bool is_projectile,
+                double dmg,
+                unique_ptr<pickup_profile> pick_p);
 
 unique_ptr<pickup_profile> create_health_pickup_profile(double amount);
 unique_ptr<pickup_profile> create_battery_pickup_profile(double amount);

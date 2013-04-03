@@ -30,20 +30,20 @@ using std::map;
 namespace sys {
 
 class score_system : public system {
-	map<uint64_t, nd::score_node> _nodes;
-	const map<cmp::score_class, double> _class_score_map;
+        map<uint64_t, nd::score_node> _nodes;
+        const map<cmp::score_class, double> _class_score_map;
 public:
-	unsigned num_nodes() const { return _nodes.size(); }
-	score_system(map<cmp::score_class, double> score_map)
-	: _class_score_map(score_map)
-	{}
+        unsigned num_nodes() const { return _nodes.size(); }
+        score_system(map<cmp::score_class, double> score_map)
+        : _class_score_map(score_map)
+        {}
 
-	void add_node(nd::score_node n) { _nodes[n.id] = n; }
-	void update();
+        void add_node(nd::score_node n) { _nodes[n.id] = n; }
+        void update();
 
-	friend void remove_node(score_system& sys, uint64_t id) {
-		sys._nodes.erase(id);
-	}
+        friend void remove_node(score_system& sys, uint64_t id) {
+                sys._nodes.erase(id);
+        }
 };
 
 }

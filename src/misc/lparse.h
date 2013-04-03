@@ -37,144 +37,144 @@ using std::ios_base;
 
 namespace lparse {
 
-	enum class token_t : unsigned int {
-		lpar = 1 << 0,
-		rpar = 1 << 1,
-		atom = 1 << 2
-	};
+        enum class token_t : unsigned int {
+                lpar = 1 << 0,
+                rpar = 1 << 1,
+                atom = 1 << 2
+        };
 
-	class tokenizer {
-		istream& _in;
-		string _last_atom;
+        class tokenizer {
+                istream& _in;
+                string _last_atom;
 
-	public:
-		tokenizer(istream& in) : _in(in), _last_atom("") {}
-		operator bool() { return _in; }
-		string get_last_atom() const { return _last_atom; }
+        public:
+                tokenizer(istream& in) : _in(in), _last_atom("") {}
+                operator bool() { return _in; }
+                string get_last_atom() const { return _last_atom; }
 
-		// Low level interface.
-		// --------------------
+                // Low level interface.
+                // --------------------
 
-		template<class LParCallback, class RParCallback, class AtomCallback>
-		bool seek_next(LParCallback on_lpar, RParCallback on_rpar, AtomCallback on_atom) {
+                template<class LParCallback, class RParCallback, class AtomCallback>
+                bool seek_next(LParCallback on_lpar, RParCallback on_rpar, AtomCallback on_atom) {
 
-			enum class tok_state {
-				in_atom,
-				in_wspace,
-				in_comment
-			} state = tok_state::in_wspace;
+                        enum class tok_state {
+                                in_atom,
+                                in_wspace,
+                                in_comment
+                        } state = tok_state::in_wspace;
 
-			stringstream ss;
-			char c;
+                        stringstream ss;
+                        char c;
 
-			for(;;) {
+                        for(;;) {
 
-				if((c = _in.get()) == EOF) {
-					return false;
-				}
+                                if((c = _in.get()) == EOF) {
+                                        return false;
+                                }
 
-				switch(state) {
+                                switch(state) {
 
-				case tok_state::in_atom:
+                                case tok_state::in_atom:
 
-					if(iswspace(c)) {
-						_last_atom = ss.str();
-						on_atom(_last_atom);
-						state = tok_state::in_wspace;
-						return true;
-					}
+                                        if(iswspace(c)) {
+                                                _last_atom = ss.str();
+                                                on_atom(_last_atom);
+                                                state = tok_state::in_wspace;
+                                                return true;
+                                        }
 
-					if(c == '#') {
-						_last_atom = ss.str();
-						on_atom(_last_atom);
-						state = tok_state::in_comment;
-						return true;
-					}
+                                        if(c == '#') {
+                                                _last_atom = ss.str();
+                                                on_atom(_last_atom);
+                                                state = tok_state::in_comment;
+                                                return true;
+                                        }
 
-					if(c == '(' || c == ')') {
-						_last_atom = ss.str();
-						_in.seekg(-1, ios_base::cur);
-						on_atom(_last_atom);
-						state = tok_state::in_wspace;
-						return true;
-					}
+                                        if(c == '(' || c == ')') {
+                                                _last_atom = ss.str();
+                                                _in.seekg(-1, ios_base::cur);
+                                                on_atom(_last_atom);
+                                                state = tok_state::in_wspace;
+                                                return true;
+                                        }
 
-					ss << c;
-					break;
+                                        ss << c;
+                                        break;
 
-				case tok_state::in_wspace:
+                                case tok_state::in_wspace:
 
-					if(iswspace(c))	{
-						continue;
-					}
+                                        if(iswspace(c))        {
+                                                continue;
+                                        }
 
-					if(c == '#') {
-						state = tok_state::in_comment;
-						continue;
-					}
+                                        if(c == '#') {
+                                                state = tok_state::in_comment;
+                                                continue;
+                                        }
 
-					if(c == '(') {
-						on_lpar();
-						return true;
-					}
+                                        if(c == '(') {
+                                                on_lpar();
+                                                return true;
+                                        }
 
-					if(c == ')') {
-						on_rpar();
-						return true;
-					}
+                                        if(c == ')') {
+                                                on_rpar();
+                                                return true;
+                                        }
 
-					ss << c;
-					state = tok_state::in_atom;
-					break;
+                                        ss << c;
+                                        state = tok_state::in_atom;
+                                        break;
 
-				case tok_state::in_comment:
-					if(c == '\n') {
-						state = tok_state::in_wspace;
-						continue;
-					}
-					break;
-				}
-			}
-		}
+                                case tok_state::in_comment:
+                                        if(c == '\n') {
+                                                state = tok_state::in_wspace;
+                                                continue;
+                                        }
+                                        break;
+                                }
+                        }
+                }
 
-		// High level interface.
-		// ---------------------
+                // High level interface.
+                // ---------------------
 
-		token_t expect(unsigned int flags) {
-			token_t result = token_t::lpar;
-			seek_next(
-				[&result, flags]() mutable {
-					if(!(flags & (unsigned int)token_t::lpar)) {
-						throw parsing_error("Unexpected \"(\" encountered.");
-					}
-					result = token_t::lpar;
-				},
-				[&result, flags]() mutable {
-					if(!(flags & (unsigned int)token_t::rpar)) {
-						throw parsing_error("Unexpected \")\" encountered.");
-					}
-					result = token_t::lpar;
-				},
-				[&result, flags](string const&) mutable {
-					if(!(flags & (unsigned int)token_t::atom)) {
-						throw parsing_error("Unexpected \")\" encountered.");
-					}
-					result = token_t::atom;
-				});
-			return result;
-		}
+                token_t expect(unsigned int flags) {
+                        token_t result = token_t::lpar;
+                        seek_next(
+                                [&result, flags]() mutable {
+                                        if(!(flags & (unsigned int)token_t::lpar)) {
+                                                throw parsing_error("Unexpected \"(\" encountered.");
+                                        }
+                                        result = token_t::lpar;
+                                },
+                                [&result, flags]() mutable {
+                                        if(!(flags & (unsigned int)token_t::rpar)) {
+                                                throw parsing_error("Unexpected \")\" encountered.");
+                                        }
+                                        result = token_t::lpar;
+                                },
+                                [&result, flags](string const&) mutable {
+                                        if(!(flags & (unsigned int)token_t::atom)) {
+                                                throw parsing_error("Unexpected \")\" encountered.");
+                                        }
+                                        result = token_t::atom;
+                                });
+                        return result;
+                }
 
-		void expect_atom(string const& atom) {
-			seek_next(
-				[]() { throw parsing_error("Unexpected \"(\" encountered."); },
-				[]() { throw parsing_error("Unexpected \")\" encountered."); },
-				[&atom](string const& str) {
-					if(str != atom) {
-						throw parsing_error("Unexpected \"" + str + "\" encountered.");
-					}
-				});
-		}
-	};
+                void expect_atom(string const& atom) {
+                        seek_next(
+                                []() { throw parsing_error("Unexpected \"(\" encountered."); },
+                                []() { throw parsing_error("Unexpected \")\" encountered."); },
+                                [&atom](string const& str) {
+                                        if(str != atom) {
+                                                throw parsing_error("Unexpected \"" + str + "\" encountered.");
+                                        }
+                                });
+                }
+        };
 
 }
 

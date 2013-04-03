@@ -36,32 +36,32 @@ namespace cmp {
 
 class weapon_beh {
 public:
-	virtual ~weapon_beh() {}
+        virtual ~weapon_beh() {}
 
-	virtual void update(
-			uint64_t id,
-			upgrades& up,
-			double dt,
-			double x, double y,
+        virtual void update(
+                        uint64_t id,
+                        upgrades& up,
+                        double dt,
+                        double x, double y,
                         noise_queue& nqueue,
-			comm::msg_queue& msgs) = 0;
+                        comm::msg_queue& msgs) = 0;
 
-	virtual void input(map<int, bool>& keys) = 0;
+        virtual void input(map<int, bool>& keys) = 0;
 };
 
 shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs);
 
 shared_ptr<weapon_beh> create_period_bullet(
-		double dt_min, double dt_max,
-		double x_off, double y_off,
-		double x_dir, double y_dir,
-		double lin_vel);
+                double dt_min, double dt_max,
+                double x_off, double y_off,
+                double x_dir, double y_dir,
+                double lin_vel);
 
 shared_ptr<weapon_beh> create_period_missile(
-		double dt_min, double dt_max,
-		double x_off, double y_off,
-		double x_dir, double y_dir,
-		double lin_vel);
+                double dt_min, double dt_max,
+                double x_off, double y_off,
+                double x_dir, double y_dir,
+                double lin_vel);
 
 shared_ptr<weapon_beh> create_player_controlled_weapon_beh();
 

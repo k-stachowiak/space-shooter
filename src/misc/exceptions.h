@@ -29,20 +29,20 @@ using std::string;
 
 class initialization_error : public runtime_error {
 public:
-	initialization_error(string message)
-	: runtime_error(message) {}
+        initialization_error(string message)
+        : runtime_error(message) {}
 };
 
 class resource_not_found_error : public runtime_error {
 public:
-	resource_not_found_error(string message)
-	: runtime_error(message) {}
+        resource_not_found_error(string message)
+        : runtime_error(message) {}
 };
 
 class parsing_error : public runtime_error {
 public:
-	parsing_error(string message)
-	: runtime_error(message) {}
+        parsing_error(string message)
+        : runtime_error(message) {}
 };
 
 #endif

@@ -24,87 +24,87 @@
 #include "../misc/config.h"
 
 enum class enemy_type {
-	light_fighter,
-	heavy_fighter,
-	light_bomber,
-	heavy_bomber
+        light_fighter,
+        heavy_fighter,
+        light_bomber,
+        heavy_bomber
 };
 
 enum class movement_type {
-	zorro,
-	diagonal,
-	vertical,
-	horizontal
+        zorro,
+        diagonal,
+        vertical,
+        horizontal
 };
 
 struct pattern {
 
-	struct element {
-		double x_off;
-		double y_off;
-		enemy_type type;
-	};
+        struct element {
+                double x_off;
+                double y_off;
+                enemy_type type;
+        };
 
-	vector<element> elements;
-	movement_type movement;
+        vector<element> elements;
+        movement_type movement;
 
         static vector<pattern::element> el_uno(enemy_type type) {
                 return {{ 0.0, 0.0, type }};
         }
 
-	static vector<pattern::element> el_pair(enemy_type type) {
-		return {{
-					cfg::real("gameplay_pat_pair_1_xoffset"),
-					cfg::real("gameplay_pat_pair_1_yoffset"),
-					type
-				},
-				{
-					cfg::real("gameplay_pat_pair_2_xoffset"),
-					cfg::real("gameplay_pat_pair_2_yoffset"),
-					type
-				}};
-	}
+        static vector<pattern::element> el_pair(enemy_type type) {
+                return {{
+                                        cfg::real("gameplay_pat_pair_1_xoffset"),
+                                        cfg::real("gameplay_pat_pair_1_yoffset"),
+                                        type
+                                },
+                                {
+                                        cfg::real("gameplay_pat_pair_2_xoffset"),
+                                        cfg::real("gameplay_pat_pair_2_yoffset"),
+                                        type
+                                }};
+        }
 
-	static vector<pattern::element> el_triangle(enemy_type type) {
-		return {{
-					cfg::real("gameplay_pat_tri_1_xoffset"),
-					cfg::real("gameplay_pat_tri_1_yoffset"),
-					type
-				},
-				{
-					cfg::real("gameplay_pat_tri_2_xoffset"),
-					cfg::real("gameplay_pat_tri_2_yoffset"),
-					type
-				},
-				{
-					cfg::real("gameplay_pat_tri_3_xoffset"),
-					cfg::real("gameplay_pat_tri_3_yoffset"),
-					type
-				}};
-	}
+        static vector<pattern::element> el_triangle(enemy_type type) {
+                return {{
+                                        cfg::real("gameplay_pat_tri_1_xoffset"),
+                                        cfg::real("gameplay_pat_tri_1_yoffset"),
+                                        type
+                                },
+                                {
+                                        cfg::real("gameplay_pat_tri_2_xoffset"),
+                                        cfg::real("gameplay_pat_tri_2_yoffset"),
+                                        type
+                                },
+                                {
+                                        cfg::real("gameplay_pat_tri_3_xoffset"),
+                                        cfg::real("gameplay_pat_tri_3_yoffset"),
+                                        type
+                                }};
+        }
 
-	static vector<pattern::element> el_quad(enemy_type type) {
-		return {{
-					cfg::real("gameplay_pat_quad_1_xoffset"),
-					cfg::real("gameplay_pat_quad_1_yoffset"),
-					type
-				},
-				{
-					cfg::real("gameplay_pat_quad_2_xoffset"),
-					cfg::real("gameplay_pat_quad_2_yoffset"),
-					type
-				},
-				{
-					cfg::real("gameplay_pat_quad_3_xoffset"),
-					cfg::real("gameplay_pat_quad_3_yoffset"),
-					type
-				},
-				{
-					cfg::real("gameplay_pat_quad_4_xoffset"),
-					cfg::real("gameplay_pat_quad_4_yoffset"),
-					type
-				}};
-	}
+        static vector<pattern::element> el_quad(enemy_type type) {
+                return {{
+                                        cfg::real("gameplay_pat_quad_1_xoffset"),
+                                        cfg::real("gameplay_pat_quad_1_yoffset"),
+                                        type
+                                },
+                                {
+                                        cfg::real("gameplay_pat_quad_2_xoffset"),
+                                        cfg::real("gameplay_pat_quad_2_yoffset"),
+                                        type
+                                },
+                                {
+                                        cfg::real("gameplay_pat_quad_3_xoffset"),
+                                        cfg::real("gameplay_pat_quad_3_yoffset"),
+                                        type
+                                },
+                                {
+                                        cfg::real("gameplay_pat_quad_4_xoffset"),
+                                        cfg::real("gameplay_pat_quad_4_yoffset"),
+                                        type
+                                }};
+        }
 };
 
 #endif

@@ -31,14 +31,14 @@ namespace cmp {
 
 class timer {
 protected:
-	uint32_t _ticks;
-	double _counter;
+        uint32_t _ticks;
+        double _counter;
 public:
-	virtual ~timer() {}
-	uint32_t get_ticks() const { return _ticks; }
-	void clear() { _ticks = 0; }
-	void reset() { _ticks = _counter = 0; }
-	virtual void update(double dt) = 0;
+        virtual ~timer() {}
+        uint32_t get_ticks() const { return _ticks; }
+        void clear() { _ticks = 0; }
+        void reset() { _ticks = _counter = 0; }
+        virtual void update(double dt) = 0;
 };
 
 shared_ptr<timer> create_const_int_timer(double interval);

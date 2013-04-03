@@ -38,13 +38,13 @@ class complex_shape;
 
 class shape {
 public:
-	virtual ~shape() {}
-	virtual void shift(double dx, double dy) = 0;
-	virtual void rotate(double dphi) = 0;
-	virtual bool collides_with(shape const& shp) const = 0;
-	virtual bool collides_with_circle(circle const& c) const = 0;
-	virtual pair<double, double> get_random_point() const = 0;
-	virtual void debug_draw() {}
+        virtual ~shape() {}
+        virtual void shift(double dx, double dy) = 0;
+        virtual void rotate(double dphi) = 0;
+        virtual bool collides_with(shape const& shp) const = 0;
+        virtual bool collides_with_circle(circle const& c) const = 0;
+        virtual pair<double, double> get_random_point() const = 0;
+        virtual void debug_draw() {}
 };
 
 shared_ptr<shape> create_circle(double x, double y, double r);

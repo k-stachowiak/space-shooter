@@ -25,42 +25,42 @@ namespace sys {
 
 void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes) {
 
-	double x, y;
-	double phi;
-	for(auto const& n : nodes) {
+        double x, y;
+        double phi;
+        for(auto const& n : nodes) {
 
-		n.appearance->update(dt);
+                n.appearance->update(dt);
 
-		x = n.orientation->get_x();
-		y = n.orientation->get_y();
-		phi = n.orientation->get_phi();
+                x = n.orientation->get_x();
+                y = n.orientation->get_y();
+                phi = n.orientation->get_phi();
 
-		if(*(n.pain_flash) > 0.0) {
-			n.appearance->draw_flash(x, y, phi);
-			*(n.pain_flash) -= dt;
-		} else {
-			n.appearance->draw(x, y, phi);
-		}
+                if(*(n.pain_flash) > 0.0) {
+                        n.appearance->draw_flash(x, y, phi);
+                        *(n.pain_flash) -= dt;
+                } else {
+                        n.appearance->draw(x, y, phi);
+                }
 
-		if(_debug_mode) {
-			if(n.shape) {
-				n.shape->debug_draw();
-			}
-		}
-	}
+                if(_debug_mode) {
+                        if(n.shape) {
+                                n.shape->debug_draw();
+                        }
+                }
+        }
 }
 
 void drawing_system::update(double dt) {
 
-	al_clear_to_color(al_map_rgb_f(
-			cfg::real("gfx_background_r"),
-			cfg::real("gfx_background_g"),
-			cfg::real("gfx_background_b")));
+        al_clear_to_color(al_map_rgb_f(
+                        cfg::real("gfx_background_r"),
+                        cfg::real("gfx_background_g"),
+                        cfg::real("gfx_background_b")));
 
-	draw_plane(dt, _nodes[cmp::draw_plane::BACKGROUND]);
-	draw_plane(dt, _nodes[cmp::draw_plane::SHIPS]);
-	draw_plane(dt, _nodes[cmp::draw_plane::PROJECTILES]);
-	draw_plane(dt, _nodes[cmp::draw_plane::FX]);
+        draw_plane(dt, _nodes[cmp::draw_plane::BACKGROUND]);
+        draw_plane(dt, _nodes[cmp::draw_plane::SHIPS]);
+        draw_plane(dt, _nodes[cmp::draw_plane::PROJECTILES]);
+        draw_plane(dt, _nodes[cmp::draw_plane::FX]);
 }
 
 }

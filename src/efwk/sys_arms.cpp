@@ -23,21 +23,21 @@
 namespace sys {
 
 void arms_system::update(double dt, comm::msg_queue& msgs) {
-	double x, y;
-	for(auto const& n : _nodes) {
+        double x, y;
+        for(auto const& n : _nodes) {
 
-		x = n.orientation->get_x();
-		y = n.orientation->get_y();
+                x = n.orientation->get_x();
+                y = n.orientation->get_y();
 
-		if(n.weapon_beh)
-			n.weapon_beh->update(
+                if(n.weapon_beh)
+                        n.weapon_beh->update(
                                 n.id,
                                 *(n.upgrades),
                                 dt,
                                 x, y,
                                 *(n.nqueue),
                                 msgs);
-	}
+        }
 }
 
 }

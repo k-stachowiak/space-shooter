@@ -36,18 +36,18 @@ namespace cmp {
 
 class dynamics {
 protected:
-	double _vx;
-	double _vy;
-	double _theta;
+        double _vx;
+        double _vy;
+        double _theta;
 public:
-	dynamics() : _vx(0), _vy(0), _theta(0) {}
-	virtual ~dynamics() {}
-	virtual void update(double dt) = 0;
-	virtual void input(map<int, bool>& keys) = 0;
+        dynamics() : _vx(0), _vy(0), _theta(0) {}
+        virtual ~dynamics() {}
+        virtual void update(double dt) = 0;
+        virtual void input(map<int, bool>& keys) = 0;
 
-	double get_vx() const { return _vx; }
-	double get_vy() const { return _vy; }
-	double get_theta() const { return _theta; }
+        double get_vx() const { return _vx; }
+        double get_vy() const { return _vy; }
+        double get_theta() const { return _theta; }
 };
 
 shared_ptr<dynamics> create_complex_dynamics(vector<shared_ptr<dynamics>> ds);

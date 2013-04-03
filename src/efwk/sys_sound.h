@@ -29,13 +29,13 @@ namespace sys {
 
 class sound_system : public system {
         resman const& _resman;
-	template<typename SYS> friend void remove_node(SYS&, uint64_t);
+        template<typename SYS> friend void remove_node(SYS&, uint64_t);
         vector<nd::sound_node> _nodes;
 public:
         sound_system(resman const& rm) : _resman(rm) {}
         unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::sound_node const& n) { _nodes.push_back(n); }
-	void update(double dt);
+        void update(double dt);
 };
 
 }

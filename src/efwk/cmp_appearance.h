@@ -32,38 +32,38 @@ using std::vector;
 namespace cmp {
 
 struct frame_def {
-	uint32_t index;
-	double time;
-	frame_def(uint32_t index, double time) : index(index), time(time) {}
-	frame_def() : index(-1), time(-1) {}
-	frame_def& operator=(const frame_def& rhs) {
-		index = rhs.index;
-		time = rhs.time;
-		return *this;
-	}
+        uint32_t index;
+        double time;
+        frame_def(uint32_t index, double time) : index(index), time(time) {}
+        frame_def() : index(-1), time(-1) {}
+        frame_def& operator=(const frame_def& rhs) {
+                index = rhs.index;
+                time = rhs.time;
+                return *this;
+        }
 };
 
 class appearance {
 public:
-	virtual ~appearance() {}
-	virtual void update(double dt) = 0;
-	virtual void draw(double x, double y, double phi) const = 0;
-	virtual void draw_flash(double x, double y, double phi) const = 0;
+        virtual ~appearance() {}
+        virtual void update(double dt) = 0;
+        virtual void draw(double x, double y, double phi) const = 0;
+        virtual void draw_flash(double x, double y, double phi) const = 0;
 };
 
 shared_ptr<appearance> create_pixel(double r, double g, double b);
 
 shared_ptr<appearance> create_static_bmp(
-		ALLEGRO_BITMAP* bmp,
-		ALLEGRO_BITMAP* flash);
+                ALLEGRO_BITMAP* bmp,
+                ALLEGRO_BITMAP* flash);
 
 shared_ptr<appearance> create_simple_anim(
-		ALLEGRO_BITMAP* bmp,
-		ALLEGRO_BITMAP* flash,
-		uint32_t frame_width,
-		uint32_t num_frames,
-		vector<frame_def> const& frame_defs,
-		int32_t rep_count);
+                ALLEGRO_BITMAP* bmp,
+                ALLEGRO_BITMAP* flash,
+                uint32_t frame_width,
+                uint32_t num_frames,
+                vector<frame_def> const& frame_defs,
+                int32_t rep_count);
 
 }
 

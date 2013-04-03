@@ -25,39 +25,39 @@ namespace sys {
 
 void pain_system::update(comm::msg_queue& msgs) {
 
-	for(auto const& n : _nodes) {
+        for(auto const& n : _nodes) {
 
-		cmp::coll_queue const& cq = *n.coll_queue;
-		cq.for_each_report([this, &n, &msgs](cmp::coll_report const& r) {
+                cmp::coll_queue const& cq = *n.coll_queue;
+                cq.for_each_report([this, &n, &msgs](cmp::coll_report const& r) {
 
-			uint64_t id = n.id;
-			cmp::wellness& w = *n.wellness;
-			shared_ptr<double> pf = n.pain_flash;
-			cmp::collision_profile const& this_cp = *n.cp;
-			cmp::collision_profile const& other_cp = *r.cp;
+                        uint64_t id = n.id;
+                        cmp::wellness& w = *n.wellness;
+                        shared_ptr<double> pf = n.pain_flash;
+                        cmp::collision_profile const& this_cp = *n.cp;
+                        cmp::collision_profile const& other_cp = *r.cp;
 
-			switch(this_cp.cc) {
-			case cmp::coll_class::SHIP:
-				if ((other_cp.cc == cmp::coll_class::SHIP ||
-						other_cp.cc == cmp::coll_class::PROJECTILE) &&
-						this_cp.pt != other_cp.pt) {
+                        switch(this_cp.cc) {
+                        case cmp::coll_class::SHIP:
+                                if ((other_cp.cc == cmp::coll_class::SHIP ||
+                                                other_cp.cc == cmp::coll_class::PROJECTILE) &&
+                                                this_cp.pt != other_cp.pt) {
 
-					w.deal_dmg(other_cp.dmg, r.origin_id);
-					*(pf) = cfg::real("gfx_pain_flash_timer");
-				}
-				break;
+                                        w.deal_dmg(other_cp.dmg, r.origin_id);
+                                        *(pf) = cfg::real("gfx_pain_flash_timer");
+                                }
+                                break;
 
-			case cmp::coll_class::PROJECTILE:
-				if(other_cp.cc == cmp::coll_class::SHIP && this_cp.pt != other_cp.pt)
-					msgs.push(comm::create_remove_entity(id));
-				break;
+                        case cmp::coll_class::PROJECTILE:
+                                if(other_cp.cc == cmp::coll_class::SHIP && this_cp.pt != other_cp.pt)
+                                        msgs.push(comm::create_remove_entity(id));
+                                break;
 
-			case cmp::coll_class::PICKUP:
-			default:
-				break;
-			}
-		});
-	}
+                        case cmp::coll_class::PICKUP:
+                        default:
+                                break;
+                        }
+                });
+        }
 
 }
 

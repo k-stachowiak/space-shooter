@@ -36,16 +36,16 @@ using std::move;
 namespace sys {
 
 class input_system : public system {
-	template<typename SYS> friend void remove_node(SYS&, uint64_t);
-	map<int, bool> _keys;
-	vector<nd::input_node> _nodes;
+        template<typename SYS> friend void remove_node(SYS&, uint64_t);
+        map<int, bool> _keys;
+        vector<nd::input_node> _nodes;
 public:
-	unsigned num_nodes() const { return _nodes.size(); }
-	void add_node(nd::input_node n) { _nodes.push_back(move(n)); }
-	void update();
-	void key_down(int k) { _keys[k] = true; }
-	void key_up(int k) { _keys[k] = false; }
-	bool pressed(int k) { return _keys[k]; }
+        unsigned num_nodes() const { return _nodes.size(); }
+        void add_node(nd::input_node n) { _nodes.push_back(move(n)); }
+        void update();
+        void key_down(int k) { _keys[k] = true; }
+        void key_up(int k) { _keys[k] = false; }
+        bool pressed(int k) { return _keys[k]; }
 };
 
 }

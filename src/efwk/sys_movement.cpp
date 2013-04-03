@@ -26,77 +26,77 @@ inline bool between(T value, T min, T max) { return value >= min && value <= max
 namespace sys {
 
 void movement_system::update(
-		double dt,
-		comm::msg_queue& msgs) {
+                double dt,
+                comm::msg_queue& msgs) {
 
-	for(auto const& n : _nodes) {
+        for(auto const& n : _nodes) {
 
-		// Determine velocities.
-		// ---------------------
-		double vx = 0;
-		double vy = 0;
-		double theta = 0;
+                // Determine velocities.
+                // ---------------------
+                double vx = 0;
+                double vy = 0;
+                double theta = 0;
 
-		if(n.dynamics) {
-			n.dynamics->update(dt);
-			vx = n.dynamics->get_vx();
-			vy = n.dynamics->get_vy();
-			theta = n.dynamics->get_theta();
-		}
+                if(n.dynamics) {
+                        n.dynamics->update(dt);
+                        vx = n.dynamics->get_vx();
+                        vy = n.dynamics->get_vy();
+                        theta = n.dynamics->get_theta();
+                }
 
-		// Check bounds.
-		// -------------
-		double x = n.orientation->get_x();
-		double y = n.orientation->get_y();
-		double phi = n.orientation->get_phi();
+                // Check bounds.
+                // -------------
+                double x = n.orientation->get_x();
+                double y = n.orientation->get_y();
+                double phi = n.orientation->get_phi();
 
-		double dx = vx * dt;
-		double dy = vy * dt;
-		double dphi = theta * dt;
+                double dx = vx * dt;
+                double dy = vy * dt;
+                double dphi = theta * dt;
 
-		double mini, maxi;
+                double mini, maxi;
 
-		if(n.movement_bounds) {
-			mini = n.movement_bounds->get_x_min();
-			maxi = n.movement_bounds->get_x_max();
-			if(!between((x + dx), mini, maxi))
-				dx = 0.0;
+                if(n.movement_bounds) {
+                        mini = n.movement_bounds->get_x_min();
+                        maxi = n.movement_bounds->get_x_max();
+                        if(!between((x + dx), mini, maxi))
+                                dx = 0.0;
 
-			mini = n.movement_bounds->get_y_min();
-			maxi = n.movement_bounds->get_y_max();
-			if(!between((y + dy), mini, maxi))
-				dy = 0.0;
+                        mini = n.movement_bounds->get_y_min();
+                        maxi = n.movement_bounds->get_y_max();
+                        if(!between((y + dy), mini, maxi))
+                                dy = 0.0;
 
-		}
+                }
 
-		if(n.life_bounds) {
-			mini = n.life_bounds->get_x_min();
-			maxi = n.life_bounds->get_x_max();
-			if(!between(x + dx, mini, maxi)) {
-				msgs.push(comm::create_remove_entity(
-							n.id));
-				continue;
-			}
-			mini = n.life_bounds->get_x_min();
-			maxi = n.life_bounds->get_y_max();
-			if(!between(y + dy, mini, maxi)) {
-				msgs.push(comm::create_remove_entity(
-							n.id));
-				continue;
-			}
-		}
+                if(n.life_bounds) {
+                        mini = n.life_bounds->get_x_min();
+                        maxi = n.life_bounds->get_x_max();
+                        if(!between(x + dx, mini, maxi)) {
+                                msgs.push(comm::create_remove_entity(
+                                                        n.id));
+                                continue;
+                        }
+                        mini = n.life_bounds->get_x_min();
+                        maxi = n.life_bounds->get_y_max();
+                        if(!between(y + dy, mini, maxi)) {
+                                msgs.push(comm::create_remove_entity(
+                                                        n.id));
+                                continue;
+                        }
+                }
 
-		// Perform the actual move.
-		// ------------------------
-		n.orientation->set_x(x + dx);
-		n.orientation->set_y(y + dy);
-		n.orientation->set_phi(phi + dphi);
+                // Perform the actual move.
+                // ------------------------
+                n.orientation->set_x(x + dx);
+                n.orientation->set_y(y + dy);
+                n.orientation->set_phi(phi + dphi);
 
-		if(n.shape) {
-			n.shape->shift(dx, dy);
-			n.shape->rotate(dphi);
-		}
-	}
+                if(n.shape) {
+                        n.shape->shift(dx, dy);
+                        n.shape->rotate(dphi);
+                }
+        }
 }
 
 }

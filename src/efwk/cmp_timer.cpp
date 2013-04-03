@@ -23,26 +23,26 @@
 namespace cmp {
 
 class const_int_timer : public timer {
-	double _interval;
+        double _interval;
 public:
-	const_int_timer(double interval)
-	: _interval(interval)
-	{
-		_counter = interval;
-		_ticks = 0;
-	}
+        const_int_timer(double interval)
+        : _interval(interval)
+        {
+                _counter = interval;
+                _ticks = 0;
+        }
 
-	void update(double dt) {
-		_counter -= dt;
-		if(_counter < 0.0) {
-			++_ticks;
-			_counter += _interval;
-		}
-	}
+        void update(double dt) {
+                _counter -= dt;
+                if(_counter < 0.0) {
+                        ++_ticks;
+                        _counter += _interval;
+                }
+        }
 };
 
 shared_ptr<timer> create_const_int_timer(double interval) {
-	return shared_ptr<timer>(new const_int_timer(interval));
+        return shared_ptr<timer>(new const_int_timer(interval));
 }
 
 }

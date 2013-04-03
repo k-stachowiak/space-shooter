@@ -23,26 +23,26 @@
 namespace sys {
 
 void collision_system::check_collision(nd::collision_node const& a,
-			 nd::collision_node const& b) const {
+                         nd::collision_node const& b) const {
 
-	cmp::shape const& shp_a = *(a.shape);
-	cmp::shape const& shp_b = *(b.shape);
+        cmp::shape const& shp_a = *(a.shape);
+        cmp::shape const& shp_b = *(b.shape);
 
-	if(shp_a.collides_with(shp_b)) {
-		a.coll_queue->push_report({ b.id, b.origin_id, b.cp, b.shape });
-		b.coll_queue->push_report({ a.id, a.origin_id, a.cp, a.shape });
-	}
+        if(shp_a.collides_with(shp_b)) {
+                a.coll_queue->push_report({ b.id, b.origin_id, b.cp, b.shape });
+                b.coll_queue->push_report({ a.id, a.origin_id, a.cp, a.shape });
+        }
 }
 
 void collision_system::update() {
-	// Clear the collision queues first.
-	for(auto a = begin(_nodes); a != end(_nodes); ++a)
-		a->coll_queue->clear();
+        // Clear the collision queues first.
+        for(auto a = begin(_nodes); a != end(_nodes); ++a)
+                a->coll_queue->clear();
 
-	// Perform the collision checks.
-	for(auto a = begin(_nodes); a != end(_nodes); ++a)
-		for(auto b = a + 1; b != end(_nodes); ++b)
-			check_collision(*a, *b);
+        // Perform the collision checks.
+        for(auto a = begin(_nodes); a != end(_nodes); ++a)
+                for(auto b = a + 1; b != end(_nodes); ++b)
+                        check_collision(*a, *b);
 }
 
 }

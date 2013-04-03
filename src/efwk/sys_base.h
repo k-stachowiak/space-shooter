@@ -27,22 +27,22 @@ namespace sys {
 
 template<typename SYS>
 void remove_node(SYS& sys, uint64_t id) {
-	for(auto n = begin(sys._nodes); n != end(sys._nodes); ++n) {
-		if(n->id == id) {
-			*n = sys._nodes.back();
-			sys._nodes.pop_back();
-			--n;
-		}
-	}
+        for(auto n = begin(sys._nodes); n != end(sys._nodes); ++n) {
+                if(n->id == id) {
+                        *n = sys._nodes.back();
+                        sys._nodes.pop_back();
+                        --n;
+                }
+        }
 }
 
 class system {
 protected:
-	bool _debug_mode;
+        bool _debug_mode;
 public:
-	virtual ~system() {}
-	void set_debug_mode(bool debug_mode) { _debug_mode = debug_mode; }
-	virtual unsigned num_nodes() const = 0;
+        virtual ~system() {}
+        void set_debug_mode(bool debug_mode) { _debug_mode = debug_mode; }
+        virtual unsigned num_nodes() const = 0;
 };
 
 }

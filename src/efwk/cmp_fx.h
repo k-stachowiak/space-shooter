@@ -33,13 +33,13 @@ class shape;
 
 class fx {
 public:
-	virtual ~fx() {}
-	virtual void update(
-			double dt,
-			double health_ratio,
-			double x, double y,
-			shape const& shp,
-			comm::msg_queue& msgs) = 0;
+        virtual ~fx() {}
+        virtual void update(
+                        double dt,
+                        double health_ratio,
+                        double x, double y,
+                        shape const& shp,
+                        comm::msg_queue& msgs) = 0;
 };
 
 shared_ptr<fx> create_smoke_when_hurt(shared_ptr<timer> t, double pain_threshold);

@@ -24,38 +24,38 @@ namespace sys {
 
 void score_system::update() {
 
-	// Kind of a short-circuit internal message queue.
-	std::multimap<uint64_t, double> score_increments;
+        // Kind of a short-circuit internal message queue.
+        std::multimap<uint64_t, double> score_increments;
 
-	// Detect deaths and store the point increments for them.
-	for(auto const& pr : _nodes) {
+        // Detect deaths and store the point increments for them.
+        for(auto const& pr : _nodes) {
 
-		auto const& n = pr.second;
+                auto const& n = pr.second;
 
-		if(n.wellness->is_alive())
-			continue;
+                if(n.wellness->is_alive())
+                        continue;
 
-		uint64_t receiver = n.wellness->get_last_dmg_id();
-		double score = _class_score_map.at(n.sc);
+                uint64_t receiver = n.wellness->get_last_dmg_id();
+                double score = _class_score_map.at(n.sc);
 
-		score_increments.insert(make_pair(receiver, score));
-	}
+                score_increments.insert(make_pair(receiver, score));
+        }
 
-	// Grant the score increments to the according nodes.
-	for(auto const& pr : score_increments) {
+        // Grant the score increments to the according nodes.
+        for(auto const& pr : score_increments) {
 
-		uint64_t const& id = pr.first;
-		double const& increment = pr.second;
+                uint64_t const& id = pr.first;
+                double const& increment = pr.second;
 
-		auto nit = _nodes.find(id);
-		if(nit == end(_nodes))
-			continue;
+                auto nit = _nodes.find(id);
+                if(nit == end(_nodes))
+                        continue;
 
-		auto const& n = nit->second;
+                auto const& n = nit->second;
 
-		if(n.score)
-			*(n.score) += increment;
-	}
+                if(n.score)
+                        *(n.score) += increment;
+        }
 }
 
 }

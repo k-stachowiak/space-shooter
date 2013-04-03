@@ -28,35 +28,35 @@ using std::vector;
 #include "wave.h"
 
 class enemy_manager {
-	vector<wave> _waves;
-	size_t _current_wave;
+        vector<wave> _waves;
+        size_t _current_wave;
 
 public:
-	enemy_manager(vector<wave> waves)
-	: _waves(waves)
-	, _current_wave(0)
-	{}
+        enemy_manager(vector<wave> waves)
+        : _waves(waves)
+        , _current_wave(0)
+        {}
 
-	bool tick(double dt, entity_factory& ef, double screen_w, double screen_h) {
+        bool tick(double dt, entity_factory& ef, double screen_w, double screen_h) {
 
-		if(_current_wave >= _waves.size()) {
-			return false;
-		}
+                if(_current_wave >= _waves.size()) {
+                        return false;
+                }
 
-		wave& current = _waves[_current_wave];
-		if(!current.tick(dt, ef, screen_w, screen_h)) {
-			current.reset();
-			_current_wave += 1;
-			if(_current_wave == _waves.size()) {
-				return false;
-			}
-		}
-		return true;
-	}
+                wave& current = _waves[_current_wave];
+                if(!current.tick(dt, ef, screen_w, screen_h)) {
+                        current.reset();
+                        _current_wave += 1;
+                        if(_current_wave == _waves.size()) {
+                                return false;
+                        }
+                }
+                return true;
+        }
 
-	void reset() {
-		_current_wave = 0;
-	}
+        void reset() {
+                _current_wave = 0;
+        }
 };
 
 #endif

@@ -29,15 +29,15 @@ using namespace std;
 
 class application {
 
-	const double _fps;
-	const double _spf;
-	uint32_t _overdue_frames;
+        const double _fps;
+        const double _spf;
+        uint32_t _overdue_frames;
 
-	allegro _allegro;
-	resman _resman;
+        allegro _allegro;
+        resman _resman;
 
 public:
-	application()
+        application()
         : _fps(cfg::real("gfx_fps"))
         , _spf(1.0 / _fps)
         , _overdue_frames(0)
@@ -57,39 +57,39 @@ public:
                 })
         {}
 
-	void loop() {
-		unique_ptr<state> current_state = create_test_state(_resman);
-		while(current_state) {
+        void loop() {
+                unique_ptr<state> current_state = create_test_state(_resman);
+                while(current_state) {
 
-			// Handle events.
-			_allegro.dump_events(*current_state.get(), _overdue_frames);			
+                        // Handle events.
+                        _allegro.dump_events(*current_state.get(), _overdue_frames);                        
 
-			// See if the state needs change.
-			if(current_state->done()) {
-				current_state = current_state->next_state();
-				_overdue_frames = 0;
-				continue;
-			}
+                        // See if the state needs change.
+                        if(current_state->done()) {
+                                current_state = current_state->next_state();
+                                _overdue_frames = 0;
+                                continue;
+                        }
 
-			// Simulate overdue frames.
-			while(_overdue_frames > 0) {
-				current_state->frame_logic(_spf);
-				--_overdue_frames;
-			}
+                        // Simulate overdue frames.
+                        while(_overdue_frames > 0) {
+                                current_state->frame_logic(_spf);
+                                --_overdue_frames;
+                        }
 
-			_allegro.swap_buffers();
-		}
-	}
+                        _allegro.swap_buffers();
+                }
+        }
 };
 
 int main() {
-	try {
-		cfg::load_from_file("config");
+        try {
+                cfg::load_from_file("config");
         application app;
-		app.loop();
-		return 0;
-	} catch (initialization_error& e) {
-		cerr << "Initialization failed : " << e.what() << endl;
-		return 1;
-	}
+                app.loop();
+                return 0;
+        } catch (initialization_error& e) {
+                cerr << "Initialization failed : " << e.what() << endl;
+                return 1;
+        }
 }

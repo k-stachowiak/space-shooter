@@ -34,13 +34,13 @@ using std::shared_ptr;
 namespace sys {
 
 class wellness_system : public system {
-	template<typename SYS> friend void remove_node(SYS&, uint64_t);
-	vector<nd::wellness_node> _nodes;
+        template<typename SYS> friend void remove_node(SYS&, uint64_t);
+        vector<nd::wellness_node> _nodes;
 
 public:
-	unsigned num_nodes() const { return _nodes.size(); }
-	void add_node(nd::wellness_node node) { _nodes.push_back(node); }
-	void update(double dt, comm::msg_queue& msgs);
+        unsigned num_nodes() const { return _nodes.size(); }
+        void add_node(nd::wellness_node node) { _nodes.push_back(node); }
+        void update(double dt, comm::msg_queue& msgs);
 };
 
 }

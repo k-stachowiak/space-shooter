@@ -36,19 +36,19 @@ using namespace std;
 
 class allegro {
 
-	ALLEGRO_DISPLAY* _display;
-	ALLEGRO_EVENT_QUEUE* _event_queue;
-	ALLEGRO_TIMER* _timer;
+        ALLEGRO_DISPLAY* _display;
+        ALLEGRO_EVENT_QUEUE* _event_queue;
+        ALLEGRO_TIMER* _timer;
 
 public:
-	allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
-	~allegro();
-	ALLEGRO_DISPLAY* get_display();
-	void dump_events(state& s, uint32_t& overdue_frames);
-	void swap_buffers() const;
+        allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
+        ~allegro();
+        ALLEGRO_DISPLAY* get_display();
+        void dump_events(state& s, uint32_t& overdue_frames);
+        void swap_buffers() const;
 
 private:
-	void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
+        void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
 };
 
 #endif

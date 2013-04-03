@@ -30,12 +30,12 @@ using std::vector;
 namespace sys {
 
 class fx_system : public system {
-	template<typename SYS> friend void remove_node(SYS&, uint64_t);
-	vector<nd::fx_node> _nodes;
+        template<typename SYS> friend void remove_node(SYS&, uint64_t);
+        vector<nd::fx_node> _nodes;
 public:
-	unsigned num_nodes() const { return _nodes.size(); }
-	void add_node(nd::fx_node n) { _nodes.push_back(n); }
-	void update(double dt, comm::msg_queue& msgs);
+        unsigned num_nodes() const { return _nodes.size(); }
+        void add_node(nd::fx_node n) { _nodes.push_back(n); }
+        void update(double dt, comm::msg_queue& msgs);
 };
 
 }

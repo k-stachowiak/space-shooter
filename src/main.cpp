@@ -53,7 +53,8 @@ public:
                         { res_id::MISSILE_SHOOT, "data/missile_shoot_2.wav" },
                         { res_id::WEAPON_PICKUP, "data/click.wav" },
                         { res_id::WELLNESS_PICKUP, "data/wellness.wav" },
-                        { res_id::EXPLOSION_SND, "data/explosion.wav" }
+                        { res_id::EXPLOSION_SND, "data/explosion.wav" },
+                        { res_id::INGAME_MUSIC, "data/OveMelaaTranceBitBit.ogg" }
                 })
         {}
 
@@ -62,7 +63,7 @@ public:
                 while(current_state) {
 
                         // Handle events.
-                        _allegro.dump_events(*current_state.get(), _overdue_frames);                        
+                        _allegro.dump_events(*current_state.get(), _overdue_frames);
 
                         // See if the state needs change.
                         if(current_state->done()) {

@@ -7,4 +7,11 @@
 # Data files
 /design
 /data
-/shoot.exe
+
+# Binaries
+shoot
+*.dll
+*.exe
+
+# Temp files
+*.swp

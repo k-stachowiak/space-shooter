@@ -84,7 +84,8 @@ enum class res_id : int {
         MISSILE_SHOOT,
         WEAPON_PICKUP,
         WELLNESS_PICKUP,
-        EXPLOSION_SND
+        EXPLOSION_SND,
+        INGAME_MUSIC
 };
 
 class resman {

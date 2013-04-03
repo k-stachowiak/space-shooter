@@ -36,8 +36,8 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Music
 // - Menu/highscore
+// - warning sound when the horizontal ship is comming.
 // - Refactor gameplay:
 //      - move config module to the gameplay dir
 //      - read the waves and the patterns from another config file
@@ -61,6 +61,7 @@ class test_state : public state {
         // External dependencies.
         // ----------------------
         resman const& _resman;
+        ALLEGRO_SAMPLE_ID _music_sid;
 
         // State.
         // ------
@@ -266,6 +267,17 @@ public:
                 _player_id = _ef.create_player_ship(
                                 cfg::real("gameplay_player_start_x"),
                                 cfg::real("gameplay_player_start_y"));
+
+                // Begin playing music.
+                ALLEGRO_SAMPLE* sample = _resman.get_sample(res_id::INGAME_MUSIC);
+                al_play_sample(sample,
+                        0.5, 0, 1,
+                        ALLEGRO_PLAYMODE_LOOP,
+                        &_music_sid);
+        }
+
+        ~test_state() {
+                al_stop_sample(&_music_sid);
         }
 
         void sigkill() { _done = true; }

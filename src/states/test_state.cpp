@@ -36,9 +36,11 @@ using std::uniform_real_distribution;
 #include <allegro5/allegro_primitives.h>
 
 // TODO:
-// - Big ship
 // - Music
 // - Menu/highscore
+// - Refactor gameplay:
+//      - move config module to the gameplay dir
+//      - read the waves and the patterns from another config file
 
 static wave prepare_wave_0() {
 	return wave {{

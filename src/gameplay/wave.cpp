@@ -133,7 +133,7 @@ static vector<spawn_desc> spawn_horizontal_pattern(
 	// -------------------------
 	uniform_real_distribution<double> y_dist(
 			cfg::real("gameplay_horizontal_y_margin"),
-			screen_w - cfg::real("gameplay_horizontal_y_margin"));
+			screen_h - cfg::real("gameplay_horizontal_y_margin"));
 	const double vx = cfg::real("gameplay_horizontal_vel");
 	const double vy = 0.0;
 

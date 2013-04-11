@@ -37,6 +37,7 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - Menu/highscore
+// - Why can't play multiple explosion sounds (silent begining?).
 // - warning sound when the horizontal ship is comming.
 // - Refactor gameplay:
 //      - move config module to the gameplay dir
@@ -72,17 +73,17 @@ class test_state : public state {
 
         // Systems.
         // --------
-        sys::movement_system        _movement_system;
-        sys::collision_system        _collision_system;
+        sys::movement_system    _movement_system;
+        sys::collision_system   _collision_system;
         sys::arms_system        _arms_system;
         sys::pain_system        _pain_system;
-        sys::wellness_system        _wellness_system;
-        sys::fx_system                _fx_system;
-        sys::drawing_system        _drawing_system;
-        sys::score_system        _score_system;
-        sys::pickup_system        _pickup_system;
-        sys::input_system        _input_system;
-        sys::hud_system                _hud_system;
+        sys::wellness_system    _wellness_system;
+        sys::fx_system          _fx_system;
+        sys::drawing_system     _drawing_system;
+        sys::score_system       _score_system;
+        sys::pickup_system      _pickup_system;
+        sys::input_system       _input_system;
+        sys::hud_system         _hud_system;
         sys::sound_system       _sound_system;
 
         // Factories.

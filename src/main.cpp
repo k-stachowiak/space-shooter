@@ -86,7 +86,7 @@ public:
 int main() {
         try {
                 cfg::load_from_file("config");
-        application app;
+                application app;
                 app.loop();
                 return 0;
         } catch (initialization_error& e) {

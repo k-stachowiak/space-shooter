@@ -37,6 +37,7 @@ public:
         , _current_wave(0)
         {}
 
+        // TODO: Move the entity factory reference to the class fields.
         bool tick(double dt, entity_factory& ef, double screen_w, double screen_h) {
 
                 if(_current_wave >= _waves.size()) {

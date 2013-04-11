@@ -271,7 +271,7 @@ uint64_t entity_factory::create_star_xy(double x, double y) {
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::BACKGROUND;
-        auto appearance = cmp::create_pixel(shade, shade, shade);
+	auto appearance = cmp::create_pixel(shade, shade, shade);
 
         // Movement components.
         // --------------------

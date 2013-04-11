@@ -28,8 +28,8 @@
 	(gfx_explosion_frame_width 70)
 	(gfx_explosion_num_frames 16)
 	(gfx_explosion_frame_time 0.05)
-	(gfx_explosion_seq_min_delay 0.25)
-	(gfx_explosion_seq_max_delay 0.75)
+	(gfx_explosion_seq_min_delay 0.15)
+	(gfx_explosion_seq_max_delay 0.35)
 	
 	(gfx_smoke_scale_tiny 0.5)
 	(gfx_smoke_scale_medium 1.0)

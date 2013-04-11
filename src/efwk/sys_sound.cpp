@@ -28,16 +28,21 @@ map<ALLEGRO_SAMPLE*, ALLEGRO_SAMPLE_ID> spl_id_map;
 namespace sys {
 
 void sound_system::update(double dt) {
+
+        // Handle local queue.
+        _noise_queue.visit(dt, [this](res_id rid) {
+                ALLEGRO_SAMPLE* sample = _resman.get_sample(rid);
+                al_stop_sample(&spl_id_map[sample]);
+                al_play_sample(
+                        sample,
+                        1, 0, 1,
+                        ALLEGRO_PLAYMODE_ONCE,
+                        &spl_id_map[sample]);
+        });
+
+        // Acquire new events.
         for(auto const& n : _nodes) {
-                n.nqueue->visit(dt, [this](res_id rid) {
-                        ALLEGRO_SAMPLE* sample = _resman.get_sample(rid);
-                        al_stop_sample(&spl_id_map[sample]);
-                        al_play_sample(
-                                sample,
-                                1, 0, 1,
-                                ALLEGRO_PLAYMODE_ONCE,
-                                &spl_id_map[sample]);
-                });
+                _noise_queue.consume(*n.nqueue);
         }
 }
 

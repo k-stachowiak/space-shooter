@@ -22,6 +22,7 @@
 #define SYS_SOUND_H
 
 #include "../resources/resman.h"
+#include "../misc/delq.h"
 #include "sys_base.h"
 #include "nodes.h"
 
@@ -31,6 +32,7 @@ class sound_system : public system {
         resman const& _resman;
         template<typename SYS> friend void remove_node(SYS&, uint64_t);
         vector<nd::sound_node> _nodes;
+        del_queue<res_id> _noise_queue;
 public:
         sound_system(resman const& rm) : _resman(rm) {}
         unsigned num_nodes() const { return _nodes.size(); }

@@ -24,10 +24,14 @@ using namespace std;
 
 #include "allegro.h"
 #include "misc/config.h"
+#include "script/scriptman.h"
 #include "resources/resman.h"
 #include "states/state.h"
 
 class application {
+
+        script::scriptman _sman;
+        cfg::loader _cfg_RAII_plug;
 
         const double _fps;
         const double _spf;
@@ -38,7 +42,9 @@ class application {
 
 public:
         application()
-        : _fps(cfg::real("gfx_fps"))
+        : _sman({ "config" })
+        , _cfg_RAII_plug(_sman.get_dom("config"))
+        , _fps(cfg::real("gfx_fps"))
         , _spf(1.0 / _fps)
         , _overdue_frames(0)
         , _allegro(
@@ -85,7 +91,6 @@ public:
 
 int main() {
         try {
-                cfg::load_from_file("config");
                 application app;
                 app.loop();
                 return 0;

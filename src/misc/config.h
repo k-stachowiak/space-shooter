@@ -23,12 +23,15 @@
 
 #include <string>
 
+#include "../script/dom.h"
+
 namespace cfg {
+
+        // Main API.
+        // ---------
 
         int integer(std::string const& key);
         double real(std::string const& key);
-
-        void load_from_file(std::string const& name);
 
         namespace math {
                 const double pi = 3.1415;
@@ -41,6 +44,14 @@ namespace cfg {
                 const unsigned max_frame_defs = 128;
         }
 
+        // Helper type (for integration with RAII).
+        // ----------------------------------------
+
+        // Note: WTF did I just come up with ?!
+
+        struct loader {
+                loader(script::dom_node const& n);
+        };
 }
 
 #endif

@@ -167,7 +167,7 @@ static void parse_kvp(
 }
 
 static void parse_dom(
-                script::dom_node& tree,
+                script::dom_node const& tree,
                 map<string, int>& int_vars,
                 map<string, double>& real_vars) {
 
@@ -197,22 +197,8 @@ double real(string const& key) {
         return get(real_vars, key);
 }
 
-void load_from_file(string const& name) {
-
-        int_vars.clear();
-        real_vars.clear();
-
-        ifstream in(name.c_str(), ifstream::binary);
-        if(!in.is_open()) {
-                throw resource_not_found_error("Couldn't load a configuration file \"" + name + "\".");
-        }
-
-        script::tokenizer tok(in);
-        script::dom_node tree = script::build_dom_tree(tok);
-
-        parse_dom(tree, int_vars, real_vars);
-
-        in.close();
+loader::loader(script::dom_node const& n) {
+        parse_dom(n, int_vars, real_vars);
 }
 
 }

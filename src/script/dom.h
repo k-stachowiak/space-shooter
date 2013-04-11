@@ -29,6 +29,9 @@
 
 namespace script {
 
+        // Main API.
+        // ---------
+
         enum class dom_node_t { atom, list };
 
         struct dom_node {
@@ -37,22 +40,34 @@ namespace script {
                 std::vector<dom_node> list;
         };
 
-        std::ostream& operator<<(std::ostream& out, dom_node const& n);
-
         dom_node build_dom_tree(tokenizer& tok);
 
-        static bool is_atom(dom_node const& n) { return n.type == dom_node_t::atom; }
-        static bool is_list(dom_node const& n) { return n.type == dom_node_t::list; }
-        static bool list_size(dom_node const& n, unsigned size) {
+        // Helper functions.
+        // ------------------
+
+        std::ostream& operator<<(std::ostream& out, dom_node const& n);
+
+        inline bool is_atom(dom_node const& n) {
+                return n.type == dom_node_t::atom;
+        }
+
+        inline bool is_list(dom_node const& n) {
+                return n.type == dom_node_t::list;
+        }
+
+        inline bool list_size(dom_node const& n, unsigned size) {
                 return n.list.size() == size;
         }
-        static bool sub_is_atom(dom_node const& n, unsigned index) {
+
+        inline bool sub_is_atom(dom_node const& n, unsigned index) {
                 return n.list[index].type == dom_node_t::atom;
         }
-        static bool sub_atom(dom_node const& n, unsigned index, string const& str) {
+
+        inline bool sub_atom(dom_node const& n, unsigned index, string const& str) {
                 return n.list[index].atom == str;
         }
-        static bool sub_is_list(dom_node const& n, unsigned index) {
+
+        inline bool sub_is_list(dom_node const& n, unsigned index) {
                 return n.list[index].type == dom_node_t::list;
         }
 }

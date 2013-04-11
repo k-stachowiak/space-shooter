@@ -22,27 +22,26 @@
 #define EXCEPTIONS_H
 
 #include <stdexcept>
-using std::runtime_error;
-
 #include <string>
-using std::string;
 
-class initialization_error : public runtime_error {
-public:
-        initialization_error(string message)
-        : runtime_error(message) {}
+struct initialization_error : public std::runtime_error {
+        initialization_error(std::string message)
+        : std::runtime_error(message) {}
 };
 
-class resource_not_found_error : public runtime_error {
-public:
-        resource_not_found_error(string message)
-        : runtime_error(message) {}
+struct resource_not_found_error : public std::runtime_error {
+        resource_not_found_error(std::string message)
+        : std::runtime_error(message) {}
 };
 
-class parsing_error : public runtime_error {
-public:
-        parsing_error(string message)
-        : runtime_error(message) {}
+struct parsing_error : public std::runtime_error {
+        parsing_error(std::string message)
+        : std::runtime_error(message) {}
+};
+
+struct fatal_error : public std::runtime_error {
+        fatal_error(std::string message)
+        : std::runtime_error(message) {}
 };
 
 #endif

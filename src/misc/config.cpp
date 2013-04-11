@@ -18,16 +18,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <iostream>
 #include <fstream>
-using std::ifstream;
-
 #include <map>
-using std::map;
 
+#include "../script/tok.h"
+#include "../script/dom.h"
 #include "exceptions.h"
 #include "config.h"
-#include "lparse.h"
-using lparse::token_t;
+
+using namespace std;
 
 namespace cfg {
 
@@ -53,7 +53,7 @@ static bool parse_literal(
 
 static void register_expression(
                 string const& key,
-                lparse::tokenizer& tok,
+                script::dom_node node,
                 map<string, int>& int_vars,
                 map<string, double>& real_vars) {
 
@@ -61,11 +61,17 @@ static void register_expression(
         // Will do for now, maybe a full blown scripting language will
         // replace this some day.
 
-        tok.expect_atom("*");
+        if(!list_size(node, 3))
+                throw parsing_error("Only 3 element expression supported.");
+
+        if(!sub_atom(node, 0, "*"))
+                throw parsing_error("Only multiplication expression supported.");
 
         // Analyze the left operand.
-        tok.expect((unsigned int)token_t::atom);
-        string other_key = tok.get_last_atom();
+        if(!sub_is_atom(node, 1))
+                throw parsing_error("First operand of * must be an atom.");
+
+        string other_key = node.list[1].atom;
 
         int ileft;
         double dleft;
@@ -79,8 +85,10 @@ static void register_expression(
         }
 
         // Analyze the right operand.
-        tok.expect((unsigned int)token_t::atom);
-        string literal = tok.get_last_atom();
+        if(!sub_is_atom(node, 2))
+                throw parsing_error("Second operand of * must be an atom.");
+
+        string literal = node.list[2].atom;
 
         int iright;
         double dright;
@@ -104,10 +112,8 @@ static void register_expression(
 
                 real_vars[key] = left * right;
         }
-
-        // Closing Parenthesis.
-        tok.expect((unsigned int)token_t::rpar);
 }
+
 
 static void register_value(
                 string const& key,
@@ -129,46 +135,48 @@ static void register_value(
                 real_vars[key] = real_val;
 }
 
-static void parse_doc(
-                lparse::tokenizer& tok,
+static void parse_kvp(
+                script::dom_node const& kvp,
                 map<string, int>& int_vars,
                 map<string, double>& real_vars) {
 
-        int_vars.clear();
-        real_vars.clear();
+        using namespace script;
 
-        // Document opening parenthesis.
-        tok.expect((unsigned int)token_t::lpar);
+        if(!is_list(kvp))
+                throw parsing_error("Non-list encountered instead of a kvp.");
 
-        // Read the KVPs.
-        while(tok) {
+        if(!list_size(kvp, 2))
+                throw parsing_error("Invalid size of a kvp list encountered.");
 
-                token_t par = tok.expect(
-                                (unsigned int)token_t::lpar |
-                                (unsigned int)token_t::rpar);
+        if(!sub_is_atom(kvp, 0))
+                throw parsing_error("Non-atom node encountered as kvp key.");
 
-                // Document closing parenthesis.
-                if(par == token_t::rpar) break;
+        string key = kvp.list[0].atom;
 
-                // Read a key - expression pair.
-                tok.expect((unsigned int)token_t::atom);
-                string key = tok.get_last_atom();
-
-                // Read a value or an expression.
-                token_t tt = tok.expect(
-                                (unsigned int)token_t::lpar |
-                                (unsigned int)token_t::atom);
-
-                if(tt == token_t::atom)
-                        register_value(key, tok.get_last_atom(), int_vars, real_vars);
-                 else
-                        register_expression(key, tok, int_vars, real_vars);
-
-                // KVP closing parenthesis.
-                tok.expect((unsigned int)token_t::rpar);
-        }
+        if(sub_is_atom(kvp, 1))
+                register_value( key,
+                                kvp.list[1].atom,
+                                int_vars,
+                                real_vars);
+        else
+                register_expression(
+                                key,
+                                kvp.list[1],
+                                int_vars,
+                                real_vars);
 }
 
+static void parse_dom(
+                script::dom_node& tree,
+                map<string, int>& int_vars,
+                map<string, double>& real_vars) {
+
+        if(!is_list(tree))
+                throw parsing_error("Main config node isn't a list.");
+
+        for(script::dom_node const& kvp : tree.list)
+                parse_kvp(kvp, int_vars, real_vars);
+} 
 map<string, int> int_vars;
 map<string, double> real_vars;
 
@@ -199,8 +207,10 @@ void load_from_file(string const& name) {
                 throw resource_not_found_error("Couldn't load a configuration file \"" + name + "\".");
         }
 
-        lparse::tokenizer tok(in);
-        parse_doc(tok, int_vars, real_vars);
+        script::tokenizer tok(in);
+        script::dom_node tree = script::build_dom_tree(tok);
+
+        parse_dom(tree, int_vars, real_vars);
 
         in.close();
 }

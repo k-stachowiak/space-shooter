@@ -37,8 +37,6 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - Menu/highscore
-// - Why can't play multiple explosion sounds (silent begining?).
-// - warning sound when the horizontal ship is comming.
 // - Refactor gameplay:
 //      - move config module to the gameplay dir
 //      - read the waves and the patterns from another config file

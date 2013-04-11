@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef LPARSE_H
-#define LPARSE_H
+#ifndef TOK_H
+#define TOK_H
 
 #include <cctype>
 
@@ -35,9 +35,11 @@ using std::endl;
 using std::istream;
 using std::ios_base;
 
-namespace lparse {
+#include "../misc/exceptions.h"
 
-        enum class token_t : unsigned int {
+namespace script {
+
+        enum class token_t : unsigned {
                 lpar = 1 << 0,
                 rpar = 1 << 1,
                 atom = 1 << 2
@@ -153,7 +155,7 @@ namespace lparse {
                                         if(!(flags & (unsigned int)token_t::rpar)) {
                                                 throw parsing_error("Unexpected \")\" encountered.");
                                         }
-                                        result = token_t::lpar;
+                                        result = token_t::rpar;
                                 },
                                 [&result, flags](string const&) mutable {
                                         if(!(flags & (unsigned int)token_t::atom)) {

@@ -6,36 +6,37 @@ LIBS = -lallegro_monolith		# GNU/Linux
 CXXFLAGS := -Wall --std=gnu++11 -g
 
 OBJS := src/resources/resman.o \
-        src/states/test_state.o \
-        src/geometry/bezier.o \
-        src/gameplay/wave.o \
-        src/efwk/sys_arms.o \
-        src/efwk/sys_wellness.o \
-        src/efwk/cmp_col_profile.o \
-        src/efwk/cmp_timer.o \
-        src/efwk/cmp_weapon_beh.o \
-        src/efwk/sys_hud.o \
-        src/efwk/cmp_misc.o \
-        src/efwk/sys_input.o \
-        src/efwk/sys_movement.o \
-        src/efwk/sys_collision.o \
-        src/efwk/comm.o \
-        src/efwk/entity_factory.o \
-        src/efwk/sys_score.o \
-        src/efwk/sys_sound.o \
-        src/efwk/sys_fx.o \
-        src/efwk/sys_pain.o \
-        src/efwk/sys_pickup.o \
-        src/efwk/cmp_dynamics.o \
-        src/efwk/cmp_fx.o \
-        src/efwk/sys_drawing.o \
-        src/efwk/cmp_shape.o \
-        src/efwk/cmp_reaction.o \
-        src/efwk/cmp_appearance.o \
-        src/misc/rand.o \
-        src/misc/config.o \
-        src/main.o \
-        src/allegro.o
+	src/states/test_state.o \
+	src/geometry/bezier.o \
+	src/gameplay/wave.o \
+	src/efwk/sys_arms.o \
+	src/efwk/sys_wellness.o \
+	src/efwk/cmp_col_profile.o \
+	src/efwk/cmp_timer.o \
+	src/efwk/sys_sound.o \
+	src/efwk/cmp_weapon_beh.o \
+	src/efwk/sys_hud.o \
+	src/efwk/cmp_misc.o \
+	src/efwk/sys_input.o \
+	src/efwk/sys_movement.o \
+	src/efwk/sys_collision.o \
+	src/efwk/comm.o \
+	src/efwk/entity_factory.o \
+	src/efwk/sys_score.o \
+	src/efwk/sys_fx.o \
+	src/efwk/sys_pain.o \
+	src/efwk/sys_pickup.o \
+	src/efwk/cmp_dynamics.o \
+	src/efwk/cmp_fx.o \
+	src/efwk/sys_drawing.o \
+	src/efwk/cmp_shape.o \
+	src/efwk/cmp_reaction.o \
+	src/efwk/cmp_appearance.o \
+	src/script/dom.o \
+	src/misc/rand.o \
+	src/misc/config.o \
+	src/main.o \
+	src/allegro.o
 
 # Link.
 # -----

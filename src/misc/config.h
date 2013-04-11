@@ -21,17 +21,14 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <stddef.h>
-
 #include <string>
-using std::string;
 
 namespace cfg {
 
-        int integer(string const& key);
-        double real(string const& key);
+        int integer(std::string const& key);
+        double real(std::string const& key);
 
-        void load_from_file(string const& name);
+        void load_from_file(std::string const& name);
 
         namespace math {
                 const double pi = 3.1415;
@@ -40,8 +37,8 @@ namespace cfg {
         }
 
         namespace type_bounds {
-                const size_t max_num_frames = 128;
-                const size_t max_frame_defs = 128;
+                const unsigned max_num_frames = 128;
+                const unsigned max_frame_defs = 128;
         }
 
 }

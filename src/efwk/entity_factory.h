@@ -114,7 +114,7 @@ public:
                         double x, double y,
                         double dir_x, double dir_y,
                         double lin_vel,
-                        size_t upgrade_lvl,
+                        unsigned upgrade_lvl,
                         bool enemy,
                         uint64_t origin_id);
 
@@ -122,7 +122,7 @@ public:
                         double x, double y,
                         double dir_x, double dir_y,
                         double lin_vel,
-                        size_t upgrade_lvl,
+                        unsigned upgrade_lvl,
                         bool enemy,
                         uint64_t origin_id);
 };

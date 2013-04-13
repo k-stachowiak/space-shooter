@@ -37,8 +37,9 @@ using std::uniform_real_distribution;
 
 // TODO:
 // - Menu/highscore
+// - fix the timestep
+// - Use consisten namespacing strategy
 // - Refactor gameplay:
-//      - move config module to the gameplay dir
 //      - read the waves and the patterns from another config file
 
 static wave prepare_wave_0() {
@@ -258,7 +259,7 @@ public:
                 // Spawn initial stars.
                 uniform_real_distribution<double> x_dist(1.0, cfg::integer("gfx_screen_w") - 1);
                 uniform_real_distribution<double> y_dist(1.0, cfg::integer("gfx_screen_h") - 1);
-                for(size_t i = 0; i < (size_t)cfg::integer("gfx_star_initial_count"); ++i) {
+                for(unsigned i = 0; i < (unsigned)cfg::integer("gfx_star_initial_count"); ++i) {
                         const double x = x_dist(rnd::engine);
                         const double y = x_dist(rnd::engine);
                         _ef.create_star_xy(x, y);

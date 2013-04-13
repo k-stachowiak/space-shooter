@@ -29,7 +29,7 @@ using std::vector;
 
 class enemy_manager {
         vector<wave> _waves;
-        size_t _current_wave;
+        unsigned _current_wave;
 
 public:
         enemy_manager(vector<wave> waves)

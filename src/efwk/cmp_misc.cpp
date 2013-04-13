@@ -36,10 +36,10 @@ shared_ptr<coll_queue> create_coll_queue() {
 }
 
 shared_ptr<upgrades> create_upgrades(
-                size_t gun_lvl_max,
-                size_t rl_lvl_max,
-                size_t gun_upgrade_ammo,
-                size_t rl_upgrade_ammo) {
+                unsigned gun_lvl_max,
+                unsigned rl_lvl_max,
+                unsigned gun_upgrade_ammo,
+                unsigned rl_upgrade_ammo) {
         return make_shared<upgrades>(
                         gun_lvl_max,
                         rl_lvl_max,

@@ -124,7 +124,7 @@ public:
         }
 
         pair<double, double> get_random_point() const {
-                uniform_int_distribution<size_t> dist(0, _shapes.size() - 1);
+                uniform_int_distribution<unsigned> dist(0, _shapes.size() - 1);
                 return _shapes.at(dist(rnd::engine))->get_random_point();
         }
 

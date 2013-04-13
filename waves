@@ -1,0 +1,7 @@
+(
+        ( 2.0  triangle  light_fighter  vertical )
+        ( 4.0  pair      light_bomber   diagonal )
+        ( 2.0  pair      light_bomber   diagonal )
+        ( 5.0  quad      heavy_fighter  zorro )
+        ( 3.0  uno       heavy_bomber   horizontal )
+)

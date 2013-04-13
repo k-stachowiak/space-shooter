@@ -181,12 +181,12 @@ public:
 };
 
 class upgrade_atom {
-        size_t _level;
-        size_t _ticks;
-        const size_t _ticks_per_level;
-        const size_t _level_max;
+        unsigned _level;
+        unsigned _ticks;
+        const unsigned _ticks_per_level;
+        const unsigned _level_max;
 public:
-        upgrade_atom(size_t level, size_t ticks_per_level, size_t level_max)
+        upgrade_atom(unsigned level, unsigned ticks_per_level, unsigned level_max)
         : _level(level)
         , _ticks(ticks_per_level)
         , _ticks_per_level(ticks_per_level)
@@ -229,9 +229,9 @@ public:
                 }
         }
 
-        size_t get_level() const { return _level; }
-        size_t get_ticks() const { return _ticks; }
-        size_t get_ticks_per_level() const { return _ticks_per_level; }
+        unsigned get_level() const { return _level; }
+        unsigned get_ticks() const { return _ticks; }
+        unsigned get_ticks_per_level() const { return _ticks_per_level; }
 };
 
 class upgrades {
@@ -239,25 +239,25 @@ class upgrades {
         upgrade_atom _rl;
 
 public:
-        upgrades(size_t gun_lvl_max,
-                        size_t rl_lvl_max,
-                        size_t gun_upgrade_ammo,
-                        size_t rl_upgrade_ammo)
+        upgrades(unsigned gun_lvl_max,
+                        unsigned rl_lvl_max,
+                        unsigned gun_upgrade_ammo,
+                        unsigned rl_upgrade_ammo)
         : _gun(1, gun_upgrade_ammo, gun_lvl_max)
         , _rl(1, rl_upgrade_ammo, rl_lvl_max)
         {}
 
         bool can_upgrade_gun() const { return _gun.can_level_up(); }
-        size_t gun_lvl() const { return _gun.get_level(); }
-        size_t gun_ticks() const { return _gun.get_ticks(); }
-        size_t gun_ticks_per_level() const { return _gun.get_ticks_per_level(); }
+        unsigned gun_lvl() const { return _gun.get_level(); }
+        unsigned gun_ticks() const { return _gun.get_ticks(); }
+        unsigned gun_ticks_per_level() const { return _gun.get_ticks_per_level(); }
         void upgrade_gun() { _gun.level_up(); }
         void tick_down_gun() { _gun.tick_down(); }
 
         bool can_upgrade_rl() const { return _rl.can_level_up(); }
-        size_t rl_lvl() const { return _rl.get_level(); }
-        size_t rl_ticks() const { return _rl.get_ticks(); }
-        size_t rl_ticks_per_level() const { return _rl.get_ticks_per_level(); }
+        unsigned rl_lvl() const { return _rl.get_level(); }
+        unsigned rl_ticks() const { return _rl.get_ticks(); }
+        unsigned rl_ticks_per_level() const { return _rl.get_ticks_per_level(); }
         void upgrade_rl() { _rl.level_up(); }
         void tick_down_rl() { _rl.tick_down(); }
 };
@@ -269,10 +269,10 @@ shared_ptr<orientation> create_orientation(double x, double y, double theta);
 shared_ptr<bounds> create_bounds(double x_min, double y_min, double x_max, double y_max);
 shared_ptr<coll_queue> create_coll_queue();
 shared_ptr<upgrades> create_upgrades(
-                size_t gun_lvl_max,
-                size_t rl_lvl_max,
-                size_t gun_upgrade_ammo,
-                size_t rl_upgrade_ammo);
+                unsigned gun_lvl_max,
+                unsigned rl_lvl_max,
+                unsigned gun_upgrade_ammo,
+                unsigned rl_upgrade_ammo);
 shared_ptr<wellness> create_wellness(double health, double shield);
 
 }

@@ -1081,7 +1081,7 @@ uint64_t entity_factory::create_missile(
                 double x, double y,
                 double dir_x, double dir_y,
                 double lin_vel,
-                size_t upgrade_lvl,
+                unsigned upgrade_lvl,
                 bool enemy,
                 uint64_t origin_id) {
 
@@ -1188,7 +1188,7 @@ uint64_t entity_factory::create_bullet(
                 double x, double y,
                 double dir_x, double dir_y,
                 double lin_vel,
-                size_t upgrade_lvl,
+                unsigned upgrade_lvl,
                 bool enemy,
                 uint64_t origin_id) {
 

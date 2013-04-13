@@ -91,13 +91,13 @@ void hud_system::draw_wellness(nd::hud_node const& n) {
 }
 
 void hud_system::draw_upgrades(nd::hud_node const& n) {
-        size_t gun_lvl = n.upgrades->gun_lvl();
-        size_t gun_ticks = n.upgrades->gun_ticks();
-        size_t gun_max_ticks = n.upgrades->gun_ticks_per_level();
+        unsigned gun_lvl = n.upgrades->gun_lvl();
+        unsigned gun_ticks = n.upgrades->gun_ticks();
+        unsigned gun_max_ticks = n.upgrades->gun_ticks_per_level();
 
-        size_t rl_lvl = n.upgrades->rl_lvl();
-        size_t rl_ticks = n.upgrades->rl_ticks();
-        size_t rl_max_ticks = n.upgrades->rl_ticks_per_level();
+        unsigned rl_lvl = n.upgrades->rl_lvl();
+        unsigned rl_ticks = n.upgrades->rl_ticks();
+        unsigned rl_max_ticks = n.upgrades->rl_ticks_per_level();
 
         auto don = _hud_diode_on;
         auto doff = _hud_diode_off;

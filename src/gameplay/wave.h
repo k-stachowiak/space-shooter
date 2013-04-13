@@ -37,7 +37,7 @@ struct spawn_desc {
 class wave {
         double _clock;
         vector<pair<double, pattern>> _patterns;
-        size_t _current_pattern;
+        unsigned _current_pattern;
 
 public:
         wave(vector<pair<double, pattern>> patterns)

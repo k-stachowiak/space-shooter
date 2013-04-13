@@ -33,7 +33,7 @@ message create_spawn_bullet(
                 double x, double y,
                 double dir_x, double dir_y,
                 double lin_vel,
-                size_t upgrade_lvl,
+                unsigned upgrade_lvl,
                 bool enemy,
                 uint64_t origin_id) {
         message msg;
@@ -46,7 +46,7 @@ message create_spawn_missile(
                 double x, double y,
                 double dir_x, double dir_y,
                 double lin_vel,
-                size_t upgrade_lvl,
+                unsigned upgrade_lvl,
                 bool enemy,
                 uint64_t origin_id) {
         message msg;

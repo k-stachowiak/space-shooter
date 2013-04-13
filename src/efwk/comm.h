@@ -69,7 +69,7 @@ struct message {
                 double x, y;
                 double dir_x, dir_y;
                 double lin_vel;
-                size_t upgrade_lvl;
+                unsigned upgrade_lvl;
                 bool enemy;
                 uint64_t origin_id;
         } spawn_bullet;
@@ -78,7 +78,7 @@ struct message {
                 double x, y;
                 double dir_x, dir_y;
                 double lin_vel;
-                size_t upgrade_lvl;
+                unsigned upgrade_lvl;
                 bool enemy;
                 uint64_t origin_id;
         } spawn_missile;
@@ -129,7 +129,7 @@ message create_spawn_bullet(
                 double x, double y,
                 double dir_x, double dir_y,
                 double lin_vel,
-                size_t upgrade_lvl,
+                unsigned upgrade_lvl,
                 bool enemy, 
                 uint64_t origin_id);
 
@@ -137,7 +137,7 @@ message create_spawn_missile(
                 double x, double y,
                 double dir_x, double dir_y,
                 double lin_vel,
-                size_t upgrade_lvl,
+                unsigned upgrade_lvl,
                 bool enemy,
                 uint64_t origin_id);
 

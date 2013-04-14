@@ -70,6 +70,15 @@ namespace script {
         inline bool sub_is_list(dom_node const& n, unsigned index) {
                 return n.list[index].type == dom_node_t::list;
         }
-}
+
+        inline bool all_atoms(dom_node const& n) {
+                for(auto const& child : n.list) {
+                        if(!is_atom(child))
+                                return false;
+                }
+                return true;
+        }
+
+} // namespace script
 
 #endif

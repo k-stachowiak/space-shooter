@@ -22,10 +22,10 @@
 #define STATE_H
 
 #include <memory>
-using namespace std;
 
 #include "../misc/config.h"
 #include "../resources/resman.h"
+#include "../script/scriptman.h"
 
 class resources;
 
@@ -46,6 +46,8 @@ public:
         virtual void key_down(int k) {}
 };
 
-unique_ptr<state> create_test_state(const resman& res);
+std::unique_ptr<state> create_test_state(
+                res::resman const& res,
+                script::scriptman const& sman);
 
 #endif

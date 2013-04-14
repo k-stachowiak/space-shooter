@@ -1,4 +1,4 @@
-/* Copyright (C) 2012 Krzysztof Stachowiak */
+/* Copyright (C) 2012, 2013 Krzysztof Stachowiak */
 
 /*
 * This file is part of space-shooter.
@@ -21,8 +21,14 @@
 #ifndef MISC_H
 #define MISC_H
 
+/* The magical inverted square root taken from the
+ * Quake 3 codebase. Originally written (but not
+ * invented) by John Carmack of Id Software.
+ */
+
 static float Q_rsqrt( float number )
 {
+
         long i;
         float x2, y;
         const float threehalfs = 1.5F;

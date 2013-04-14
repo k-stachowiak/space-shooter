@@ -22,6 +22,7 @@
 #include <fstream>
 #include <map>
 
+#include "../script/parsing.h"
 #include "../script/tok.h"
 #include "../script/dom.h"
 #include "exceptions.h"
@@ -30,26 +31,6 @@
 using namespace std;
 
 namespace cfg {
-
-static bool parse_literal(
-                string literal,
-                bool& is_int,
-                int& int_val,
-                double& real_val) {
-
-        stringstream ss;
-        ss << literal;
-
-        if(literal.find('.') == string::npos) {
-                is_int = true;
-                ss >> int_val;
-        } else {
-                is_int = false;
-                ss >> real_val;
-        }
-
-        return ss;
-}
 
 static void register_expression(
                 string const& key,
@@ -94,7 +75,7 @@ static void register_expression(
         double dright;
         bool right_int;
 
-        if(!parse_literal(literal, right_int, iright, dright))
+        if(!script::parse_literal(literal, right_int, iright, dright))
                 throw parsing_error("Cannot parse value \"" + literal + "\".");
 
         // Perform operation.
@@ -125,7 +106,7 @@ static void register_value(
         int int_val;
         double real_val;
 
-        if(!parse_literal(value_str, is_int, int_val, real_val))
+        if(!script::parse_literal(value_str, is_int, int_val, real_val))
                 throw parsing_error("Cannot parse value \"" + value_str + "\".");
 
         if(is_int)

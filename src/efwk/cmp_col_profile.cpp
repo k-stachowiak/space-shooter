@@ -21,6 +21,8 @@
 #include "cmp_misc.h"
 #include "cmp_col_profile.h"
 
+using namespace res;
+
 namespace cmp {
 
 class health_pickup_profile : public pickup_profile {

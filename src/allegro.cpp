@@ -20,6 +20,29 @@
 
 #include "allegro.h"
 
+void allegro::handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const {
+        switch(ev.type) {
+        case ALLEGRO_EVENT_DISPLAY_CLOSE:
+                s.sigkill();
+                return;
+
+        case ALLEGRO_EVENT_KEY_DOWN:
+                s.key_down(ev.keyboard.keycode);
+                break;
+
+        case ALLEGRO_EVENT_KEY_UP:
+                s.key_up(ev.keyboard.keycode);
+                break;
+
+        case ALLEGRO_EVENT_TIMER:
+                ++overdue_frame;
+                break;
+
+        default:
+                break;
+        }
+}
+
 allegro::allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps) {
 
         // Initialize allegro.
@@ -120,25 +143,3 @@ void allegro::swap_buffers() const {
         al_flip_display();
 }
 
-void allegro::handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const {
-        switch(ev.type) {
-        case ALLEGRO_EVENT_DISPLAY_CLOSE:
-                s.sigkill();
-                return;
-
-        case ALLEGRO_EVENT_KEY_DOWN:
-                s.key_down(ev.keyboard.keycode);
-                break;
-
-        case ALLEGRO_EVENT_KEY_UP:
-                s.key_up(ev.keyboard.keycode);
-                break;
-
-        case ALLEGRO_EVENT_TIMER:
-                ++overdue_frame;
-                break;
-
-        default:
-                break;
-        }
-}

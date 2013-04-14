@@ -31,6 +31,8 @@ using std::tie;
 #include "cmp_shape.h"
 #include "cmp_reaction.h"
 
+using namespace res;
+
 namespace cmp {
 
 class complex_reaction : public reaction {

@@ -83,4 +83,4 @@ namespace script {
                 return result;
         }
 
-}
+} // namespace script

@@ -50,7 +50,7 @@ shared_ptr<reaction> create_missile_upgrade_drop_reaction();
 
 shared_ptr<reaction> create_debris_reaction(
                 uint32_t num_debris,
-                vector<res_id> images,
+                vector<res::res_id> images,
                 double vmin, double vmax,
                 double theta_min, double theta_max,
                 bool explode, bool randomize);

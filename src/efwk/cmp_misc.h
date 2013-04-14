@@ -61,7 +61,7 @@ enum class score_class {
 };
 
 // The queue of the noises to be played by the sound system.
-typedef del_queue<res_id> noise_queue;
+typedef del_queue<res::res_id> noise_queue;
 
 // Collision report type.
 //

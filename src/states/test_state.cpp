@@ -19,13 +19,11 @@
 */
 
 #include <functional>
-using std::bind;
-
 #include <random>
-using std::default_random_engine;
-using std::uniform_real_distribution;
 
 #include "state.h"
+#include "../script/scriptman.h"
+#include "../script/parsing.h"
 #include "../misc/random_clock.h"
 #include "../misc/rand.h"
 #include "../efwk/systems.h"
@@ -35,32 +33,117 @@ using std::uniform_real_distribution;
 
 #include <allegro5/allegro_primitives.h>
 
+using namespace std;
+
 // TODO:
 // - Menu/highscore
-// - fix the timestep
 // - Use consisten namespacing strategy
-// - Refactor gameplay:
-//      - read the waves and the patterns from another config file
 
-static wave prepare_wave_0() {
-        return wave {{
-                { 2.0, { pattern::el_triangle(enemy_type::light_fighter), movement_type::vertical }},
-                { 4.0, { pattern::el_pair(enemy_type::light_bomber), movement_type::diagonal }},
-                { 2.0, { pattern::el_pair(enemy_type::light_bomber), movement_type::diagonal }},
-                { 5.0, { pattern::el_quad(enemy_type::heavy_fighter), movement_type::zorro }},
-                { 3.0, { pattern::el_uno(enemy_type::heavy_bomber), movement_type::horizontal }}
-        }};
+static wave read_wave_from_script(script::dom_node const& wave_desc) {
+
+        if(!is_list(wave_desc))
+                throw parsing_error("Wave descriptor isn't a list.");
+
+        vector<pair<double, pattern>> patterns;
+        
+        // Read the patterns.
+        for(script::dom_node const& ps : wave_desc.list) {
+
+                if(!is_list(ps))
+                        throw parsing_error("Pattern descriptor isn't a list.");
+
+                if(!list_size(ps, 4))
+                        throw parsing_error("Invalid list length encountered.");
+
+                if(!all_atoms(ps)) {
+                        throw parsing_error("Pattern must be defined "
+                                        "as an all atoms list.");
+                }
+
+                // Parse delay.
+                string delay_literal = ps.list[0].atom;
+                bool delay_int;
+                double ddelay;
+                int idelay;
+                if(!script::parse_literal(
+                                delay_literal,
+                                delay_int,
+                                idelay, ddelay))
+                        throw parsing_error("Failed parsing pattern delay.");
+
+                double delay = delay_int
+                        ? (double)idelay
+                        : ddelay;
+
+                // Parse the enemy type.
+                string et_desc = ps.list[2].atom;
+                enemy_type et;
+                if(et_desc == "light_fighter")
+                        et = enemy_type::light_fighter;
+                else if(et_desc == "heavy_fighter")
+                        et = enemy_type::heavy_fighter;
+                else if(et_desc == "light_bomber")
+                        et = enemy_type::light_bomber;
+                else if(et_desc == "heavy_bomber")
+                        et = enemy_type::heavy_bomber;
+                else
+                        throw parsing_error("unrecognized enemy type "
+                                        "descriptor encountered.");
+                
+                // parse formation
+                string formation_desc = ps.list[1].atom;
+                vector<pattern::element> formation;
+                if(formation_desc == "uno")
+                        formation = pattern::el_uno(et);
+                else if(formation_desc == "pair")
+                        formation = pattern::el_pair(et);
+                else if(formation_desc == "triangle")
+                        formation = pattern::el_triangle(et);
+                else if(formation_desc == "quad")
+                        formation = pattern::el_quad(et);
+                else
+                        throw parsing_error("Unrecognized formation string encountered.");
+
+                // Parse the movement type.
+                string mt_desc = ps.list[3].atom;
+                movement_type mt;
+                if(mt_desc == "vertical")
+                        mt = movement_type::vertical;
+                else if(mt_desc == "horizontal")
+                        mt = movement_type::horizontal;
+                else if(mt_desc == "diagonal")
+                        mt = movement_type::diagonal;
+                else if(mt_desc == "zorro")
+                        mt = movement_type::zorro;
+                else
+                        throw parsing_error("unrecognized movement type "
+                                        "descriptor encountered.");
+                
+                // Register pattern.
+                patterns.emplace_back(delay, pattern { formation, mt });
+        }
+
+        return wave(patterns);
 }
 
-static vector<wave> prepare_waves() {
-        return { prepare_wave_0() };
+static vector<wave> read_waves_from_script(script::dom_node const& root) {
+
+        if(!is_list(root))
+                throw parsing_error("Main waves config node isn't a list.");
+
+        vector<wave> waves;
+        for(script::dom_node const& wd : root.list)
+                waves.push_back(read_wave_from_script(wd));
+
+        return waves;
 }
 
 class test_state : public state {
 
         // External dependencies.
         // ----------------------
-        resman const& _resman;
+        res::resman const& _resman;
+        script::scriptman const& _sman;
         ALLEGRO_SAMPLE_ID _music_sid;
 
         // State.
@@ -212,11 +295,12 @@ class test_state : public state {
         }
 
 public:
-        test_state(const resman& resman)
+        test_state(const res::resman& resman, script::scriptman const& sman)
         : _resman(resman)
+        , _sman(sman)
         , _debug(false)
         , _done(false)
-        , _drawing_system(resman.get_font(res_id::TINY_FONT))
+        , _drawing_system(resman.get_font(res::res_id::TINY_FONT))
         , _score_system(map<cmp::score_class, double> {
                 { cmp::score_class::PLAYER, cfg::real("gameplay_score_for_player") },
                 { cmp::score_class::ENEMY_LIGHT_FIGHTER, cfg::real("gameplay_score_for_lfighter") },
@@ -224,15 +308,15 @@ public:
                 { cmp::score_class::ENEMY_LIGHT_BOMBER, cfg::real("gameplay_score_for_lbomber")},
                 { cmp::score_class::ENEMY_HEAVY_BOMBER, cfg::real("gameplay_score_for_hbomber") } })
         , _hud_system(
-                _resman.get_bitmap(res_id::HUD_BG),
-                _resman.get_bitmap(res_id::HEALTH),
-                _resman.get_bitmap(res_id::BATTERY),
-                _resman.get_bitmap(res_id::DIODE_ON),
-                _resman.get_bitmap(res_id::DIODE_OFF),
-                _resman.get_bitmap(res_id::B_UPGRADE),
-                _resman.get_bitmap(res_id::M_UPGRADE),
-                _resman.get_font(res_id::FONT),
-                _resman.get_font(res_id::TINY_FONT),
+                _resman.get_bitmap(res::res_id::HUD_BG),
+                _resman.get_bitmap(res::res_id::HEALTH),
+                _resman.get_bitmap(res::res_id::BATTERY),
+                _resman.get_bitmap(res::res_id::DIODE_ON),
+                _resman.get_bitmap(res::res_id::DIODE_OFF),
+                _resman.get_bitmap(res::res_id::B_UPGRADE),
+                _resman.get_bitmap(res::res_id::M_UPGRADE),
+                _resman.get_font(res::res_id::FONT),
+                _resman.get_font(res::res_id::TINY_FONT),
                 cfg::integer("gfx_screen_w"),
                 cfg::integer("gfx_screen_h"))
         , _sound_system(_resman)
@@ -254,7 +338,7 @@ public:
                                 cfg::real("gfx_star_interval_min"),
                                 cfg::real("gfx_star_interval_max")),
                         bind(&entity_factory::create_star, &_ef))
-        , _en_man(prepare_waves())
+        , _en_man(read_waves_from_script(_sman.get_dom("waves")))
         {
                 // Spawn initial stars.
                 uniform_real_distribution<double> x_dist(1.0, cfg::integer("gfx_screen_w") - 1);
@@ -269,7 +353,7 @@ public:
                                 cfg::real("gameplay_player_start_y"));
 
                 // Begin playing music.
-                ALLEGRO_SAMPLE* sample = _resman.get_sample(res_id::INGAME_MUSIC);
+                ALLEGRO_SAMPLE* sample = _resman.get_sample(res::res_id::INGAME_MUSIC);
                 al_play_sample(sample,
                         0.5, 0, 1,
                         ALLEGRO_PLAYMODE_LOOP,
@@ -342,6 +426,8 @@ public:
         }
 };
 
-unique_ptr<state> create_test_state(const resman& res) {
-        return unique_ptr<state>(new test_state(res));
+unique_ptr<state> create_test_state(
+                res::resman const& res,
+                script::scriptman const& sman) {
+        return unique_ptr<state>(new test_state(res, sman));
 }

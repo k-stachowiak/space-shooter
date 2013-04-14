@@ -97,7 +97,7 @@ struct message {
                 double vx, vy;
                 double vmin, vmax;
                 double theta_min, theta_max;
-                res_id image;
+                res::res_id image;
                 bool explode;
                 uint64_t origin_id;
         } spawn_debris;
@@ -148,7 +148,7 @@ message create_spawn_debris(double x, double y,
                 double vx, double vy,
                 double vmin, double vmax,
                 double theta_min, double theta_max,
-                res_id image,
+                res::res_id image,
                 bool explode,
                 uint64_t origin_id);
 

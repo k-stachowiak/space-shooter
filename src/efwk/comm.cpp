@@ -20,6 +20,8 @@
 
 #include "comm.h"
 
+using namespace res;
+
 namespace comm {
 
 message create_remove_entity(uint64_t id) {

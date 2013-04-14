@@ -28,6 +28,8 @@ using namespace std;
 #include "resources/resman.h"
 #include "states/state.h"
 
+using namespace res;
+
 class application {
 
         script::scriptman _sman;
@@ -35,18 +37,16 @@ class application {
 
         const double _fps;
         const double _spf;
-        uint32_t _overdue_frames;
 
         allegro _allegro;
         resman _resman;
 
 public:
         application()
-        : _sman({ "config" })
+        : _sman({ "config", "waves" })
         , _cfg_RAII_plug(_sman.get_dom("config"))
         , _fps(cfg::real("gfx_fps"))
         , _spf(1.0 / _fps)
-        , _overdue_frames(0)
         , _allegro(
                 cfg::integer("gfx_screen_w"),
                 cfg::integer("gfx_screen_h"),
@@ -65,23 +65,24 @@ public:
         {}
 
         void loop() {
-                unique_ptr<state> current_state = create_test_state(_resman);
+                uint32_t overdue_frames;
+                unique_ptr<state> current_state = create_test_state(_resman, _sman);
                 while(current_state) {
 
                         // Handle events.
-                        _allegro.dump_events(*current_state.get(), _overdue_frames);
+                        _allegro.dump_events(*current_state.get(), overdue_frames);
 
                         // See if the state needs change.
                         if(current_state->done()) {
                                 current_state = current_state->next_state();
-                                _overdue_frames = 0;
+                                overdue_frames = 0;
                                 continue;
                         }
 
                         // Simulate overdue frames.
-                        while(_overdue_frames > 0) {
+                        while(overdue_frames > 0) {
                                 current_state->frame_logic(_spf);
-                                --_overdue_frames;
+                                --overdue_frames;
                         }
 
                         _allegro.swap_buffers();

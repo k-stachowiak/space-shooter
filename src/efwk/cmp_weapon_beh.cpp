@@ -28,6 +28,8 @@ using std::uniform_int_distribution;
 #include "cmp_misc.h"
 #include "cmp_weapon_beh.h"
 
+using namespace res;
+
 namespace cmp {
 
 class complex_weapon_beh : public weapon_beh {

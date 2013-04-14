@@ -18,35 +18,29 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include <iostream>
-using namespace std;
+#include <sstream>
+#include <string>
 
-#include "sys_sound.h"
+namespace script {
 
-using namespace res;
+static bool parse_literal(
+                std::string literal,
+                bool& is_int,
+                int& int_val,
+                double& real_val) {
 
-map<ALLEGRO_SAMPLE*, ALLEGRO_SAMPLE_ID> spl_id_map;
+        std::stringstream ss;
+        ss << literal;
 
-namespace sys {
-
-void sound_system::update(double dt) {
-
-        // Handle local queue.
-        _noise_queue.visit(dt, [this](res_id rid) {
-                ALLEGRO_SAMPLE* sample = _resman.get_sample(rid);
-                al_stop_sample(&spl_id_map[sample]);
-                al_play_sample(
-                        sample,
-                        1, 0, 1,
-                        ALLEGRO_PLAYMODE_ONCE,
-                        &spl_id_map[sample]);
-        });
-
-        // Acquire new events.
-        for(auto const& n : _nodes) {
-                _noise_queue.consume(*n.nqueue);
+        if(literal.find('.') == std::string::npos) {
+                is_int = true;
+                ss >> int_val;
+        } else {
+                is_int = false;
+                ss >> real_val;
         }
+
+        return ss;
 }
 
-}
-
+} // namespace script

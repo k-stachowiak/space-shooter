@@ -39,6 +39,8 @@ using namespace std;
 
 #include "../misc/exceptions.h"
 
+namespace res {
+
 enum class res_id : int {
 
         // Prepared resources.
@@ -87,6 +89,7 @@ enum class res_id : int {
         EXPLOSION_SND,
         INGAME_MUSIC
 };
+
 
 class resman {
 
@@ -146,5 +149,7 @@ private:
 
         void flash(res_id id, res_id original);
 };
+
+} // namespace res
 
 #endif

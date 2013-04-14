@@ -27,6 +27,8 @@ using std::endl;
 #include "../geometry/bezier.h"
 #include "entity_factory.h"
 
+using namespace res;
+
 uint64_t entity_factory::create_explosion(double x, double y) {
 
         // Helpers.

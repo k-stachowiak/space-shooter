@@ -21,6 +21,8 @@
 #include "../misc/config.h"
 #include "resman.h"
 
+namespace res {
+
 resman::resman(ALLEGRO_DISPLAY* dpy,
                 map<res_id, string> samples)
 : _dpy(dpy) {
@@ -336,3 +338,4 @@ void resman::fade_frames(res_id id,
         _bitmaps[id] = move(result_bitmap);
 }
 
+} // namespace res

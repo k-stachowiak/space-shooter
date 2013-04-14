@@ -37,7 +37,7 @@ class entity_factory {
 
         uint64_t _last_id;
 
-        resman const& _resman;
+        res::resman const& _resman;
 
         sys::movement_system&    _movement_system;
         sys::collision_system&   _collision_system;
@@ -54,7 +54,7 @@ class entity_factory {
 
 public:
         entity_factory(
-                resman const& rm,
+                res::resman const& rm,
                 sys::movement_system&    movement_system,
                 sys::collision_system&   collision_system,
                 sys::arms_system&        arms_system,
@@ -90,7 +90,7 @@ public:
                         double bvx, double bvy,
                         double vmin, double vmax,
                         double theta_min, double theta_max,
-                        res_id bmp,
+                        res::res_id bmp,
                         bool explode,
                         uint64_t origin_id);
 

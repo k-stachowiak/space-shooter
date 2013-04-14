@@ -178,6 +178,6 @@ namespace script {
                 }
         };
 
-}
+} // namespace script
 
 #endif

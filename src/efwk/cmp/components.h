@@ -18,35 +18,17 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef ALLEGRO_H
-#define ALLEGRO_H
+#ifndef COMPONENTS_H
+#define COMPONENTS_H
 
-#include <stdint.h>
-
-#include <string>
-using namespace std;
-
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
-
-#include "misc/exceptions.h"
-#include "states/state.h"
-
-class allegro {
-        ALLEGRO_DISPLAY* _display;
-        ALLEGRO_EVENT_QUEUE* _event_queue;
-        ALLEGRO_TIMER* _timer;
-
-        void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
-
-public:
-        allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
-        ~allegro();
-        ALLEGRO_DISPLAY* get_display();
-        void dump_events(state& s, uint32_t& overdue_frames);
-        void swap_buffers() const;
-};
+#include "appr.h"
+#include "col_profile.h"
+#include "dynamics.h"
+#include "fx.h"
+#include "misc.h"
+#include "reaction.h"
+#include "shape.h"
+#include "timer.h"
+#include "weapon_beh.h"
 
 #endif

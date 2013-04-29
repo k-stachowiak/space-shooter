@@ -18,35 +18,34 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef ALLEGRO_H
-#define ALLEGRO_H
+#ifndef SYS_SCORE_H
+#define SYS_SCORE_H
 
-#include <stdint.h>
+#include <map>
+using std::map;
 
-#include <string>
-using namespace std;
+#include "base.h"
+#include "nodes.h"
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
+namespace sys {
 
-#include "misc/exceptions.h"
-#include "states/state.h"
-
-class allegro {
-        ALLEGRO_DISPLAY* _display;
-        ALLEGRO_EVENT_QUEUE* _event_queue;
-        ALLEGRO_TIMER* _timer;
-
-        void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
-
+class score_system : public system {
+        map<uint64_t, nd::score_node> _nodes;
+        const map<cmp::score_class, double> _class_score_map;
 public:
-        allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
-        ~allegro();
-        ALLEGRO_DISPLAY* get_display();
-        void dump_events(state& s, uint32_t& overdue_frames);
-        void swap_buffers() const;
+        unsigned num_nodes() const { return _nodes.size(); }
+        score_system(map<cmp::score_class, double> score_map)
+        : _class_score_map(score_map)
+        {}
+
+        void add_node(nd::score_node n) { _nodes[n.id] = n; }
+        void update();
+
+        friend void remove_node(score_system& sys, uint64_t id) {
+                sys._nodes.erase(id);
+        }
 };
+
+}
 
 #endif

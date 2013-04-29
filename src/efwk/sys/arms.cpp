@@ -18,35 +18,26 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef ALLEGRO_H
-#define ALLEGRO_H
+#include "arms.h"
 
-#include <stdint.h>
+namespace sys {
 
-#include <string>
-using namespace std;
+void arms_system::update(double dt, comm::msg_queue& msgs) {
+        double x, y;
+        for(auto const& n : _nodes) {
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
+                x = n.orientation->get_x();
+                y = n.orientation->get_y();
 
-#include "misc/exceptions.h"
-#include "states/state.h"
+                if(n.weapon_beh)
+                        n.weapon_beh->update(
+                                n.id,
+                                *(n.upgrades),
+                                dt,
+                                x, y,
+                                *(n.nqueue),
+                                msgs);
+        }
+}
 
-class allegro {
-        ALLEGRO_DISPLAY* _display;
-        ALLEGRO_EVENT_QUEUE* _event_queue;
-        ALLEGRO_TIMER* _timer;
-
-        void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
-
-public:
-        allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
-        ~allegro();
-        ALLEGRO_DISPLAY* get_display();
-        void dump_events(state& s, uint32_t& overdue_frames);
-        void swap_buffers() const;
-};
-
-#endif
+}

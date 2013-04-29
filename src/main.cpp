@@ -25,8 +25,13 @@ using namespace std;
 #include "allegro.h"
 #include "misc/config.h"
 #include "script/scriptman.h"
+#include "script/expect.h"
 #include "resources/resman.h"
 #include "states/state.h"
+
+// TODO:
+// - Menu/highscore
+// - Use consisten namespacing strategy
 
 using namespace res;
 
@@ -55,7 +60,7 @@ public:
         , _resman(
                 _allegro.get_display(),
                 {
-                        { res_id::BULLET_SHOOT, "data/bullet_shoot.wav" },
+                        { res_id::BULLET_SHOOT,"data/bullet_shoot.wav" },
                         { res_id::MISSILE_SHOOT, "data/missile_shoot_2.wav" },
                         { res_id::WEAPON_PICKUP, "data/click.wav" },
                         { res_id::WELLNESS_PICKUP, "data/wellness.wav" },
@@ -66,7 +71,7 @@ public:
 
         void loop() {
                 uint32_t overdue_frames;
-                unique_ptr<state> current_state = create_test_state(_resman, _sman);
+                unique_ptr<state> current_state = create_game_state(_resman, _sman);
                 while(current_state) {
 
                         // Handle events.
@@ -91,6 +96,9 @@ public:
 };
 
 int main() {
+
+        script::test_expect();
+
         try {
                 application app;
                 app.loop();

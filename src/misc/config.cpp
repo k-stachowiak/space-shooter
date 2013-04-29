@@ -25,6 +25,7 @@
 #include "../script/parsing.h"
 #include "../script/tok.h"
 #include "../script/dom.h"
+#include "../script/expect.h"
 #include "exceptions.h"
 #include "config.h"
 
@@ -123,6 +124,13 @@ static void parse_kvp(
 
         using namespace script;
 
+// TODO: Test all the expecters for the script
+//        script::expect_list<
+//                script::expect_atom_cap,
+//                script::expect_binop<
+//                        script::expect_atom_cap,
+//                        script::expect_listkk
+
         if(!is_list(kvp))
                 throw parsing_error("Non-list encountered instead of a kvp.");
 
@@ -152,12 +160,13 @@ static void parse_dom(
                 map<string, int>& int_vars,
                 map<string, double>& real_vars) {
 
-        if(!is_list(tree))
+        if(!check(script::expect_list<>(), tree))
                 throw parsing_error("Main config node isn't a list.");
 
         for(script::dom_node const& kvp : tree.list)
                 parse_kvp(kvp, int_vars, real_vars);
 } 
+
 map<string, int> int_vars;
 map<string, double> real_vars;
 

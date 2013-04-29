@@ -18,35 +18,35 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef ALLEGRO_H
-#define ALLEGRO_H
-
-#include <stdint.h>
-
-#include <string>
+#include <iostream>
 using namespace std;
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
+#include "sound.h"
 
-#include "misc/exceptions.h"
-#include "states/state.h"
+using namespace res;
 
-class allegro {
-        ALLEGRO_DISPLAY* _display;
-        ALLEGRO_EVENT_QUEUE* _event_queue;
-        ALLEGRO_TIMER* _timer;
+map<ALLEGRO_SAMPLE*, ALLEGRO_SAMPLE_ID> spl_id_map;
 
-        void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
+namespace sys {
 
-public:
-        allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
-        ~allegro();
-        ALLEGRO_DISPLAY* get_display();
-        void dump_events(state& s, uint32_t& overdue_frames);
-        void swap_buffers() const;
-};
+void sound_system::update(double dt) {
 
-#endif
+        // Handle local queue.
+        _noise_queue.visit(dt, [this](res_id rid) {
+                ALLEGRO_SAMPLE* sample = _resman.get_sample(rid);
+                al_stop_sample(&spl_id_map[sample]);
+                al_play_sample(
+                        sample,
+                        1, 0, 1,
+                        ALLEGRO_PLAYMODE_ONCE,
+                        &spl_id_map[sample]);
+        });
+
+        // Acquire new events.
+        for(auto const& n : _nodes) {
+                _noise_queue.consume(*n.nqueue);
+        }
+}
+
+}
+

@@ -24,7 +24,7 @@
 #include <vector>
 using std::vector;
 
-#include "../efwk/entity_factory.h"
+#include "../efwk/game_ent_fac.h"
 #include "wave.h"
 
 class enemy_manager {

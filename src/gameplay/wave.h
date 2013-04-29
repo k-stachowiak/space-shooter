@@ -24,7 +24,7 @@
 #include <utility>
 using std::pair;
 
-#include "../efwk/entity_factory.h"
+#include "../efwk/game_ent_fac.h"
 
 #include "pattern.h"
 

@@ -18,35 +18,31 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef ALLEGRO_H
-#define ALLEGRO_H
+#include "timer.h"
 
-#include <stdint.h>
+namespace cmp {
 
-#include <string>
-using namespace std;
-
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
-
-#include "misc/exceptions.h"
-#include "states/state.h"
-
-class allegro {
-        ALLEGRO_DISPLAY* _display;
-        ALLEGRO_EVENT_QUEUE* _event_queue;
-        ALLEGRO_TIMER* _timer;
-
-        void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
-
+class const_int_timer : public timer {
+        double _interval;
 public:
-        allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
-        ~allegro();
-        ALLEGRO_DISPLAY* get_display();
-        void dump_events(state& s, uint32_t& overdue_frames);
-        void swap_buffers() const;
+        const_int_timer(double interval)
+        : _interval(interval)
+        {
+                _counter = interval;
+                _ticks = 0;
+        }
+
+        void update(double dt) {
+                _counter -= dt;
+                if(_counter < 0.0) {
+                        ++_ticks;
+                        _counter += _interval;
+                }
+        }
 };
 
-#endif
+shared_ptr<timer> create_const_int_timer(double interval) {
+        return shared_ptr<timer>(new const_int_timer(interval));
+}
+
+}

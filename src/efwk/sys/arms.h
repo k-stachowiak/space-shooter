@@ -18,35 +18,40 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef ALLEGRO_H
-#define ALLEGRO_H
+#ifndef SYS_ARMS_H
+#define SYS_ARMS_H
 
-#include <stdint.h>
+#include <vector>
+using std::vector;
 
-#include <string>
-using namespace std;
+#include <memory>
+using std::shared_ptr;
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
+#include <map>
+using std::map;
 
-#include "misc/exceptions.h"
-#include "states/state.h"
+#include "../../misc/maybe.h"
+#include "base.h"
+#include "nodes.h"
 
-class allegro {
-        ALLEGRO_DISPLAY* _display;
-        ALLEGRO_EVENT_QUEUE* _event_queue;
-        ALLEGRO_TIMER* _timer;
+namespace sys {
 
-        void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
+class arms_system : public system {
+
+        template<typename SYS> friend void remove_node(SYS&, uint64_t);
+        vector<nd::arms_node> _nodes;
 
 public:
-        allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
-        ~allegro();
-        ALLEGRO_DISPLAY* get_display();
-        void dump_events(state& s, uint32_t& overdue_frames);
-        void swap_buffers() const;
+        void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
+        unsigned num_nodes() const { return _nodes.size(); }
+        void update(double dt, comm::msg_queue& msgs);
+        void input(map<int, bool>& keys) {
+                for(auto& n : _nodes) {
+                        n.weapon_beh->input(keys);
+                }
+        }
 };
+
+}
 
 #endif

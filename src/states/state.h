@@ -46,7 +46,11 @@ public:
         virtual void key_down(int k) {}
 };
 
-std::unique_ptr<state> create_test_state(
+std::unique_ptr<state> create_menu_state(
+                res::resman const& res,
+                script::scriptman const& sman);
+
+std::unique_ptr<state> create_game_state(
                 res::resman const& res,
                 script::scriptman const& sman);
 

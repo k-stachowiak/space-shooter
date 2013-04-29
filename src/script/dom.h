@@ -45,6 +45,8 @@ namespace script {
         // Helper functions.
         // ------------------
 
+        // TODO: Delete these once the expect module works.
+
         std::ostream& operator<<(std::ostream& out, dom_node const& n);
 
         inline bool is_atom(dom_node const& n) {

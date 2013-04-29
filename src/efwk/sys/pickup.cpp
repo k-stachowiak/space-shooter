@@ -18,35 +18,24 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef ALLEGRO_H
-#define ALLEGRO_H
+#include "pickup.h"
 
-#include <stdint.h>
+namespace sys {
 
-#include <string>
-using namespace std;
+void pickup_system::update(comm::msg_queue& msgs) {
+        for(auto const& n : _nodes) {
+                n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
+                        if(r.cp->pickup) {
+                                bool picked_up = r.cp->pickup->trigger(
+                                                *(n.wellness),
+                                                *(n.upgrades),
+                                                *(n.nqueue));
+                                if(picked_up) {
+                                        msgs.push(comm::create_remove_entity(r.id));
+                                }
+                        }
+                });
+        }
+}
 
-#include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
-#include <allegro5/allegro_primitives.h>
-#include <allegro5/allegro_font.h>
-
-#include "misc/exceptions.h"
-#include "states/state.h"
-
-class allegro {
-        ALLEGRO_DISPLAY* _display;
-        ALLEGRO_EVENT_QUEUE* _event_queue;
-        ALLEGRO_TIMER* _timer;
-
-        void handle_event(ALLEGRO_EVENT& ev, state& s, uint32_t& overdue_frame) const;
-
-public:
-        allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
-        ~allegro();
-        ALLEGRO_DISPLAY* get_display();
-        void dump_events(state& s, uint32_t& overdue_frames);
-        void swap_buffers() const;
-};
-
-#endif
+}

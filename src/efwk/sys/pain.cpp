@@ -39,7 +39,7 @@ void pain_system::update(comm::msg_queue& msgs) {
                         switch(this_cp.cc) {
                         case cmp::coll_class::SHIP:
                                 if ((other_cp.cc == cmp::coll_class::SHIP ||
-                                                other_cp.cc == cmp::coll_class::PROJECTILE) &&
+                                     other_cp.cc == cmp::coll_class::PROJECTILE) &&
                                                 this_cp.pt != other_cp.pt) {
 
                                         w.deal_dmg(other_cp.dmg, r.origin_id);
@@ -48,7 +48,8 @@ void pain_system::update(comm::msg_queue& msgs) {
                                 break;
 
                         case cmp::coll_class::PROJECTILE:
-                                if(other_cp.cc == cmp::coll_class::SHIP && this_cp.pt != other_cp.pt)
+                                if(other_cp.cc == cmp::coll_class::SHIP &&
+                                   this_cp.pt != other_cp.pt)
                                         msgs.push(comm::create_remove_entity(id));
                                 break;
 

@@ -74,6 +74,11 @@ shared_ptr<appearance> create_simple_anim(
                 vector<frame_def> const& frame_defs,
                 int32_t rep_count);
 
+shared_ptr<appearance> create_bin_proxy_appr(
+                bool& state,
+                shared_ptr<appearance> true_appr,
+                shared_ptr<appearance> false_appr);
+
 }
 
 #endif

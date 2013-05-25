@@ -61,6 +61,7 @@ void drawing_system::update(double dt) {
         draw_plane(dt, _nodes[cmp::draw_plane::SHIPS]);
         draw_plane(dt, _nodes[cmp::draw_plane::PROJECTILES]);
         draw_plane(dt, _nodes[cmp::draw_plane::FX]);
+
 }
 
 }

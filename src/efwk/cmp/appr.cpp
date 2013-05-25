@@ -211,4 +211,45 @@ shared_ptr<appearance> create_simple_anim(
                         rep_count));
 }
 
+class bin_proxy : public appearance {
+
+        bool& _state;
+        shared_ptr<appearance> _true_appr;
+        shared_ptr<appearance> _false_appr;
+
+        shared_ptr<appearance> current_appr() const {
+                return _state ? _true_appr : _false_appr;
+        }
+
+public:
+        bin_proxy(bool& state,
+                  shared_ptr<appearance> true_appr,
+                  shared_ptr<appearance> false_appr)
+        : _state(state)
+        , _true_appr(true_appr)
+        , _false_appr(false_appr)
+        {}
+
+        void update(double dt) {
+                current_appr()->update(dt);
+        }
+
+        void draw(double x, double y, double phi) const {
+                current_appr()->draw(x, y, phi);
+        }
+
+        void draw_flash(double x, double y, double phi) const {
+                current_appr()->draw_flash(x, y, phi);
+        }
+};
+
+shared_ptr<appearance> create_bin_proxy_appr(
+                bool& state,
+                shared_ptr<appearance> true_appr,
+                shared_ptr<appearance> false_appr) {
+
+        return shared_ptr<appearance>(
+                        new bin_proxy(state, true_appr, false_appr));
+}
+
 }

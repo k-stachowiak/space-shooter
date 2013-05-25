@@ -121,21 +121,23 @@ struct arms_node {
 struct collision_node {
 
         // origin_id  - points to the entity that has spawned this if it's a projectile
-        // cc         - determines the class of the object from the collision system pov
+        // cp         - determines the profile of the object from the collision system pov
         // shape      - enables the collision tests
         // coll_queue - stores the collisions from the given frame
+        // name       - non-unique name for the debugging purposes
 
         uint64_t id;
         uint64_t origin_id;
         shared_ptr<cmp::collision_profile> cp;
         shared_ptr<cmp::shape> shape;
         shared_ptr<cmp::coll_queue> coll_queue;
+        std::string name;
 };
 
 struct pain_node {
 
         // coll_queue - contains candidates for the pain dealing
-        // pain_map   - determines, how much damage should be dealt by given collision class
+        // cp         - basis for the pain computation
         // wellness   - is modified upon taking damage
         // pain_flash - to be modified upon hit
 

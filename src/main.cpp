@@ -28,10 +28,13 @@ using namespace std;
 #include "script/expect.h"
 #include "resources/resman.h"
 #include "states/state.h"
+#include "misc/logger.h"
 
 // TODO:
-// - Menu/highscore
+// - Highscore
 // - Use consisten namespacing strategy
+// - Why self damage?
+//   - np. wróg na ekranie i odpalam rakiety.
 
 using namespace res;
 
@@ -71,7 +74,7 @@ public:
 
         void loop() {
                 uint32_t overdue_frames;
-                unique_ptr<state> current_state = create_game_state(_resman, _sman);
+                unique_ptr<state> current_state = create_menu_state(_resman, _sman);
                 while(current_state) {
 
                         // Handle events.
@@ -100,11 +103,18 @@ int main() {
         script::test_expect();
 
         try {
+                logger::logger::instance().trace("BEGIN program.");
+
                 application app;
                 app.loop();
+
+                logger::logger::instance().trace("END program.");
+                logger::logger::instance().flush();
+
                 return 0;
         } catch (initialization_error& e) {
                 cerr << "Initialization failed : " << e.what() << endl;
                 return 1;
         }
+
 }

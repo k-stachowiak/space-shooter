@@ -237,7 +237,7 @@ uint64_t entity_factory::create_debris(double x, double y,
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-        _collision_system.add_node({ id, origin_id, cp, shape, coll_queue }); 
+        _collision_system.add_node({ id, origin_id, cp, shape, coll_queue, "debris" }); 
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _sound_system.add_node({ id, nqueue });
 
@@ -382,7 +382,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, cp, shape, coll_queue });
+        _collision_system.add_node({ id, id, cp, shape, coll_queue, "player" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, orientation, shape, wellness, fxs });
@@ -515,7 +515,7 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, cp, shape, coll_queue });
+        _collision_system.add_node({ id, id, cp, shape, coll_queue, "l_fighter" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, orientation, shape, wellness, fxs });
@@ -657,7 +657,7 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, cp, shape, coll_queue });
+        _collision_system.add_node({ id, id, cp, shape, coll_queue, "h_fighter" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, orientation, shape, wellness, fxs });
@@ -810,7 +810,7 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, cp, shape, coll_queue });
+        _collision_system.add_node({ id, id, cp, shape, coll_queue, "l_bomber" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, orientation, shape, wellness, fxs });
@@ -963,7 +963,7 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, cp, shape, coll_queue });
+        _collision_system.add_node({ id, id, cp, shape, coll_queue, "h_bomber" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, orientation, shape, wellness, fxs });
@@ -1058,7 +1058,7 @@ uint64_t entity_factory::create_common_pickup(
         // ---------------
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-        _collision_system.add_node({ id, id, cp, shape, coll_queue });
+        _collision_system.add_node({ id, id, cp, shape, coll_queue, "pickup" });
 
         return id;
 }
@@ -1177,7 +1177,7 @@ uint64_t entity_factory::create_missile(
         // ---------------
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
-        _collision_system.add_node({ id, origin_id, cp, shape, coll_queue });
+        _collision_system.add_node({ id, origin_id, cp, shape, coll_queue, "missile" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, orientation, shape, wellness, fxs });
@@ -1273,7 +1273,7 @@ uint64_t entity_factory::create_bullet(
         // ---------------
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
-        _collision_system.add_node({ id, origin_id, cp, shape, coll_queue }); 
+        _collision_system.add_node({ id, origin_id, cp, shape, coll_queue, "bullet" }); 
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 
         return id;

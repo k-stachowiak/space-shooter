@@ -33,6 +33,7 @@ OBJS := src/resources/resman.o \
 	src/main.o \
 	src/misc/config.o \
 	src/misc/rand.o \
+	src/misc/logger.o \
 	src/script/dom.o \
 	src/script/expect.o \
 	src/allegro.o \

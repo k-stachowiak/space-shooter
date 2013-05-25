@@ -360,9 +360,17 @@ public:
                 al_stop_sample(&_music_sid);
         }
 
-        void sigkill() { _done = true; }
-        bool done() { return _done; }
-        unique_ptr<state> next_state() { return unique_ptr<state>(); }
+        void sigkill() {
+                _done = true;
+        }
+
+        bool done() {
+                return _done;
+        }
+
+        unique_ptr<state> next_state() {
+                return create_menu_state(_resman, _sman);
+        }
 
         void frame_logic(double dt) {
 

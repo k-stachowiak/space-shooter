@@ -20,6 +20,7 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 
 #include "../efwk/sys/systems.h"
 #include "state.h"
@@ -37,36 +38,37 @@ class menu_state : public state {
         // ------
         bool _done;
         unique_ptr<state> _next_state;
-        vector<string> _entries;
+        vector<pair<string, shared_ptr<bool>>> _entries;
         unsigned _current_entry;
-        comm::msg_queue _messages;
-
-        // Systems.
-        // --------
-        sys::movement_system    _msys;
-        sys::fx_system          _fxsys;
-        sys::drawing_system     _dsys;
-        sys::input_system       _isys;
-        sys::sound_system       _ssys;
 
         // State operations.
         // -----------------
         void menu_up() {
+
+                *(_entries[_current_entry].second) = false;
+
                 if(!_current_entry)
                         _current_entry = _entries.size() - 1;
                 else
                         --_current_entry;
+
+                *(_entries[_current_entry].second) = true;
         }
 
         void menu_down() {
+
+                *(_entries[_current_entry].second) = false;
+
                 ++_current_entry;
                 if(_current_entry >= _entries.size())
                         _current_entry = 0;
+
+                *(_entries[_current_entry].second) = true;
         }
 
         void menu_action() {
 
-                string const& entry = _entries[_current_entry];
+                string const& entry = _entries[_current_entry].first;
         
                 if(entry == "game") 
                         _next_state = create_game_state(_resman, _sman);
@@ -89,11 +91,15 @@ public:
         : _resman(resman)
         , _sman(sman)
         , _done(false)
-        , _entries(vector<string> { "game", "highscore", "quit" })
+        , _entries(vector<pair<string, shared_ptr<bool>>> {
+                        { "game", shared_ptr<bool>(new bool(false)) },
+                        { "highscore", shared_ptr<bool>(new bool(false)) },
+                        { "quit", shared_ptr<bool>(new bool(false)) }
+        })
         , _current_entry(0)
-        , _dsys(resman.get_font(res::res_id::TINY_FONT))
-        , _ssys(_resman)
-        {}
+        {
+                *(_entries[_current_entry].second) = true;
+        }
 
         void sigkill() {
                 _done = true;
@@ -108,11 +114,21 @@ public:
         }
 
         void frame_logic(double dt) {
-                _msys.update(dt, _messages);
-                _fxsys.update(dt, _messages);
-                _dsys.update(dt);
-                _isys.update();
-                _ssys.update(dt);
+
+                al_clear_to_color(al_map_rgb_f(0, 0, 0));
+
+                double x = 40.0;
+                double y;
+                for (unsigned i = 0; i < _entries.size(); ++i) {
+                        y = 40.0 + (double)i * 35.0;
+                        auto color = (_current_entry == i)
+                                ? al_map_rgb_f(1,1,0)
+                                : al_map_rgb_f(0.1, 0.3, 0.5);
+                        al_draw_textf(
+                                _resman.get_font(res::res_id::FONT),
+                                color, x, y, 0,
+                                _entries[i].first.c_str());
+                }
         }
 
         void key_up(int k) {

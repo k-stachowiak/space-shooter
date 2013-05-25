@@ -18,6 +18,8 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include <sstream>
+
 #include <random>
 using std::uniform_real_distribution;
 using std::uniform_int_distribution;
@@ -74,13 +76,19 @@ public:
                                  _y + _r * r * sin(t));
         }
 
-        void debug_draw() {
+        void debug_draw() const {
                 al_draw_circle(
                                 _x, _y, _r,
                                 al_map_rgb_f(cfg::real("debug_shape_r"),
                                                          cfg::real("debug_shape_g"),
                                                          cfg::real("debug_shape_b")),
                                 1.0);
+        }
+
+        std::string debug_str() const {
+                std::stringstream ss;
+                ss << "(" << _x << "," << _y << "@" << _r << ")";
+                return ss.str();
         }
 };
 
@@ -128,10 +136,17 @@ public:
                 return _shapes.at(dist(rnd::engine))->get_random_point();
         }
 
-        void debug_draw() {
+        void debug_draw() const {
                 for(auto& s : _shapes) {
                         s->debug_draw();
                 }
+        }
+
+        std::string debug_str() const {
+                std::stringstream ss;
+                ss << "cplx{";
+                for(auto& s : _shapes) ss << s->debug_str() << " ";
+                ss << "}";                
         }
 };
 
@@ -145,7 +160,7 @@ shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes) {
 bool collide_circle_circle(const circle& a, const circle& b) {
         double dx = b.get_x() - a.get_x();
         double dy = b.get_y() - a.get_y();
-        double length = 1.0 / Q_rsqrt(dx * dx + dy * dy);
+        double length = sqrt(dx * dx + dy * dy);
         return length < (a.get_r() + b.get_r());
 }
 

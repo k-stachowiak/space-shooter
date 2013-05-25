@@ -31,6 +31,8 @@ using std::shared_ptr;
 #include <vector>
 using std::vector;
 
+#include <string>
+
 namespace cmp {
 
 class circle;
@@ -44,7 +46,8 @@ public:
         virtual bool collides_with(shape const& shp) const = 0;
         virtual bool collides_with_circle(circle const& c) const = 0;
         virtual pair<double, double> get_random_point() const = 0;
-        virtual void debug_draw() {}
+        virtual void debug_draw() const {}
+        virtual std::string debug_str() const { return {}; }
 };
 
 shared_ptr<shape> create_circle(double x, double y, double r);

@@ -31,10 +31,9 @@ using namespace std;
 #include "misc/logger.h"
 
 // TODO:
+// - Proper main loop (from the side project)
+//     - don't store position in shape
 // - Highscore
-// - Use consisten namespacing strategy
-// - Why self damage?
-//   - np. wróg na ekranie i odpalam rakiety.
 
 using namespace res;
 

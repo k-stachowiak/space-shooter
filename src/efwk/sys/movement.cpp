@@ -48,7 +48,6 @@ void movement_system::update(
                 // -------------
                 double x = n.orientation->get_x();
                 double y = n.orientation->get_y();
-                double phi = n.orientation->get_phi();
 
                 double dx = vx * dt;
                 double dy = vy * dt;
@@ -88,9 +87,8 @@ void movement_system::update(
 
                 // Perform the actual move.
                 // ------------------------
-                n.orientation->set_x(x + dx);
-                n.orientation->set_y(y + dy);
-                n.orientation->set_phi(phi + dphi);
+                n.orientation->shift(dx, dy);
+                n.orientation->rot(dphi);
         }
 }
 

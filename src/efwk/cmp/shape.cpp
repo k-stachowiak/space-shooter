@@ -18,6 +18,7 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include <iostream>
 #include <sstream>
 
 #include <random>
@@ -61,12 +62,12 @@ public:
                 return collide_circle_circle(*this, xa, ya, c, xb, yb);
         }
 
-        pair<double, double> get_random_point(double x, double y) const {
+        pair<double, double> get_random_point() const {
                 uniform_real_distribution<double> dist;
                 double t = cfg::math::two_pi * dist(rnd::engine);
                 double u = dist(rnd::engine) + dist(rnd::engine);
                 double r = (u > 1.0) ? (2.0 - u) : u;
-                return make_pair(x + _r * r * cos(t), y + _r * r * sin(t));
+                return make_pair(_r * r * cos(t), _r * r * sin(t));
         }
 
         void debug_draw(double x, double y) const {
@@ -119,10 +120,17 @@ public:
                 return false;
         }
 
-        pair<double, double> get_random_point(double x, double y) const {
+        pair<double, double> get_random_point() const {
+                
                 uniform_int_distribution<unsigned> dist(0, _shapes.size() - 1);
-                const auto& shp = *(_shapes.at(dist(rnd::engine)).first);
-                return shp.get_random_point(x, y);
+                unsigned index = dist(rnd::engine);
+
+                auto shp = _shapes.at(index).first;
+                auto off = _shapes.at(index).second;
+
+                auto result = shp->get_random_point();
+
+                return { result.first + off.dx, result.second + off.dy };
         }
 
         void debug_draw(double x, double y) const {

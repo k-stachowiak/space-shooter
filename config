@@ -184,7 +184,7 @@
 	(gameplay_debris_ttl_max 1.5)
 	(gameplay_debris_shape_radius 8.0)
 	(gameplay_debris_damage 5.0)
-	(gameplay_debris_min_vel 200.0)
+	(gameplay_debris_min_vel 50.0)
 	(gameplay_debris_max_vel 300.0)
 	(gameplay_debris_min_theta 13.0)
 	(gameplay_debris_max_theta 17.0)

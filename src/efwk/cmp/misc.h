@@ -106,6 +106,7 @@ public:
 // The position and the rotation.
 class orientation {
         double _x, _y, _phi;
+        double _prev_x, _prev_y, _prev_phi;
 public:
         orientation(double x, double y, double phi)
         : _x(x), _y(y), _phi(phi)
@@ -114,9 +115,26 @@ public:
         double get_x() const { return _x; }
         double get_y() const { return _y; }
         double get_phi() const { return _phi; }
-        void set_x(double x) { _x = x; }
-        void set_y(double y) { _y = y; }
-        void set_phi(double phi) { _phi = phi; }
+
+        void shift_x(double dx) {
+                _prev_x = _x;
+                _x += dx;
+        }
+
+        void shift_y(double dy) {
+                _prev_y = _y;
+                _y += dy;
+        }
+
+        void shift(double dx, double dy) {
+                shift_x(dx);
+                shift_y(dy);
+        }
+
+        void rot(double theta) {
+                _prev_phi = _phi;
+                _phi += theta;
+        }
 };
 
 // Universal type defining an AABB box.

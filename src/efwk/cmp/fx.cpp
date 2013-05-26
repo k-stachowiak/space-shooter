@@ -55,8 +55,8 @@ public:
                 _timer->update(dt);
                 for(uint32_t i = 0; i < _timer->get_ticks(); ++i) {
                         double rnd_x, rnd_y;
-                        tie(rnd_x, rnd_y) = shape.get_random_point(x, y);
-                        msgs.push(comm::create_spawn_smoke(rnd_x, rnd_y, comm::smoke_size::medium));
+                        tie(rnd_x, rnd_y) = shape.get_random_point();
+                        msgs.push(comm::create_spawn_smoke(rnd_x + x, rnd_y + y, comm::smoke_size::medium));
                 }
                 _timer->clear();
         }

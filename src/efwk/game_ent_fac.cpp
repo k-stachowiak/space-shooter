@@ -485,12 +485,12 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
                 reactions.push_back(cmp::create_battery_drop_reaction());
 
         bernoulli_distribution drop_bul_up(cfg::real("gameplay_lfighter_gun_up_drop_dist"));
-                if(drop_bul_up(rnd::engine))
-                        reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
+        if(drop_bul_up(rnd::engine))
+                reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
         bernoulli_distribution drop_mis_up(cfg::real("gameplay_lfighter_ml_up_drop_dist"));
-                if(drop_mis_up(rnd::engine))
-                        reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
+        if(drop_mis_up(rnd::engine))
+                reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
 
         auto on_death = cmp::create_complex_reaction(reactions);
         shared_ptr<cmp::timer> ttl;
@@ -628,12 +628,12 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
                 reactions.push_back(cmp::create_battery_drop_reaction());
 
         bernoulli_distribution drop_bul_up(cfg::real("gameplay_hfighter_gun_up_drop_dist"));
-                if(drop_bul_up(rnd::engine))
-                        reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
+        if(drop_bul_up(rnd::engine))
+                reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
         bernoulli_distribution drop_mis_up(cfg::real("gameplay_hfighter_ml_up_drop_dist"));
-                if(drop_mis_up(rnd::engine))
-                        reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
+        if(drop_mis_up(rnd::engine))
+                reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
 
         auto on_death = cmp::create_complex_reaction(reactions);
 
@@ -792,12 +792,12 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
                 reactions.push_back(cmp::create_battery_drop_reaction());
 
         bernoulli_distribution drop_bul_up(cfg::real("gameplay_lbomber_gun_up_drop_dist"));
-                if(drop_bul_up(rnd::engine))
-                        reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
+        if(drop_bul_up(rnd::engine))
+                reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
         bernoulli_distribution drop_mis_up(cfg::real("gameplay_lbomber_ml_up_drop_dist"));
-                if(drop_mis_up(rnd::engine))
-                        reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
+        if(drop_mis_up(rnd::engine))
+                reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
 
         auto on_death = cmp::create_complex_reaction(reactions);
         shared_ptr<cmp::timer> ttl;
@@ -957,12 +957,12 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
                 reactions.push_back(cmp::create_battery_drop_reaction());
 
         bernoulli_distribution drop_bul_up(cfg::real("gameplay_hbomber_gun_up_drop_dist"));
-                if(drop_bul_up(rnd::engine))
-                        reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
+        if(drop_bul_up(rnd::engine))
+                reactions.push_back(cmp::create_bullet_upgrade_drop_reaction());
 
         bernoulli_distribution drop_mis_up(cfg::real("gameplay_hbomber_ml_up_drop_dist"));
-                if(drop_mis_up(rnd::engine))
-                        reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
+        if(drop_mis_up(rnd::engine))
+                reactions.push_back(cmp::create_missile_upgrade_drop_reaction());
 
         auto on_death = cmp::create_complex_reaction(reactions);
         shared_ptr<cmp::timer> ttl;

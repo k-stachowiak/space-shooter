@@ -51,7 +51,7 @@ public:
                 double xa, double ya,
                 circle const& c, double xb, double yb) const = 0;
 
-        virtual pair<double, double> get_random_point(double x, double y) const = 0;
+        virtual pair<double, double> get_random_point() const = 0;
         virtual void debug_draw(double x, double y) const {}
         virtual std::string debug_str() const { return {}; }
 };

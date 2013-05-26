@@ -91,11 +91,6 @@ void movement_system::update(
                 n.orientation->set_x(x + dx);
                 n.orientation->set_y(y + dy);
                 n.orientation->set_phi(phi + dphi);
-
-                if(n.shape) {
-                        n.shape->shift(dx, dy);
-                        n.shape->rotate(dphi);
-                }
         }
 }
 

@@ -32,7 +32,7 @@ using namespace std;
 
 // TODO:
 // - Proper main loop (from the side project)
-//     - don't store position in shape
+// - shape::get_random_point - return coords without the offset
 // - Highscore
 
 using namespace res;

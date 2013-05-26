@@ -29,7 +29,6 @@ using std::uniform_int_distribution;
 
 #include "../../misc/config.h"
 #include "../../misc/rand.h"
-#include "../../geometry/misc.h"
 
 #include "shape.h"
 
@@ -38,128 +37,124 @@ namespace cmp {
 // Collision declarations.
 // -----------------------
 
-bool collide_circle_circle(const circle& a, const circle& b);
+bool collide_circle_circle(const circle& a, double xa, double ya,
+                           const circle& b, double xb, double yb);
 
 // Shape classes.
 // --------------
 
 class circle : public shape {
-        double _x;
-        double _y;
         double _r;
 public:
-        circle(double x, double y, double r)
-        : _x(x), _y(y), _r(r) {}
+        circle(double r)
+        : _r(r) {}
 
-        double get_x() const { return _x; }
-        double get_y() const { return _y; }
         double get_r() const { return _r; }
 
-        void shift(double dx, double dy) { _x += dx; _y += dy; }
-
-        void rotate(double dphi) {}
-
-        bool collides_with(const shape& s) const {
-                return s.collides_with_circle(*this);
+        bool collides_with(double xa, double ya,
+                           const shape& s, double xb, double yb) const {
+                return s.collides_with_circle(xa, ya, *this, xb, yb);
         }
 
-        bool collides_with_circle(const circle& c) const {
-                return collide_circle_circle(*this, c);
+        bool collides_with_circle(double xa, double ya,
+                                  const circle& c, double xb, double yb) const {
+                return collide_circle_circle(*this, xa, ya, c, xb, yb);
         }
 
-        pair<double, double> get_random_point() const {
+        pair<double, double> get_random_point(double x, double y) const {
                 uniform_real_distribution<double> dist;
                 double t = cfg::math::two_pi * dist(rnd::engine);
                 double u = dist(rnd::engine) + dist(rnd::engine);
                 double r = (u > 1.0) ? (2.0 - u) : u;
-                return make_pair(_x + _r * r * cos(t),
-                                 _y + _r * r * sin(t));
+                return make_pair(x + _r * r * cos(t), y + _r * r * sin(t));
         }
 
-        void debug_draw() const {
-                al_draw_circle(
-                                _x, _y, _r,
-                                al_map_rgb_f(cfg::real("debug_shape_r"),
-                                                         cfg::real("debug_shape_g"),
-                                                         cfg::real("debug_shape_b")),
-                                1.0);
+        void debug_draw(double x, double y) const {
+                al_draw_circle(x, y, _r,
+                               al_map_rgb_f(cfg::real("debug_shape_r"),
+                                            cfg::real("debug_shape_g"),
+                                            cfg::real("debug_shape_b")),
+                               1.0);
         }
 
         std::string debug_str() const {
                 std::stringstream ss;
-                ss << "(" << _x << "," << _y << "@" << _r << ")";
+                ss << "(" << _r << ")";
                 return ss.str();
         }
 };
 
-shared_ptr<shape> create_circle(double x, double y, double r) {
-        return shared_ptr<shape>(new circle(x, y, r));
+shared_ptr<shape> create_circle(double r) {
+        return shared_ptr<shape>(new circle(r));
 }
 
 class complex_shape : public shape {
-        vector<shared_ptr<shape>> _shapes;
+        vector<pair<shared_ptr<shape>, offset>> _shapes;
 public:
-        complex_shape(vector<shared_ptr<shape>> shapes) : _shapes(shapes) {}
+        complex_shape(vector<pair<shared_ptr<shape>, offset>> shapes)
+        : _shapes(shapes) {}
 
-        void shift(double dx, double dy) {
+        bool collides_with(double xa, double ya,
+                           shape const& shp, double xb, double yb) const {
+
                 for(auto& s : _shapes) {
-                        s->shift(dx, dy);
-                }
-        }
-
-        void rotate(double) {
-                // Rotation not implemented.
-                // Should more sophisticated geometry be applied,
-                // use a 3rd party library...
-        }
-
-        bool collides_with(shape const& shp) const {
-                for(auto& s : _shapes) {
-                        if(s->collides_with(shp)) {
+                        double xa_off = xa + s.second.dx;
+                        double ya_off = ya + s.second.dy;
+                        if(s.first->collides_with(xa_off, ya_off, shp, xb, yb)) {
                                 return true;
                         }
                 }
                 return false;
         }
 
-        bool collides_with_circle(circle const& c) const {
+        bool collides_with_circle(double xa, double ya,
+                                  circle const& c, double xb, double yb) const {
                 for(auto& s : _shapes) {
-                        if(s->collides_with_circle(c)) {
+                        double xa_off = xa + s.second.dx;
+                        double ya_off = ya + s.second.dy;
+                        if(s.first->collides_with_circle(xa_off, ya_off, c, xb, yb)) {
                                 return true;
                         }
                 }
                 return false;
         }
 
-        pair<double, double> get_random_point() const {
+        pair<double, double> get_random_point(double x, double y) const {
                 uniform_int_distribution<unsigned> dist(0, _shapes.size() - 1);
-                return _shapes.at(dist(rnd::engine))->get_random_point();
+                const auto& shp = *(_shapes.at(dist(rnd::engine)).first);
+                return shp.get_random_point(x, y);
         }
 
-        void debug_draw() const {
+        void debug_draw(double x, double y) const {
                 for(auto& s : _shapes) {
-                        s->debug_draw();
+                        double x_off = x + s.second.dx;
+                        double y_off = y + s.second.dy;
+                        s.first->debug_draw(x_off, y_off);
                 }
         }
 
         std::string debug_str() const {
                 std::stringstream ss;
                 ss << "cplx{";
-                for(auto& s : _shapes) ss << s->debug_str() << " ";
+                for(auto& s : _shapes) ss << s.first->debug_str() << " ";
                 ss << "}";                
+                return ss.str();
         }
 };
 
-shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes) {
+shared_ptr<shape> create_complex_shape(
+                vector<pair<shared_ptr<shape>, offset>> shapes) {
         return shared_ptr<shape>(new complex_shape(shapes));
 }
 
 // Collision implementations.
 // --------------------------
 
-bool collide_circle_circle(const circle& a, const circle& b) {
-        double dx = b.get_x() - a.get_x();
-        double dy = b.get_y() - a.get_y();
+bool collide_circle_circle(const circle& a, double xa, double ya,
+                           const circle& b, double xb, double yb) {
+
+        double dx = xb - xa;
+        double dy = yb - ya;
         double length = sqrt(dx * dx + dy * dy);
         return length < (a.get_r() + b.get_r());
 }

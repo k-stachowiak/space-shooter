@@ -157,7 +157,7 @@ public:
                                 : (i % _images.size());
                         res_id bmp = _images[index];
                         double deb_x, deb_y;
-                        tie(deb_x, deb_y) = shape.get_random_point();
+                        tie(deb_x, deb_y) = shape.get_random_point(x, y);
                         queue.push(comm::create_spawn_debris(
                                                 deb_x, deb_y,
                                                 vx, vy,
@@ -211,7 +211,7 @@ public:
                 uniform_real_distribution<double> delay_dist(_min_delay, _max_delay);
                 for(uint32_t i = 0; i < _num_explosions; ++i) {
                         double expl_x, expl_y;
-                        tie(expl_x, expl_y) = shape.get_random_point();
+                        tie(expl_x, expl_y) = shape.get_random_point(x, y);
                         queue.push(comm::create_spawn_explosion(expl_x, expl_y), delay);
                         nqueue.push(res_id::EXPLOSION_SND, delay);
                         delay += delay_dist(rnd::engine);

@@ -18,11 +18,12 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include <cmath>
+
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
 
 #include "../../misc/config.h"
-#include "../../geometry/misc.h"
 #include "dynamics.h"
 
 namespace cmp {
@@ -161,7 +162,7 @@ public:
                 // The direction derived from the current segment.
                 double dir_x = _points[_next_point].x - _points[_next_point - 1].x;
                 double dir_y = _points[_next_point].y - _points[_next_point - 1].y;
-                double rsqrt = Q_rsqrt(dir_x * dir_x + dir_y * dir_y);
+                double rsqrt = 1.0 / sqrt(dir_x * dir_x + dir_y * dir_y);
 
                 // Compute the result velocity.
                 _vx = dir_x * rsqrt * _lin_vel;
@@ -199,6 +200,16 @@ public:
         }
 
         void input(map<int, bool>& keys) {}
+
+        void debug_draw() const {
+                for(unsigned i = 1; i < _points.size(); ++i) {
+                        double x1 = _points[i - 1].x;
+                        double y1 = _points[i - 1].y;
+                        double x2 = _points[i - 0].x;
+                        double y2 = _points[i - 0].y;
+                        al_draw_line(x1, y1, x2, y2, al_map_rgb_f(0,1,1), 2);
+                }
+        }
 };
 
 shared_ptr<dynamics> create_path_dynamics(vector<point> points, double lin_vel) {

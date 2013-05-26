@@ -29,7 +29,11 @@ void collision_system::check_collision(nd::collision_node const& a,
         cmp::shape const& shp_a = *(a.shape);
         cmp::shape const& shp_b = *(b.shape);
 
-        if(shp_a.collides_with(shp_b)) {
+        bool collides = shp_a.collides_with(
+                        a.orientation->get_x(), a.orientation->get_y(), shp_b,
+                        b.orientation->get_x(), b.orientation->get_y());
+
+        if(collides) {
                 a.coll_queue->push_report({ b.id, b.origin_id, b.cp, b.shape });
                 b.coll_queue->push_report({ a.id, a.origin_id, a.cp, a.shape });
         }

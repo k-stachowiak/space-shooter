@@ -48,6 +48,8 @@ public:
         double get_vx() const { return _vx; }
         double get_vy() const { return _vy; }
         double get_theta() const { return _theta; }
+
+        virtual void debug_draw() const {}
 };
 
 shared_ptr<dynamics> create_complex_dynamics(vector<shared_ptr<dynamics>> ds);

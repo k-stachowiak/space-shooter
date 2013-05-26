@@ -38,20 +38,27 @@ namespace cmp {
 class circle;
 class complex_shape;
 
+struct offset { double dx, dy; };
+
 class shape {
 public:
         virtual ~shape() {}
-        virtual void shift(double dx, double dy) = 0;
-        virtual void rotate(double dphi) = 0;
-        virtual bool collides_with(shape const& shp) const = 0;
-        virtual bool collides_with_circle(circle const& c) const = 0;
-        virtual pair<double, double> get_random_point() const = 0;
-        virtual void debug_draw() const {}
+        virtual bool collides_with(
+                double xa, double ya,
+                shape const& shp, double xb, double yb) const = 0;
+
+        virtual bool collides_with_circle(
+                double xa, double ya,
+                circle const& c, double xb, double yb) const = 0;
+
+        virtual pair<double, double> get_random_point(double x, double y) const = 0;
+        virtual void debug_draw(double x, double y) const {}
         virtual std::string debug_str() const { return {}; }
 };
 
-shared_ptr<shape> create_circle(double x, double y, double r);
-shared_ptr<shape> create_complex_shape(vector<shared_ptr<shape>> shapes);
+shared_ptr<shape> create_circle(double r);
+shared_ptr<shape> create_complex_shape(
+                vector<pair<shared_ptr<shape>, offset>> shapes);
 
 }
 

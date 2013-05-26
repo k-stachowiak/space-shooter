@@ -44,7 +44,11 @@ void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes
 
                 if(_debug_mode) {
                         if(n.shape) {
-                                n.shape->debug_draw();
+                                n.shape->debug_draw(n.orientation->get_x(),
+                                                    n.orientation->get_y());
+                        }
+                        if(n.dynamics) {
+                                n.dynamics->debug_draw();
                         }
                 }
         }

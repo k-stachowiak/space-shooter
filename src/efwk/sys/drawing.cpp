@@ -23,13 +23,11 @@
 
 namespace sys {
 
-void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes) {
+void drawing_system::draw_plane(vector<nd::drawing_node> const& nodes) {
 
         double x, y;
         double phi;
         for(auto const& n : nodes) {
-
-                n.appearance->update(dt);
 
                 x = n.orientation->get_x();
                 y = n.orientation->get_y();
@@ -37,7 +35,6 @@ void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes
 
                 if(*(n.pain_flash) > 0.0) {
                         n.appearance->draw_flash(x, y, phi);
-                        *(n.pain_flash) -= dt;
                 } else {
                         n.appearance->draw(x, y, phi);
                 }
@@ -54,17 +51,17 @@ void drawing_system::draw_plane(double dt, vector<nd::drawing_node> const& nodes
         }
 }
 
-void drawing_system::update(double dt) {
+void drawing_system::update() {
 
         al_clear_to_color(al_map_rgb_f(
                         cfg::real("gfx_background_r"),
                         cfg::real("gfx_background_g"),
                         cfg::real("gfx_background_b")));
 
-        draw_plane(dt, _nodes[cmp::draw_plane::BACKGROUND]);
-        draw_plane(dt, _nodes[cmp::draw_plane::SHIPS]);
-        draw_plane(dt, _nodes[cmp::draw_plane::PROJECTILES]);
-        draw_plane(dt, _nodes[cmp::draw_plane::FX]);
+        draw_plane(_nodes[cmp::draw_plane::BACKGROUND]);
+        draw_plane(_nodes[cmp::draw_plane::SHIPS]);
+        draw_plane(_nodes[cmp::draw_plane::PROJECTILES]);
+        draw_plane(_nodes[cmp::draw_plane::FX]);
 
 }
 

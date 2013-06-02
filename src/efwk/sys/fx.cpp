@@ -29,15 +29,25 @@ void fx_system::update(
         double health;
         double x, y;
         for(auto const& n : _nodes) {
-                x = n.orientation->get_x();
-                y = n.orientation->get_y();
-                max_health = n.wellness->get_max_health();
-                health = n.wellness->get_health();
-                n.effects->update(dt,
-                                health / max_health,
-                                x, y,
-                                *(n.shape),
-                                msgs);
+
+                // Update appearance.
+                n.appearance->update(dt);
+
+                // Update pain flash.
+                *(n.pain_flash) -= dt;
+                
+                // Update effects.
+                if(n.effects) {
+                        x = n.orientation->get_x();
+                        y = n.orientation->get_y();
+                        max_health = n.wellness->get_max_health();
+                        health = n.wellness->get_health();
+                        n.effects->update(dt,
+                                        health / max_health,
+                                        x, y,
+                                        *(n.shape),
+                                        msgs);
+                }
         }
 }
 

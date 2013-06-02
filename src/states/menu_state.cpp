@@ -113,8 +113,10 @@ public:
                 return move(_next_state);
         }
 
-        void frame_logic(double dt) {
+        void update(double t, double dt) {
+        }
 
+        void draw(double weight) {
                 al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
                 double x = 40.0;

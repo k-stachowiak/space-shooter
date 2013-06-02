@@ -31,8 +31,7 @@ using namespace std;
 #include "misc/logger.h"
 
 // TODO:
-// - Proper main loop (from the side project)
-// - shape::get_random_point - return coords without the offset
+// - Handle the update weight for the movement!
 // - Highscore
 
 using namespace res;
@@ -72,27 +71,44 @@ public:
         {}
 
         void loop() {
-                uint32_t overdue_frames;
+
+                const double dt = _spf;
+                const double max_frame_time = 0.25;
+
+                double t = 0;
+                double current_time = _allegro.current_time();
+                double accumulator = 0.0;
+
                 unique_ptr<state> current_state = create_menu_state(_resman, _sman);
+
                 while(current_state) {
 
-                        // Handle events.
-                        _allegro.dump_events(*current_state.get(), overdue_frames);
+                        // Logic part.
+                        double new_time = _allegro.current_time();
+                        double frame_time = new_time - current_time;
 
-                        // See if the state needs change.
+                        if(frame_time > max_frame_time)
+                                frame_time = max_frame_time;
+
+                        current_time = new_time;
+                        accumulator += frame_time;
+
+                        while (accumulator >= dt) {
+                                _allegro.dump_events(*current_state.get());
+                                current_state->update(t, dt);
+                                t += dt;
+                                accumulator -= dt;
+                        }
+
+                        // Display part.
+                        const double weight = accumulator / dt;
+                        current_state->draw(weight);
+                        _allegro.swap_buffers();
+
+                        // State switch part.
                         if(current_state->done()) {
                                 current_state = current_state->next_state();
-                                overdue_frames = 0;
-                                continue;
                         }
-
-                        // Simulate overdue frames.
-                        while(overdue_frames > 0) {
-                                current_state->frame_logic(_spf);
-                                --overdue_frames;
-                        }
-
-                        _allegro.swap_buffers();
                 }
         }
 };

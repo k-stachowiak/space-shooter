@@ -82,10 +82,12 @@ struct fx_node {
         // effects     - the fx object to be updated each frame
 
         uint64_t id;
+        shared_ptr<cmp::appearance> appearance;
         shared_ptr<cmp::orientation> orientation;
         shared_ptr<cmp::shape> shape;
         shared_ptr<cmp::wellness> wellness;
         shared_ptr<cmp::fx> effects;
+        shared_ptr<double> pain_flash;
 };
 
 struct movement_node {

@@ -372,11 +372,12 @@ public:
                 return create_menu_state(_resman, _sman);
         }
 
-        void frame_logic(double dt) {
-
+        void update(double t, double dt) {
+                
                 // Trigger the clocks.
                 _star_spawn_clk.tick(dt);
 
+                // Manage the gameplay rules.
                 bool keep_going = _en_man.tick(
                         dt, _ef,
                         cfg::integer("gfx_screen_w"),
@@ -400,22 +401,25 @@ public:
                 _hud_system.set_debug_mode(_debug);
                 _sound_system.set_debug_mode(_debug);
 
-                // Update the systems.
+                // Update logic systems.
                 _movement_system.update(dt, _messages);
                 _collision_system.update();
                 _arms_system.update(dt, _messages);
                 _pain_system.update(_messages);
                 _wellness_system.update(dt, _messages);
                 _fx_system.update(dt, _messages);
-                _drawing_system.update(dt);
                 _score_system.update();
                 _pickup_system.update(_messages); 
                 _input_system.update();
-                _hud_system.update();
                 _sound_system.update(dt);
 
                 // Handle messages.
                 handle_messages(dt);
+        }
+
+        void draw(double weight) {
+                _drawing_system.update();
+                _hud_system.update();
         }
 
         void key_up(int k) {

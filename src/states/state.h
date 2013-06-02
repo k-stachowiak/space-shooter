@@ -39,7 +39,8 @@ public:
         virtual unique_ptr<state> next_state() = 0;
 
         // Logic.
-        virtual void frame_logic(double dt) = 0;
+        virtual void update(double t, double dt) = 0;
+        virtual void draw(double weight) = 0;
 
         // Optionally implementable.
         virtual void key_up(int k) {}

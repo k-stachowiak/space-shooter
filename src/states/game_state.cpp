@@ -418,7 +418,7 @@ public:
         }
 
         void draw(double weight) {
-                _drawing_system.update();
+                _drawing_system.update(weight);
                 _hud_system.update();
         }
 

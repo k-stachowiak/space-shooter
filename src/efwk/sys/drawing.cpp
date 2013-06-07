@@ -23,14 +23,15 @@
 
 namespace sys {
 
-void drawing_system::draw_plane(vector<nd::drawing_node> const& nodes) {
+void drawing_system::draw_plane(vector<nd::drawing_node> const& nodes, double weight) {
 
         double x, y;
         double phi;
         for(auto const& n : nodes) {
 
-                x = n.orientation->get_x();
-                y = n.orientation->get_y();
+                // x = n.orientation->get_x();
+                // y = n.orientation->get_y();
+                tie(x, y) = n.orientation->interpolate_loc(weight);
                 phi = n.orientation->get_phi();
 
                 if(*(n.pain_flash) > 0.0) {
@@ -40,28 +41,23 @@ void drawing_system::draw_plane(vector<nd::drawing_node> const& nodes) {
                 }
 
                 if(_debug_mode) {
-                        if(n.shape) {
-                                n.shape->debug_draw(n.orientation->get_x(),
-                                                    n.orientation->get_y());
-                        }
-                        if(n.dynamics) {
-                                n.dynamics->debug_draw();
-                        }
+                        if(n.shape) n.shape->debug_draw(x, y);
+                        if(n.dynamics) n.dynamics->debug_draw();
                 }
         }
 }
 
-void drawing_system::update() {
+void drawing_system::update(double weight) {
 
         al_clear_to_color(al_map_rgb_f(
                         cfg::real("gfx_background_r"),
                         cfg::real("gfx_background_g"),
                         cfg::real("gfx_background_b")));
 
-        draw_plane(_nodes[cmp::draw_plane::BACKGROUND]);
-        draw_plane(_nodes[cmp::draw_plane::SHIPS]);
-        draw_plane(_nodes[cmp::draw_plane::PROJECTILES]);
-        draw_plane(_nodes[cmp::draw_plane::FX]);
+        draw_plane(_nodes[cmp::draw_plane::BACKGROUND], weight);
+        draw_plane(_nodes[cmp::draw_plane::SHIPS], weight);
+        draw_plane(_nodes[cmp::draw_plane::PROJECTILES], weight);
+        draw_plane(_nodes[cmp::draw_plane::FX], weight);
 
 }
 

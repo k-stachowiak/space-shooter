@@ -21,17 +21,25 @@
 #include "../../misc/logger.h"
 #include "collision.h"
 
-namespace sys {
+namespace {
 
-void collision_system::check_collision(nd::collision_node const& a,
-                         nd::collision_node const& b) const {
+        const double MAX_WEIGHT = 1.0;
+
+}
+
+namespace sys {
+void collision_system::check_collision(
+                nd::collision_node const& a,
+                nd::collision_node const& b) const {
 
         cmp::shape const& shp_a = *(a.shape);
         cmp::shape const& shp_b = *(b.shape);
 
-        bool collides = shp_a.collides_with(
-                        a.orientation->get_x(), a.orientation->get_y(), shp_b,
-                        b.orientation->get_x(), b.orientation->get_y());
+        double ax, ay, bx, by;
+        tie(ax, ay) = a.orientation->interpolate_loc(MAX_WEIGHT);
+        tie(bx, by) = b.orientation->interpolate_loc(MAX_WEIGHT);
+
+        bool collides = shp_a.collides_with(ax, ay, shp_b, bx, by);
 
         if(collides) {
                 a.coll_queue->push_report({ b.id, b.origin_id, b.cp, b.shape });

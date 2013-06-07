@@ -18,10 +18,18 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-template<class T>
-inline bool between(T value, T min, T max) { return value >= min && value <= max; }
-
 #include "movement.h"
+
+namespace {
+
+        const double MAX_WEIGHT = 1.0;
+
+        template<class T>
+        inline bool between(T value, T min, T max) {
+                return value >= min && value <= max;
+        }
+
+}
 
 namespace sys {
 
@@ -46,8 +54,8 @@ void movement_system::update(
 
                 // Check bounds.
                 // -------------
-                double x = n.orientation->get_x();
-                double y = n.orientation->get_y();
+                double x, y;
+                tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
 
                 double dx = vx * dt;
                 double dy = vy * dt;

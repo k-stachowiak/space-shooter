@@ -20,23 +20,23 @@
 
 #include "arms.h"
 
+namespace {
+
+        const double MAX_WEIGHT = 1.0;
+
+}
+
 namespace sys {
 
 void arms_system::update(double dt, comm::msg_queue& msgs) {
         double x, y;
         for(auto const& n : _nodes) {
 
-                x = n.orientation->get_x();
-                y = n.orientation->get_y();
-
+                tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
                 if(n.weapon_beh)
                         n.weapon_beh->update(
-                                n.id,
-                                *(n.upgrades),
-                                dt,
-                                x, y,
-                                *(n.nqueue),
-                                msgs);
+                                n.id, *(n.upgrades), dt,
+                                x, y, *(n.nqueue), msgs);
         }
 }
 

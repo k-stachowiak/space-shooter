@@ -110,10 +110,11 @@ class orientation {
 public:
         orientation(double x, double y, double phi)
         : _x(x), _y(y), _phi(phi)
+        , _prev_x(x)
+        , _prev_y(y)
+        , _prev_phi(phi)
         {}
 
-        double get_x() const { return _x; }
-        double get_y() const { return _y; }
         double get_phi() const { return _phi; }
 
         void shift_x(double dx) {
@@ -134,6 +135,12 @@ public:
         void rot(double theta) {
                 _prev_phi = _phi;
                 _phi += theta;
+        }
+
+        std::pair<double, double> interpolate_loc(double weight) {
+                return make_pair(
+                        _x * weight + _prev_x * (1.0 - weight),
+                        _y * weight + _prev_y * (1.0 - weight));
         }
 };
 

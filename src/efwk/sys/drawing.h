@@ -36,7 +36,7 @@ class drawing_system : public system {
         template<typename SYS> friend void remove_node(SYS&, uint64_t);
         map<cmp::draw_plane, vector<nd::drawing_node>> _nodes;
         ALLEGRO_FONT* _debug_font;
-        void draw_plane(vector<nd::drawing_node> const& nodes);
+        void draw_plane(vector<nd::drawing_node> const& nodes, double weight);
 public:
         unsigned num_nodes() const {
                 unsigned sizes = 0;
@@ -50,7 +50,7 @@ public:
 
         void add_node(nd::drawing_node n) { _nodes[n.draw_plane].push_back(n); }
 
-        void update();
+        void update(double weight);
 
         friend void remove_node(drawing_system& sys, uint64_t id) {
                 for(auto& pr : sys._nodes) {

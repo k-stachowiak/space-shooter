@@ -20,6 +20,12 @@
 
 #include "fx.h"
 
+namespace {
+
+        const double MAX_WEIGHT = 1.0;
+
+}
+
 namespace sys {
 
 void fx_system::update(
@@ -38,8 +44,7 @@ void fx_system::update(
                 
                 // Update effects.
                 if(n.effects) {
-                        x = n.orientation->get_x();
-                        y = n.orientation->get_y();
+                        tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
                         max_health = n.wellness->get_max_health();
                         health = n.wellness->get_health();
                         n.effects->update(dt,

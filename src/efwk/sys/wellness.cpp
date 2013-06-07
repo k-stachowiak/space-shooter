@@ -20,6 +20,12 @@
 
 #include "wellness.h"
 
+namespace {
+
+        const double MAX_WEIGHT = 1.0;
+
+}
+
 namespace sys {
 
 void wellness_system::update(double dt, comm::msg_queue& msgs) {
@@ -39,6 +45,7 @@ void wellness_system::update(double dt, comm::msg_queue& msgs) {
                 }
 
                 if(died) {
+                        double x, y;
                         double vx = 0;
                         double vy = 0;
                         if(n.dynamics) {
@@ -48,16 +55,11 @@ void wellness_system::update(double dt, comm::msg_queue& msgs) {
                         }
 
                         // Handle reactions.
+                        tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
                         if(n.on_death)
                                 n.on_death->trigger(
-                                        n.orientation->get_x(),
-                                        n.orientation->get_y(),
-                                        n.orientation->get_phi(),
-                                        *(n.shape),
-                                        vx, vy,
-                                        n.id,
-                                        *(n.nqueue),
-                                        msgs);
+                                        x, y, n.orientation->get_phi(), *(n.shape),
+                                        vx, vy, n.id, *(n.nqueue), msgs);
 
                         // Remove the entity.
                         msgs.push(comm::create_remove_entity(n.id));

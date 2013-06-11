@@ -3,7 +3,7 @@ EXENAME := shoot
 CXX = g++
 LIBS = -lallegro_monolith		# GNU/Linux
 # LIBS = -lallegro-5.0.8-monolith-md	# Win
-CXXFLAGS := -Wall --std=gnu++11 -g
+CXXFLAGS := -Wall -Werror --std=gnu++11 -g
 
 OBJS := src/resources/resman.o \
 	src/efwk/comm.o \
@@ -34,13 +34,16 @@ OBJS := src/resources/resman.o \
 	src/misc/config.o \
 	src/misc/rand.o \
 	src/misc/logger.o \
+	src/misc/high_score.o \
 	src/script/dom.o \
 	src/script/expect.o \
 	src/allegro.o \
 	src/geometry/bezier.o \
 	src/gameplay/wave.o \
 	src/states/game_state.o \
-	src/states/menu_state.o
+	src/states/menu_state.o \
+	src/states/hs_enter_state.o \
+	src/states/hs_display_state.o
 
 # Link.
 # -----

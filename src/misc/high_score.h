@@ -18,23 +18,36 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef HIGH_SCORE_H
+#define HIGH_SCORE_H
 
 #include <string>
-#include <sstream>
+#include <vector>
 
-namespace logger {
-
-        class logger {
-                std::stringstream m_buffer;
-                logger();
-        public:
-                void trace(std::string const& msg);
-                void flush();
-                static logger& instance();
+class high_score {
+public:
+        struct entry {
+                std::string name;
+                unsigned score;
         };
 
-}
+private:
+        std::string m_filename;
+        std::vector<entry> m_entries;
+
+        struct entry_comparer {
+                bool operator()(entry const& lhs, entry const& rhs) const {
+                        return lhs.score < rhs.score;
+                }
+        };
+
+public:
+        high_score(std::string filename);
+        ~high_score();
+
+        std::vector<entry> const& get_entries() const;
+        void try_adding_entry(entry const& e);
+        bool can_add_entry(entry const& e) const;
+};
 
 #endif

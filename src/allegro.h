@@ -41,12 +41,13 @@ class allegro {
         void handle_event(ALLEGRO_EVENT& ev, state& s) const;
 
 public:
-        allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps);
+        allegro(uint32_t scr_w, uint32_t scr_h, string title);
         ~allegro();
         ALLEGRO_DISPLAY* get_display();
         double current_time();
         void dump_events(state& s);
         void swap_buffers() const;
+        double get_display_refresh_rate() const;
 };
 
 #endif

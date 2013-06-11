@@ -34,12 +34,16 @@ void allegro::handle_event(ALLEGRO_EVENT& ev, state& s) const {
                 s.key_up(ev.keyboard.keycode);
                 break;
 
+        case ALLEGRO_EVENT_KEY_CHAR:
+                s.key_typed(ev.keyboard.unichar);
+                break;
+
         default:
                 break;
         }
 }
 
-allegro::allegro(uint32_t scr_w, uint32_t scr_h, string title, double fps) {
+allegro::allegro(uint32_t scr_w, uint32_t scr_h, string title) {
 
         // Initialize allegro.
         // -------------------
@@ -133,5 +137,10 @@ void allegro::dump_events(state& s) {
 
 void allegro::swap_buffers() const {
         al_flip_display();
+}
+
+double allegro::get_display_refresh_rate() const {
+        int result = al_get_display_refresh_rate(_display);
+        return double(result);
 }
 

@@ -45,6 +45,7 @@ public:
         // Optionally implementable.
         virtual void key_up(int k) {}
         virtual void key_down(int k) {}
+        virtual void key_typed(int chr) {}
 };
 
 std::unique_ptr<state> create_menu_state(
@@ -52,6 +53,15 @@ std::unique_ptr<state> create_menu_state(
                 script::scriptman const& sman);
 
 std::unique_ptr<state> create_game_state(
+                res::resman const& res,
+                script::scriptman const& sman);
+
+std::unique_ptr<state> create_hs_enter_state(
+                res::resman const& res,
+                script::scriptman const& sman,
+                unsigned score);
+
+std::unique_ptr<state> create_hs_display_state(
                 res::resman const& res,
                 script::scriptman const& sman);
 

@@ -42,12 +42,11 @@ public:
         , _pain_threshold(pain_threshold)
         {}
 
-        void update(
-                        double dt,
-                        double health_ratio,
-                        double x, double y,
-                        cmp::shape const& shape,
-                        comm::msg_queue& msgs) {
+        void update(double dt,
+                    double health_ratio,
+                    double x, double y,
+                    cmp::shape const& shape,
+                    comm::msg_queue& msgs) {
 
                 if(health_ratio > _pain_threshold)
                         return;
@@ -79,11 +78,11 @@ public:
                 init_counter();
         }
 
-        void update(        double dt,
-                        double health_ratio,
-                        double x, double y,
-                        cmp::shape const& shape,
-                        comm::msg_queue& msgs) {
+        void update(double dt,
+                    double health_ratio,
+                    double x, double y,
+                    cmp::shape const& shape,
+                    comm::msg_queue& msgs) {
                 _counter -= dt;
                 if(_counter <= 0.0) {
                         init_counter(-_counter);

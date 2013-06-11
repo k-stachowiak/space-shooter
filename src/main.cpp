@@ -31,7 +31,6 @@ using namespace std;
 #include "misc/logger.h"
 
 // TODO:
-// - Handle the update weight for the movement!
 // - Highscore
 
 using namespace res;
@@ -56,8 +55,7 @@ public:
         , _allegro(
                 cfg::integer("gfx_screen_w"),
                 cfg::integer("gfx_screen_h"),
-                "Framework",
-                _fps)
+                "Framework")
         , _resman(
                 _allegro.get_display(),
                 {
@@ -79,7 +77,9 @@ public:
                 double current_time = _allegro.current_time();
                 double accumulator = 0.0;
 
-                unique_ptr<state> current_state = create_menu_state(_resman, _sman);
+                // unique_ptr<state> current_state = create_menu_state(_resman, _sman);
+                // unique_ptr<state> current_state = create_hs_enter_state(_resman, _sman, 123);
+                unique_ptr<state> current_state = create_hs_display_state(_resman, _sman);
 
                 while(current_state) {
 

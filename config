@@ -190,7 +190,7 @@
 	(gameplay_debris_max_theta 17.0)
 	
 	(gameplay_smoke_health_ratio_threshold 0.667)
-	(gameplay_smoke_interval 0.045)
+	(gameplay_smoke_interval 0.07)
 	
 	(gameplay_star_vel_base 300.0)
 	(gameplay_star_vel_grade_scale 0.5)
@@ -224,6 +224,9 @@
 	(gameplay_score_for_hfighter 3.0)
 	(gameplay_score_for_lbomber 5.0)
 	(gameplay_score_for_hbomber 7.0)
+
+
+        (high_score_entries_count 8.0)
 	
 	
 	(debug_shape_r 1.0)

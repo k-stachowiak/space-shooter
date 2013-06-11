@@ -33,6 +33,7 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 
         // Helpers.
         // --------
+
         uint32_t frame_width = cfg::integer("gfx_explosion_frame_width");
         uint32_t num_frames = cfg::integer("gfx_explosion_num_frames");
         double frame_time = cfg::real("gfx_explosion_frame_time");

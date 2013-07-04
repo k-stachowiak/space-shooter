@@ -74,14 +74,19 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
                 // Parse the enemy type.
                 string et_desc = ps.list[2].atom;
                 enemy_type et;
+
                 if(et_desc == "light_fighter")
                         et = enemy_type::light_fighter;
+
                 else if(et_desc == "heavy_fighter")
                         et = enemy_type::heavy_fighter;
+
                 else if(et_desc == "light_bomber")
                         et = enemy_type::light_bomber;
+
                 else if(et_desc == "heavy_bomber")
                         et = enemy_type::heavy_bomber;
+
                 else
                         throw parsing_error("unrecognized enemy type "
                                         "descriptor encountered.");
@@ -89,28 +94,38 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
                 // parse formation
                 string formation_desc = ps.list[1].atom;
                 vector<pattern::element> formation;
+
                 if(formation_desc == "uno")
                         formation = pattern::el_uno(et);
+
                 else if(formation_desc == "pair")
                         formation = pattern::el_pair(et);
+                
                 else if(formation_desc == "triangle")
                         formation = pattern::el_triangle(et);
+                
                 else if(formation_desc == "quad")
                         formation = pattern::el_quad(et);
+
                 else
                         throw parsing_error("Unrecognized formation string encountered.");
 
                 // Parse the movement type.
                 string mt_desc = ps.list[3].atom;
                 movement_type mt;
+
                 if(mt_desc == "vertical")
                         mt = movement_type::vertical;
+
                 else if(mt_desc == "horizontal")
                         mt = movement_type::horizontal;
+
                 else if(mt_desc == "diagonal")
                         mt = movement_type::diagonal;
+
                 else if(mt_desc == "zorro")
                         mt = movement_type::zorro;
+
                 else
                         throw parsing_error("unrecognized movement type "
                                         "descriptor encountered.");

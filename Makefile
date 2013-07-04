@@ -1,8 +1,8 @@
 EXENAME := shoot
 
 CXX = g++
-LIBS = -lallegro_monolith		# GNU/Linux
-# LIBS = -lallegro-5.0.8-monolith-md	# Win
+LIBS = -lallegro_monolith               # GNU/Linux
+# LIBS = -lallegro-5.0.8-monolith-md    # Win
 CXXFLAGS := -Wall -Werror --std=gnu++11 -g
 
 OBJS := src/resources/resman.o \

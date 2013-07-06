@@ -41,6 +41,8 @@ public:
         void add_node(nd::score_node n) { _nodes[n.id] = n; }
         void update();
 
+        double get_score(uint64_t id) { return *(_nodes[id].score); }
+
         friend void remove_node(score_system& sys, uint64_t id) {
                 sys._nodes.erase(id);
         }

@@ -188,6 +188,10 @@ class game_state : public state {
         random_clock<uniform_real_distribution<double>> _star_spawn_clk;
         enemy_manager _en_man;
 
+        // Outcome.
+        // --------
+        double _score;
+
         // Message handling.
         // -----------------
 
@@ -198,7 +202,14 @@ class game_state : public state {
                         uint64_t id;
                         switch(msg.type) {
                         case comm::msg_t::remove_entity:
+
                                 id = msg.remove_entity.id;
+
+                                if(id == _player_id) {
+                                    _done = true;
+                                    _score = _score_system.get_score(id);
+                                }
+
                                 remove_node(_movement_system, id);
                                 remove_node(_collision_system, id);
                                 remove_node(_arms_system, id);
@@ -211,6 +222,7 @@ class game_state : public state {
                                 remove_node(_input_system, id);
                                 remove_node(_hud_system, id);
                                 remove_node(_sound_system, id);
+
                                 break;
 
                         case comm::msg_t::spawn_bullet:
@@ -350,6 +362,7 @@ public:
                                 cfg::real("gfx_star_interval_max")),
                         bind(&entity_factory::create_star, &_ef))
         , _en_man(read_waves_from_script(_sman.get_dom("waves")))
+        , _score(-1.0)
         {
                 // Spawn initial stars.
                 uniform_real_distribution<double> x_dist(1.0, cfg::integer("gfx_screen_w") - 1);
@@ -384,7 +397,8 @@ public:
         }
 
         unique_ptr<state> next_state() {
-                return create_menu_state(_resman, _sman);
+                // Note that the _score variable should have been set by now.
+                return create_hs_enter_state(_resman, _sman, _score);
         }
 
         void update(double t, double dt) {

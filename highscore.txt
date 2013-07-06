@@ -1,8 +1,8 @@
-asd#660
-asd#600
-asd#500
-asd#400
-asd#300
-asd#200
-asd#150
-Krzysiek#123
+krzysiek#13
+asd#8
+asd#7
+asd#6
+asd#5
+asd#4
+asd#3
+asd#2

@@ -69,7 +69,7 @@ void high_score::try_adding_entry(entry const& e) {
         std::reverse(begin(m_entries), end(m_entries));
 }
 
-bool high_score::can_add_entry(entry const& e) const {
-        return e.score > m_entries.back().score;
+bool high_score::can_add_score(unsigned score) const {
+        return score > m_entries.back().score;
 }
 

@@ -114,7 +114,7 @@ public:
         }
 
         unique_ptr<state> next_state() {
-                return {};
+                return create_menu_state(_resman, _sman);
         }
 
         // Logic.
@@ -122,6 +122,8 @@ public:
         }
 
         void draw(double weight) {
+
+                al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
                 ALLEGRO_FONT const* font = _resman.get_font(res::res_id::FONT);
 

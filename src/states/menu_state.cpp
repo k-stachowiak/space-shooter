@@ -73,9 +73,8 @@ class menu_state : public state {
                 if(entry == "game") 
                         _next_state = create_game_state(_resman, _sman);
 
-                else if(entry == "hoghscore") 
-                        //_next_state = create_highscore_state(_resman, _sman);
-                        _next_state.reset();
+                else if(entry == "highscore") 
+                        _next_state = create_hs_display_state(_resman, _sman);
 
                 else if(entry == "quit") 
                         _next_state.reset();

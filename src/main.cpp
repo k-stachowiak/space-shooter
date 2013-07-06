@@ -60,11 +60,11 @@ public:
                 _allegro.get_display(),
                 {
                         { res_id::BULLET_SHOOT,"data/bullet_shoot.wav" },
-                        { res_id::MISSILE_SHOOT, "data/missile_shoot_2.wav" },
+                        { res_id::MISSILE_SHOOT, "data/missile_shoot.wav" },
                         { res_id::WEAPON_PICKUP, "data/click.wav" },
                         { res_id::WELLNESS_PICKUP, "data/wellness.wav" },
                         { res_id::EXPLOSION_SND, "data/explosion.wav" },
-                        { res_id::INGAME_MUSIC, "data/OveMelaaTranceBitBit.ogg" }
+                        { res_id::INGAME_MUSIC, "data/1_minute.ogg" }
                 })
         {}
 
@@ -77,9 +77,9 @@ public:
                 double current_time = _allegro.current_time();
                 double accumulator = 0.0;
 
-                // unique_ptr<state> current_state = create_menu_state(_resman, _sman);
+                unique_ptr<state> current_state = create_menu_state(_resman, _sman);
                 // unique_ptr<state> current_state = create_hs_enter_state(_resman, _sman, 123);
-                unique_ptr<state> current_state = create_hs_display_state(_resman, _sman);
+                // unique_ptr<state> current_state = create_hs_display_state(_resman, _sman);
 
                 while(current_state) {
 

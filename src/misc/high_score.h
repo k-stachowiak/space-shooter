@@ -47,7 +47,7 @@ public:
 
         std::vector<entry> const& get_entries() const;
         void try_adding_entry(entry const& e);
-        bool can_add_entry(entry const& e) const;
+        bool can_add_score(unsigned score) const;
 };
 
 #endif

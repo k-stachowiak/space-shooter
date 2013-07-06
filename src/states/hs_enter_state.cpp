@@ -55,8 +55,10 @@ public:
         , _sman(sman)
         , _score(score)
         , _current_name("")
-        , _done(false)
-        {}
+        {
+                high_score hs("highscore.txt");
+                _done = !hs.can_add_score(score);
+        }
 
         void sigkill() {
                 _done = true;
@@ -67,7 +69,7 @@ public:
         }
 
         unique_ptr<state> next_state() {
-                return {};
+                return create_hs_display_state(_resman, _sman);
         }
 
         void update(double t, double dt) {

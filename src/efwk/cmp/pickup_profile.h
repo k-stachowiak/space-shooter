@@ -21,9 +21,12 @@
 #ifndef PICKUP_PROFILE_H
 #define PICKUP_PROFILE_H
 
-#include "misc.h"
+#include "noise_queue.h"
 
 namespace cmp {
+
+class wellness;
+class upgrades;
 
 struct pickup_profile {
         virtual ~pickup_profile() {}
@@ -33,10 +36,10 @@ struct pickup_profile {
                 noise_queue& nqueue) = 0;
 };
 
-unique_ptr<pickup_profile> create_health_pickup_profile(double amount);
-unique_ptr<pickup_profile> create_battery_pickup_profile(double amount);
-unique_ptr<pickup_profile> create_bullet_upgrade_pickup_profile();
-unique_ptr<pickup_profile> create_missile_upgrade_pickup_profile();
+shared_ptr<pickup_profile> create_health_pickup_profile(double amount);
+shared_ptr<pickup_profile> create_battery_pickup_profile(double amount);
+shared_ptr<pickup_profile> create_bullet_upgrade_pickup_profile();
+shared_ptr<pickup_profile> create_missile_upgrade_pickup_profile();
 
 }
 

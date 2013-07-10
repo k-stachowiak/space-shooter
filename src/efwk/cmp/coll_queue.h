@@ -18,24 +18,31 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "pickup.h"
+#ifndef COLL_QUEUE_H
+#define COLL_QUEUE_H
 
-namespace sys {
+#include <functional>
+#include <algorithm>
+#include <memory>
+#include <vector>
 
-void pickup_system::update(comm::msg_queue& msgs) {
-        for(auto const& n : _nodes) {
-                n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
-                        if(r.pp) {
-                                bool picked_up = r.pp->trigger(
-                                                *(n.wellness),
-                                                *(n.upgrades),
-                                                *(n.nqueue));
-                                if(picked_up) {
-                                        msgs.push(comm::create_remove_entity(r.id));
-                                }
-                        }
-                });
-        }
+#include "col_report.h"
+
+namespace cmp {
+
+    // Collision queue.
+    class coll_queue {
+        std::vector<coll_report> _queue;
+    public:
+            void clear() { _queue.clear(); }
+            void push_report(coll_report cr) { _queue.push_back(cr); }
+            void for_each_report(std::function<void(coll_report const&)> f) const {
+                std::for_each(begin(_queue), end(_queue), f);
+            }
+    };
+
+    std::shared_ptr<coll_queue> create_coll_queue();
+
 }
 
-}
+#endif

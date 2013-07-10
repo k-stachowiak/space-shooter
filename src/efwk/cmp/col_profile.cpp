@@ -18,26 +18,21 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "misc.h"
 #include "col_profile.h"
-
-using namespace res;
 
 namespace cmp {
 
-shared_ptr<collision_profile> create_collision_profile(
+std::shared_ptr<collision_profile> create_collision_profile(
                 pain_team pain_t,
                 coll_class coll_c,
                 bool is_projectile,
-                double dmg,
-                unique_ptr<pickup_profile> pick_p) {
+                double dmg) {
 
-        return shared_ptr<collision_profile>(new collision_profile {
+        return std::shared_ptr<collision_profile>(new collision_profile {
                 pain_t,
                 coll_c,
                 is_projectile,
                 dmg,
-                move(pick_p)
         });
 }
 

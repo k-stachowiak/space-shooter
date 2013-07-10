@@ -22,17 +22,10 @@
 #define COL_PROFILE_H
 
 #include <memory>
-using std::shared_ptr;
-using std::unique_ptr;
 
 #include "../../misc/maybe.h"
-#include "pickup_profile.h"
-#include "misc.h"
 
 namespace cmp {
-
-class wellness;
-class upgrades;
 
 enum class pain_team {
         NONE,
@@ -51,17 +44,13 @@ struct collision_profile {
         coll_class cc;
         bool is_projectile;
         double dmg;
-        unique_ptr<pickup_profile> pickup;
 };
 
-// TODO: separate this into two components ?
-shared_ptr<collision_profile> create_collision_profile(
+std::shared_ptr<collision_profile> create_collision_profile(
                 pain_team pain_t,
                 coll_class coll_c,
                 bool is_projectile,
-                double dmg,
-                unique_ptr<pickup_profile> pick_p);
-
+                double dmg);
 }
 
 #endif

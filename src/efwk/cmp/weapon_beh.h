@@ -22,15 +22,12 @@
 #define CMP_WEAPON_BEH_H
 
 #include <memory>
-using std::shared_ptr;
-
 #include <vector>
-using std::vector;
-
 #include <map>
-using std::map;
 
 #include "../comm.h"
+#include "upgrades.h"
+#include "noise_queue.h"
 
 namespace cmp {
 

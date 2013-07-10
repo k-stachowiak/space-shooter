@@ -27,7 +27,6 @@ using std::tie;
 
 #include "../../misc/rand.h"
 
-#include "misc.h"
 #include "shape.h"
 #include "reaction.h"
 

@@ -18,24 +18,32 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "pickup.h"
+#ifndef COL_REPORT_H
+#define COL_REPORT_H
 
-namespace sys {
+#include <memory>
 
-void pickup_system::update(comm::msg_queue& msgs) {
-        for(auto const& n : _nodes) {
-                n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
-                        if(r.pp) {
-                                bool picked_up = r.pp->trigger(
-                                                *(n.wellness),
-                                                *(n.upgrades),
-                                                *(n.nqueue));
-                                if(picked_up) {
-                                        msgs.push(comm::create_remove_entity(r.id));
-                                }
-                        }
-                });
-        }
+namespace cmp {
+
+    class shape;
+    class collision_profile;
+    class pickup_profile;
+
+    // Collision report type.
+    //
+    // Note: The origin id is the identifier of the node which
+    // deals damage through this node. E.g. If this node is a
+    // bullet, the origin_id will be that of the ship, who has
+    // launched the bullet. This way the entity responsible
+    // for the damage may be determined.
+    struct coll_report {
+            uint64_t id;
+            uint64_t origin_id;
+            std::shared_ptr<collision_profile> cp;
+            std::shared_ptr<pickup_profile> pp;
+            std::shared_ptr<shape> shp;
+    };
+
 }
 
-}
+#endif

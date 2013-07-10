@@ -18,24 +18,34 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "pickup.h"
+#ifndef WEAPON_H
+#define WEAPON_H
 
-namespace sys {
+namespace cmp {
 
-void pickup_system::update(comm::msg_queue& msgs) {
-        for(auto const& n : _nodes) {
-                n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
-                        if(r.pp) {
-                                bool picked_up = r.pp->trigger(
-                                                *(n.wellness),
-                                                *(n.upgrades),
-                                                *(n.nqueue));
-                                if(picked_up) {
-                                        msgs.push(comm::create_remove_entity(r.id));
-                                }
-                        }
-                });
-        }
+    // Weapon's trigger component.
+    class weapon {
+            double _interval;
+            bool _trigger;
+            double _counter;
+
+    public:
+            weapon(double interval)
+            : _interval(interval)
+            , _trigger(false)
+            , _counter(0.0)
+            {}
+
+            void set_trigger(bool value) { _trigger = value; }
+
+            bool update(double dt) {
+                    if(_counter > 0.0) _counter -= dt;
+                    if(!_trigger || _counter > 0.0) return false;
+                    _counter += _interval;
+                    return true;
+            }
+    };
+
 }
 
-}
+#endif

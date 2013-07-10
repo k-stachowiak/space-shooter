@@ -236,8 +236,9 @@ uint64_t entity_factory::create_debris(double x, double y,
                 cmp::pain_team::NONE,
                 cmp::coll_class::PROJECTILE,
                 true,
-                cfg::real("gameplay_debris_damage"),
-                nullptr);
+                cfg::real("gameplay_debris_damage"));
+
+        shared_ptr<cmp::pickup_profile> pp;
 
         // Sound components.
         // -----------------
@@ -248,7 +249,7 @@ uint64_t entity_factory::create_debris(double x, double y,
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-        _collision_system.add_node({ id, origin_id, orientation, cp, shape, coll_queue, "debris" }); 
+        _collision_system.add_node({ id, origin_id, orientation, cp, pp, shape, coll_queue, "debris" }); 
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _sound_system.add_node({ id, nqueue });
 
@@ -341,8 +342,9 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
                 cmp::pain_team::PLAYER,
                 cmp::coll_class::SHIP,
                 false,
-                cfg::real("gameplay_player_ship_damage"),
-                nullptr);
+                cfg::real("gameplay_player_ship_damage"));
+
+        shared_ptr<cmp::pickup_profile> pp;
 
         // Wellness components.
         // --------------------
@@ -393,7 +395,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, orientation, cp, shape, coll_queue, "player" });
+        _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "player" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
@@ -458,8 +460,9 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
                 cmp::pain_team::ENEMY,
                 cmp::coll_class::SHIP,
                 false,
-                cfg::real("gameplay_lfighter_damage"),
-                nullptr);
+                cfg::real("gameplay_lfighter_damage"));
+
+        shared_ptr<cmp::pickup_profile> pp;
 
         // Wellness components.
         // --------------------
@@ -526,7 +529,7 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, orientation, cp, shape, coll_queue, "l_fighter" });
+        _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "l_fighter" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
@@ -601,8 +604,9 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
                 cmp::pain_team::ENEMY,
                 cmp::coll_class::SHIP,
                 false,
-                cfg::real("gameplay_hfighter_damage"),
-                nullptr);
+                cfg::real("gameplay_hfighter_damage"));
+
+        shared_ptr<cmp::pickup_profile> pp;
 
         // Wellness components.
         // --------------------
@@ -668,7 +672,7 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, orientation, cp, shape, coll_queue, "h_fighter" });
+        _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "h_fighter" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
@@ -765,8 +769,9 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
                 cmp::pain_team::ENEMY,
                 cmp::coll_class::SHIP,
                 false,
-                cfg::real("gameplay_lbomber_damage"),
-                nullptr);
+                cfg::real("gameplay_lbomber_damage"));
+
+        shared_ptr<cmp::pickup_profile> pp;
 
         // Wellness components.
         // --------------------
@@ -833,7 +838,7 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, orientation, cp, shape, coll_queue, "l_bomber" });
+        _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "l_bomber" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
@@ -930,8 +935,9 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
                 cmp::pain_team::ENEMY,
                 cmp::coll_class::SHIP,
                 false,
-                cfg::real("gameplay_hbomber_damage"),
-                nullptr);
+                cfg::real("gameplay_hbomber_damage"));
+
+        shared_ptr<cmp::pickup_profile> pp;
 
         // Wellness components.
         // --------------------
@@ -998,7 +1004,7 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
-        _collision_system.add_node({ id, id, orientation, cp, shape, coll_queue, "h_bomber" });
+        _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "h_bomber" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
@@ -1034,7 +1040,7 @@ uint64_t entity_factory::create_common_pickup(
         // Type dependent components.
         // --------------------------
         res_id image_id;
-        unique_ptr<cmp::pickup_profile> pp;
+        shared_ptr<cmp::pickup_profile> pp;
         switch(type) {
         case pickup_type::health:
                 image_id = res_id::HEALTH;
@@ -1086,14 +1092,13 @@ uint64_t entity_factory::create_common_pickup(
                 cmp::pain_team::NONE,
                 cmp::coll_class::PICKUP,
                 false,
-                -1,
-                move(pp));
+                -1);
 
         // Register nodes.
         // ---------------
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
-        _collision_system.add_node({ id, id, orientation, cp, shape, coll_queue, "pickup" });
+        _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "pickup" });
 
         return id;
 }
@@ -1170,8 +1175,9 @@ uint64_t entity_factory::create_missile(
                 pain_team,
                 cmp::coll_class::PROJECTILE,
                 true,
-                damage,
-                nullptr);
+                damage);
+
+        shared_ptr<cmp::pickup_profile> pp;
 
         // Wellness components.
         // --------------------
@@ -1212,7 +1218,7 @@ uint64_t entity_factory::create_missile(
         // ---------------
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
-        _collision_system.add_node({ id, origin_id, orientation, cp, shape, coll_queue, "missile" });
+        _collision_system.add_node({ id, origin_id, orientation, cp, pp, shape, coll_queue, "missile" });
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
@@ -1295,8 +1301,9 @@ uint64_t entity_factory::create_bullet(
                 pain_team,
                 cmp::coll_class::PROJECTILE,
                 true,
-                damage,
-                nullptr);
+                damage);
+  
+        shared_ptr<cmp::pickup_profile> pp;
 
         // Wellness components.
         // --------------------
@@ -1308,7 +1315,7 @@ uint64_t entity_factory::create_bullet(
         // ---------------
         _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
-        _collision_system.add_node({ id, origin_id, orientation, cp, shape, coll_queue, "bullet" }); 
+        _collision_system.add_node({ id, origin_id, orientation, cp, pp, shape, coll_queue, "bullet" }); 
         _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
 
         return id;

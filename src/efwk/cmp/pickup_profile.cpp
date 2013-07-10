@@ -19,6 +19,9 @@
 */
 
 #include "pickup_profile.h"
+#include "wellness.h"
+#include "noise_queue.h"
+#include "upgrades.h"
 
 namespace cmp {
 
@@ -45,8 +48,8 @@ public:
         }
 };
 
-unique_ptr<pickup_profile> create_battery_pickup_profile(double amount) {
-        return unique_ptr<pickup_profile>(new battery_pickup_profile(amount));
+shared_ptr<pickup_profile> create_battery_pickup_profile(double amount) {
+        return shared_ptr<pickup_profile>(new battery_pickup_profile(amount));
 }
 
 class health_pickup_profile : public pickup_profile {
@@ -71,8 +74,8 @@ public:
         }
 };
 
-unique_ptr<pickup_profile> create_health_pickup_profile(double amount) {
-        return unique_ptr<pickup_profile>(new health_pickup_profile(amount));
+shared_ptr<pickup_profile> create_health_pickup_profile(double amount) {
+        return shared_ptr<pickup_profile>(new health_pickup_profile(amount));
 }
 
 class bullet_upgrade_pickup_profile : public pickup_profile {
@@ -90,8 +93,8 @@ public:
         }
 };
 
-unique_ptr<pickup_profile> create_bullet_upgrade_pickup_profile() {
-        return unique_ptr<pickup_profile>(new bullet_upgrade_pickup_profile());
+shared_ptr<pickup_profile> create_bullet_upgrade_pickup_profile() {
+        return shared_ptr<pickup_profile>(new bullet_upgrade_pickup_profile());
 }
 
 class missile_upgrade_pickup_profile : public pickup_profile {
@@ -109,8 +112,8 @@ public:
         }
 };
 
-unique_ptr<pickup_profile> create_missile_upgrade_pickup_profile() {
-        return unique_ptr<pickup_profile>(new missile_upgrade_pickup_profile());
+shared_ptr<pickup_profile> create_missile_upgrade_pickup_profile() {
+        return shared_ptr<pickup_profile>(new missile_upgrade_pickup_profile());
 }
 
 }

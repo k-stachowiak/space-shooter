@@ -5,45 +5,49 @@ LIBS = -lallegro_monolith               # GNU/Linux
 # LIBS = -lallegro-5.0.8-monolith-md    # Win
 CXXFLAGS := -Wall -Werror --std=gnu++11 -g
 
-OBJS := src/resources/resman.o \
-	src/efwk/comm.o \
-	src/efwk/game_ent_fac.o \
-	src/efwk/sys/collision.o \
-	src/efwk/sys/arms.o \
-	src/efwk/sys/score.o \
-	src/efwk/sys/wellness.o \
-	src/efwk/sys/pain.o \
-	src/efwk/sys/movement.o \
-	src/efwk/sys/drawing.o \
-	src/efwk/sys/sound.o \
-	src/efwk/sys/fx.o \
-	src/efwk/sys/pickup.o \
-	src/efwk/sys/input.o \
-	src/efwk/sys/hud.o \
-	src/efwk/cmp/dynamics.o \
-	src/efwk/cmp/appr.o \
-	src/efwk/cmp/col_profile.o \
-	src/efwk/cmp/pickup_profile.o \
-	src/efwk/cmp/shape.o \
-	src/efwk/cmp/timer.o \
-	src/efwk/cmp/fx.o \
-	src/efwk/cmp/weapon_beh.o \
-	src/efwk/cmp/reaction.o \
-	src/efwk/cmp/misc.o \
-	src/main.o \
-	src/misc/config.o \
-	src/misc/rand.o \
-	src/misc/logger.o \
-	src/misc/high_score.o \
-	src/script/dom.o \
-	src/script/expect.o \
-	src/allegro.o \
-	src/geometry/bezier.o \
-	src/gameplay/wave.o \
-	src/states/game_state.o \
-	src/states/menu_state.o \
-	src/states/hs_enter_state.o \
-	src/states/hs_display_state.o
+OBJS := ./src/main.o \
+	./src/geometry/bezier.o \
+	./src/misc/logger.o \
+	./src/misc/high_score.o \
+	./src/misc/config.o \
+	./src/misc/rand.o \
+	./src/gameplay/wave.o \
+	./src/states/menu_state.o \
+	./src/states/game_state.o \
+	./src/states/hs_enter_state.o \
+	./src/states/hs_display_state.o \
+	./src/resources/resman.o \
+	./src/script/expect.o \
+	./src/script/dom.o \
+	./src/efwk/comm.o \
+	./src/efwk/sys/collision.o \
+	./src/efwk/sys/score.o \
+	./src/efwk/sys/movement.o \
+	./src/efwk/sys/arms.o \
+	./src/efwk/sys/drawing.o \
+	./src/efwk/sys/input.o \
+	./src/efwk/sys/fx.o \
+	./src/efwk/sys/sound.o \
+	./src/efwk/sys/hud.o \
+	./src/efwk/sys/pain.o \
+	./src/efwk/sys/wellness.o \
+	./src/efwk/sys/pickup.o \
+	./src/efwk/cmp/timer.o \
+	./src/efwk/cmp/bounds.o \
+	./src/efwk/cmp/pickup_profile.o \
+	./src/efwk/cmp/upgrades.o \
+	./src/efwk/cmp/appr.o \
+	./src/efwk/cmp/fx.o \
+	./src/efwk/cmp/col_profile.o \
+	./src/efwk/cmp/coll_queue.o \
+	./src/efwk/cmp/wellness.o \
+	./src/efwk/cmp/reaction.o \
+	./src/efwk/cmp/weapon_beh.o \
+	./src/efwk/cmp/dynamics.o \
+	./src/efwk/cmp/orientation.o \
+	./src/efwk/cmp/shape.o \
+	./src/efwk/game_ent_fac.o \
+	./src/allegro.o
 
 # Link.
 # -----

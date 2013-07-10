@@ -22,9 +22,9 @@
 #define CMP_REACTION_H
 
 #include <memory>
-using std::shared_ptr;
 
 #include "../comm.h"
+#include "noise_queue.h"
 
 namespace cmp {
 
@@ -42,20 +42,20 @@ public:
                 comm::msg_queue& queue) = 0;
 };
 
-shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs);
-shared_ptr<reaction> create_health_drop_reaction();
-shared_ptr<reaction> create_battery_drop_reaction();
-shared_ptr<reaction> create_bullet_upgrade_drop_reaction();
-shared_ptr<reaction> create_missile_upgrade_drop_reaction();
+std::shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs);
+std::shared_ptr<reaction> create_health_drop_reaction();
+std::shared_ptr<reaction> create_battery_drop_reaction();
+std::shared_ptr<reaction> create_bullet_upgrade_drop_reaction();
+std::shared_ptr<reaction> create_missile_upgrade_drop_reaction();
 
-shared_ptr<reaction> create_debris_reaction(
+std::shared_ptr<reaction> create_debris_reaction(
                 uint32_t num_debris,
                 vector<res::res_id> images,
                 double vmin, double vmax,
                 double theta_min, double theta_max,
                 bool explode, bool randomize);
 
-shared_ptr<reaction> create_explosion_sequence_reaction(
+std::shared_ptr<reaction> create_explosion_sequence_reaction(
                 uint32_t num_explosions,
                 double min_delay,
                 double max_delay);

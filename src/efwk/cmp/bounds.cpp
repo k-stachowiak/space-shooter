@@ -18,24 +18,16 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "pickup.h"
+#include <memory>
 
-namespace sys {
+#include "bounds.h"
 
-void pickup_system::update(comm::msg_queue& msgs) {
-        for(auto const& n : _nodes) {
-                n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
-                        if(r.pp) {
-                                bool picked_up = r.pp->trigger(
-                                                *(n.wellness),
-                                                *(n.upgrades),
-                                                *(n.nqueue));
-                                if(picked_up) {
-                                        msgs.push(comm::create_remove_entity(r.id));
-                                }
-                        }
-                });
-        }
-}
+namespace cmp {
+
+    std::shared_ptr<bounds> create_bounds(
+                    double x_min, double y_min, double x_max, double y_max) {
+            return std::make_shared<bounds>(x_min, y_min, x_max, y_max);
+    }
 
 }
+

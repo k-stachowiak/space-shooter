@@ -49,7 +49,8 @@ struct score_node {
 
 struct input_node {
 
-        // dynamics - allows for controlling the movement.
+        // dynamics   - allows for controlling the movement.
+        // weapon_beh - The weapon behavior to be triggered by the input.
 
         uint64_t id;
         shared_ptr<cmp::dynamics> dynamics;
@@ -76,10 +77,12 @@ struct drawing_node {
 
 struct fx_node {
 
+        // appearance  - The FX sys. is responsible for the updating of the appearance.
         // orientation - determines, where to draw the effect
         // shape       - enables picking a point from the shape
         // wellness    - for the wellness dependent effects
         // effects     - the fx object to be updated each frame
+        // pain_flash  - the pain flash is updated here.
 
         uint64_t id;
         shared_ptr<cmp::appearance> appearance;
@@ -133,6 +136,7 @@ struct collision_node {
         uint64_t origin_id;
         shared_ptr<cmp::orientation> orientation;
         shared_ptr<cmp::collision_profile> cp;
+        shared_ptr<cmp::pickup_profile> pp;
         shared_ptr<cmp::shape> shape;
         shared_ptr<cmp::coll_queue> coll_queue;
         std::string name;
@@ -156,7 +160,6 @@ struct pickup_node {
 
         // coll_queue - contains candidates for the pickup
         // wellness   - to be modified if health picked up
-        // ammo       - to be modified if ammo picked up
         // upgrades   - to be modified if upgrade picked up
         // nqueue     - to play sound upon pickup
 
@@ -189,9 +192,9 @@ struct wellness_node {
 
 struct hud_node {
 
-        // score        - the value to be displayed
-        // wellness        - for the health and shield display
-        // upgrade        - the upgrades' status
+        // score    - the value to be displayed
+        // wellness - for the health and shield display
+        // upgrade  - the upgrades' status
 
         uint64_t id;
         shared_ptr<double> score;

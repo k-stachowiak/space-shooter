@@ -24,10 +24,7 @@
 #include <allegro5/allegro.h>
 
 #include <memory>
-using std::shared_ptr;
-
 #include <vector>
-using std::vector;
 
 namespace cmp {
 
@@ -60,24 +57,24 @@ public:
 // Constructors.
 // -------------
 
-shared_ptr<appearance> create_pixel(double r, double g, double b);
+std::shared_ptr<appearance> create_pixel(double r, double g, double b);
 
-shared_ptr<appearance> create_static_bmp(
+std::shared_ptr<appearance> create_static_bmp(
                 ALLEGRO_BITMAP* bmp,
                 ALLEGRO_BITMAP* flash);
 
-shared_ptr<appearance> create_simple_anim(
+std::shared_ptr<appearance> create_simple_anim(
                 ALLEGRO_BITMAP* bmp,
                 ALLEGRO_BITMAP* flash,
                 uint32_t frame_width,
                 uint32_t num_frames,
-                vector<frame_def> const& frame_defs,
+                std::vector<frame_def> const& frame_defs,
                 int32_t rep_count);
 
-shared_ptr<appearance> create_bin_proxy_appr(
+std::shared_ptr<appearance> create_bin_proxy_appr(
                 bool& state,
-                shared_ptr<appearance> true_appr,
-                shared_ptr<appearance> false_appr);
+                std::shared_ptr<appearance> true_appr,
+                std::shared_ptr<appearance> false_appr);
 
 }
 

@@ -18,24 +18,32 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "pickup.h"
+#ifndef BOUNDS_H
+#define BOUNDS_H
 
-namespace sys {
+#include <memory>
 
-void pickup_system::update(comm::msg_queue& msgs) {
-        for(auto const& n : _nodes) {
-                n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
-                        if(r.pp) {
-                                bool picked_up = r.pp->trigger(
-                                                *(n.wellness),
-                                                *(n.upgrades),
-                                                *(n.nqueue));
-                                if(picked_up) {
-                                        msgs.push(comm::create_remove_entity(r.id));
-                                }
-                        }
-                });
-        }
+namespace cmp {
+
+    // Universal type defining an AABB box.
+    class bounds {
+            double _x_min;
+            double _y_min;
+            double _x_max;
+            double _y_max;
+    public:
+            bounds(double x_min, double y_min, double x_max, double y_max)
+            : _x_min(x_min), _y_min(y_min), _x_max(x_max), _y_max(y_max)
+            {}
+
+            double get_x_min() const { return _x_min; }
+            double get_y_min() const { return _y_min; }
+            double get_x_max() const { return _x_max; }
+            double get_y_max() const { return _y_max; }
+    };
+    
+    std::shared_ptr<bounds> create_bounds(double x_min, double y_min, double x_max, double y_max);
+
 }
 
-}
+#endif

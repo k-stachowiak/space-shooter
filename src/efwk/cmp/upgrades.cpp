@@ -18,24 +18,22 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "pickup.h"
+#include <memory>
+#include "upgrades.h"
 
-namespace sys {
+namespace cmp {
 
-void pickup_system::update(comm::msg_queue& msgs) {
-        for(auto const& n : _nodes) {
-                n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
-                        if(r.pp) {
-                                bool picked_up = r.pp->trigger(
-                                                *(n.wellness),
-                                                *(n.upgrades),
-                                                *(n.nqueue));
-                                if(picked_up) {
-                                        msgs.push(comm::create_remove_entity(r.id));
-                                }
-                        }
-                });
-        }
-}
+    std::shared_ptr<upgrades> create_upgrades(
+                    unsigned gun_lvl_max,
+                    unsigned rl_lvl_max,
+                    unsigned gun_upgrade_ammo,
+                    unsigned rl_upgrade_ammo) {
+            return std::make_shared<upgrades>(
+                            gun_lvl_max,
+                            rl_lvl_max,
+                            gun_upgrade_ammo,
+                            rl_upgrade_ammo);
+    }
 
 }
+

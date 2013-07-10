@@ -42,8 +42,8 @@ void collision_system::check_collision(
         bool collides = shp_a.collides_with(ax, ay, shp_b, bx, by);
 
         if(collides) {
-                a.coll_queue->push_report({ b.id, b.origin_id, b.cp, b.shape });
-                b.coll_queue->push_report({ a.id, a.origin_id, a.cp, a.shape });
+                a.coll_queue->push_report({ b.id, b.origin_id, b.cp, b.pp, b.shape });
+                b.coll_queue->push_report({ a.id, a.origin_id, a.cp, a.pp, a.shape });
         }
 }
 

@@ -21,14 +21,47 @@
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
 
+namespace cmp {
+
+    // TODO: Where to put these?
+
+    // The drawing order management.
+    enum class draw_plane {
+            BACKGROUND,
+            SHIPS,
+            FX,
+            PROJECTILES
+    };
+
+    // Score class id.
+    enum class score_class {
+            PLAYER,
+            ENEMY_LIGHT_FIGHTER,
+            ENEMY_HEAVY_FIGHTER,
+            ENEMY_LIGHT_BOMBER,
+            ENEMY_HEAVY_BOMBER
+    };
+
+
+}
+
 #include "appr.h"
+#include "bounds.h"
 #include "col_profile.h"
+#include "col_report.h"
+#include "coll_queue.h"
 #include "dynamics.h"
 #include "fx.h"
-#include "misc.h"
+#include "noise_queue.h"
+#include "orientation.h"
+#include "pickup_profile.h"
 #include "reaction.h"
 #include "shape.h"
 #include "timer.h"
+#include "upgrade_atom.h"
+#include "upgrades.h"
+#include "weapon.h"
 #include "weapon_beh.h"
+#include "wellness.h"
 
 #endif

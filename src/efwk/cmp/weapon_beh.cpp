@@ -25,8 +25,8 @@ using std::uniform_int_distribution;
 #include "../../misc/config.h"
 #include "../../misc/rand.h"
 
-#include "misc.h"
 #include "weapon_beh.h"
+#include "weapon.h"
 
 using namespace res;
 

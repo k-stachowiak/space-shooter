@@ -31,7 +31,7 @@ using namespace std;
 #include "misc/logger.h"
 
 // TODO:
-// - Highscore
+// - Move the flash effect control to the fx system.
 
 using namespace res;
 

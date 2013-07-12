@@ -18,6 +18,10 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+// TODO:
+// - Y flash stopped working?
+// - Reimplement weapons to be cooldown based
+
 #include <iostream>
 #include <memory>
 using namespace std;
@@ -29,9 +33,6 @@ using namespace std;
 #include "resources/resman.h"
 #include "states/state.h"
 #include "misc/logger.h"
-
-// TODO:
-// - Move the flash effect control to the fx system.
 
 using namespace res;
 

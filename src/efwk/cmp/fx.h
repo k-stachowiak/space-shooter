@@ -33,17 +33,20 @@ class shape;
 
 class fx {
 public:
-        virtual ~fx() {}
-        virtual void update(
-                        double dt,
-                        double health_ratio,
-                        double x, double y,
-                        shape const& shp,
-                        comm::msg_queue& msgs) = 0;
+    virtual ~fx() {}
+    virtual void update(
+                double dt,
+                double health_ratio,
+                double shield_ratio,
+                double x, double y,
+                shape const& shp,
+                comm::msg_queue& msgs) = 0;
 };
 
+shared_ptr<fx> create_complex_fx(std::vector<std::shared_ptr<fx>> const& fxs);
 shared_ptr<fx> create_smoke_when_hurt(shared_ptr<timer> t, double pain_threshold);
 shared_ptr<fx> create_period_smoke(double dt_min, double dt_max);
+shared_ptr<fx> create_flash_when_hurt(shared_ptr<bool> flag, double cooldown_time);
 
 }
 

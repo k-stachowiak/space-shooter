@@ -51,7 +51,6 @@ public:
         virtual ~appearance() {}
         virtual void update(double dt) = 0;
         virtual void draw(double x, double y, double phi) const = 0;
-        virtual void draw_flash(double x, double y, double phi) const = 0;
 };
 
 // Constructors.
@@ -59,20 +58,17 @@ public:
 
 std::shared_ptr<appearance> create_pixel(double r, double g, double b);
 
-std::shared_ptr<appearance> create_static_bmp(
-                ALLEGRO_BITMAP* bmp,
-                ALLEGRO_BITMAP* flash);
+std::shared_ptr<appearance> create_static_bmp(ALLEGRO_BITMAP* bmp);
 
 std::shared_ptr<appearance> create_simple_anim(
                 ALLEGRO_BITMAP* bmp,
-                ALLEGRO_BITMAP* flash,
                 uint32_t frame_width,
                 uint32_t num_frames,
                 std::vector<frame_def> const& frame_defs,
                 int32_t rep_count);
 
 std::shared_ptr<appearance> create_bin_proxy_appr(
-                bool& state,
+                std::shared_ptr<bool> state,
                 std::shared_ptr<appearance> true_appr,
                 std::shared_ptr<appearance> false_appr);
 

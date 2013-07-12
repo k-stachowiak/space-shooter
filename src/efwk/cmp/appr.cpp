@@ -37,8 +37,6 @@ public:
         void draw(double x, double y, double phi) const {
                 al_draw_pixel(x + 0.5, y + 0.5, al_map_rgb_f(_r, _g, _b));
         }
-
-        void draw_flash(double x, double y, double phi) const {}
 };
 
 std::shared_ptr<appearance> create_pixel(double r, double g, double b) {
@@ -47,9 +45,8 @@ std::shared_ptr<appearance> create_pixel(double r, double g, double b) {
 
 class static_bmp : public appearance {
         ALLEGRO_BITMAP* _bmp;
-        ALLEGRO_BITMAP* _flsh;
 public:
-        static_bmp(ALLEGRO_BITMAP* bmp, ALLEGRO_BITMAP* flsh) : _bmp(bmp), _flsh(flsh) {}
+        static_bmp(ALLEGRO_BITMAP* bmp) : _bmp(bmp) {}
         void update(double) {}
 
         void draw(double x, double y, double phi) const {
@@ -60,19 +57,10 @@ public:
                                 x, y, phi, 0);
         }
 
-        void draw_flash(double x, double y, double phi) const {
-                int w = al_get_bitmap_width(_flsh);
-                int h = al_get_bitmap_height(_flsh);
-                al_draw_rotated_bitmap(_flsh,
-                                w / 2, h / 2,
-                                x, y, phi, 0);
-        }
 };
 
-std::shared_ptr<appearance> create_static_bmp(
-                ALLEGRO_BITMAP* bmp,
-                ALLEGRO_BITMAP* flash) {
-        return std::shared_ptr<appearance>(new static_bmp(bmp, flash));
+std::shared_ptr<appearance> create_static_bmp(ALLEGRO_BITMAP* bmp) {
+        return std::shared_ptr<appearance>(new static_bmp(bmp));
 }
 
 class simple_anim : public appearance {
@@ -80,14 +68,10 @@ class simple_anim : public appearance {
         // The original bitmap - the frames' atlas.
         ALLEGRO_BITMAP* _bitmap;
 
-        // The flashed variant of the bitmap.
-        ALLEGRO_BITMAP* _flash;
-
         // The information about the particular frames.
         uint32_t _frame_width;
         uint32_t _num_frames;
         std::array<ALLEGRO_BITMAP*, cfg::type_bounds::max_num_frames> _frame_images;
-        std::array<ALLEGRO_BITMAP*, cfg::type_bounds::max_num_frames> _flash_images;
 
         // The information about the frame definitions.
         uint32_t _num_defs;
@@ -104,13 +88,11 @@ class simple_anim : public appearance {
 public:
         simple_anim(
                 ALLEGRO_BITMAP* bitmap,
-                ALLEGRO_BITMAP* flash,
                 uint32_t frame_width,
                 uint32_t num_frames,
                 std::vector<frame_def> const& frame_defs,
                 int rep_count)
         : _bitmap(bitmap)
-        , _flash(flash)
         , _frame_width(frame_width)
         , _num_frames(num_frames)
         , _rep_count(rep_count)
@@ -122,11 +104,6 @@ public:
                                 _bitmap,
                                 frame * _frame_width, 0,
                                 _frame_width, al_get_bitmap_height(_bitmap));
-
-                        _flash_images[frame] = al_create_sub_bitmap(
-                                _flash,
-                                frame * _frame_width, 0,
-                                _frame_width, al_get_bitmap_height(_flash));
                 }
 
                 // Store the definitions.
@@ -142,7 +119,6 @@ public:
         ~simple_anim() {
                 for(uint32_t i = 0; i < _num_frames; ++i) {
                         al_destroy_bitmap(_frame_images[i]);
-                        al_destroy_bitmap(_flash_images[i]);
                 }
         }
 
@@ -184,72 +160,59 @@ public:
                 al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
         }
 
-        void draw_flash(double x, double y, double phi) const {
-                uint32_t current_index = _frame_defs[_current_def].index;
-                ALLEGRO_BITMAP* bmp = _flash_images[current_index];
-                int w = al_get_bitmap_width(bmp);
-                int h = al_get_bitmap_height(bmp);
-                al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
-        }
-
 };
 
 std::shared_ptr<appearance> create_simple_anim(
                 ALLEGRO_BITMAP* bmp,
-                ALLEGRO_BITMAP* flash,
                 uint32_t frame_width,
                 uint32_t num_frames,
                 vector<frame_def> const& frame_defs,
                 int32_t rep_count) {
 
-        return std::shared_ptr<appearance>(new simple_anim(
-                        bmp,
-                        flash,
-                        frame_width,
-                        num_frames,
-                        frame_defs,
-                        rep_count));
+    return std::shared_ptr<appearance>(new simple_anim(
+                    bmp,
+                    frame_width,
+                    num_frames,
+                    frame_defs,
+                    rep_count));
 }
 
 class bin_proxy : public appearance {
 
-        bool& _state;
-        std::shared_ptr<appearance> _true_appr;
-        std::shared_ptr<appearance> _false_appr;
+    std::shared_ptr<bool> _state;
+    std::shared_ptr<appearance> _true_appr;
+    std::shared_ptr<appearance> _false_appr;
 
-        std::shared_ptr<appearance> current_appr() const {
-                return _state ? _true_appr : _false_appr;
-        }
+    std::shared_ptr<appearance> current_appr() const {
+        return *(_state) ? _true_appr : _false_appr;
+    }
 
 public:
-        bin_proxy(bool& state,
-                  shared_ptr<appearance> true_appr,
-                  shared_ptr<appearance> false_appr)
-        : _state(state)
-        , _true_appr(true_appr)
-        , _false_appr(false_appr)
-        {}
+    bin_proxy(std::shared_ptr<bool> state,
+              shared_ptr<appearance> true_appr,
+              shared_ptr<appearance> false_appr)
+    : _state(state)
+    , _true_appr(true_appr)
+    , _false_appr(false_appr)
+    {}
 
-        void update(double dt) {
-                current_appr()->update(dt);
-        }
+    void update(double dt) {
+        // TODO: Are two cases needed? (sync - like now, and
+        // unsync only updating current)
+        _true_appr->update(dt);
+        _false_appr->update(dt);
+    }
 
-        void draw(double x, double y, double phi) const {
-                current_appr()->draw(x, y, phi);
-        }
-
-        void draw_flash(double x, double y, double phi) const {
-                current_appr()->draw_flash(x, y, phi);
-        }
+    void draw(double x, double y, double phi) const {
+        current_appr()->draw(x, y, phi);
+    }
 };
 
 std::shared_ptr<appearance> create_bin_proxy_appr(
-                bool& state,
+                std::shared_ptr<bool> state,
                 std::shared_ptr<appearance> true_appr,
                 std::shared_ptr<appearance> false_appr) {
-
-        return std::shared_ptr<appearance>(
-                        new bin_proxy(state, true_appr, false_appr));
+    return std::shared_ptr<appearance>(new bin_proxy(state, true_appr, false_appr));
 }
 
 }

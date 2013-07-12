@@ -63,7 +63,6 @@ struct drawing_node {
         // appearance  - determines the bitmap to draw
         // orientation - determines to location and angle to draw at
         // shape       - allows for the debug drawing of the object's shape
-        // pain_flash  - determines whether draw object or flash
         // dynamics    - allows for the debug print of the dynamical parameters
 
         uint64_t id;
@@ -71,7 +70,6 @@ struct drawing_node {
         shared_ptr<cmp::appearance> appearance;
         shared_ptr<cmp::orientation> orientation;
         shared_ptr<cmp::shape> shape;
-        shared_ptr<double> pain_flash;
         shared_ptr<cmp::dynamics> dynamics;
 };
 
@@ -82,7 +80,6 @@ struct fx_node {
         // shape       - enables picking a point from the shape
         // wellness    - for the wellness dependent effects
         // effects     - the fx object to be updated each frame
-        // pain_flash  - the pain flash is updated here.
 
         uint64_t id;
         shared_ptr<cmp::appearance> appearance;
@@ -90,7 +87,6 @@ struct fx_node {
         shared_ptr<cmp::shape> shape;
         shared_ptr<cmp::wellness> wellness;
         shared_ptr<cmp::fx> effects;
-        shared_ptr<double> pain_flash;
 };
 
 struct movement_node {
@@ -147,13 +143,11 @@ struct pain_node {
         // coll_queue - contains candidates for the pain dealing
         // cp         - basis for the pain computation
         // wellness   - is modified upon taking damage
-        // pain_flash - to be modified upon hit
 
         uint64_t id;
         shared_ptr<cmp::coll_queue> coll_queue;
         shared_ptr<cmp::collision_profile> cp;
         shared_ptr<cmp::wellness> wellness;
-        shared_ptr<double> pain_flash;
 };
 
 struct pickup_node {

@@ -52,9 +52,7 @@ uint64_t entity_factory::create_explosion(double x, double y) {
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::FX;
-        auto pain_flash = make_shared<double>(0.0);
         auto appearance = cmp::create_simple_anim(
-                        _resman.get_bitmap(res_id::EXPLOSION),
                         _resman.get_bitmap(res_id::EXPLOSION),
                         frame_width,
                         num_frames,
@@ -77,10 +75,10 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _sound_system.add_node({ id, nqueue });
-        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
+        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
 
         return id;
 }
@@ -126,7 +124,6 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
         // ------------------
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, 0.0); 
-        auto pain_flash = make_shared<double>();
         shared_ptr<cmp::dynamics> dynamics; 
         shared_ptr<cmp::shape> shape; 
 
@@ -134,7 +131,6 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
         // -------------------
         auto draw_plane = cmp::draw_plane::FX;
         auto appearance = cmp::create_simple_anim(
-                        _resman.get_bitmap(rid),
                         _resman.get_bitmap(rid),
                         frame_width,
                         num_frames,
@@ -157,10 +153,10 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _sound_system.add_node({ id, nqueue });
-        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
+        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
 
         return id;
 }
@@ -200,15 +196,12 @@ uint64_t entity_factory::create_debris(double x, double y,
         // ------------------
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, 0.0); 
-        auto pain_flash = make_shared<double>(0.0);
         auto shape = cmp::create_circle(cfg::real("gameplay_debris_shape_radius"));
 
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::FX;
-        auto appearance = cmp::create_static_bmp(
-                _resman.get_bitmap(bmp),
-                _resman.get_bitmap(bmp));
+        auto appearance = cmp::create_static_bmp(_resman.get_bitmap(bmp));
 
         // Wellness nodes.
         // ---------------
@@ -246,11 +239,11 @@ uint64_t entity_factory::create_debris(double x, double y,
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
         _collision_system.add_node({ id, origin_id, orientation, cp, pp, shape, coll_queue, "debris" }); 
-        _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
+        _pain_system.add_node({ id, coll_queue, cp, wellness });
         _sound_system.add_node({ id, nqueue });
 
         return id;
@@ -279,13 +272,12 @@ uint64_t entity_factory::create_star_xy(double x, double y) {
         // ------------------
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, 0.0);
-        auto pain_flash = make_shared<double>();
         shared_ptr<cmp::shape> shape;
 
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::BACKGROUND;
-	auto appearance = cmp::create_pixel(shade, shade, shade);
+        auto appearance = cmp::create_pixel(shade, shade, shade);
 
         // Movement components.
         // --------------------
@@ -295,7 +287,7 @@ uint64_t entity_factory::create_star_xy(double x, double y) {
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 
         return id;
@@ -307,14 +299,20 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, -cfg::math::half_pi);
         auto shape = cmp::create_circle(cfg::real("gameplay_player_shape_radius"));
-        auto pain_flash = make_shared<double>(0.0);
+        auto flash_flag = make_shared<bool>(false);
 
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::SHIPS;
-        auto appearance = cmp::create_static_bmp(
-                        _resman.get_bitmap(res_id::PLAYER_SHIP),
+        auto appearance_base = cmp::create_static_bmp(
+                        _resman.get_bitmap(res_id::PLAYER_SHIP));
+        auto appearance_flash = cmp::create_static_bmp(
                         _resman.get_bitmap(res_id::PLAYER_SHIP_FLASH));
+
+        auto appearance = cmp::create_bin_proxy_appr(
+                flash_flag,
+                appearance_flash,
+                appearance_base);
 
         // Movement components.
         // --------------------
@@ -377,9 +375,12 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 
         // Fx components.
         // --------------
-        auto fxs = cmp::create_smoke_when_hurt(
-                        cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
-                        cfg::real("gameplay_smoke_health_ratio_threshold"));
+        auto fxs = cmp::create_complex_fx({
+            cmp::create_smoke_when_hurt(
+                cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+                cfg::real("gameplay_smoke_health_ratio_threshold")),
+            cmp::create_flash_when_hurt(flash_flag, cfg::real("gfx_pain_flash_timer"))
+        });
 
         // Score components.
         // -----------------
@@ -392,13 +393,13 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "player" });
-        _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
+        _pain_system.add_node({ id, coll_queue, cp, wellness });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
-        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
+        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
         _pickup_system.add_node({ id, coll_queue, wellness, upgrades, nqueue });
         _input_system.add_node({ id, dynamics, weapon_beh });
         _score_system.add_node({ id, sc, score, wellness });
@@ -415,14 +416,20 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, cfg::math::half_pi);
         auto shape = cmp::create_circle(cfg::real("gameplay_lfighter_shape_radius"));
-        auto pain_flash = make_shared<double>(0.0);
+        auto flash_flag = make_shared<bool>(false);
 
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::SHIPS;
-        auto appearance = cmp::create_static_bmp(
-                        _resman.get_bitmap(res_id::ENEMY_LIGHT_FIGHTER),
+        auto appearance_base = cmp::create_static_bmp(
+                        _resman.get_bitmap(res_id::ENEMY_LIGHT_FIGHTER)); 
+        auto appearance_flash = cmp::create_static_bmp(
                         _resman.get_bitmap(res_id::ENEMY_LIGHT_FIGHTER_FLASH)); 
+
+        auto appearance = cmp::create_bin_proxy_appr(
+                flash_flag,
+                appearance_flash,
+                appearance_base);
 
         // Movement components.
         // --------------------
@@ -511,9 +518,12 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 
         // Fx components.
         // --------------
-        auto fxs = cmp::create_smoke_when_hurt(
-                        cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
-                        cfg::real("gameplay_smoke_health_ratio_threshold"));
+        auto fxs = cmp::create_complex_fx({
+            cmp::create_smoke_when_hurt(
+                cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+                cfg::real("gameplay_smoke_health_ratio_threshold")),
+            cmp::create_flash_when_hurt(flash_flag, cfg::real("gfx_pain_flash_timer"))
+        });
 
         // Score components.
         // -----------------
@@ -526,13 +536,13 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, shared_ptr
 
         // Register components.
         // --------------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "l_fighter" });
-        _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
+        _pain_system.add_node({ id, coll_queue, cp, wellness });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
-        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
+        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
         _score_system.add_node({ id, sc, score, wellness });
         _sound_system.add_node({ id, nqueue });
 
@@ -546,14 +556,20 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, cfg::math::half_pi);
         auto shape = cmp::create_circle(cfg::real("gameplay_hfighter_shape_radius"));
-        auto pain_flash = make_shared<double>(0.0);
+        auto flash_flag = make_shared<bool>(false);
 
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::SHIPS;
-        auto appearance = cmp::create_static_bmp(
-                        _resman.get_bitmap(res_id::ENEMY_HEAVY_FIGHTER),
+        auto appearance_base = cmp::create_static_bmp(
+                        _resman.get_bitmap(res_id::ENEMY_HEAVY_FIGHTER)); 
+        auto appearance_flash = cmp::create_static_bmp(
                         _resman.get_bitmap(res_id::ENEMY_HEAVY_FIGHTER_FLASH)); 
+
+        auto appearance = cmp::create_bin_proxy_appr(
+                flash_flag,
+                appearance_flash,
+                appearance_base);
 
         // Movement components.
         // --------------------
@@ -654,9 +670,12 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 
         // Fx components.
         // --------------
-        auto fxs = cmp::create_smoke_when_hurt(
-                        cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
-                        cfg::real("gameplay_smoke_health_ratio_threshold"));
+        auto fxs = cmp::create_complex_fx({
+            cmp::create_smoke_when_hurt(
+                cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+                cfg::real("gameplay_smoke_health_ratio_threshold")),
+            cmp::create_flash_when_hurt(flash_flag, cfg::real("gfx_pain_flash_timer"))
+        });
 
         // Score components.
         // -----------------
@@ -669,13 +688,13 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, shared_ptr
 
         // Register the components.
         // ------------------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "h_fighter" });
-        _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
+        _pain_system.add_node({ id, coll_queue, cp, wellness });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
-        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
+        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
         _score_system.add_node({ id, sc, score, wellness });
         _sound_system.add_node({ id, nqueue });
 
@@ -688,7 +707,6 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
         // ------------------
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, cfg::math::half_pi);
-        auto pain_flash = make_shared<double>(0.0);
         auto shape = cmp::create_complex_shape({
                 { 
                         cmp::create_circle(cfg::real("gameplay_lbomber_shape_radius")),
@@ -712,13 +730,20 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
                         }
                 } 
         });
+        auto flash_flag = make_shared<bool>(false);
 
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::SHIPS;
-        auto appearance = cmp::create_static_bmp(
-                        _resman.get_bitmap(res_id::ENEMY_LIGHT_BOMBER),
+        auto appearance_base = cmp::create_static_bmp(
+                        _resman.get_bitmap(res_id::ENEMY_LIGHT_BOMBER)); 
+        auto appearance_flash = cmp::create_static_bmp(
                         _resman.get_bitmap(res_id::ENEMY_LIGHT_BOMBER_FLASH)); 
+
+        auto appearance = cmp::create_bin_proxy_appr(
+                flash_flag,
+                appearance_flash,
+                appearance_base);
 
         // Movement components.
         // --------------------
@@ -820,9 +845,12 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 
         // Fx components.
         // --------------
-        auto fxs = cmp::create_smoke_when_hurt(
-                        cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
-                        cfg::real("gameplay_smoke_health_ratio_threshold"));
+        auto fxs = cmp::create_complex_fx({
+            cmp::create_smoke_when_hurt(
+                cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+                cfg::real("gameplay_smoke_health_ratio_threshold")),
+            cmp::create_flash_when_hurt(flash_flag, cfg::real("gfx_pain_flash_timer"))
+        });
 
         // Score components.
         // -----------------
@@ -835,13 +863,13 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, shared_ptr<
 
         // Register the components.
         // ------------------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "l_bomber" });
-        _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
+        _pain_system.add_node({ id, coll_queue, cp, wellness });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
-        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
+        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
         _score_system.add_node({ id, sc, score, wellness });
         _sound_system.add_node({ id, nqueue });
 
@@ -854,7 +882,6 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
         // -----------------------
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, 0.0);
-        auto pain_flash = make_shared<double>(0.0);
         auto shape = cmp::create_complex_shape({
                 {
                         cmp::create_circle(cfg::real("gameplay_hbomber_shape_radius")),
@@ -878,13 +905,20 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
                         }
                 } 
         });
+        auto flash_flag = make_shared<bool>(false);
 
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::SHIPS;
-        auto appearance = cmp::create_static_bmp(
-                        _resman.get_bitmap(res_id::ENEMY_HEAVY_BOMBER),
+        auto appearance_base = cmp::create_static_bmp(
+                        _resman.get_bitmap(res_id::ENEMY_HEAVY_BOMBER)); 
+        auto appearance_flash = cmp::create_static_bmp(
                         _resman.get_bitmap(res_id::ENEMY_HEAVY_BOMBER_FLASH)); 
+
+        auto appearance = cmp::create_bin_proxy_appr(
+                flash_flag,
+                appearance_flash,
+                appearance_base);
 
         // Movement components.
         // --------------------
@@ -986,9 +1020,12 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 
         // Fx Components.
         // --------------
-        auto fxs = cmp::create_smoke_when_hurt(
-                        cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
-                        cfg::real("gameplay_smoke_health_ratio_threshold"));
+        auto fxs = cmp::create_complex_fx({
+            cmp::create_smoke_when_hurt(
+                cmp::create_const_int_timer(cfg::real("gameplay_smoke_interval")),
+                cfg::real("gameplay_smoke_health_ratio_threshold")),
+            cmp::create_flash_when_hurt(flash_flag, cfg::real("gfx_pain_flash_timer"))
+        });
 
         // Score components.
         // -----------------
@@ -1001,13 +1038,13 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, shared_ptr<
 
         // Register the components.
         // ------------------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "h_bomber" });
-        _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
+        _pain_system.add_node({ id, coll_queue, cp, wellness });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
-        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
+        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
         _score_system.add_node({ id, sc, score, wellness });
         _sound_system.add_node({ id, nqueue });
 
@@ -1068,12 +1105,10 @@ uint64_t entity_factory::create_common_pickup(
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, 0.0);
         auto shape = cmp::create_circle(cfg::real("gameplay_pickup_shape_radius"));
-        auto pain_flash = make_shared<double>(0.0);
 
         // Drawing components.
         auto draw_plane = cmp::draw_plane::FX;
         auto appearance = cmp::create_static_bmp(
-                        _resman.get_bitmap(image_id),
                         _resman.get_bitmap(image_id));
 
         // Movement components.
@@ -1096,7 +1131,7 @@ uint64_t entity_factory::create_common_pickup(
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics });
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "pickup" });
 
@@ -1151,14 +1186,12 @@ uint64_t entity_factory::create_missile(
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, theta); 
         auto shape = cmp::create_circle(cfg::real("gameplay_missile_shape_radius"));
-        auto pain_flash = make_shared<double>(0.0);
         shared_ptr<cmp::upgrades> upgrades;
 
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::PROJECTILES;
         auto appearance = cmp::create_static_bmp(
-                        _resman.get_bitmap(res_id::MISSILE),
                         _resman.get_bitmap(res_id::MISSILE));
 
         // Movement components.
@@ -1216,12 +1249,12 @@ uint64_t entity_factory::create_missile(
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics }); 
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
         _collision_system.add_node({ id, origin_id, orientation, cp, pp, shape, coll_queue, "missile" });
-        _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
+        _pain_system.add_node({ id, coll_queue, cp, wellness });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
-        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs, pain_flash });
+        _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
         _sound_system.add_node({ id, nqueue });
 
         return id;
@@ -1277,15 +1310,12 @@ uint64_t entity_factory::create_bullet(
         uint64_t id = ++_last_id;
         auto orientation = cmp::create_orientation(x, y, theta); 
         auto shape = cmp::create_circle(cfg::real("gameplay_bullet_shape_radius"));
-        auto pain_flash = make_shared<double>(0.0);
         shared_ptr<cmp::upgrades> upgrades;
 
         // Drawing components.
         // -------------------
         auto draw_plane = cmp::draw_plane::PROJECTILES;
-        auto appearance = cmp::create_static_bmp(
-                        _resman.get_bitmap(image),
-                        _resman.get_bitmap(image));
+        auto appearance = cmp::create_static_bmp(_resman.get_bitmap(image));
 
         // Movement components.
         // --------------------
@@ -1313,10 +1343,10 @@ uint64_t entity_factory::create_bullet(
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, pain_flash, dynamics }); 
+        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics }); 
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
         _collision_system.add_node({ id, origin_id, orientation, cp, pp, shape, coll_queue, "bullet" }); 
-        _pain_system.add_node({ id, coll_queue, cp, wellness, pain_flash });
+        _pain_system.add_node({ id, coll_queue, cp, wellness });
 
         return id;
 }

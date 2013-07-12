@@ -25,7 +25,7 @@ namespace cmp {
 
     // Weapon's trigger component.
     class weapon {
-            double _interval;
+            const double _interval;
             bool _trigger;
             double _counter;
 

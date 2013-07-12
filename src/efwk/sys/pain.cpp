@@ -32,7 +32,6 @@ void pain_system::update(comm::msg_queue& msgs) {
 
                         uint64_t id = n.id;
                         cmp::wellness& w = *n.wellness;
-                        shared_ptr<double> pf = n.pain_flash;
                         cmp::collision_profile const& this_cp = *n.cp;
                         cmp::collision_profile const& other_cp = *r.cp;
 
@@ -43,7 +42,6 @@ void pain_system::update(comm::msg_queue& msgs) {
                                                 this_cp.pt != other_cp.pt) {
 
                                         w.deal_dmg(other_cp.dmg, r.origin_id);
-                                        *(pf) = cfg::real("gfx_pain_flash_timer");
                                 }
                                 break;
 

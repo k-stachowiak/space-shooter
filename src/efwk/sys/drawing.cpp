@@ -29,16 +29,9 @@ void drawing_system::draw_plane(vector<nd::drawing_node> const& nodes, double we
         double phi;
         for(auto const& n : nodes) {
 
-                // x = n.orientation->get_x();
-                // y = n.orientation->get_y();
                 tie(x, y) = n.orientation->interpolate_loc(weight);
                 phi = n.orientation->get_phi();
-
-                if(*(n.pain_flash) > 0.0) {
-                        n.appearance->draw_flash(x, y, phi);
-                } else {
-                        n.appearance->draw(x, y, phi);
-                }
+                n.appearance->draw(x, y, phi);
 
                 if(_debug_mode) {
                         if(n.shape) n.shape->debug_draw(x, y);

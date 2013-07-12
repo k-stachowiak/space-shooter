@@ -31,27 +31,30 @@ namespace sys {
 void fx_system::update(
                 double dt,
                 comm::msg_queue& msgs) {
-        double max_health;
-        double health;
         double x, y;
         for(auto const& n : _nodes) {
 
                 // Update appearance.
                 n.appearance->update(dt);
 
-                // Update pain flash.
-                *(n.pain_flash) -= dt;
-                
                 // Update effects.
                 if(n.effects) {
+
                         tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
-                        max_health = n.wellness->get_max_health();
-                        health = n.wellness->get_health();
-                        n.effects->update(dt,
-                                        health / max_health,
-                                        x, y,
-                                        *(n.shape),
-                                        msgs);
+
+                        const double max_health = n.wellness->get_max_health();
+                        const double health = n.wellness->get_health();
+
+                        const double max_shield = n.wellness->get_max_shield();
+                        const double shield = n.wellness->get_shield();
+
+                        n.effects->update(
+                                dt,
+                                health / max_health,
+                                shield / max_shield,
+                                x, y,
+                                *(n.shape),
+                                msgs);
                 }
         }
 }

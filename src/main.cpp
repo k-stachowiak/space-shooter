@@ -19,7 +19,7 @@
 */
 
 // TODO:
-// - Y flash stopped working?
+// - Y highscore broken?
 // - Reimplement weapons to be cooldown based
 
 #include <iostream>

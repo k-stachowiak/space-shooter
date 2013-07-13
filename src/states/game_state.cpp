@@ -188,10 +188,6 @@ class game_state : public state {
         random_clock<uniform_real_distribution<double>> _star_spawn_clk;
         enemy_manager _en_man;
 
-        // Outcome.
-        // --------
-        double _score;
-
         // Message handling.
         // -----------------
 
@@ -206,8 +202,12 @@ class game_state : public state {
                                 id = msg.remove_entity.id;
 
                                 if(id == _player_id) {
+
                                     _done = true;
-                                    _score = _score_system.get_score(id);
+
+                                    // Don't remove the player nodes - 
+                                    // they will be useful.
+                                    break;
                                 }
 
                                 remove_node(_movement_system, id);
@@ -362,7 +362,6 @@ public:
                                 cfg::real("gfx_star_interval_max")),
                         bind(&entity_factory::create_star, &_ef))
         , _en_man(read_waves_from_script(_sman.get_dom("waves")))
-        , _score(-1.0)
         {
                 // Spawn initial stars.
                 uniform_real_distribution<double> x_dist(1.0, cfg::integer("gfx_screen_w") - 1);
@@ -397,8 +396,8 @@ public:
         }
 
         unique_ptr<state> next_state() {
-                // Note that the _score variable should have been set by now.
-                return create_hs_enter_state(_resman, _sman, _score);
+            double score = _score_system.get_score(_player_id);
+            return create_hs_enter_state(_resman, _sman, score);
         }
 
         void update(double t, double dt) {

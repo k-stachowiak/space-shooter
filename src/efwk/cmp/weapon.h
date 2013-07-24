@@ -21,29 +21,38 @@
 #ifndef WEAPON_H
 #define WEAPON_H
 
+#include "cooldown.h"
+
 namespace cmp {
 
     // Weapon's trigger component.
     class weapon {
-            const double _interval;
-            bool _trigger;
-            double _counter;
+        cooldown _cdown;
+        bool _trigger;
 
     public:
-            weapon(double interval)
-            : _interval(interval)
-            , _trigger(false)
-            , _counter(0.0)
-            {}
+        weapon(double interval)
+        : _cdown(interval)
+        , _trigger(false)
+        {}
 
-            void set_trigger(bool value) { _trigger = value; }
+        void set_trigger(bool value) { _trigger = value; }
 
-            bool update(double dt) {
-                    if(_counter > 0.0) _counter -= dt;
-                    if(!_trigger || _counter > 0.0) return false;
-                    _counter += _interval;
-                    return true;
+        bool update(double dt) {
+
+            _cdown.update(dt);
+
+            if(!_trigger || _cdown.is_cooldown()) {
+                // Shooting not requested or not possible.
+                return false;
+
+            } else {
+                // Shooting requested and possible.
+                _cdown.reset();
+                return true;
+
             }
+        }
     };
 
 }

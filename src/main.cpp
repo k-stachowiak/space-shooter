@@ -1,4 +1,4 @@
-/* Copyright (C) 2012 Krzysztof Stachowiak */
+/* Copyright (C) 2012,2013 Krzysztof Stachowiak */
 
 /*
 * This file is part of space-shooter.
@@ -19,8 +19,8 @@
 */
 
 // TODO:
-// - Y highscore broken?
-// - Reimplement weapons to be cooldown based
+// - Introduce units to the components, and improve the apis by the means of the type system.
+// - Introduce "script" component with scripted or hard coded "event handling"
 
 #include <iostream>
 #include <memory>
@@ -79,8 +79,6 @@ public:
                 double accumulator = 0.0;
 
                 unique_ptr<state> current_state = create_menu_state(_resman, _sman);
-                // unique_ptr<state> current_state = create_hs_enter_state(_resman, _sman, 123);
-                // unique_ptr<state> current_state = create_hs_display_state(_resman, _sman);
 
                 while(current_state) {
 

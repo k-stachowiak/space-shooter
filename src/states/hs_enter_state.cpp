@@ -101,7 +101,7 @@ public:
 
                 const auto color = al_map_rgb_f(1, 1, 1);
 
-                al_draw_textf(font, color, x, y, 0, to_print.c_str());
+                al_draw_text(font, color, x, y, 0, to_print.c_str());
         }
 
         void key_up(int k) {

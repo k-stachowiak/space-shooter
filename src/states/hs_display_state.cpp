@@ -133,8 +133,7 @@ public:
                 double current_y = (_screen_h - _hs_pix_height) * 0.5;
 
                 for(auto const& s : _strings) {
-
-                        al_draw_textf(
+                        al_draw_text(
                                 font,
                                 color,
                                 left,

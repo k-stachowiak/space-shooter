@@ -125,7 +125,7 @@ public:
                         auto color = (_current_entry == i)
                                 ? al_map_rgb_f(1,1,0)
                                 : al_map_rgb_f(0.1, 0.3, 0.5);
-                        al_draw_textf(
+                        al_draw_text(
                                 _resman.get_font(res::res_id::FONT),
                                 color, x, y, 0,
                                 _entries[i].first.c_str());

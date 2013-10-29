@@ -126,6 +126,7 @@ int main() {
                 logger::logger::instance().flush();
 
                 return 0;
+
         } catch (initialization_error& e) {
                 cerr << "Initialization failed : " << e.what() << endl;
                 return 1;

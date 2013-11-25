@@ -20,8 +20,6 @@
 
 #include "dom.h"
 
-using namespace std;
-
 namespace script {
 
         std::ostream& operator<<(std::ostream& out, dom_node const& n) {
@@ -44,7 +42,7 @@ namespace script {
         static bool read_maybe_node(tokenizer&, dom_node&);
 
         static dom_node read_list_node(tokenizer& tok) {
-                vector<dom_node> elements;
+                std::vector<dom_node> elements;
                 dom_node element;
                 while(true) {
                         if(!read_maybe_node(tok, element)) break;

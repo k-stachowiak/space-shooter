@@ -22,17 +22,14 @@
 #define RANDOM_CLOCK_H
 
 #include <random>
-using std::default_random_engine;
-
 #include <functional>
-using std::function;
 
 template<class DISTRIBUTION>
 class random_clock {
 
-        default_random_engine _engine;
+        std::default_random_engine _engine;
         DISTRIBUTION _distribution;
-        function<void()> _callback;
+        std::function<void()> _callback;
         double _timer;
 
         void schedule(double remainder) {
@@ -41,7 +38,7 @@ class random_clock {
         }
 
 public:
-        random_clock(const DISTRIBUTION& distribution, function<void()> callback)
+        random_clock(const DISTRIBUTION& distribution, std::function<void()> callback)
                 : _distribution(distribution)
                 , _callback(callback) {
                         schedule(0.0);

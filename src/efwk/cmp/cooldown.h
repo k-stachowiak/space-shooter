@@ -21,8 +21,6 @@
 #ifndef COOLDOWN_H
 #define COOLDOWN_H
 
-#include <iostream>
-
 namespace cmp {
 
     class cooldown {

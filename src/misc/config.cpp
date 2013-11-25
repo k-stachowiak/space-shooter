@@ -29,15 +29,13 @@
 #include "exceptions.h"
 #include "config.h"
 
-using namespace std;
-
 namespace cfg {
 
 static void register_expression(
-                string const& key,
+                std::string const& key,
                 script::dom_node node,
-                map<string, int>& int_vars,
-                map<string, double>& real_vars) {
+                std::map<std::string, int>& int_vars,
+                std::map<std::string, double>& real_vars) {
 
         // This is a dumb plug that will only accept a multiplication.
         // Will do for now, maybe a full blown scripting language will
@@ -53,7 +51,7 @@ static void register_expression(
         if(!sub_is_atom(node, 1))
                 throw parsing_error("First operand of * must be an atom.");
 
-        string other_key = node.list[1].atom;
+        std::string other_key = node.list[1].atom;
 
         int ileft = 0;
         double dleft = 0;
@@ -70,7 +68,7 @@ static void register_expression(
         if(!sub_is_atom(node, 2))
                 throw parsing_error("Second operand of * must be an atom.");
 
-        string literal = node.list[2].atom;
+        std::string literal = node.list[2].atom;
 
         int iright = 0;
         double dright = 0;
@@ -98,10 +96,10 @@ static void register_expression(
 
 
 static void register_value(
-                string const& key,
-                string const& value_str,
-                map<string, int>& int_vars,
-                map<string, double>& real_vars) {
+                std::string const& key,
+                std::string const& value_str,
+                std::map<std::string, int>& int_vars,
+                std::map<std::string, double>& real_vars) {
 
         bool is_int;
         int int_val;
@@ -119,10 +117,8 @@ static void register_value(
 
 static void parse_kvp(
                 script::dom_node const& kvp,
-                map<string, int>& int_vars,
-                map<string, double>& real_vars) {
-
-        using namespace script;
+                std::map<std::string, int>& int_vars,
+                std::map<std::string, double>& real_vars) {
 
 // TODO: Test all the expecters for the script
 //        script::expect_list<
@@ -140,7 +136,7 @@ static void parse_kvp(
         if(!sub_is_atom(kvp, 0))
                 throw parsing_error("Non-atom node encountered as kvp key.");
 
-        string key = kvp.list[0].atom;
+        std::string key = kvp.list[0].atom;
 
         if(sub_is_atom(kvp, 1))
                 register_value( key,
@@ -157,8 +153,8 @@ static void parse_kvp(
 
 static void parse_dom(
                 script::dom_node const& tree,
-                map<string, int>& int_vars,
-                map<string, double>& real_vars) {
+                std::map<std::string, int>& int_vars,
+                std::map<std::string, double>& real_vars) {
 
         if(!check(script::expect_list<>(), tree))
                 throw parsing_error("Main config node isn't a list.");
@@ -167,11 +163,11 @@ static void parse_dom(
                 parse_kvp(kvp, int_vars, real_vars);
 } 
 
-map<string, int> int_vars;
-map<string, double> real_vars;
+std::map<std::string, int> int_vars;
+std::map<std::string, double> real_vars;
 
 template<class T>
-T get(map<string, T> const& m, string const& key) {
+T get(std::map<std::string, T> const& m, std::string const& key) {
         auto it = m.find(key);
         if(it == end(m))
                 throw resource_not_found_error(
@@ -179,11 +175,11 @@ T get(map<string, T> const& m, string const& key) {
         return it->second;
 }
 
-int integer(string const& key) {
+int integer(std::string const& key) {
         return get(int_vars, key);
 }
 
-double real(string const& key) {
+double real(std::string const& key) {
         return get(real_vars, key);
 }
 

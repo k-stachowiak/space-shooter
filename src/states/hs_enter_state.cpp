@@ -21,8 +21,6 @@
 #include "../misc/high_score.h"
 #include "state.h"
 
-using namespace std;
-
 class hs_enter_state : public state {
 
         // External dependencies.
@@ -33,11 +31,11 @@ class hs_enter_state : public state {
 
         // State.
         // ------
-        string _current_name;
+        std::string _current_name;
         bool _done;
 
-        string current_to_print() const {
-                string result = "typename : ";
+        std::string current_to_print() const {
+                std::string result = "typename : ";
                 result += _current_name;
                 return result;
         }
@@ -68,7 +66,7 @@ public:
                 return _done;
         }
 
-        unique_ptr<state> next_state() {
+        std::unique_ptr<state> next_state() {
                 return create_hs_display_state(_resman, _sman);
         }
 
@@ -84,7 +82,7 @@ public:
 
                 // Prepare the resources.
                 ALLEGRO_FONT const* font = _resman.get_font(res::res_id::FONT);
-                const string to_print = current_to_print();
+                const std::string to_print = current_to_print();
 
                 // Determine the required dimensions.
                 int bbx, bby, bbw, bbh;
@@ -131,9 +129,9 @@ public:
         }
 };
 
-unique_ptr<state> create_hs_enter_state(
+std::unique_ptr<state> create_hs_enter_state(
                 res::resman const& res,
                 script::scriptman const& sman,
                 unsigned score) {
-        return unique_ptr<state>(new hs_enter_state(res, sman, score));
+        return std::unique_ptr<state>(new hs_enter_state(res, sman, score));
 }

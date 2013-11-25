@@ -22,15 +22,8 @@
 #define CMP_SHAPE_H
 
 #include <utility>
-using std::pair;
-using std::make_pair;
-
 #include <memory>
-using std::shared_ptr;
-
 #include <vector>
-using std::vector;
-
 #include <string>
 
 namespace cmp {
@@ -51,14 +44,14 @@ public:
                 double xa, double ya,
                 circle const& c, double xb, double yb) const = 0;
 
-        virtual pair<double, double> get_random_point() const = 0;
+        virtual std::pair<double, double> get_random_point() const = 0;
         virtual void debug_draw(double x, double y) const {}
         virtual std::string debug_str() const { return {}; }
 };
 
-shared_ptr<shape> create_circle(double r);
-shared_ptr<shape> create_complex_shape(
-                vector<pair<shared_ptr<shape>, offset>> shapes);
+std::shared_ptr<shape> create_circle(double r);
+std::shared_ptr<shape> create_complex_shape(
+                std::vector<std::pair<std::shared_ptr<shape>, offset>> shapes);
 
 }
 

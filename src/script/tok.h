@@ -22,18 +22,9 @@
 #define TOK_H
 
 #include <cctype>
-
 #include <string>
-using std::string;
-
 #include <sstream>
-using std::stringstream;
-
 #include <iostream>
-using std::cout;
-using std::endl;
-using std::istream;
-using std::ios_base;
 
 #include "../misc/exceptions.h"
 
@@ -46,13 +37,13 @@ namespace script {
         };
 
         class tokenizer {
-                istream& _in;
-                string _last_atom;
+                std::istream& _in;
+                std::string _last_atom;
 
         public:
-                tokenizer(istream& in) : _in(in), _last_atom("") {}
+                tokenizer(std::istream& in) : _in(in), _last_atom("") {}
                 operator bool() { return _in; }
-                string get_last_atom() const { return _last_atom; }
+                std::string get_last_atom() const { return _last_atom; }
 
                 // Low level interface.
                 // --------------------
@@ -66,7 +57,7 @@ namespace script {
                                 in_comment
                         } state = tok_state::in_wspace;
 
-                        stringstream ss;
+                        std::stringstream ss;
                         char c;
 
                         for(;;) {
@@ -95,7 +86,7 @@ namespace script {
 
                                         if(c == '(' || c == ')') {
                                                 _last_atom = ss.str();
-                                                _in.seekg(-1, ios_base::cur);
+                                                _in.seekg(-1, std::ios_base::cur);
                                                 on_atom(_last_atom);
                                                 state = tok_state::in_wspace;
                                                 return true;
@@ -157,7 +148,7 @@ namespace script {
                                         }
                                         result = token_t::rpar;
                                 },
-                                [&result, flags](string const&) mutable {
+                                [&result, flags](std::string const&) mutable {
                                         if(!(flags & (unsigned int)token_t::atom)) {
                                                 throw parsing_error("Unexpected \")\" encountered.");
                                         }
@@ -166,11 +157,11 @@ namespace script {
                         return result;
                 }
 
-                void expect_atom(string const& atom) {
+                void expect_atom(std::string const& atom) {
                         seek_next(
                                 []() { throw parsing_error("Unexpected \"(\" encountered."); },
                                 []() { throw parsing_error("Unexpected \")\" encountered."); },
-                                [&atom](string const& str) {
+                                [&atom](std::string const& str) {
                                         if(str != atom) {
                                                 throw parsing_error("Unexpected \"" + str + "\" encountered.");
                                         }

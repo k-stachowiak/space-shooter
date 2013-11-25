@@ -22,10 +22,7 @@
 #define SYS_WELLNESS_H
 
 #include <vector>
-using std::vector;
-
 #include <memory>
-using std::shared_ptr;
 
 #include "../../misc/maybe.h"
 #include "base.h"
@@ -35,7 +32,7 @@ namespace sys {
 
 class wellness_system : public system {
         template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        vector<nd::wellness_node> _nodes;
+        std::vector<nd::wellness_node> _nodes;
 
 public:
         unsigned num_nodes() const { return _nodes.size(); }

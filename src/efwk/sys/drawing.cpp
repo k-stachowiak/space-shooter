@@ -23,13 +23,12 @@
 
 namespace sys {
 
-void drawing_system::draw_plane(vector<nd::drawing_node> const& nodes, double weight) {
+void drawing_system::draw_plane(std::vector<nd::drawing_node> const& nodes, double weight) {
 
         double x, y;
         double phi;
         for(auto const& n : nodes) {
-
-                tie(x, y) = n.orientation->interpolate_loc(weight);
+                std::tie(x, y) = n.orientation->interpolate_loc(weight);
                 phi = n.orientation->get_phi();
                 n.appearance->draw(x, y, phi);
 

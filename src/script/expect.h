@@ -29,7 +29,7 @@ check(std::tuple<Tp...> const& tup, dom_node const& n) {
 // ----------------------
         
 struct expect_atom {
-        string expected;
+        std::string expected;
         friend bool check(expect_atom const& exp, dom_node const& n) {
                 if(n.type != dom_node_t::atom) return false;
                 if(exp.expected.empty()) return true;
@@ -38,7 +38,7 @@ struct expect_atom {
 };
 
 struct expect_atom_cap {
-        string& reference;
+        std::string& reference;
         friend bool check(expect_atom_cap const& exp, dom_node const& n) {
                 if(n.type != dom_node_t::atom) return false;
                 exp.reference = n.atom;

@@ -7,7 +7,7 @@ namespace script {
 void test_expect() {
 
         // Test atoms.
-        string str = "arbitrary string";
+        std::string str = "arbitrary string";
 
         // Checks: simple match.
         dom_node aster_node { dom_node_t::atom, "*", {} };
@@ -17,7 +17,7 @@ void test_expect() {
         assert(!check(exp_str, aster_node));
 
         // Checks: capture match.
-        string captured;
+        std::string captured;
         dom_node list_node { dom_node_t::list, {}, { aster_node, string_node } };
         expect_atom_cap exp_cap { captured };
 

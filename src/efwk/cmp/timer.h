@@ -23,9 +23,7 @@
 
 #include <stdint.h>
 #include <cstddef>
-
 #include <memory>
-using std::shared_ptr;
 
 namespace cmp {
 
@@ -41,7 +39,7 @@ public:
         virtual void update(double dt) = 0;
 };
 
-shared_ptr<timer> create_const_int_timer(double interval);
+std::shared_ptr<timer> create_const_int_timer(double interval);
 
 }
 

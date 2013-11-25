@@ -23,8 +23,6 @@
 #include "../../misc/config.h"
 #include "appr.h"
 
-using namespace std;
-
 namespace cmp {
 
 class pixel : public appearance {
@@ -166,7 +164,7 @@ std::shared_ptr<appearance> create_simple_anim(
                 ALLEGRO_BITMAP* bmp,
                 uint32_t frame_width,
                 uint32_t num_frames,
-                vector<frame_def> const& frame_defs,
+                std::vector<frame_def> const& frame_defs,
                 int32_t rep_count) {
 
     return std::shared_ptr<appearance>(new simple_anim(
@@ -189,8 +187,8 @@ class bin_proxy : public appearance {
 
 public:
     bin_proxy(std::shared_ptr<bool> state,
-              shared_ptr<appearance> true_appr,
-              shared_ptr<appearance> false_appr)
+              std::shared_ptr<appearance> true_appr,
+              std::shared_ptr<appearance> false_appr)
     : _state(state)
     , _true_appr(true_appr)
     , _false_appr(false_appr)

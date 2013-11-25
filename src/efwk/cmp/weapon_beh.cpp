@@ -19,8 +19,6 @@
 */
 
 #include <random>
-using std::uniform_real_distribution;
-using std::uniform_int_distribution;
 
 #include "../../misc/config.h"
 #include "../../misc/rand.h"
@@ -28,14 +26,12 @@ using std::uniform_int_distribution;
 #include "weapon_beh.h"
 #include "weapon.h"
 
-using namespace res;
-
 namespace cmp {
 
 class complex_weapon_beh : public weapon_beh {
-        vector<shared_ptr<weapon_beh>> _wbs;
+        std::vector<std::shared_ptr<weapon_beh>> _wbs;
 public:
-        complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs) : _wbs(wbs) {}
+        complex_weapon_beh(std::vector<std::shared_ptr<weapon_beh>> wbs) : _wbs(wbs) {}
 
         void update(uint64_t id,
                         upgrades& up,
@@ -49,7 +45,7 @@ public:
                 }
         }
 
-        void input(map<int, bool>& keys) {
+        void input(std::map<int, bool>& keys) {
                 for(auto& wb: _wbs) {
                         wb->input(keys);
                 }
@@ -67,7 +63,7 @@ class period_bullet : public weapon_beh {
         double _counter;
 
         void init_counter(double remainder = 0.0) {
-                uniform_real_distribution<double> distr(_dt_min, _dt_max);
+                std::uniform_real_distribution<double> distr(_dt_min, _dt_max);
                 _counter = distr(rnd::engine) - remainder;
         }
 
@@ -98,7 +94,7 @@ public:
                 if(_counter <= 0.0) {
                         init_counter(-_counter);
                         up.tick_down_gun();
-                        nqueue.push(res_id::BULLET_SHOOT);
+                        nqueue.push(res::res_id::BULLET_SHOOT);
                         msgs.push(comm::create_spawn_bullet(
                                 x + _x_off, y + _y_off,
                                 _x_dir, _y_dir, _lin_vel,
@@ -108,7 +104,7 @@ public:
                 }
         }
 
-        void input(map<int, bool>& keys) {}
+        void input(std::map<int, bool>& keys) {}
 };
 
 class period_missile : public weapon_beh {
@@ -122,7 +118,7 @@ class period_missile : public weapon_beh {
         double _counter;
 
         void init_counter(double remainder = 0.0) {
-                uniform_real_distribution<double> distr(_dt_min, _dt_max);
+                std::uniform_real_distribution<double> distr(_dt_min, _dt_max);
                 _counter = distr(rnd::engine) - remainder;
         }
 
@@ -153,7 +149,7 @@ public:
                 if(_counter <= 0.0) {
                         init_counter(-_counter);
                         up.tick_down_rl();
-                        nqueue.push(res_id::MISSILE_SHOOT);
+                        nqueue.push(res::res_id::MISSILE_SHOOT);
                         msgs.push(comm::create_spawn_missile(
                                 x + _x_off, y + _y_off,
                                 _x_dir, _y_dir, _lin_vel,
@@ -163,7 +159,7 @@ public:
                 }
         }
 
-        void input(map<int, bool>& keys) {}
+        void input(std::map<int, bool>& keys) {}
 };
 
 class player_controlled_weapon_beh : public weapon_beh {
@@ -192,7 +188,7 @@ public:
                         up.tick_down_gun();
                         if(_prev_left) {
                                 _prev_left = false;
-                                nqueue.push(res_id::BULLET_SHOOT);
+                                nqueue.push(res::res_id::BULLET_SHOOT);
                                 msgs.push(comm::create_spawn_bullet(
                                                 x + cfg::real("gfx_player_gun_offset"), y,
                                                 0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),
@@ -201,7 +197,7 @@ public:
                                                 id));
                         } else {
                                 _prev_left = true;
-                                nqueue.push(res_id::BULLET_SHOOT);
+                                nqueue.push(res::res_id::BULLET_SHOOT);
                                 msgs.push(comm::create_spawn_bullet(
                                                 x - cfg::real("gfx_player_gun_offset"), y,
                                                 0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),
@@ -215,7 +211,7 @@ public:
                 // ---------------------
                 if(_rpg.update(dt)) {
                         up.tick_down_rl();
-                        nqueue.push(res_id::MISSILE_SHOOT);
+                        nqueue.push(res::res_id::MISSILE_SHOOT);
                         msgs.push(comm::create_spawn_missile(
                                         x + cfg::real("gfx_player_rl_offset"), y,
                                         0.0, -1.0, cfg::real("gameplay_bullet_lin_vel"),
@@ -231,36 +227,36 @@ public:
                 }
         }
 
-        void input(map<int, bool>& keys) {
+        void input(std::map<int, bool>& keys) {
                 _minigun.set_trigger(keys[ALLEGRO_KEY_Z]);
                 _rpg.set_trigger(keys[ALLEGRO_KEY_X]);
         }
 };
 
-shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs) {
-        return shared_ptr<weapon_beh>(new complex_weapon_beh(wbs));
+std::shared_ptr<weapon_beh> create_complex_weapon_beh(std::vector<std::shared_ptr<weapon_beh>> wbs) {
+        return std::shared_ptr<weapon_beh>(new complex_weapon_beh(wbs));
 }
 
-shared_ptr<weapon_beh> create_period_bullet(
+std::shared_ptr<weapon_beh> create_period_bullet(
                 double dt_min, double dt_max,
                 double x_off, double y_off,
                 double x_dir, double y_dir,
                 double lin_vel) {
-        return shared_ptr<weapon_beh>(new period_bullet(
+        return std::shared_ptr<weapon_beh>(new period_bullet(
                                 dt_min, dt_max, x_off, y_off, x_dir, y_dir, lin_vel));
 }
 
-shared_ptr<weapon_beh> create_period_missile(
+std::shared_ptr<weapon_beh> create_period_missile(
                 double dt_min, double dt_max,
                 double x_off, double y_off,
                 double x_dir, double y_dir,
                 double lin_vel) {
-        return shared_ptr<weapon_beh>(new period_missile(
+        return std::shared_ptr<weapon_beh>(new period_missile(
                                 dt_min, dt_max, x_off, y_off, x_dir, y_dir, lin_vel));
 }
 
-shared_ptr<weapon_beh> create_player_controlled_weapon_beh() {
-        return shared_ptr<weapon_beh>(new player_controlled_weapon_beh);
+std::shared_ptr<weapon_beh> create_player_controlled_weapon_beh() {
+        return std::shared_ptr<weapon_beh>(new player_controlled_weapon_beh);
 }
 
 }

@@ -24,14 +24,8 @@
 #include <stdint.h>
 
 #include <functional>
-using std::function;
-
 #include <vector>
-using std::vector;
-
 #include <utility>
-using std::pair;
-using std::move;
 
 #include "../misc/delq.h"
 #include "../resources/resman.h"

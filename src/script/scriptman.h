@@ -39,7 +39,7 @@ namespace script {
 
                                 // The binary flag is required on MSW platform, or some
                                 // file stream backtracking will be corrupted.
-                                std::ifstream in(filename.c_str(), ifstream::binary);
+                                std::ifstream in(filename.c_str(), std::ifstream::binary);
 
                                 if(!in.is_open())
                                         throw resource_not_found_error(

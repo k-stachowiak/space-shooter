@@ -33,14 +33,12 @@
 
 #include <allegro5/allegro_primitives.h>
 
-using namespace std;
-
 static wave read_wave_from_script(script::dom_node const& wave_desc) {
 
         if(!is_list(wave_desc))
                 throw parsing_error("Wave descriptor isn't a list.");
 
-        vector<pair<double, pattern>> patterns;
+        std::vector<std::pair<double, pattern>> patterns;
         
         // Read the patterns
         for(script::dom_node const& ps : wave_desc.list) {
@@ -57,7 +55,7 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
                 }
 
                 // Parse delay.
-                string delay_literal = ps.list[0].atom;
+                std::string delay_literal = ps.list[0].atom;
                 bool delay_int;
                 double ddelay;
                 int idelay;
@@ -72,7 +70,7 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
                         : ddelay;
 
                 // Parse the enemy type.
-                string et_desc = ps.list[2].atom;
+                std::string et_desc = ps.list[2].atom;
                 enemy_type et;
 
                 if(et_desc == "light_fighter")
@@ -92,8 +90,8 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
                                         "descriptor encountered.");
                 
                 // parse formation
-                string formation_desc = ps.list[1].atom;
-                vector<pattern::element> formation;
+                std::string formation_desc = ps.list[1].atom;
+                std::vector<pattern::element> formation;
 
                 if(formation_desc == "uno")
                         formation = pattern::el_uno(et);
@@ -111,7 +109,7 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
                         throw parsing_error("Unrecognized formation string encountered.");
 
                 // Parse the movement type.
-                string mt_desc = ps.list[3].atom;
+                std::string mt_desc = ps.list[3].atom;
                 movement_type mt;
 
                 if(mt_desc == "vertical")
@@ -137,12 +135,12 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
         return wave(patterns);
 }
 
-static vector<wave> read_waves_from_script(script::dom_node const& root) {
+static std::vector<wave> read_waves_from_script(script::dom_node const& root) {
 
         if(!is_list(root))
                 throw parsing_error("Main waves config node isn't a list.");
 
-        vector<wave> waves;
+        std::vector<wave> waves;
         for(script::dom_node const& wd : root.list)
                 waves.push_back(read_wave_from_script(wd));
 
@@ -185,7 +183,7 @@ class game_state : public state {
 
         // Generation processes.
         // ---------------------
-        random_clock<uniform_real_distribution<double>> _star_spawn_clk;
+        random_clock<std::uniform_real_distribution<double>> _star_spawn_clk;
         enemy_manager _en_man;
 
         // Message handling.
@@ -310,7 +308,7 @@ class game_state : public state {
                                 break;
 
                         default:
-                                cerr << "Unrecognized message type found." << endl;
+                                std::cerr << "Unrecognized message type found." << std::endl;
                                 exit(1);
                                 break;
                         }
@@ -324,7 +322,7 @@ public:
         , _debug(false)
         , _done(false)
         , _drawing_system(resman.get_font(res::res_id::TINY_FONT))
-        , _score_system(map<cmp::score_class, double> {
+        , _score_system(std::map<cmp::score_class, double> {
                 { cmp::score_class::PLAYER, cfg::real("gameplay_score_for_player") },
                 { cmp::score_class::ENEMY_LIGHT_FIGHTER, cfg::real("gameplay_score_for_lfighter") },
                 { cmp::score_class::ENEMY_HEAVY_FIGHTER, cfg::real("gameplay_score_for_hfighter") },
@@ -357,15 +355,15 @@ public:
                 _hud_system,
                 _sound_system)
         , _star_spawn_clk(
-                        uniform_real_distribution<double>(
+                        std::uniform_real_distribution<double>(
                                 cfg::real("gfx_star_interval_min"),
                                 cfg::real("gfx_star_interval_max")),
-                        bind(&entity_factory::create_star, &_ef))
+                                std::bind(&entity_factory::create_star, &_ef))
         , _en_man(read_waves_from_script(_sman.get_dom("waves")))
         {
                 // Spawn initial stars.
-                uniform_real_distribution<double> x_dist(1.0, cfg::integer("gfx_screen_w") - 1);
-                uniform_real_distribution<double> y_dist(1.0, cfg::integer("gfx_screen_h") - 1);
+                std::uniform_real_distribution<double> x_dist(1.0, cfg::integer("gfx_screen_w") - 1);
+                std::uniform_real_distribution<double> y_dist(1.0, cfg::integer("gfx_screen_h") - 1);
                 for(unsigned i = 0; i < (unsigned)cfg::integer("gfx_star_initial_count"); ++i) {
                         const double x = x_dist(rnd::engine);
                         const double y = x_dist(rnd::engine);
@@ -395,7 +393,7 @@ public:
                 return _done;
         }
 
-        unique_ptr<state> next_state() {
+        std::unique_ptr<state> next_state() {
             double score = _score_system.get_score(_player_id);
             return create_hs_enter_state(_resman, _sman, score);
         }
@@ -462,8 +460,8 @@ public:
         }
 };
 
-unique_ptr<state> create_game_state(
+std::unique_ptr<state> create_game_state(
                 res::resman const& res,
                 script::scriptman const& sman) {
-        return unique_ptr<state>(new game_state(res, sman));
+        return std::unique_ptr<state>(new game_state(res, sman));
 }

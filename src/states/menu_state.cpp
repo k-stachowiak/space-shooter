@@ -25,8 +25,6 @@
 #include "../efwk/sys/systems.h"
 #include "state.h"
 
-using namespace std;
-
 class menu_state : public state {
 
         // External dependencies.
@@ -37,8 +35,8 @@ class menu_state : public state {
         // State.
         // ------
         bool _done;
-        unique_ptr<state> _next_state;
-        vector<pair<string, shared_ptr<bool>>> _entries;
+        std::unique_ptr<state> _next_state;
+        std::vector<std::pair<std::string, std::shared_ptr<bool>>> _entries;
         unsigned _current_entry;
 
         // State operations.
@@ -68,7 +66,7 @@ class menu_state : public state {
 
         void menu_action() {
 
-                string const& entry = _entries[_current_entry].first;
+                std::string const& entry = _entries[_current_entry].first;
         
                 if(entry == "game") 
                         _next_state = create_game_state(_resman, _sman);
@@ -90,10 +88,10 @@ public:
         : _resman(resman)
         , _sman(sman)
         , _done(false)
-        , _entries(vector<pair<string, shared_ptr<bool>>> {
-                        { "game", shared_ptr<bool>(new bool(false)) },
-                        { "highscore", shared_ptr<bool>(new bool(false)) },
-                        { "quit", shared_ptr<bool>(new bool(false)) }
+        , _entries(std::vector<std::pair<std::string, std::shared_ptr<bool>>> {
+                        { "game", std::shared_ptr<bool>(new bool(false)) },
+                        { "highscore", std::shared_ptr<bool>(new bool(false)) },
+                        { "quit", std::shared_ptr<bool>(new bool(false)) }
         })
         , _current_entry(0)
         {
@@ -108,7 +106,7 @@ public:
                 return _done;
         }
 
-        unique_ptr<state> next_state() {
+        std::unique_ptr<state> next_state() {
                 return move(_next_state);
         }
 
@@ -152,9 +150,9 @@ public:
         }
 };
 
-unique_ptr<state> create_menu_state(
+std::unique_ptr<state> create_menu_state(
                 res::resman const& res,
                 script::scriptman const& sman) {
 
-        return unique_ptr<state>(new menu_state(res, sman));
+        return std::unique_ptr<state>(new menu_state(res, sman));
 }

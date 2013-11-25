@@ -36,8 +36,8 @@ void collision_system::check_collision(
         cmp::shape const& shp_b = *(b.shape);
 
         double ax, ay, bx, by;
-        tie(ax, ay) = a.orientation->interpolate_loc(MAX_WEIGHT);
-        tie(bx, by) = b.orientation->interpolate_loc(MAX_WEIGHT);
+        std::tie(ax, ay) = a.orientation->interpolate_loc(MAX_WEIGHT);
+        std::tie(bx, by) = b.orientation->interpolate_loc(MAX_WEIGHT);
 
         bool collides = shp_a.collides_with(ax, ay, shp_b, bx, by);
 

@@ -24,14 +24,14 @@
 
 static const double narrow_offscreen = 40.0;
 
-static vector<spawn_desc> spawn_zorro_pattern(
+static std::vector<spawn_desc> spawn_zorro_pattern(
                 pattern& pat,
                 double screen_w,
                 double screen_h) {
 
         // Determine base points.
         // ----------------------
-        uniform_real_distribution<double> x_margin_dist(
+        std::uniform_real_distribution<double> x_margin_dist(
                         cfg::real("gameplay_zorro_x_margin_min"),
                         cfg::real("gameplay_zorro_x_margin_max"));
 
@@ -41,17 +41,17 @@ static vector<spawn_desc> spawn_zorro_pattern(
         const double y1 = screen_h * 0.5;
         const double y2 = screen_h + narrow_offscreen;
 
-        bernoulli_distribution left_right_dist(cfg::real("gameplay_zorro_left_right_ratio"));
+        std::bernoulli_distribution left_right_dist(cfg::real("gameplay_zorro_left_right_ratio"));
         const bool left = left_right_dist(rnd::engine);
         const double x0 = left ? x_margin : screen_w - x_margin;
         const double x1 = left ? screen_w - x_margin : x_margin;
 
         // Generate the shifted elements.
         // ------------------------------
-        vector<spawn_desc> result;
+        std::vector<spawn_desc> result;
         for(pattern::element const& e : pat.elements) {
 
-                vector<point> points {
+                std::vector<point> points {
                         { x0 + e.x_off, y0 + e.y_off },
                         { x0 + e.x_off, y1 + e.y_off },
                         { x1 + e.x_off, y1 + e.y_off },
@@ -67,14 +67,14 @@ static vector<spawn_desc> spawn_zorro_pattern(
         return result;
 }
 
-static vector<spawn_desc> spawn_diagonal_pattern(
+static std::vector<spawn_desc> spawn_diagonal_pattern(
                 pattern& pat,
                 double screen_w,
                 double screen_h) {
 
         // Determine location and velocities.
         // ----------------------------------
-        bernoulli_distribution xdir_dist;
+        std::bernoulli_distribution xdir_dist;
         const double dir = xdir_dist(rnd::engine) ? 1.0 : -1.0;
         const double vx = dir * cfg::real("gameplay_diagonal_vel");
         const double vy = cfg::real("gameplay_diagonal_vel");
@@ -84,7 +84,7 @@ static vector<spawn_desc> spawn_diagonal_pattern(
 
         // Generate the shifted elements.
         // ------------------------------
-        vector<spawn_desc> result;
+        std::vector<spawn_desc> result;
         for(pattern::element const& e : pat.elements) {
                 double x = base_x + e.x_off;
                 double y = base_y + e.y_off;
@@ -95,14 +95,14 @@ static vector<spawn_desc> spawn_diagonal_pattern(
         return result;
 }
 
-static vector<spawn_desc> spawn_vertical_pattern(
+static std::vector<spawn_desc> spawn_vertical_pattern(
                 pattern& pat,
                 double screen_w,
                 double screen_h) {
 
         // Select random parameters.
         // -------------------------
-        uniform_real_distribution<double> x_dist(
+        std::uniform_real_distribution<double> x_dist(
                         cfg::real("gameplay_vertical_x_margin"),
                         screen_w - cfg::real("gameplay_vertical_x_margin"));
         const double vx = 0.0;
@@ -113,7 +113,7 @@ static vector<spawn_desc> spawn_vertical_pattern(
 
         // Generate the shifted elements.
         // ------------------------------
-        vector<spawn_desc> result;
+        std::vector<spawn_desc> result;
         for(pattern::element const& e : pat.elements) {
                 double x = base_x + e.x_off;
                 double y = base_y + e.y_off;
@@ -124,14 +124,14 @@ static vector<spawn_desc> spawn_vertical_pattern(
         return result;
 }
 
-static vector<spawn_desc> spawn_horizontal_pattern(
+static std::vector<spawn_desc> spawn_horizontal_pattern(
                 pattern& pat,
                 double screen_w,
                 double screen_h) {
 
         // Select random parameters.
         // -------------------------
-        uniform_real_distribution<double> y_dist(
+        std::uniform_real_distribution<double> y_dist(
                         cfg::real("gameplay_horizontal_y_margin"),
                         screen_h - cfg::real("gameplay_horizontal_y_margin"));
         const double vx = cfg::real("gameplay_horizontal_vel");
@@ -142,7 +142,7 @@ static vector<spawn_desc> spawn_horizontal_pattern(
 
         // Generate the shifted elements.
         // ------------------------------
-        vector<spawn_desc> result;
+        std::vector<spawn_desc> result;
         for(pattern::element const& e : pat.elements) {
                 double x = base_x + e.x_off;
                 double y = base_y + e.y_off;
@@ -161,7 +161,7 @@ static void spawn_pattern(
 
         // Create the spawn descriptors based on the movement type.
         // --------------------------------------------------------
-        vector<spawn_desc> spawn_descs;
+        std::vector<spawn_desc> spawn_descs;
         switch(pat.movement) {
         case movement_type::zorro:
                 spawn_descs = spawn_zorro_pattern(pat, screen_w, screen_h);
@@ -215,7 +215,7 @@ bool wave::tick(double dt, entity_factory& ef, double screen_w, double screen_h)
                 return false;
         }
 
-        pair<double, pattern>& current = _patterns[_current_pattern];
+        std::pair<double, pattern>& current = _patterns[_current_pattern];
         double& delay = current.first;
         pattern& pat = current.second;
 

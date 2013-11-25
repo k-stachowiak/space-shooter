@@ -24,7 +24,6 @@
 
 #include <iostream>
 #include <memory>
-using namespace std;
 
 #include "allegro.h"
 #include "misc/config.h"
@@ -33,8 +32,6 @@ using namespace std;
 #include "resources/resman.h"
 #include "states/state.h"
 #include "misc/logger.h"
-
-using namespace res;
 
 class application {
 
@@ -45,7 +42,7 @@ class application {
         const double _spf;
 
         allegro _allegro;
-        resman _resman;
+        res::resman _resman;
 
 public:
         application()
@@ -60,12 +57,12 @@ public:
         , _resman(
                 _allegro.get_display(),
                 {
-                        { res_id::BULLET_SHOOT,"data/bullet_shoot.wav" },
-                        { res_id::MISSILE_SHOOT, "data/missile_shoot.wav" },
-                        { res_id::WEAPON_PICKUP, "data/click.wav" },
-                        { res_id::WELLNESS_PICKUP, "data/wellness.wav" },
-                        { res_id::EXPLOSION_SND, "data/explosion.wav" },
-                        { res_id::INGAME_MUSIC, "data/1_minute.ogg" }
+                        { res::res_id::BULLET_SHOOT,"data/bullet_shoot.wav" },
+                        { res::res_id::MISSILE_SHOOT, "data/missile_shoot.wav" },
+                        { res::res_id::WEAPON_PICKUP, "data/click.wav" },
+                        { res::res_id::WELLNESS_PICKUP, "data/wellness.wav" },
+                        { res::res_id::EXPLOSION_SND, "data/explosion.wav" },
+                        { res::res_id::INGAME_MUSIC, "data/1_minute.ogg" }
                 })
         {}
 
@@ -78,7 +75,7 @@ public:
                 double current_time = _allegro.current_time();
                 double accumulator = 0.0;
 
-                unique_ptr<state> current_state = create_menu_state(_resman, _sman);
+                std::unique_ptr<state> current_state = create_menu_state(_resman, _sman);
 
                 while(current_state) {
 
@@ -128,7 +125,7 @@ int main() {
                 return 0;
 
         } catch (initialization_error& e) {
-                cerr << "Initialization failed : " << e.what() << endl;
+                std::cerr << "Initialization failed : " << e.what() << std::endl;
                 return 1;
         }
 

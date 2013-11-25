@@ -48,8 +48,8 @@ public:
         }
 };
 
-shared_ptr<pickup_profile> create_battery_pickup_profile(double amount) {
-        return shared_ptr<pickup_profile>(new battery_pickup_profile(amount));
+std::shared_ptr<pickup_profile> create_battery_pickup_profile(double amount) {
+        return std::shared_ptr<pickup_profile>(new battery_pickup_profile(amount));
 }
 
 class health_pickup_profile : public pickup_profile {
@@ -74,8 +74,8 @@ public:
         }
 };
 
-shared_ptr<pickup_profile> create_health_pickup_profile(double amount) {
-        return shared_ptr<pickup_profile>(new health_pickup_profile(amount));
+std::shared_ptr<pickup_profile> create_health_pickup_profile(double amount) {
+        return std::shared_ptr<pickup_profile>(new health_pickup_profile(amount));
 }
 
 class bullet_upgrade_pickup_profile : public pickup_profile {
@@ -93,8 +93,8 @@ public:
         }
 };
 
-shared_ptr<pickup_profile> create_bullet_upgrade_pickup_profile() {
-        return shared_ptr<pickup_profile>(new bullet_upgrade_pickup_profile());
+std::shared_ptr<pickup_profile> create_bullet_upgrade_pickup_profile() {
+        return std::shared_ptr<pickup_profile>(new bullet_upgrade_pickup_profile());
 }
 
 class missile_upgrade_pickup_profile : public pickup_profile {
@@ -112,8 +112,8 @@ public:
         }
 };
 
-shared_ptr<pickup_profile> create_missile_upgrade_pickup_profile() {
-        return shared_ptr<pickup_profile>(new missile_upgrade_pickup_profile());
+std::shared_ptr<pickup_profile> create_missile_upgrade_pickup_profile() {
+        return std::shared_ptr<pickup_profile>(new missile_upgrade_pickup_profile());
 }
 
 }

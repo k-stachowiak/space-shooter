@@ -22,7 +22,6 @@
 #define WAVE_H
 
 #include <utility>
-using std::pair;
 
 #include "../efwk/game_ent_fac.h"
 
@@ -31,16 +30,16 @@ using std::pair;
 struct spawn_desc {
         enemy_type type;
         double x, y;
-        shared_ptr<cmp::dynamics> dynamics;
+        std::shared_ptr<cmp::dynamics> dynamics;
 };
 
 class wave {
         double _clock;
-        vector<pair<double, pattern>> _patterns;
+        std::vector<std::pair<double, pattern>> _patterns;
         unsigned _current_pattern;
 
 public:
-        wave(vector<pair<double, pattern>> patterns)
+        wave(std::vector<std::pair<double, pattern>> patterns)
         : _clock(0) , _patterns(patterns) , _current_pattern(0) {}
 
         void reset() { _clock = _current_pattern = 0; }

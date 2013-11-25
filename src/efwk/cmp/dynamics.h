@@ -22,13 +22,8 @@
 #define DYNAMICS_H
 
 #include <memory>
-using std::shared_ptr;
-
 #include <vector>
-using std::vector;
-
 #include <map>
-using std::map;
 
 #include "../../geometry/types.h"
 
@@ -43,7 +38,7 @@ public:
         dynamics() : _vx(0), _vy(0), _theta(0) {}
         virtual ~dynamics() {}
         virtual void update(double dt) = 0;
-        virtual void input(map<int, bool>& keys) = 0;
+        virtual void input(std::map<int, bool>& keys) = 0;
 
         double get_vx() const { return _vx; }
         double get_vy() const { return _vy; }
@@ -52,12 +47,12 @@ public:
         virtual void debug_draw() const {}
 };
 
-shared_ptr<dynamics> create_complex_dynamics(vector<shared_ptr<dynamics>> ds);
-shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy);
-shared_ptr<dynamics> create_const_acc_dynamics(double vx0, double vy0, double ax, double ay);
-shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta);
-shared_ptr<dynamics> create_player_controlled_dynamics();
-shared_ptr<dynamics> create_path_dynamics(vector<point> points, double lin_vel);
+std::shared_ptr<dynamics> create_complex_dynamics(std::vector<std::shared_ptr<dynamics>> ds);
+std::shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy);
+std::shared_ptr<dynamics> create_const_acc_dynamics(double vx0, double vy0, double ax, double ay);
+std::shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta);
+std::shared_ptr<dynamics> create_player_controlled_dynamics();
+std::shared_ptr<dynamics> create_path_dynamics(std::vector<point> points, double lin_vel);
 
 }
 

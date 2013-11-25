@@ -22,7 +22,6 @@
 #define SYS_PICKUP_H
 
 #include <vector>
-using std::vector;
 
 #include "base.h"
 #include "nodes.h"
@@ -31,7 +30,7 @@ namespace sys {
 
 class pickup_system : public system {
         template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        vector<nd::pickup_node> _nodes;
+        std::vector<nd::pickup_node> _nodes;
 public:
         unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::pickup_node node) { _nodes.push_back(node); }

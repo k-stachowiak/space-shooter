@@ -24,60 +24,60 @@
 namespace res {
 
 resman::resman(ALLEGRO_DISPLAY* dpy,
-                map<res_id, string> samples)
+                std::map<res::res_id, std::string> samples)
 : _dpy(dpy) {
 
         // Initialize all the resources to be needed later here.
         // -----------------------------------------------------
         
         // Load simple images.
-        add_bitmap(res_id::PLAYER_SHIP, "data/player_ship.png");
-        add_bitmap(res_id::ENEMY_LIGHT_FIGHTER, "data/light_fighter.png");
-        add_bitmap(res_id::ENEMY_HEAVY_FIGHTER, "data/heavy_fighter.png");
-        add_bitmap(res_id::ENEMY_LIGHT_BOMBER, "data/light_bomber.png");
-        add_bitmap(res_id::ENEMY_HEAVY_BOMBER, "data/heavy_bomber.png");
-        add_bitmap(res_id::BULLET_1, "data/bullet1.png");
-        add_bitmap(res_id::BULLET_2, "data/bullet2.png");
-        add_bitmap(res_id::BULLET_3, "data/bullet3.png");
-        add_bitmap(res_id::BULLET_4, "data/bullet4.png");
-        add_bitmap(res_id::BULLET_5, "data/bullet5.png");
-        add_bitmap(res_id::MISSILE, "data/missile.png");
-        add_bitmap(res_id::B_UPGRADE, "data/bullet_upgrade.png");
-        add_bitmap(res_id::M_UPGRADE, "data/missile_upgrade.png");
-        add_bitmap(res_id::DEBRIS1, "data/debris1.png");
-        add_bitmap(res_id::DEBRIS2, "data/debris2.png");
-        add_bitmap(res_id::DEBRIS3, "data/debris3.png");
-        add_bitmap(res_id::DEBRIS4, "data/debris4.png");
-        add_bitmap(res_id::DEBRIS5, "data/debris5.png");
-        add_bitmap(res_id::HEALTH, "data/health.png");
-        add_bitmap(res_id::BATTERY, "data/battery.png");
-        add_bitmap(res_id::HUD_BG, "data/hud_bg.png");
-        add_bitmap(res_id::DIODE_ON, "data/diode_on.png");
-        add_bitmap(res_id::DIODE_OFF, "data/diode_off.png");
+        add_bitmap(res::res_id::PLAYER_SHIP, "data/player_ship.png");
+        add_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER, "data/light_fighter.png");
+        add_bitmap(res::res_id::ENEMY_HEAVY_FIGHTER, "data/heavy_fighter.png");
+        add_bitmap(res::res_id::ENEMY_LIGHT_BOMBER, "data/light_bomber.png");
+        add_bitmap(res::res_id::ENEMY_HEAVY_BOMBER, "data/heavy_bomber.png");
+        add_bitmap(res::res_id::BULLET_1, "data/bullet1.png");
+        add_bitmap(res::res_id::BULLET_2, "data/bullet2.png");
+        add_bitmap(res::res_id::BULLET_3, "data/bullet3.png");
+        add_bitmap(res::res_id::BULLET_4, "data/bullet4.png");
+        add_bitmap(res::res_id::BULLET_5, "data/bullet5.png");
+        add_bitmap(res::res_id::MISSILE, "data/missile.png");
+        add_bitmap(res::res_id::B_UPGRADE, "data/bullet_upgrade.png");
+        add_bitmap(res::res_id::M_UPGRADE, "data/missile_upgrade.png");
+        add_bitmap(res::res_id::DEBRIS1, "data/debris1.png");
+        add_bitmap(res::res_id::DEBRIS2, "data/debris2.png");
+        add_bitmap(res::res_id::DEBRIS3, "data/debris3.png");
+        add_bitmap(res::res_id::DEBRIS4, "data/debris4.png");
+        add_bitmap(res::res_id::DEBRIS5, "data/debris5.png");
+        add_bitmap(res::res_id::HEALTH, "data/health.png");
+        add_bitmap(res::res_id::BATTERY, "data/battery.png");
+        add_bitmap(res::res_id::HUD_BG, "data/hud_bg.png");
+        add_bitmap(res::res_id::DIODE_ON, "data/diode_on.png");
+        add_bitmap(res::res_id::DIODE_OFF, "data/diode_off.png");
 
         // Load/generate animations
-        expand_fade(res_id::SMOKE,
+        expand_fade(res::res_id::SMOKE,
                         "data/smoke_single.png",
                         cfg::integer("gfx_smoke_num_frames"),
                         cfg::real("gfx_smoke_expand_scale"));
 
-        scaled_copy(res_id::SMOKE_SMALL, res_id::SMOKE, cfg::real("gfx_smoke_scale_tiny"));
-        scaled_copy(res_id::SMOKE_BIG, res_id::SMOKE, cfg::real("gfx_smoke_scale_big"));
+        scaled_copy(res::res_id::SMOKE_SMALL, res::res_id::SMOKE, cfg::real("gfx_smoke_scale_tiny"));
+        scaled_copy(res::res_id::SMOKE_BIG, res::res_id::SMOKE, cfg::real("gfx_smoke_scale_big"));
 
-        fade_frames(res_id::EXPLOSION,
+        fade_frames(res::res_id::EXPLOSION,
                         "data/explosion.png",
                         cfg::integer("gfx_explosion_num_frames"));
 
         // Generate flashes.
-        flash(res_id::PLAYER_SHIP_FLASH, res_id::PLAYER_SHIP);
-        flash(res_id::ENEMY_LIGHT_FIGHTER_FLASH, res_id::ENEMY_LIGHT_FIGHTER);
-        flash(res_id::ENEMY_HEAVY_FIGHTER_FLASH, res_id::ENEMY_HEAVY_FIGHTER);
-        flash(res_id::ENEMY_LIGHT_BOMBER_FLASH, res_id::ENEMY_LIGHT_BOMBER);
-        flash(res_id::ENEMY_HEAVY_BOMBER_FLASH, res_id::ENEMY_HEAVY_BOMBER);
+        flash(res::res_id::PLAYER_SHIP_FLASH, res::res_id::PLAYER_SHIP);
+        flash(res::res_id::ENEMY_LIGHT_FIGHTER_FLASH, res::res_id::ENEMY_LIGHT_FIGHTER);
+        flash(res::res_id::ENEMY_HEAVY_FIGHTER_FLASH, res::res_id::ENEMY_HEAVY_FIGHTER);
+        flash(res::res_id::ENEMY_LIGHT_BOMBER_FLASH, res::res_id::ENEMY_LIGHT_BOMBER);
+        flash(res::res_id::ENEMY_HEAVY_BOMBER_FLASH, res::res_id::ENEMY_HEAVY_BOMBER);
 
         // Load fonts.
-        add_font(res_id::TINY_FONT, "data/prstartk.ttf", cfg::integer("gfx_font_tiny_size"));
-        add_font(res_id::FONT, "data/prstartk.ttf", cfg::integer("gfx_font_base_size"));
+        add_font(res::res_id::TINY_FONT, "data/prstartk.ttf", cfg::integer("gfx_font_tiny_size"));
+        add_font(res::res_id::FONT, "data/prstartk.ttf", cfg::integer("gfx_font_base_size"));
 
         // Load sounds.
         al_reserve_samples(samples.size());
@@ -111,7 +111,7 @@ ALLEGRO_SAMPLE* resman::get_sample(res_id id) const {
         return _samples.at(id).get();
 }
 
-void resman::add_bitmap(res_id id, string const& path) {
+void resman::add_bitmap(res::res_id id, std::string const& path) {
 
         if(_bitmaps.find(id) != end(_bitmaps)) {
                 throw initialization_error("Loading resource at duplicate id");
@@ -120,7 +120,7 @@ void resman::add_bitmap(res_id id, string const& path) {
         p_bmp bitmap(al_load_bitmap(path.c_str()));
 
         if(!bitmap) {
-                stringstream msg;
+                std::stringstream msg;
                 msg << "Failed loading image at " << path;
                 throw resource_not_found_error(msg.str());
         }
@@ -128,7 +128,7 @@ void resman::add_bitmap(res_id id, string const& path) {
         _bitmaps[id] = move(bitmap);
 }
 
-void resman::add_font(res_id id, string const& path, int size) {
+void resman::add_font(res::res_id id, std::string const& path, int size) {
         if(_fonts.find(id) != end(_fonts)) {
                 throw initialization_error("Loading resource at duplicate id");
         }
@@ -136,7 +136,7 @@ void resman::add_font(res_id id, string const& path, int size) {
         p_font font(al_load_font(path.c_str(), -size, 0));
 
         if(!font) {
-                stringstream msg;
+                std::stringstream msg;
                 msg << "Failed loading font at " << path;
                 throw resource_not_found_error(msg.str());
         }
@@ -144,7 +144,7 @@ void resman::add_font(res_id id, string const& path, int size) {
         _fonts[id] = move(font);
 }
 
-void resman::add_sample(res_id id, string const& path) {
+void resman::add_sample(res::res_id id, std::string const& path) {
         if(_samples.find(id) != end(_samples)) {
                 throw initialization_error("Loading resource at duplicate id");
         }
@@ -152,7 +152,7 @@ void resman::add_sample(res_id id, string const& path) {
         p_sample sample(al_load_sample(path.c_str()));
 
         if(!sample) {
-                stringstream msg;
+                std::stringstream msg;
                 msg << "Failed loading sample at " << path;
                 throw resource_not_found_error(msg.str());
         }
@@ -161,8 +161,8 @@ void resman::add_sample(res_id id, string const& path) {
 }
 
 void resman::expand_fade(
-                res_id id,
-                string path,
+                res::res_id id,
+                std::string path,
                 uint32_t num_frames,
                 double exp_factor) {
 
@@ -174,7 +174,7 @@ void resman::expand_fade(
         p_bmp base_bitmap(al_load_bitmap(path.c_str()));
 
         if(!base_bitmap) {
-                stringstream msg;
+                std::stringstream msg;
                 msg << "Failed loading image at " << path;
                 throw resource_not_found_error(msg.str());
         }
@@ -281,8 +281,8 @@ void resman::flash(res_id id, res_id original) {
         al_set_blender(op, src, dst);
 }
 
-void resman::fade_frames(res_id id,
-                         string path,
+void resman::fade_frames(res::res_id id,
+                std::string path,
                          uint32_t num_frames) {
 
         // Load the bitmap from file.
@@ -293,7 +293,7 @@ void resman::fade_frames(res_id id,
         p_bmp base_bitmap(al_load_bitmap(path.c_str()));
 
         if(!base_bitmap) {
-                stringstream msg;
+                std::stringstream msg;
                 msg << "Failed loading image at " << path;
                 throw initialization_error(msg.str());
         }

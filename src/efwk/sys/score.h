@@ -22,7 +22,6 @@
 #define SYS_SCORE_H
 
 #include <map>
-using std::map;
 
 #include "base.h"
 #include "nodes.h"
@@ -30,11 +29,11 @@ using std::map;
 namespace sys {
 
 class score_system : public system {
-        map<uint64_t, nd::score_node> _nodes;
-        const map<cmp::score_class, double> _class_score_map;
+        std::map<uint64_t, nd::score_node> _nodes;
+        const std::map<cmp::score_class, double> _class_score_map;
 public:
         unsigned num_nodes() const { return _nodes.size(); }
-        score_system(map<cmp::score_class, double> score_map)
+        score_system(std::map<cmp::score_class, double> score_map)
         : _class_score_map(score_map)
         {}
 

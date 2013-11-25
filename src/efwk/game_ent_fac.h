@@ -98,10 +98,10 @@ public:
         uint64_t create_star_xy(double x, double y);
         uint64_t create_player_ship(double x, double y);
 
-        uint64_t create_light_fighter_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
-        uint64_t create_heavy_fighter_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
-        uint64_t create_light_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
-        uint64_t create_heavy_bomber_dyn(double x, double y, shared_ptr<cmp::dynamics> dynamics);
+        uint64_t create_light_fighter_dyn(double x, double y, std::shared_ptr<cmp::dynamics> dynamics);
+        uint64_t create_heavy_fighter_dyn(double x, double y, std::shared_ptr<cmp::dynamics> dynamics);
+        uint64_t create_light_bomber_dyn(double x, double y, std::shared_ptr<cmp::dynamics> dynamics);
+        uint64_t create_heavy_bomber_dyn(double x, double y, std::shared_ptr<cmp::dynamics> dynamics);
 
         uint64_t create_common_pickup(double x, double y, double vx, double vy, pickup_type type);
 

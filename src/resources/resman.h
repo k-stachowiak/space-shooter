@@ -28,7 +28,6 @@
 #include <memory>
 #include <sstream>
 #include <iostream>
-using namespace std;
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -112,42 +111,42 @@ class resman {
         };
 
         // Helper typedef.
-        typedef unique_ptr<ALLEGRO_BITMAP, bitmap_deleter> p_bmp;
-        typedef unique_ptr<ALLEGRO_FONT, font_deleter> p_font;
-        typedef unique_ptr<ALLEGRO_SAMPLE, sample_deleter> p_sample;
+        typedef std::unique_ptr<ALLEGRO_BITMAP, bitmap_deleter> p_bmp;
+        typedef std::unique_ptr<ALLEGRO_FONT, font_deleter> p_font;
+        typedef std::unique_ptr<ALLEGRO_SAMPLE, sample_deleter> p_sample;
 
         ALLEGRO_DISPLAY* _dpy;
 
-        map<res_id, p_bmp> _bitmaps;
-        map<res_id, p_font> _fonts;
-        map<res_id, p_sample> _samples;
+        std::map<res_id, p_bmp> _bitmaps;
+        std::map<res_id, p_font> _fonts;
+        std::map<res_id, p_sample> _samples;
 
 public:
         resman(ALLEGRO_DISPLAY* dpy,
-                map<res_id, string> samples);
+                        std::map<res::res_id, std::string> samples);
         ~resman() { _bitmaps.clear(); _fonts.clear(); }
-        ALLEGRO_BITMAP* get_bitmap(res_id id) const;
-        ALLEGRO_FONT* get_font(res_id id) const;
-        ALLEGRO_SAMPLE* get_sample(res_id id) const;
+        ALLEGRO_BITMAP* get_bitmap(res::res_id id) const;
+        ALLEGRO_FONT* get_font(res::res_id id) const;
+        ALLEGRO_SAMPLE* get_sample(res::res_id id) const;
 
 private:
-        void add_bitmap(res_id id, string const& path);
-        void add_font(res_id id, string const& path, int size);
-        void add_sample(res_id id, string const& path);
+        void add_bitmap(res::res_id id, std::string const& path);
+        void add_font(res::res_id id, std::string const& path, int size);
+        void add_sample(res::res_id id, std::string const& path);
 
         void expand_fade(
-                        res_id id,
-                        string path,
+                        res::res_id id,
+                        std::string path,
                         uint32_t num_frames,
                         double exp_factor);
 
-        void fade_frames(res_id id,
-                         string path,
+        void fade_frames(res::res_id id,
+                        std::string path,
                          uint32_t num_frames);
 
-        void scaled_copy(res_id id, res_id original, double scale);
+        void scaled_copy(res::res_id id, res::res_id original, double scale);
 
-        void flash(res_id id, res_id original);
+        void flash(res::res_id id, res::res_id original);
 };
 
 } // namespace res

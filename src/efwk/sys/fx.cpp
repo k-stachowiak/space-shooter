@@ -40,7 +40,7 @@ void fx_system::update(
                 // Update effects.
                 if(n.effects) {
 
-                        tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
+                        std::tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
 
                         const double max_health = n.wellness->get_max_health();
                         const double health = n.wellness->get_health();

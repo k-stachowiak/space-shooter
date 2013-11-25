@@ -43,24 +43,24 @@ public:
                         noise_queue& nqueue,
                         comm::msg_queue& msgs) = 0;
 
-        virtual void input(map<int, bool>& keys) = 0;
+        virtual void input(std::map<int, bool>& keys) = 0;
 };
 
-shared_ptr<weapon_beh> create_complex_weapon_beh(vector<shared_ptr<weapon_beh>> wbs);
+std::shared_ptr<weapon_beh> create_complex_weapon_beh(std::vector<std::shared_ptr<weapon_beh>> wbs);
 
-shared_ptr<weapon_beh> create_period_bullet(
+std::shared_ptr<weapon_beh> create_period_bullet(
                 double dt_min, double dt_max,
                 double x_off, double y_off,
                 double x_dir, double y_dir,
                 double lin_vel);
 
-shared_ptr<weapon_beh> create_period_missile(
+std::shared_ptr<weapon_beh> create_period_missile(
                 double dt_min, double dt_max,
                 double x_off, double y_off,
                 double x_dir, double y_dir,
                 double lin_vel);
 
-shared_ptr<weapon_beh> create_player_controlled_weapon_beh();
+std::shared_ptr<weapon_beh> create_player_controlled_weapon_beh();
 
 }
 

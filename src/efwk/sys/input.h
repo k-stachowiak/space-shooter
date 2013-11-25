@@ -22,13 +22,8 @@
 #define SYS_INPUT_H
 
 #include <vector>
-using std::vector;
-
 #include <map>
-using std::map;
-
 #include <utility>
-using std::move;
 
 #include "base.h"
 #include "nodes.h"
@@ -37,11 +32,11 @@ namespace sys {
 
 class input_system : public system {
         template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        map<int, bool> _keys;
-        vector<nd::input_node> _nodes;
+        std::map<int, bool> _keys;
+        std::vector<nd::input_node> _nodes;
 public:
         unsigned num_nodes() const { return _nodes.size(); }
-        void add_node(nd::input_node n) { _nodes.push_back(move(n)); }
+        void add_node(nd::input_node n) { _nodes.push_back(std::move(n)); }
         void update();
         void key_down(int k) { _keys[k] = true; }
         void key_up(int k) { _keys[k] = false; }

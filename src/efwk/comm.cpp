@@ -20,8 +20,6 @@
 
 #include "comm.h"
 
-using namespace res;
-
 namespace comm {
 
 message create_remove_entity(uint64_t id) {
@@ -76,7 +74,7 @@ message create_spawn_debris(
                 double vx, double vy,
                 double vmin, double vmax,
                 double theta_min, double theta_max,
-                res_id image,
+                res::res_id image,
                 bool explode,
                 uint64_t origin_id) {
         message msg;

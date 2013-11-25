@@ -22,6 +22,6 @@
 
 namespace rnd {
 
-default_random_engine engine;
+std::default_random_engine engine;
 
 }

@@ -55,7 +55,7 @@ void wellness_system::update(double dt, comm::msg_queue& msgs) {
                         }
 
                         // Handle reactions.
-                        tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
+                        std::tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
                         if(n.on_death)
                                 n.on_death->trigger(
                                         x, y, n.orientation->get_phi(), *(n.shape),

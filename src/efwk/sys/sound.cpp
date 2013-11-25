@@ -19,20 +19,17 @@
 */
 
 #include <iostream>
-using namespace std;
 
 #include "sound.h"
 
-using namespace res;
-
-map<ALLEGRO_SAMPLE*, ALLEGRO_SAMPLE_ID> spl_id_map;
+std::map<ALLEGRO_SAMPLE*, ALLEGRO_SAMPLE_ID> spl_id_map;
 
 namespace sys {
 
 void sound_system::update(double dt) {
 
         // Handle local queue.
-        _noise_queue.visit(dt, [this](res_id rid) {
+        _noise_queue.visit(dt, [this](res::res_id rid) {
                 ALLEGRO_SAMPLE* sample = _resman.get_sample(rid);
                 al_stop_sample(&spl_id_map[sample]);
                 al_play_sample(

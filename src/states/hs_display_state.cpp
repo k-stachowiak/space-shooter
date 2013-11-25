@@ -23,8 +23,6 @@
 #include "../misc/high_score.h"
 #include "state.h"
 
-using namespace std;
-
 class hs_display_state : public state {
 
         // Configuration.
@@ -37,7 +35,7 @@ class hs_display_state : public state {
         // Precomputations.
         // ----------------
         const double _screen_w, _screen_h;
-        vector<string> _strings;
+        std::vector<std::string> _strings;
         double _hs_pix_width;
         double _hs_pix_height;
         double _hs_line_pix_height;
@@ -49,10 +47,10 @@ class hs_display_state : public state {
         // Helpers.
         // --------
         void entry_str(high_score::entry const& e,
-                       string& name_str,
-                       string& score_str) {
+                        std::string& name_str,
+                        std::string& score_str) {
 
-                stringstream ss;
+                std::stringstream ss;
                 ss << e.score;
 
                 name_str = e.name;
@@ -77,15 +75,15 @@ public:
                 // Build the score strings.
                 for(auto const& e : entries) {
 
-                        string name_str;
-                        string score_str;
+                        std::string name_str;
+                        std::string score_str;
                         entry_str(e, name_str, score_str);
                         
                         const unsigned ns = name_str.size();
                         const unsigned ss = score_str.size();
                         const unsigned num_dots = _hs_char_width - ns - ss;
 
-                        string entry_str = name_str;
+                        std::string entry_str = name_str;
                         entry_str.append(num_dots, '.');
                         entry_str.append(score_str);
 
@@ -113,7 +111,7 @@ public:
                 return _done;
         }
 
-        unique_ptr<state> next_state() {
+        std::unique_ptr<state> next_state() {
                 return create_menu_state(_resman, _sman);
         }
 

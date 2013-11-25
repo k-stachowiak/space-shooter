@@ -30,25 +30,25 @@ static inline point bezier_interpolate_segment(const segment& s, double step) {
         return point(x, y);
 }
 
-static inline vector<point> bezier_interpolate_points(const vector<segment>& segments, double step) {
-        vector<point> result;
+static inline std::vector<point> bezier_interpolate_points(const std::vector<segment>& segments, double step) {
+        std::vector<point> result;
         for(auto& s : segments) {
                 result.push_back(bezier_interpolate_segment(s, step));
         }
         return result;
 }
 
-static inline vector<segment> bezier_gen_segments(const vector<point>& points) {
-        vector<segment> result;
+static inline std::vector<segment> bezier_gen_segments(const std::vector<point>& points) {
+        std::vector<segment> result;
         for(uint32_t i = 1; i < points.size(); ++i) {
                 result.emplace_back(points[i - 1], points[i]);
         }
         return result;
 }
 
-vector<point> bezier(const vector<point>& points, uint32_t num_midpoints) {
+std::vector<point> bezier(const std::vector<point>& points, uint32_t num_midpoints) {
 
-        vector<point> result;
+        std::vector<point> result;
 
         for(uint32_t i = 0; i < num_midpoints; ++i) {
 
@@ -56,9 +56,9 @@ vector<point> bezier(const vector<point>& points, uint32_t num_midpoints) {
                 double step = (double)i / (double)num_midpoints;
 
                 // Collapse all the segments.
-                vector<segment> segments = bezier_gen_segments(points);
+                std::vector<segment> segments = bezier_gen_segments(points);
                 while (segments.size() > 1) {
-                        vector<point> new_points = bezier_interpolate_points(segments, step);
+                        std::vector<point> new_points = bezier_interpolate_points(segments, step);
                         segments = bezier_gen_segments(new_points);
                 }
 

@@ -22,7 +22,6 @@
 #define SYS_HUD_H
 
 #include <vector>
-using std::vector;
 
 #include "base.h"
 #include "nodes.h"
@@ -44,7 +43,7 @@ class hud_system : public system {
         double _screen_w, _screen_h;
 
         template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        vector<nd::hud_node> _nodes;
+        std::vector<nd::hud_node> _nodes;
 
         void draw_background();
         void draw_score(nd::hud_node const& n);

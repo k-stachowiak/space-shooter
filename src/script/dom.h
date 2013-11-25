@@ -65,7 +65,7 @@ namespace script {
                 return n.list[index].type == dom_node_t::atom;
         }
 
-        inline bool sub_atom(dom_node const& n, unsigned index, string const& str) {
+        inline bool sub_atom(dom_node const& n, unsigned index, std::string const& str) {
                 return n.list[index].atom == str;
         }
 

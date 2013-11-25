@@ -20,10 +20,7 @@
 
 #include <iostream>
 #include <sstream>
-
 #include <random>
-using std::uniform_real_distribution;
-using std::uniform_int_distribution;
 
 #include <allegro5/allegro5.h>
 #include <allegro5/allegro_primitives.h>
@@ -62,12 +59,12 @@ public:
                 return collide_circle_circle(*this, xa, ya, c, xb, yb);
         }
 
-        pair<double, double> get_random_point() const {
-                uniform_real_distribution<double> dist;
+        std::pair<double, double> get_random_point() const {
+                std::uniform_real_distribution<double> dist;
                 double t = cfg::math::two_pi * dist(rnd::engine);
                 double u = dist(rnd::engine) + dist(rnd::engine);
                 double r = (u > 1.0) ? (2.0 - u) : u;
-                return make_pair(_r * r * cos(t), _r * r * sin(t));
+                return std::make_pair(_r * r * cos(t), _r * r * sin(t));
         }
 
         void debug_draw(double x, double y) const {
@@ -85,14 +82,14 @@ public:
         }
 };
 
-shared_ptr<shape> create_circle(double r) {
-        return shared_ptr<shape>(new circle(r));
+std::shared_ptr<shape> create_circle(double r) {
+        return std::shared_ptr<shape>(new circle(r));
 }
 
 class complex_shape : public shape {
-        vector<pair<shared_ptr<shape>, offset>> _shapes;
+        std::vector<std::pair<std::shared_ptr<shape>, offset>> _shapes;
 public:
-        complex_shape(vector<pair<shared_ptr<shape>, offset>> shapes)
+        complex_shape(std::vector<std::pair<std::shared_ptr<shape>, offset>> shapes)
         : _shapes(shapes) {}
 
         bool collides_with(double xa, double ya,
@@ -120,9 +117,9 @@ public:
                 return false;
         }
 
-        pair<double, double> get_random_point() const {
+        std::pair<double, double> get_random_point() const {
                 
-                uniform_int_distribution<unsigned> dist(0, _shapes.size() - 1);
+                std::uniform_int_distribution<unsigned> dist(0, _shapes.size() - 1);
                 unsigned index = dist(rnd::engine);
 
                 auto shp = _shapes.at(index).first;
@@ -150,9 +147,9 @@ public:
         }
 };
 
-shared_ptr<shape> create_complex_shape(
-                vector<pair<shared_ptr<shape>, offset>> shapes) {
-        return shared_ptr<shape>(new complex_shape(shapes));
+std::shared_ptr<shape> create_complex_shape(
+                std::vector<std::pair<std::shared_ptr<shape>, offset>> shapes) {
+        return std::shared_ptr<shape>(new complex_shape(shapes));
 }
 
 // Collision implementations.

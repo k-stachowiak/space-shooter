@@ -22,7 +22,6 @@
 #define SYS_COLLISION_H
 
 #include <vector>
-using std::vector;
 
 #include "base.h"
 #include "nodes.h"
@@ -31,7 +30,7 @@ namespace sys {
 
 class collision_system : public system {
         template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        vector<nd::collision_node> _nodes;
+        std::vector<nd::collision_node> _nodes;
         void check_collision(
                 nd::collision_node const& a,
                 nd::collision_node const& b) const;

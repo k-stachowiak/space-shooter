@@ -31,8 +31,7 @@ namespace sys {
 void arms_system::update(double dt, comm::msg_queue& msgs) {
         double x, y;
         for(auto const& n : _nodes) {
-
-                tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
+                std::tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
                 if(n.weapon_beh)
                         n.weapon_beh->update(
                                 n.id, *(n.upgrades), dt,

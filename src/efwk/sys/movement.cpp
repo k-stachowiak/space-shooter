@@ -55,7 +55,7 @@ void movement_system::update(
                 // Check bounds.
                 // -------------
                 double x, y;
-                tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
+                std::tie(x, y) = n.orientation->interpolate_loc(MAX_WEIGHT);
 
                 double dx = vx * dt;
                 double dy = vy * dt;

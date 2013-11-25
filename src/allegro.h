@@ -24,7 +24,6 @@
 #include <stdint.h>
 
 #include <string>
-using namespace std;
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -35,13 +34,14 @@ using namespace std;
 #include "states/state.h"
 
 class allegro {
+        // TODO: Handle these with unique pointers
         ALLEGRO_DISPLAY* _display;
         ALLEGRO_EVENT_QUEUE* _event_queue;
 
         void handle_event(ALLEGRO_EVENT& ev, state& s) const;
 
 public:
-        allegro(uint32_t scr_w, uint32_t scr_h, string title);
+        allegro(uint32_t scr_w, uint32_t scr_h, std::string title);
         ~allegro();
         ALLEGRO_DISPLAY* get_display();
         double current_time();

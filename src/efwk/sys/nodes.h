@@ -22,7 +22,6 @@
 #define NODES_H
 
 #include <memory>
-using std::shared_ptr;
 
 #include "../cmp/components.h"
 
@@ -43,8 +42,8 @@ struct score_node {
 
         uint64_t id;
         cmp::score_class sc;
-        shared_ptr<double> score;
-        shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<double> score;
+        std::shared_ptr<cmp::wellness> wellness;
 };
 
 struct input_node {
@@ -53,8 +52,8 @@ struct input_node {
         // weapon_beh - The weapon behavior to be triggered by the input.
 
         uint64_t id;
-        shared_ptr<cmp::dynamics> dynamics;
-        shared_ptr<cmp::weapon_beh> weapon_beh;
+        std::shared_ptr<cmp::dynamics> dynamics;
+        std::shared_ptr<cmp::weapon_beh> weapon_beh;
 };
 
 struct drawing_node {
@@ -67,10 +66,10 @@ struct drawing_node {
 
         uint64_t id;
         cmp::draw_plane draw_plane;
-        shared_ptr<cmp::appearance> appearance;
-        shared_ptr<cmp::orientation> orientation;
-        shared_ptr<cmp::shape> shape;
-        shared_ptr<cmp::dynamics> dynamics;
+        std::shared_ptr<cmp::appearance> appearance;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::dynamics> dynamics;
 };
 
 struct fx_node {
@@ -82,11 +81,11 @@ struct fx_node {
         // effects     - the fx object to be updated each frame
 
         uint64_t id;
-        shared_ptr<cmp::appearance> appearance;
-        shared_ptr<cmp::orientation> orientation;
-        shared_ptr<cmp::shape> shape;
-        shared_ptr<cmp::wellness> wellness;
-        shared_ptr<cmp::fx> effects;
+        std::shared_ptr<cmp::appearance> appearance;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::fx> effects;
 };
 
 struct movement_node {
@@ -98,11 +97,11 @@ struct movement_node {
         // life_bounds     - enables killing an entity upon leaving the given area
 
         uint64_t id;
-        shared_ptr<cmp::dynamics> dynamics;
-        shared_ptr<cmp::orientation> orientation;
-        shared_ptr<cmp::shape> shape;
-        shared_ptr<cmp::bounds> movement_bounds;
-        shared_ptr<cmp::bounds> life_bounds;
+        std::shared_ptr<cmp::dynamics> dynamics;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::bounds> movement_bounds;
+        std::shared_ptr<cmp::bounds> life_bounds;
 };
 
 struct arms_node {
@@ -113,10 +112,10 @@ struct arms_node {
         // nqueue      - enables scheduling of the samples' playing
 
         uint64_t id;
-        shared_ptr<cmp::orientation> orientation;
-        shared_ptr<cmp::weapon_beh> weapon_beh;
-        shared_ptr<cmp::upgrades> upgrades;
-        shared_ptr<cmp::noise_queue> nqueue;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::weapon_beh> weapon_beh;
+        std::shared_ptr<cmp::upgrades> upgrades;
+        std::shared_ptr<cmp::noise_queue> nqueue;
 };
 
 struct collision_node {
@@ -130,11 +129,11 @@ struct collision_node {
 
         uint64_t id;
         uint64_t origin_id;
-        shared_ptr<cmp::orientation> orientation;
-        shared_ptr<cmp::collision_profile> cp;
-        shared_ptr<cmp::pickup_profile> pp;
-        shared_ptr<cmp::shape> shape;
-        shared_ptr<cmp::coll_queue> coll_queue;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::collision_profile> cp;
+        std::shared_ptr<cmp::pickup_profile> pp;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::coll_queue> coll_queue;
         std::string name;
 };
 
@@ -145,9 +144,9 @@ struct pain_node {
         // wellness   - is modified upon taking damage
 
         uint64_t id;
-        shared_ptr<cmp::coll_queue> coll_queue;
-        shared_ptr<cmp::collision_profile> cp;
-        shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::coll_queue> coll_queue;
+        std::shared_ptr<cmp::collision_profile> cp;
+        std::shared_ptr<cmp::wellness> wellness;
 };
 
 struct pickup_node {
@@ -158,10 +157,10 @@ struct pickup_node {
         // nqueue     - to play sound upon pickup
 
         uint64_t id;
-        shared_ptr<cmp::coll_queue> coll_queue;
-        shared_ptr<cmp::wellness> wellness;
-        shared_ptr<cmp::upgrades> upgrades;
-        shared_ptr<cmp::noise_queue> nqueue;
+        std::shared_ptr<cmp::coll_queue> coll_queue;
+        std::shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::upgrades> upgrades;
+        std::shared_ptr<cmp::noise_queue> nqueue;
 };
 
 struct wellness_node {
@@ -175,13 +174,13 @@ struct wellness_node {
         // ttl         - after the time to live runs out the entity dies
 
         uint64_t id;
-        shared_ptr<cmp::reaction> on_death;
-        shared_ptr<cmp::orientation> orientation;
-        shared_ptr<cmp::shape> shape;
-        shared_ptr<cmp::dynamics> dynamics;
-        shared_ptr<cmp::noise_queue> nqueue;
-        shared_ptr<cmp::wellness> wellness;
-        shared_ptr<cmp::timer> ttl;
+        std::shared_ptr<cmp::reaction> on_death;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::dynamics> dynamics;
+        std::shared_ptr<cmp::noise_queue> nqueue;
+        std::shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::timer> ttl;
 };
 
 struct hud_node {
@@ -191,9 +190,9 @@ struct hud_node {
         // upgrade  - the upgrades' status
 
         uint64_t id;
-        shared_ptr<double> score;
-        shared_ptr<cmp::wellness> wellness;
-        shared_ptr<cmp::upgrades> upgrades;
+        std::shared_ptr<double> score;
+        std::shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::upgrades> upgrades;
 };
 
 struct sound_node {
@@ -201,7 +200,7 @@ struct sound_node {
         // nqueue - the queue of the noises to be played.
 
         uint64_t id;
-        shared_ptr<cmp::noise_queue> nqueue;
+        std::shared_ptr<cmp::noise_queue> nqueue;
 };
 
 }

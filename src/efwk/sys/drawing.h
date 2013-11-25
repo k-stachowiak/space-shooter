@@ -22,10 +22,7 @@
 #define SYS_DRAWING_H
 
 #include <vector>
-using std::vector;
-
 #include <map>
-using std::map;
 
 #include "base.h"
 #include "nodes.h"
@@ -34,9 +31,9 @@ namespace sys {
 
 class drawing_system : public system {
         template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        map<cmp::draw_plane, vector<nd::drawing_node>> _nodes;
+        std::map<cmp::draw_plane, std::vector<nd::drawing_node>> _nodes;
         ALLEGRO_FONT* _debug_font;
-        void draw_plane(vector<nd::drawing_node> const& nodes, double weight);
+        void draw_plane(std::vector<nd::drawing_node> const& nodes, double weight);
 public:
         unsigned num_nodes() const {
                 unsigned sizes = 0;

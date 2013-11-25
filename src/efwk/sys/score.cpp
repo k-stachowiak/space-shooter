@@ -38,7 +38,7 @@ void score_system::update() {
                 uint64_t receiver = n.wellness->get_last_dmg_id();
                 double score = _class_score_map.at(n.sc);
 
-                score_increments.insert(make_pair(receiver, score));
+                score_increments.insert(std::make_pair(receiver, score));
         }
 
         // Grant the score increments to the according nodes.

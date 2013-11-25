@@ -22,7 +22,6 @@
 #define CMP_FX_H
 
 #include <memory>
-using std::shared_ptr;
 
 #include "../comm.h"
 
@@ -43,10 +42,10 @@ public:
                 comm::msg_queue& msgs) = 0;
 };
 
-shared_ptr<fx> create_complex_fx(std::vector<std::shared_ptr<fx>> const& fxs);
-shared_ptr<fx> create_smoke_when_hurt(shared_ptr<timer> t, double pain_threshold);
-shared_ptr<fx> create_period_smoke(double dt_min, double dt_max);
-shared_ptr<fx> create_flash_when_hurt(shared_ptr<bool> flag, double cooldown_time);
+std::shared_ptr<fx> create_complex_fx(std::vector<std::shared_ptr<fx>> const& fxs);
+std::shared_ptr<fx> create_smoke_when_hurt(std::shared_ptr<timer> t, double pain_threshold);
+std::shared_ptr<fx> create_period_smoke(double dt_min, double dt_max);
+std::shared_ptr<fx> create_flash_when_hurt(std::shared_ptr<bool> flag, double cooldown_time);
 
 }
 

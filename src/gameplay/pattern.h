@@ -45,14 +45,14 @@ struct pattern {
                 enemy_type type;
         };
 
-        vector<element> elements;
+        std::vector<element> elements;
         movement_type movement;
 
-        static vector<pattern::element> el_uno(enemy_type type) {
+        static std::vector<pattern::element> el_uno(enemy_type type) {
                 return {{ 0.0, 0.0, type }};
         }
 
-        static vector<pattern::element> el_pair(enemy_type type) {
+        static std::vector<pattern::element> el_pair(enemy_type type) {
                 return {{
                                         cfg::real("gameplay_pat_pair_1_xoffset"),
                                         cfg::real("gameplay_pat_pair_1_yoffset"),
@@ -65,7 +65,7 @@ struct pattern {
                                 }};
         }
 
-        static vector<pattern::element> el_triangle(enemy_type type) {
+        static std::vector<pattern::element> el_triangle(enemy_type type) {
                 return {{
                                         cfg::real("gameplay_pat_tri_1_xoffset"),
                                         cfg::real("gameplay_pat_tri_1_yoffset"),
@@ -83,7 +83,7 @@ struct pattern {
                                 }};
         }
 
-        static vector<pattern::element> el_quad(enemy_type type) {
+        static std::vector<pattern::element> el_quad(enemy_type type) {
                 return {{
                                         cfg::real("gameplay_pat_quad_1_xoffset"),
                                         cfg::real("gameplay_pat_quad_1_yoffset"),

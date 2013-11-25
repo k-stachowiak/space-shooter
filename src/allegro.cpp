@@ -43,7 +43,7 @@ void allegro::handle_event(ALLEGRO_EVENT& ev, state& s) const {
         }
 }
 
-allegro::allegro(uint32_t scr_w, uint32_t scr_h, string title) {
+allegro::allegro(uint32_t scr_w, uint32_t scr_h, std::string title) {
 
         // Initialize allegro.
         // -------------------

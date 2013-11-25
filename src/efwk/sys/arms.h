@@ -22,13 +22,8 @@
 #define SYS_ARMS_H
 
 #include <vector>
-using std::vector;
-
 #include <memory>
-using std::shared_ptr;
-
 #include <map>
-using std::map;
 
 #include "../../misc/maybe.h"
 #include "base.h"
@@ -39,13 +34,13 @@ namespace sys {
 class arms_system : public system {
 
         template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        vector<nd::arms_node> _nodes;
+        std::vector<nd::arms_node> _nodes;
 
 public:
         void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
         unsigned num_nodes() const { return _nodes.size(); }
         void update(double dt, comm::msg_queue& msgs);
-        void input(map<int, bool>& keys) {
+        void input(std::map<int, bool>& keys) {
                 for(auto& n : _nodes) {
                         n.weapon_beh->input(keys);
                 }

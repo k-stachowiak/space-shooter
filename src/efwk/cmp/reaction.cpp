@@ -19,25 +19,19 @@
 */
 
 #include <random>
-using std::uniform_real_distribution;
-using std::uniform_int_distribution;
-
 #include <tuple>
-using std::tie;
 
 #include "../../misc/rand.h"
 
 #include "shape.h"
 #include "reaction.h"
 
-using namespace res;
-
 namespace cmp {
 
 class complex_reaction : public reaction {
-        vector<shared_ptr<reaction>> _rs;
+        std::vector<std::shared_ptr<reaction>> _rs;
 public:
-        complex_reaction(vector<shared_ptr<reaction>> rs) : _rs(rs) {}
+        complex_reaction(std::vector<std::shared_ptr<reaction>> rs) : _rs(rs) {}
         void trigger(double x, double y, double phi,
                         shape const& shape,
                         double vx, double vy,
@@ -97,29 +91,29 @@ public:
         }
 };
 
-shared_ptr<reaction> create_complex_reaction(vector<shared_ptr<reaction>> rs) {
-        return shared_ptr<reaction>(new complex_reaction(rs));
+std::shared_ptr<reaction> create_complex_reaction(std::vector<std::shared_ptr<reaction>> rs) {
+        return std::shared_ptr<reaction>(new complex_reaction(rs));
 }
 
-shared_ptr<reaction> create_health_drop_reaction() {
-        return shared_ptr<reaction>(new health_drop_reaction);
+std::shared_ptr<reaction> create_health_drop_reaction() {
+        return std::shared_ptr<reaction>(new health_drop_reaction);
 }
 
-shared_ptr<reaction> create_battery_drop_reaction() {
-        return shared_ptr<reaction>(new battery_drop_reaction);
+std::shared_ptr<reaction> create_battery_drop_reaction() {
+        return std::shared_ptr<reaction>(new battery_drop_reaction);
 }
 
-shared_ptr<reaction> create_bullet_upgrade_drop_reaction() {
-        return shared_ptr<reaction>(new bullet_upgrade_drop_reaction);
+std::shared_ptr<reaction> create_bullet_upgrade_drop_reaction() {
+        return std::shared_ptr<reaction>(new bullet_upgrade_drop_reaction);
 }
 
-shared_ptr<reaction> create_missile_upgrade_drop_reaction() {
-        return shared_ptr<reaction>(new missile_upgrade_drop_reaction);
+std::shared_ptr<reaction> create_missile_upgrade_drop_reaction() {
+        return std::shared_ptr<reaction>(new missile_upgrade_drop_reaction);
 }
 
 class debris_reaction : public reaction {
         uint32_t _num_debris;
-        vector<res_id> _images;
+        std::vector<res::res_id> _images;
         double _vmin, _vmax;
         double _theta_min, _theta_max;
         bool _explode;
@@ -127,7 +121,7 @@ class debris_reaction : public reaction {
 
 public:
         debris_reaction(uint32_t num_debris,
-                        vector<res_id> images,
+                        std::vector<res::res_id> images,
                         double vmin, double vmax,
                         double theta_min, double theta_max,
                         bool explode,
@@ -149,14 +143,14 @@ public:
                         noise_queue& nqueue,
                         comm::msg_queue& queue) {
 
-                uniform_int_distribution<int> bmp_dist(0, _images.size() - 1);
+                std::uniform_int_distribution<int> bmp_dist(0, _images.size() - 1);
                 for(uint32_t i = 0; i < _num_debris; ++i) {
                         uint32_t index = _randomize
                                 ? bmp_dist(rnd::engine)
                                 : (i % _images.size());
-                        res_id bmp = _images[index];
+                        res::res_id bmp = _images[index];
                         double deb_x, deb_y;
-                        tie(deb_x, deb_y) = shape.get_random_point();
+                        std::tie(deb_x, deb_y) = shape.get_random_point();
                         queue.push(comm::create_spawn_debris(
                                                 deb_x + x, deb_y + y,
                                                 vx, vy,
@@ -169,13 +163,13 @@ public:
         }
 };
 
-shared_ptr<reaction> create_debris_reaction(
+std::shared_ptr<reaction> create_debris_reaction(
                 uint32_t num_debris,
-                vector<res_id> images,
+                std::vector<res::res_id> images,
                 double vmin, double vmax,
                 double theta_min, double theta_max,
                 bool explode, bool randomize) {
-        return shared_ptr<reaction>(new debris_reaction(
+        return std::shared_ptr<reaction>(new debris_reaction(
                                 num_debris,
                                 images,
                                 vmin, vmax,
@@ -207,22 +201,22 @@ public:
                         comm::msg_queue& queue) {
 
                 double delay = 0.0;
-                uniform_real_distribution<double> delay_dist(_min_delay, _max_delay);
+                std::uniform_real_distribution<double> delay_dist(_min_delay, _max_delay);
                 for(uint32_t i = 0; i < _num_explosions; ++i) {
                         double expl_x, expl_y;
-                        tie(expl_x, expl_y) = shape.get_random_point();
+                        std::tie(expl_x, expl_y) = shape.get_random_point();
                         queue.push(comm::create_spawn_explosion(expl_x + x, expl_y + y), delay);
-                        nqueue.push(res_id::EXPLOSION_SND, delay);
+                        nqueue.push(res::res_id::EXPLOSION_SND, delay);
                         delay += delay_dist(rnd::engine);
                 }
         }
 };
 
-shared_ptr<reaction> create_explosion_sequence_reaction(
+std::shared_ptr<reaction> create_explosion_sequence_reaction(
                 uint32_t num_explosions,
                 double min_delay,
                 double max_delay) {
-        return shared_ptr<reaction>(new explosion_sequence_reaction(
+        return std::shared_ptr<reaction>(new explosion_sequence_reaction(
                         num_explosions,
                         min_delay,
                         max_delay));

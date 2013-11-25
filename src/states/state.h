@@ -36,7 +36,7 @@ public:
         // State transitions related.
         virtual void sigkill() = 0;
         virtual bool done() = 0;
-        virtual unique_ptr<state> next_state() = 0;
+        virtual std::unique_ptr<state> next_state() = 0;
 
         // Logic.
         virtual void update(double t, double dt) = 0;

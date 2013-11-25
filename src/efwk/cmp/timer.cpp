@@ -41,8 +41,8 @@ public:
         }
 };
 
-shared_ptr<timer> create_const_int_timer(double interval) {
-        return shared_ptr<timer>(new const_int_timer(interval));
+std::shared_ptr<timer> create_const_int_timer(double interval) {
+        return std::shared_ptr<timer>(new const_int_timer(interval));
 }
 
 }

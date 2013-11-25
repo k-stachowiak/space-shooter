@@ -22,17 +22,16 @@
 #define ENEMY_MANAGER_H
 
 #include <vector>
-using std::vector;
 
 #include "../efwk/game_ent_fac.h"
 #include "wave.h"
 
 class enemy_manager {
-        vector<wave> _waves;
+        std::vector<wave> _waves;
         unsigned _current_wave;
 
 public:
-        enemy_manager(vector<wave> waves)
+        enemy_manager(std::vector<wave> waves)
         : _waves(waves)
         , _current_wave(0)
         {}

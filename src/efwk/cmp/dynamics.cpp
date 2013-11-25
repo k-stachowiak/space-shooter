@@ -29,9 +29,9 @@
 namespace cmp {
 
 class complex_dynamics : public dynamics {
-        vector<shared_ptr<dynamics>> _ds;
+        std::vector<std::shared_ptr<dynamics>> _ds;
 public:
-        complex_dynamics(vector<shared_ptr<dynamics>> ds)
+        complex_dynamics(std::vector<std::shared_ptr<dynamics>> ds)
         : _ds(ds) {}
 
         void update(double dt) {
@@ -44,15 +44,15 @@ public:
                 }
         }
 
-        void input(map<int, bool>& keys) {
+        void input(std::map<int, bool>& keys) {
                 for(auto const& d : _ds) {
                         d->input(keys);
                 }
         }
 };
 
-shared_ptr<dynamics> create_complex_dynamics(vector<shared_ptr<dynamics>> ds) {
-        return shared_ptr<dynamics>(new complex_dynamics(ds));
+std::shared_ptr<dynamics> create_complex_dynamics(std::vector<std::shared_ptr<dynamics>> ds) {
+        return std::shared_ptr<dynamics>(new complex_dynamics(ds));
 }
 
 class const_velocity_dynamics : public dynamics {
@@ -63,11 +63,11 @@ public:
         }
 
         void update(double dt) {}
-        void input(map<int, bool>& keys) {}
+        void input(std::map<int, bool>& keys) {}
 };
 
-shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy) {
-        return shared_ptr<dynamics>(new const_velocity_dynamics(vx, vy));
+std::shared_ptr<dynamics> create_const_velocity_dynamics(double vx, double vy) {
+        return std::shared_ptr<dynamics>(new const_velocity_dynamics(vx, vy));
 }
 
 class const_acc_dynamics : public dynamics {
@@ -85,22 +85,22 @@ public:
                 _vy = _vy0 + _ay * _t;
         }
 
-        void input(map<int, bool>& keys) {}
+        void input(std::map<int, bool>& keys) {}
 };
 
-shared_ptr<dynamics> create_const_acc_dynamics(double vx0, double vy0, double ax, double ay) {
-        return shared_ptr<dynamics>(new const_acc_dynamics(vx0, vy0, ax, ay));
+std::shared_ptr<dynamics> create_const_acc_dynamics(double vx0, double vy0, double ax, double ay) {
+        return std::shared_ptr<dynamics>(new const_acc_dynamics(vx0, vy0, ax, ay));
 }
 
 class const_ang_vel_dynamics : public dynamics {
 public:
         const_ang_vel_dynamics(double theta) { _theta = theta; }
         void update(double dt) {}
-        void input(map<int, bool>& keys) {}
+        void input(std::map<int, bool>& keys) {}
 };
 
-shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta) {
-        return shared_ptr<dynamics>(new const_ang_vel_dynamics(theta));
+std::shared_ptr<dynamics> create_const_ang_vel_dynamics(double theta) {
+        return std::shared_ptr<dynamics>(new const_ang_vel_dynamics(theta));
 }
 
 class player_controlled_dynamics : public dynamics {
@@ -117,7 +117,7 @@ public:
                 _vy = _throttle_y * cfg::real("gameplay_player_vy");
         }
 
-        void input(map<int, bool>& keys) {
+        void input(std::map<int, bool>& keys) {
                 _throttle_x = 0.0;
             _throttle_y = 0.0;
                 if(keys[ALLEGRO_KEY_RIGHT]) _throttle_x += 1.0;
@@ -127,13 +127,13 @@ public:
         }
 };
 
-shared_ptr<dynamics> create_player_controlled_dynamics() {
-        return shared_ptr<dynamics>(new player_controlled_dynamics);
+std::shared_ptr<dynamics> create_player_controlled_dynamics() {
+        return std::shared_ptr<dynamics>(new player_controlled_dynamics);
 }
 
 class path_dynamics : public dynamics {
         // Configuration.
-        const vector<point> _points;
+        const std::vector<point> _points;
         const double _lin_vel;
 
         // State.
@@ -142,7 +142,7 @@ class path_dynamics : public dynamics {
         bool _done;
 
 public:
-        path_dynamics(vector<point> points, double lin_vel)
+        path_dynamics(std::vector<point> points, double lin_vel)
         : _points(points)
         , _lin_vel(lin_vel)
         , _x(points.front().x)
@@ -199,7 +199,7 @@ public:
                 _y = new_y;
         }
 
-        void input(map<int, bool>& keys) {}
+        void input(std::map<int, bool>& keys) {}
 
         void debug_draw() const {
                 for(unsigned i = 1; i < _points.size(); ++i) {
@@ -212,8 +212,8 @@ public:
         }
 };
 
-shared_ptr<dynamics> create_path_dynamics(vector<point> points, double lin_vel) {
-        return shared_ptr<dynamics>(new path_dynamics(points, lin_vel));
+std::shared_ptr<dynamics> create_path_dynamics(std::vector<point> points, double lin_vel) {
+        return std::shared_ptr<dynamics>(new path_dynamics(points, lin_vel));
 }
 
 }

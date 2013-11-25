@@ -1076,7 +1076,7 @@ uint64_t entity_factory::create_common_pickup(
 
         // Type dependent components.
         // --------------------------
-        res_id image_id;
+        res_id image_id = res_id::HEALTH;
         shared_ptr<cmp::pickup_profile> pp;
         switch(type) {
         case pickup_type::health:

@@ -55,8 +55,8 @@ static void register_expression(
 
         string other_key = node.list[1].atom;
 
-        int ileft;
-        double dleft;
+        int ileft = 0;
+        double dleft = 0;
         bool left_int = false;
 
         if(int_vars.find(other_key) != end(int_vars)) {
@@ -72,8 +72,8 @@ static void register_expression(
 
         string literal = node.list[2].atom;
 
-        int iright;
-        double dright;
+        int iright = 0;
+        double dright = 0;
         bool right_int;
 
         if(!script::parse_literal(literal, right_int, iright, dright))

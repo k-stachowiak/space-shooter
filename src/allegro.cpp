@@ -87,34 +87,28 @@ allegro::allegro(uint32_t scr_w, uint32_t scr_h, std::string title) {
         // Display initialization.
         // -----------------------
         al_set_new_display_flags(ALLEGRO_WINDOWED /* | ALLEGRO_OPENGL_3_0 */);
-        _display = al_create_display(scr_w, scr_h);
+        _display.reset(al_create_display(scr_w, scr_h));
         if(!_display) {
                 throw initialization_error("Failed initializing allegro display");
         }
-        al_set_window_title(_display, title.c_str());
+        al_set_window_title(_display.get(), title.c_str());
 
         // Create and setup the event queue.
         // ---------------------------------
-        _event_queue = al_create_event_queue();
+        _event_queue.reset(al_create_event_queue());
         if(!_event_queue) {
                 throw initialization_error("Failed initializing allegro event queue");
         }
 
         // Generic event sources.
-        al_register_event_source(_event_queue, al_get_keyboard_event_source());
-        al_register_event_source(_event_queue, al_get_mouse_event_source());
-        al_register_event_source(_event_queue, al_get_display_event_source(_display));
+        al_register_event_source(_event_queue.get(), al_get_keyboard_event_source());
+        al_register_event_source(_event_queue.get(), al_get_mouse_event_source());
+        al_register_event_source(_event_queue.get(), al_get_display_event_source(_display.get()));
 
-}
-
-allegro::~allegro() {
-        al_destroy_event_queue(_event_queue);
-        al_destroy_display(_display);
-        al_uninstall_audio();
 }
 
 ALLEGRO_DISPLAY* allegro::get_display() {
-        return _display;
+        return _display.get();
 }
 
 double allegro::current_time() {
@@ -129,8 +123,8 @@ void allegro::dump_events(state& s) {
         */
 
         ALLEGRO_EVENT ev;
-        while(!al_is_event_queue_empty(_event_queue)) {
-                al_get_next_event(_event_queue, &ev);
+        while(!al_is_event_queue_empty(_event_queue.get())) {
+                al_get_next_event(_event_queue.get(), &ev);
                 handle_event(ev, s);
         }
 }
@@ -140,7 +134,7 @@ void allegro::swap_buffers() const {
 }
 
 double allegro::get_display_refresh_rate() const {
-        int result = al_get_display_refresh_rate(_display);
+        int result = al_get_display_refresh_rate(_display.get());
         return double(result);
 }
 

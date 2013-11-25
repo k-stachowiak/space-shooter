@@ -195,8 +195,6 @@ public:
     {}
 
     void update(double dt) {
-        // TODO: Are two cases needed? (sync - like now, and
-        // unsync only updating current)
         _true_appr->update(dt);
         _false_appr->update(dt);
     }

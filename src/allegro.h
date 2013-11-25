@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include <string>
+#include <memory>
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
@@ -34,15 +35,30 @@
 #include "states/state.h"
 
 class allegro {
-        // TODO: Handle these with unique pointers
-        ALLEGRO_DISPLAY* _display;
-        ALLEGRO_EVENT_QUEUE* _event_queue;
+
+        struct display_deleter
+        {
+                void operator()(ALLEGRO_DISPLAY* d)
+                {
+                        al_destroy_display(d);
+                }
+        };
+
+        struct queue_deleter
+        {
+                void operator()(ALLEGRO_EVENT_QUEUE* eq)
+                {
+                        al_destroy_event_queue(eq);
+                }
+        };
+
+        std::unique_ptr<ALLEGRO_DISPLAY, display_deleter> _display;
+        std::unique_ptr<ALLEGRO_EVENT_QUEUE, queue_deleter> _event_queue;
 
         void handle_event(ALLEGRO_EVENT& ev, state& s) const;
 
 public:
         allegro(uint32_t scr_w, uint32_t scr_h, std::string title);
-        ~allegro();
         ALLEGRO_DISPLAY* get_display();
         double current_time();
         void dump_events(state& s);

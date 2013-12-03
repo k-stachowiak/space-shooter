@@ -15,4 +15,6 @@ shoot
 
 # Temp files
 *.swp
+
 build
+.gitignore

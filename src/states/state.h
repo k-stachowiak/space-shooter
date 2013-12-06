@@ -65,4 +65,8 @@ std::unique_ptr<state> create_hs_display_state(
                 res::resman const& res,
                 script::scriptman const& sman);
 
+std::unique_ptr<state> create_new_engine_state(
+                res::resman const& resman,
+                script::scriptman const& sman);
+
 #endif

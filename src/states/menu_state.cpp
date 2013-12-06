@@ -71,6 +71,9 @@ class menu_state : public state {
                 if(entry == "game") 
                         _next_state = create_game_state(_resman, _sman);
 
+                else if(entry == "new engine")
+                        _next_state = create_new_engine_state(_resman, _sman);
+
                 else if(entry == "highscore") 
                         _next_state = create_hs_display_state(_resman, _sman);
 
@@ -90,6 +93,7 @@ public:
         , _done(false)
         , _entries(std::vector<std::pair<std::string, std::shared_ptr<bool>>> {
                         { "game", std::shared_ptr<bool>(new bool(false)) },
+                        { "new engine", std::shared_ptr<bool>(new bool(false)) },
                         { "highscore", std::shared_ptr<bool>(new bool(false)) },
                         { "quit", std::shared_ptr<bool>(new bool(false)) }
         })

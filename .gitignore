@@ -15,3 +15,6 @@ shoot
 
 # Temp files
 *.swp
+
+# Project
+build/*

@@ -32,13 +32,14 @@ game::game(const std::map<int, bool>& keys) :
         m_player("data/player_ship.png",
                 500.0, m_keys,
                 100.0, 100.0, -3.1415 * 0.5,
-                0.0, 0.0, m_screen_w, m_screen_h)
+                0.0, 0.0, m_screen_w, m_screen_h,
+                0.1, 1.0)
 {
 }
 
 void game::update(double dt)
 {
-        efwk::weapon_input(m_player, m_keys);
+        efwk::weapon_input(m_player, m_keys, dt);
         efwk::move_ent(m_player, dt);
         efwk::bind_movement(m_player);
 }

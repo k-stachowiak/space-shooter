@@ -21,6 +21,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include <iostream>
+
 namespace efwk
 {
 
@@ -29,15 +31,28 @@ using IsWeaponInputable = HasPlayerWeapons<T>;
 
 template <class Entity>
 typename std::enable_if<IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity& ent, const std::map<int, bool>& keys)
+weapon_input(Entity& ent, const std::map<int, bool>& keys, double dt)
 {
-        if (keys.at(ALLEGRO_KEY_Z))
-                exit(1);
+        auto& pweap = ent.pweap;
+
+        pweap.update(dt);
+
+        if (keys.at(ALLEGRO_KEY_Z)) {
+                if (pweap.trigger_primary()) {
+                        std::cout << "fire primary" << std::endl;
+                }
+        }
+
+        if (keys.at(ALLEGRO_KEY_X)) {
+                if (pweap.trigger_secondary()) {
+                        std::cout << "fire secondary" << std::endl;
+                }
+        }
 }
 
 template <class Entity>
 typename std::enable_if<!IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity&, const std::map<int, bool>&)
+weapon_input(Entity&, const std::map<int, bool>&, double)
 {
 }
 

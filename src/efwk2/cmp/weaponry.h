@@ -26,8 +26,63 @@
 namespace efwk
 {
 
-struct player_weapons
+class cooldown
 {
+        double m_interval;
+        double m_counter;
+
+public:
+        cooldown(double interval) :
+                m_interval(interval),
+                m_counter(0.0)
+        {
+        }
+
+        bool trigger()
+        {
+                if(m_counter <= 0.0) {
+                        m_counter += m_interval;
+                        return true;
+                }
+
+                return false;
+        }
+
+        void update(double dt)
+        {
+                if(m_counter > 0.0)
+                        m_counter -= dt;
+        }
+};
+
+class player_weapons
+{
+        cooldown m_minigun;
+        cooldown m_rocket_launcher;
+
+public:
+        player_weapons(double primary_interval,
+                       double secondary_interval) :
+                m_minigun(primary_interval),
+                m_rocket_launcher(secondary_interval)
+        {
+        }
+
+        void update(double dt)
+        {
+                m_minigun.update(dt);
+                m_rocket_launcher.update(dt);
+        }
+
+        bool trigger_primary()
+        {
+                return m_minigun.trigger();
+        }
+
+        bool trigger_secondary()
+        {
+                return m_rocket_launcher.trigger();
+        }
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasPlayerWeapons, player_weapons, pweap);

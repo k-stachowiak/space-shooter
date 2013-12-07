@@ -41,11 +41,13 @@ struct player_controlled
         player_controlled(const std::string& img_name,
                 double velocity, const std::map<int, bool>& keys,
                 double x, double y, double phi,
-                double x_min, double y_min, double x_max, double y_max) :
+                double x_min, double y_min, double x_max, double y_max,
+                double minigun_interval, double rocket_launcher_interval) :
                         appr(nullptr),
                         dyn(velocity, keys),
                         ori(x, y, phi),
-                        bnd(x_min, y_min, x_max, y_max)
+                        bnd(x_min, y_min, x_max, y_max),
+                        pweap(minigun_interval, rocket_launcher_interval)
         {
                 appr.current_bitmap = al_load_bitmap(img_name.c_str());
         }

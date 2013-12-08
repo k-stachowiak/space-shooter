@@ -60,6 +60,15 @@ class game
 
         void spawn_enemy_process(double dt);
 
+        template <class Entity>
+        void update_entity(Entity& ent, double dt)
+        {
+                efwk::weapon_input(ent, m_keys, dt, m_resman, m_cbus);
+                efwk::move_ent(ent, dt);
+                efwk::bind_movement(ent);
+                efwk::bind_life(ent, m_cbus);
+        }
+
 public:
         game(const res::resman& resman, const std::map<int, bool>& keys);
         void update(double dt);

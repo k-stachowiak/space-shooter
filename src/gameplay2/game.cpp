@@ -18,6 +18,8 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#include <functional>
+
 #include "game.h"
 
 #include "../misc/config.h"
@@ -62,14 +64,15 @@ void game::update(double dt)
 {
         // Update entities.
 
-        efwk::weapon_input(m_player, m_keys, dt, m_resman, m_cbus);
-        efwk::move_ent(m_player, dt);
-        efwk::bind_movement(m_player);
+        update_entity(m_player, dt);
 
-        std::for_each(begin(m_bullets), end(m_bullets), [dt, this](efwk::bullet& b) {
-                efwk::move_ent(b, dt);
-                efwk::bind_life(b, m_cbus);
-        });
+        // TODO: Wtf? const? AAAAAAAA?
+        std::for_each(begin(m_bullets),
+                      end(m_bullets),
+                      std::bind(&game::update_entity<efwk::bullet>,
+                                this,
+                                std::placeholders::_1,
+                                dt));
 
         std::for_each(begin(m_enemies), end(m_enemies), [dt, this](efwk::enemy& e) {
                 efwk::move_ent(e, dt);

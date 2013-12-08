@@ -36,10 +36,10 @@ public:
         new_engine_state(
                 res::resman const& resman,
                 script::scriptman const& sman) :
-                m_done(false),
-                m_resman(resman),
-                m_sman(sman),
-                m_game(m_keys)
+                        m_done(false),
+                        m_resman(resman),
+                        m_sman(sman),
+                        m_game(resman, m_keys)
         {
                 m_keys[ALLEGRO_KEY_LEFT] = false;
                 m_keys[ALLEGRO_KEY_UP] = false;

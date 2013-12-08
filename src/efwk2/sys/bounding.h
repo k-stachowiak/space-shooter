@@ -32,18 +32,42 @@ typename std::enable_if<IsMoveBoundable<Entity>::value, void>::type
 bind_movement(Entity& ent)
 {
         auto& ori = ent.ori;
-        const auto& bnd = ent.bnd;
+        const auto& mbnd = ent.mbnd;
 
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(1.0);
 
-        if (!point_in_bounds(x, y, bnd))
+        if (!point_in_bounds(x, y, mbnd))
                 ori.cancel_move();
 }
 
 template <class Entity>
 typename std::enable_if<!IsMoveBoundable<Entity>::value, void>::type
 bind_movement(Entity&)
+{
+}
+
+template <class T>
+using IsLifeBoundable = TmpAll<HasOrientation<T>, HasLifeBounds<T>>;
+
+template <class Entity>
+typename std::enable_if<IsLifeBoundable<Entity>::value, void>::type
+bind_life(const Entity& ent, comm_bus& cbus)
+{
+        long id = ent.id;
+        const auto& ori = ent.ori;
+        const auto& lbnd = ent.lbnd;
+
+        double x, y;
+        std::tie(x, y) = ori.interpolate_loc(1.0);
+
+        if (!point_in_bounds(x, y, lbnd))
+                cbus.bullet_dels.push(id);
+}
+
+template <class Entity>
+typename std::enable_if<!IsLifeBoundable<Entity>::value, void>::type
+bind_life(const Entity&, comm_bus&)
 {
 }
 

@@ -56,18 +56,18 @@ struct move_bounds : public bounds
         }
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasMoveBounds, move_bounds, bnd);
+SFINAE__DECLARE_HAS_MEMBER(HasMoveBounds, move_bounds, mbnd);
 
-struct life_bouds : public bounds
+struct life_bounds : public bounds
 {
-        life_bouds(double new_x_min, double new_y_min,
+        life_bounds(double new_x_min, double new_y_min,
                     double new_x_max, double new_y_max) :
                 bounds(new_x_min, new_y_min, new_x_max, new_y_max)
         {
         }
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasLifeBounds, life_bouds, bnd);
+SFINAE__DECLARE_HAS_MEMBER(HasLifeBounds, life_bounds, lbnd);
 
 }
 

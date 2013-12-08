@@ -21,7 +21,12 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "../resources/resman.h"
+
+#include "../efwk2/comm.h"
+
 #include "../efwk2/ent/player_controlled.h"
+#include "../efwk2/ent/bullet.h"
 #include "../efwk2/sys/bounding.h"
 #include "../efwk2/sys/display.h"
 #include "../efwk2/sys/movement.h"
@@ -32,15 +37,24 @@ namespace gplay
 
 class game
 {
+        const res::resman& m_resman;
+
         const double m_screen_w;
         const double m_screen_h;
 
         const std::map<int, bool>& m_keys;
 
+        long m_next_id;
+
         efwk::player_controlled m_player;
+        std::vector<efwk::bullet> m_bullets;
+
+        efwk::comm_bus m_cbus;
+
+        long next_id() { return ++m_next_id; }
 
 public:
-        game(const std::map<int, bool>& keys);
+        game(const res::resman& resman, const std::map<int, bool>& keys);
         void update(double dt);
         void draw(double weight);
 };

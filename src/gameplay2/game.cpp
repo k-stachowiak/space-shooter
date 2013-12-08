@@ -25,12 +25,15 @@
 namespace gplay
 {
 
-game::game(const std::map<int, bool>& keys) :
+game::game(const res::resman& resman, const std::map<int, bool>& keys) :
+        m_resman(resman),
         m_screen_w(cfg::integer("gfx_screen_w")),
         m_screen_h(cfg::integer("gfx_screen_h")),
         m_keys(keys),
-        m_player("data/player_ship.png",
-                500.0, m_keys,
+        m_next_id(0),
+        m_player(next_id(),
+                m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
+                400.0, m_keys,
                 100.0, 100.0, -3.1415 * 0.5,
                 0.0, 0.0, m_screen_w, m_screen_h,
                 0.1, 1.0)
@@ -39,15 +42,47 @@ game::game(const std::map<int, bool>& keys) :
 
 void game::update(double dt)
 {
-        efwk::weapon_input(m_player, m_keys, dt);
+        // Update entities.
+
+        efwk::weapon_input(m_player, m_keys, dt, m_resman, m_cbus);
         efwk::move_ent(m_player, dt);
         efwk::bind_movement(m_player);
+
+        std::for_each(begin(m_bullets), end(m_bullets), [dt, this](efwk::bullet& b) {
+                efwk::move_ent(b, dt);
+                efwk::bind_movement(b);
+                efwk::bind_life(b, m_cbus);
+        });
+
+        // Handle deletion messages.
+
+        m_cbus.bullet_dels.visit(dt, [this](long rem_id) {
+                auto found = std::find_if(begin(m_bullets), end(m_bullets),
+                        [rem_id](const efwk::bullet& b) {
+                                return b.id == rem_id;
+                        });
+
+                *found = std::move(m_bullets.back());
+                m_bullets.pop_back();
+        });
+
+        // Handle creations messages.
+
+        m_cbus.bullet_reqs.visit(dt, [this](efwk::bullet& b) {
+                b.id = next_id(); // Fix the id.
+                m_bullets.push_back(b);
+        });
 }
 
 void game::draw(double weight)
 {
         al_clear_to_color(al_map_rgb_f(0, 0, 0));
+
         efwk::display_ent(m_player, weight);
+
+        for (auto& b : m_bullets) {
+                efwk::display_ent(b, weight);
+        }
 }
 
 }

@@ -23,23 +23,44 @@
 
 #include <iostream>
 
+#include "../../misc/config.h"
+#include "../../resources/resman.h"
+
 namespace efwk
 {
 
 template <class T>
-using IsWeaponInputable = HasPlayerWeapons<T>;
+using IsWeaponInputable = TmpAll<HasPlayerWeapons<T>, HasOrientation<T>>;
 
 template <class Entity>
 typename std::enable_if<IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity& ent, const std::map<int, bool>& keys, double dt)
+weapon_input(   Entity& ent,
+                const std::map<int, bool>& keys,
+                double dt,
+                const res::resman& rm,
+                comm_bus& cbus)
 {
         auto& pweap = ent.pweap;
+        const auto& ori = ent.ori;
 
         pweap.update(dt);
 
         if (keys.at(ALLEGRO_KEY_Z)) {
                 if (pweap.trigger_primary()) {
-                        std::cout << "fire primary" << std::endl;
+
+                        double x, y;
+                        std::tie(x, y) = ori.interpolate_loc(0);
+
+                        bullet blt(
+                                -1, // invalid_id
+                                rm.get_bitmap(res::res_id::BULLET_5),
+                                800.0, 0.0, -1.0,
+                                x, y, -3.1415 * 0.5,
+                                0.0, 0.0,
+                                cfg::integer("gfx_screen_w"),
+                                cfg::integer("gfx_screen_h"));
+
+                        cbus.bullet_reqs.push(blt);
                 }
         }
 
@@ -52,7 +73,7 @@ weapon_input(Entity& ent, const std::map<int, bool>& keys, double dt)
 
 template <class Entity>
 typename std::enable_if<!IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity&, const std::map<int, bool>&, double)
+weapon_input(Entity&, const std::map<int, bool>&, double, res::resman, comm_bus&)
 {
 }
 

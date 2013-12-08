@@ -1,4 +1,4 @@
-/* Copyright (C) 2012,2013 Krzysztof Stachowiak */
+/* Copyright (C) 2013 Krzysztof Stachowiak */
 
 /*
  * This file is part of space-shooter.
@@ -18,40 +18,45 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef PLAYER_CONTROLLED_H
-#define PLAYER_CONTROLLED_H
+#ifndef BULLET_H
+#define BULLET_H
 
 #include "../cmp/appearance.h"
 #include "../cmp/bounds.h"
 #include "../cmp/dynamics.h"
 #include "../cmp/orientation.h"
-#include "../cmp/weaponry.h"
 
 namespace efwk
 {
 
-struct player_controlled
+struct bullet
 {
         long id;
         appearance appr;
-        player_ctrl_dynamics dyn;
+        life_bounds lbnd;
+        const_vel_dynamics dyn;
         orientation ori;
-        move_bounds mbnd;
-        player_weapons pweap;
 
-        player_controlled(
-                long new_id,
-                ALLEGRO_BITMAP* bmp,
-                double velocity, const std::map<int, bool>& keys,
-                double x, double y, double phi,
-                double x_min, double y_min, double x_max, double y_max,
-                double minigun_interval, double rocket_launcher_interval) :
-                        appr(bmp),
-                        dyn(velocity, keys),
-                        ori(x, y, phi),
-                        mbnd(x_min, y_min, x_max, y_max),
-                        pweap(minigun_interval, rocket_launcher_interval)
+        bullet(long new_id,
+               ALLEGRO_BITMAP* bmp,
+               double velocity, double dx, double dy,
+               double x, double y, double phi,
+               double x_min, double y_min,
+               double x_max, double y_max) :
+                id(new_id),
+                appr(bmp),
+                lbnd(x_min, y_min, x_max, y_max),
+                dyn(0, 0),
+                ori(x, y, phi)
         {
+                const double dx2 = dx * dx;
+                const double dy2 = dy * dy;
+                const double len = sqrt(dx2 + dy2);
+
+                if (len != 0) {
+                        dyn.vx = dx * velocity / len;
+                        dyn.vy = dy * velocity / len;
+                }
         }
 };
 

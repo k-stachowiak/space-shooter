@@ -18,18 +18,35 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#include "../misc/delq.h"
-
-#include "ent/bullet.h"
+#ifndef ENEMY_H
+#define ENEMY_H
 
 namespace efwk
 {
 
-struct comm_bus
+struct enemy
 {
-        del_queue<bullet> bullet_reqs;
+        long id;
+        appearance appr;
+        life_bounds lbnd;
+        const_vel_dynamics dyn;
+        orientation ori;
 
-        del_queue<long> dels;
+        enemy(long new_id,
+              ALLEGRO_BITMAP* bmp,
+              double velocity,
+              double x, double y,
+              double x_min, double y_min,
+              double x_max, double y_max) :
+                id(new_id),
+                appr(bmp),
+                lbnd(x_min, y_min, x_max, y_max),
+                dyn(0, velocity),
+                ori(x, y, 3.1415 * 0.5)
+        {
+        }
 };
 
 }
+
+#endif

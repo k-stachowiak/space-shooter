@@ -25,12 +25,30 @@
 namespace gplay
 {
 
+void game::spawn_enemy_process(double dt)
+{
+        if ((m_next_enemy_counter -= dt) > 0) {
+                return;
+        }
+
+        m_next_enemy_counter += 3.0;
+        m_enemies.emplace_back(
+                next_id(),
+                m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER),
+                100.0,
+                400.0, 10.0,
+                0, 0, 
+                cfg::integer("gfx_screen_w"),
+                cfg::integer("gfx_screen_h"));
+}
+
 game::game(const res::resman& resman, const std::map<int, bool>& keys) :
         m_resman(resman),
         m_screen_w(cfg::integer("gfx_screen_w")),
         m_screen_h(cfg::integer("gfx_screen_h")),
         m_keys(keys),
         m_next_id(0),
+        m_next_enemy_counter(0),
         m_player(next_id(),
                 m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
                 400.0, m_keys,
@@ -50,20 +68,38 @@ void game::update(double dt)
 
         std::for_each(begin(m_bullets), end(m_bullets), [dt, this](efwk::bullet& b) {
                 efwk::move_ent(b, dt);
-                efwk::bind_movement(b);
                 efwk::bind_life(b, m_cbus);
+        });
+
+        std::for_each(begin(m_enemies), end(m_enemies), [dt, this](efwk::enemy& e) {
+                efwk::move_ent(e, dt);
+                efwk::bind_life(e, m_cbus);
         });
 
         // Handle deletion messages.
 
-        m_cbus.bullet_dels.visit(dt, [this](long rem_id) {
-                auto found = std::find_if(begin(m_bullets), end(m_bullets),
+        m_cbus.dels.visit(dt, [this](long rem_id) {
+                auto found_bullet = std::find_if(begin(m_bullets), end(m_bullets),
                         [rem_id](const efwk::bullet& b) {
                                 return b.id == rem_id;
                         });
 
-                *found = std::move(m_bullets.back());
-                m_bullets.pop_back();
+                if (found_bullet != end(m_bullets)) {
+                        *found_bullet = std::move(m_bullets.back());
+                        m_bullets.pop_back();
+                        return;
+                }
+
+                auto found_enemy = std::find_if(begin(m_enemies), end(m_enemies),
+                        [rem_id](const efwk::enemy& e) {
+                                return e.id == rem_id;
+                        });
+
+                if (found_enemy != end(m_enemies)) {
+                        *found_enemy = std::move(m_enemies.back());
+                        m_enemies.pop_back();
+                        return;
+                }
         });
 
         // Handle creations messages.
@@ -72,6 +108,8 @@ void game::update(double dt)
                 b.id = next_id(); // Fix the id.
                 m_bullets.push_back(b);
         });
+
+        spawn_enemy_process(dt);
 }
 
 void game::draw(double weight)
@@ -82,6 +120,10 @@ void game::draw(double weight)
 
         for (auto& b : m_bullets) {
                 efwk::display_ent(b, weight);
+        }
+
+        for (auto& e : m_enemies) {
+                efwk::display_ent(e, weight);
         }
 }
 

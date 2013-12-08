@@ -26,7 +26,9 @@
 #include "../efwk2/comm.h"
 
 #include "../efwk2/ent/player_controlled.h"
+#include "../efwk2/ent/enemy.h"
 #include "../efwk2/ent/bullet.h"
+
 #include "../efwk2/sys/bounding.h"
 #include "../efwk2/sys/display.h"
 #include "../efwk2/sys/movement.h"
@@ -46,12 +48,17 @@ class game
 
         long m_next_id;
 
+        double m_next_enemy_counter;
+
         efwk::player_controlled m_player;
         std::vector<efwk::bullet> m_bullets;
+        std::vector<efwk::enemy> m_enemies;
 
         efwk::comm_bus m_cbus;
 
         long next_id() { return ++m_next_id; }
+
+        void spawn_enemy_process(double dt);
 
 public:
         game(const res::resman& resman, const std::map<int, bool>& keys);

@@ -62,7 +62,7 @@ bind_life(const Entity& ent, comm_bus& cbus)
         std::tie(x, y) = ori.interpolate_loc(1.0);
 
         if (!point_in_bounds(x, y, lbnd))
-                cbus.bullet_dels.push(id);
+                cbus.dels.push(id);
 }
 
 template <class Entity>

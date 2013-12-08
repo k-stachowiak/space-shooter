@@ -46,7 +46,7 @@ class const_vel_dynamics: public dynamics
 {
 public:
         const_vel_dynamics(double vx, double vy) :
-                        dynamics(vx, vx, 0)
+                dynamics(vx, vy, 0)
         {}
 
         void update(double dt)

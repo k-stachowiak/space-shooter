@@ -23,16 +23,31 @@
 
 #include <vector>
 
+#include "../cmp/coll_queue.h"
+#include "../cmp/col_profile.h"
+#include "../cmp/wellness.h"
+
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
+struct pain_node {
+
+        // coll_queue - contains candidates for the pain dealing
+        // cp         - basis for the pain computation
+        // wellness   - is modified upon taking damage
+
+        uint64_t id;
+        std::shared_ptr<cmp::coll_queue> coll_queue;
+        std::shared_ptr<cmp::collision_profile> cp;
+        std::shared_ptr<cmp::wellness> wellness;
+};
+
 class pain_system : public updatable_system {
-        std::vector<nd::pain_node> _nodes;
+        std::vector<pain_node> _nodes;
 public:
         void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
-        void add_node(nd::pain_node node) { _nodes.push_back(node); }
+        void add_node(pain_node node) { _nodes.push_back(node); }
         void update(double dt, comm::msg_queue& msg);
 };
 

@@ -325,12 +325,12 @@ public:
         , _debug(false)
         , _done(false)
         , _drawing_system(resman.get_font(res::res_id::TINY_FONT))
-        , _score_system(std::map<cmp::score_class, double> {
-                { cmp::score_class::PLAYER, cfg::real("gameplay_score_for_player") },
-                { cmp::score_class::ENEMY_LIGHT_FIGHTER, cfg::real("gameplay_score_for_lfighter") },
-                { cmp::score_class::ENEMY_HEAVY_FIGHTER, cfg::real("gameplay_score_for_hfighter") },
-                { cmp::score_class::ENEMY_LIGHT_BOMBER, cfg::real("gameplay_score_for_lbomber")},
-                { cmp::score_class::ENEMY_HEAVY_BOMBER, cfg::real("gameplay_score_for_hbomber") } })
+        , _score_system(std::map<sys::score_class, double> {
+                { sys::score_class::PLAYER, cfg::real("gameplay_score_for_player") },
+                { sys::score_class::ENEMY_LIGHT_FIGHTER, cfg::real("gameplay_score_for_lfighter") },
+                { sys::score_class::ENEMY_HEAVY_FIGHTER, cfg::real("gameplay_score_for_hfighter") },
+                { sys::score_class::ENEMY_LIGHT_BOMBER, cfg::real("gameplay_score_for_lbomber")},
+                { sys::score_class::ENEMY_HEAVY_BOMBER, cfg::real("gameplay_score_for_hbomber") } })
         , _hud_system(
                 _resman.get_bitmap(res::res_id::HUD_BG),
                 _resman.get_bitmap(res::res_id::HEALTH),

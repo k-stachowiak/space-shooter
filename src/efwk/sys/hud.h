@@ -23,10 +23,24 @@
 
 #include <vector>
 
+#include "../cmp/wellness.h"
+#include "../cmp/upgrades.h"
+
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
+
+struct hud_node {
+
+        // score    - the value to be displayed
+        // wellness - for the health and shield display
+        // upgrade  - the upgrades' status
+
+        uint64_t id;
+        std::shared_ptr<double> score;
+        std::shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::upgrades> upgrades;
+};
 
 class hud_system : public drawable_system {
 
@@ -42,13 +56,13 @@ class hud_system : public drawable_system {
         ALLEGRO_FONT* _hud_font;
         double _screen_w, _screen_h;
 
-        std::vector<nd::hud_node> _nodes;
+        std::vector<hud_node> _nodes;
 
         void draw_background();
-        void draw_score(nd::hud_node const& n);
-        void draw_wellness(nd::hud_node const& n);
-        void draw_upgrades(nd::hud_node const& n);
-        void draw_ammo(nd::hud_node const& n);
+        void draw_score(hud_node const& n);
+        void draw_wellness(hud_node const& n);
+        void draw_upgrades(hud_node const& n);
+        void draw_ammo(hud_node const& n);
 
 public:
         hud_system(
@@ -76,7 +90,7 @@ public:
         , _screen_h      (screen_h)
         {}
         void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
-        void add_node(nd::hud_node node) { _nodes.push_back(node); }
+        void add_node(hud_node node) { _nodes.push_back(node); }
         void draw(double weight);
 };
 

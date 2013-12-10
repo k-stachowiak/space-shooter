@@ -62,7 +62,7 @@ void hud_system::draw_background() {
         al_draw_bitmap(_hud_bg, 0, 0, 0);
 }
 
-void hud_system::draw_score(nd::hud_node const& n) {
+void hud_system::draw_score(hud_node const& n) {
         int player_score = int(*(n.score));
         al_draw_textf(
                 _score_font,
@@ -71,7 +71,7 @@ void hud_system::draw_score(nd::hud_node const& n) {
                 "Score: %d", player_score);
 }
 
-void hud_system::draw_wellness(nd::hud_node const& n) {
+void hud_system::draw_wellness(hud_node const& n) {
         double max_health = n.wellness->get_max_health();
         double health = n.wellness->get_health();
         double h_ratio = health / max_health;
@@ -90,7 +90,7 @@ void hud_system::draw_wellness(nd::hud_node const& n) {
         al_draw_bitmap(_hud_battery, 75.0, _screen_h - 50.0 - 20.0, 0);
 }
 
-void hud_system::draw_upgrades(nd::hud_node const& n) {
+void hud_system::draw_upgrades(hud_node const& n) {
         unsigned gun_lvl = n.upgrades->gun_lvl();
         unsigned gun_ticks = n.upgrades->gun_ticks();
         unsigned gun_max_ticks = n.upgrades->gun_ticks_per_level();

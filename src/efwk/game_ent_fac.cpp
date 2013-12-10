@@ -47,7 +47,7 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::FX;
+        auto plane = sys::draw_plane::FX;
         auto appearance = cmp::create_simple_anim(
                         _resman.get_bitmap(res::res_id::EXPLOSION),
                         frame_width,
@@ -71,7 +71,7 @@ uint64_t entity_factory::create_explosion(double x, double y) {
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _sound_system.add_node({ id, nqueue });
         _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
@@ -125,7 +125,7 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::FX;
+        auto plane = sys::draw_plane::FX;
         auto appearance = cmp::create_simple_anim(
                         _resman.get_bitmap(rid),
                         frame_width,
@@ -149,7 +149,7 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _sound_system.add_node({ id, nqueue });
         _fx_system.add_node({ id, appearance, orientation, shape, wellness, fxs });
@@ -196,7 +196,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::FX;
+        auto plane = sys::draw_plane::FX;
         auto appearance = cmp::create_static_bmp(_resman.get_bitmap(bmp));
 
         // Wellness nodes.
@@ -235,7 +235,7 @@ uint64_t entity_factory::create_debris(double x, double y,
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _wellness_system.add_node({ id, on_death, orientation, shape, dynamics, nqueue, wellness, ttl });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
         _collision_system.add_node({ id, origin_id, orientation, cp, pp, shape, coll_queue, "debris" }); 
@@ -272,7 +272,7 @@ uint64_t entity_factory::create_star_xy(double x, double y) {
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::BACKGROUND;
+        auto plane = sys::draw_plane::BACKGROUND;
         auto appearance = cmp::create_pixel(shade, shade, shade);
 
         // Movement components.
@@ -283,7 +283,7 @@ uint64_t entity_factory::create_star_xy(double x, double y) {
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
 
         return id;
@@ -299,7 +299,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::SHIPS;
+        auto plane = sys::draw_plane::SHIPS;
         auto appearance_base = cmp::create_static_bmp(
                         _resman.get_bitmap(res::res_id::PLAYER_SHIP));
         auto appearance_flash = cmp::create_static_bmp(
@@ -381,7 +381,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
         // Score components.
         // -----------------
         auto score = std::make_shared<double>();
-        auto sc = cmp::score_class::PLAYER;
+        auto sc = sys::score_class::PLAYER;
 
         // Sound components.
         // -----------------
@@ -389,7 +389,7 @@ uint64_t entity_factory::create_player_ship(double x, double y) {
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "player" });
@@ -416,7 +416,7 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, std::share
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::SHIPS;
+        auto plane = sys::draw_plane::SHIPS;
         auto appearance_base = cmp::create_static_bmp(
                         _resman.get_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER));
         auto appearance_flash = cmp::create_static_bmp(
@@ -524,7 +524,7 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, std::share
         // Score components.
         // -----------------
         auto score = std::make_shared<double>();
-        auto sc = cmp::score_class::ENEMY_LIGHT_FIGHTER;
+        auto sc = sys::score_class::ENEMY_LIGHT_FIGHTER;
 
         // Sound components.
         // -----------------
@@ -532,7 +532,7 @@ uint64_t entity_factory::create_light_fighter_dyn(double x, double y, std::share
 
         // Register components.
         // --------------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "l_fighter" });
@@ -556,7 +556,7 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, std::share
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::SHIPS;
+        auto plane = sys::draw_plane::SHIPS;
         auto appearance_base = cmp::create_static_bmp(
                         _resman.get_bitmap(res::res_id::ENEMY_HEAVY_FIGHTER));
         auto appearance_flash = cmp::create_static_bmp(
@@ -676,7 +676,7 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, std::share
         // Score components.
         // -----------------
         auto score = std::make_shared<double>();
-        auto sc = cmp::score_class::ENEMY_HEAVY_FIGHTER;
+        auto sc = sys::score_class::ENEMY_HEAVY_FIGHTER;
 
         // Sound components.
         // -----------------
@@ -684,7 +684,7 @@ uint64_t entity_factory::create_heavy_fighter_dyn(double x, double y, std::share
 
         // Register the components.
         // ------------------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "h_fighter" });
@@ -730,7 +730,7 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, std::shared
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::SHIPS;
+        auto plane = sys::draw_plane::SHIPS;
         auto appearance_base = cmp::create_static_bmp(
                         _resman.get_bitmap(res::res_id::ENEMY_LIGHT_BOMBER));
         auto appearance_flash = cmp::create_static_bmp(
@@ -851,7 +851,7 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, std::shared
         // Score components.
         // -----------------
         auto score = std::make_shared<double>();
-        auto sc = cmp::score_class::ENEMY_LIGHT_BOMBER;
+        auto sc = sys::score_class::ENEMY_LIGHT_BOMBER;
 
         // Sound components.
         // -----------------
@@ -859,7 +859,7 @@ uint64_t entity_factory::create_light_bomber_dyn(double x, double y, std::shared
 
         // Register the components.
         // ------------------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "l_bomber" });
@@ -905,7 +905,7 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, std::shared
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::SHIPS;
+        auto plane = sys::draw_plane::SHIPS;
         auto appearance_base = cmp::create_static_bmp(
                         _resman.get_bitmap(res::res_id::ENEMY_HEAVY_BOMBER));
         auto appearance_flash = cmp::create_static_bmp(
@@ -1026,7 +1026,7 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, std::shared
         // Score components.
         // -----------------
         auto score = std::make_shared<double>();
-        auto sc = cmp::score_class::ENEMY_HEAVY_BOMBER;
+        auto sc = sys::score_class::ENEMY_HEAVY_BOMBER;
 
         // Sound components.
         // -----------------
@@ -1034,7 +1034,7 @@ uint64_t entity_factory::create_heavy_bomber_dyn(double x, double y, std::shared
 
         // Register the components.
         // ------------------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds});
         _arms_system.add_node({ id, orientation, weapon_beh, upgrades, nqueue });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "h_bomber" });
@@ -1103,7 +1103,7 @@ uint64_t entity_factory::create_common_pickup(
         auto shape = cmp::create_circle(cfg::real("gameplay_pickup_shape_radius"));
 
         // Drawing components.
-        auto draw_plane = cmp::draw_plane::FX;
+        auto plane = sys::draw_plane::FX;
         auto appearance = cmp::create_static_bmp(
                         _resman.get_bitmap(image_id));
 
@@ -1127,7 +1127,7 @@ uint64_t entity_factory::create_common_pickup(
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics });
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics });
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds });
         _collision_system.add_node({ id, id, orientation, cp, pp, shape, coll_queue, "pickup" });
 
@@ -1186,7 +1186,7 @@ uint64_t entity_factory::create_missile(
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::PROJECTILES;
+        auto plane = sys::draw_plane::PROJECTILES;
         auto appearance = cmp::create_static_bmp(
                         _resman.get_bitmap(res::res_id::MISSILE));
 
@@ -1245,7 +1245,7 @@ uint64_t entity_factory::create_missile(
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics }); 
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics }); 
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds}); 
         _collision_system.add_node({ id, origin_id, orientation, cp, pp, shape, coll_queue, "missile" });
         _pain_system.add_node({ id, coll_queue, cp, wellness });
@@ -1310,7 +1310,7 @@ uint64_t entity_factory::create_bullet(
 
         // Drawing components.
         // -------------------
-        auto draw_plane = cmp::draw_plane::PROJECTILES;
+        auto plane = sys::draw_plane::PROJECTILES;
         auto appearance = cmp::create_static_bmp(_resman.get_bitmap(image));
 
         // Movement components.
@@ -1339,7 +1339,7 @@ uint64_t entity_factory::create_bullet(
 
         // Register nodes.
         // ---------------
-        _drawing_system.add_node({ id, draw_plane, appearance, orientation, shape, dynamics }); 
+        _drawing_system.add_node({ id, plane, appearance, orientation, shape, dynamics }); 
         _movement_system.add_node({ id, dynamics, orientation, shape, movement_bounds, life_bounds }); 
         _collision_system.add_node({ id, origin_id, orientation, cp, pp, shape, coll_queue, "bullet" }); 
         _pain_system.add_node({ id, coll_queue, cp, wellness });

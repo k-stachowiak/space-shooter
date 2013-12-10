@@ -24,18 +24,45 @@
 #include <vector>
 #include <memory>
 
+#include "../cmp/reaction.h"
+#include "../cmp/orientation.h"
+#include "../cmp/shape.h"
+#include "../cmp/dynamics.h"
+#include "../cmp/noise_queue.h"
+#include "../cmp/wellness.h"
+#include "../cmp/timer.h"
+
 #include "../../misc/maybe.h"
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
+struct wellness_node {
+
+        // on_death    - the reaction to be triggered, when the entity dies
+        // orientation - for the reaction
+        // shape       - for the reaction
+        // dynamics    - for the reaction
+        // nqueue      - for the reaction
+        // wellness    - monitored to notice, when the entity dies
+        // ttl         - after the time to live runs out the entity dies
+
+        uint64_t id;
+        std::shared_ptr<cmp::reaction> on_death;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::dynamics> dynamics;
+        std::shared_ptr<cmp::noise_queue> nqueue;
+        std::shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::timer> ttl;
+};
+
 class wellness_system : public updatable_system {
-        std::vector<nd::wellness_node> _nodes;
+        std::vector<wellness_node> _nodes;
 
 public:
         void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
-        void add_node(nd::wellness_node node) { _nodes.push_back(node); }
+        void add_node(wellness_node node) { _nodes.push_back(node); }
         void update(double dt, comm::msg_queue& msg);
 };
 

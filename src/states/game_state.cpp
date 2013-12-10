@@ -177,6 +177,9 @@ class game_state : public state {
         sys::hud_system         _hud_system;
         sys::sound_system       _sound_system;
 
+        std::vector<sys::updatable_system*> _updatable_systems;
+        std::vector<sys::drawable_system*> _drawable_systems;
+
         // Factories.
         // ----------
         entity_factory _ef;
@@ -341,6 +344,20 @@ public:
                 cfg::integer("gfx_screen_w"),
                 cfg::integer("gfx_screen_h"))
         , _sound_system(_resman)
+        , _updatable_systems(std::vector<sys::updatable_system*> {
+                &_movement_system,
+                &_collision_system,
+                &_arms_system,
+                &_pain_system,
+                &_wellness_system,
+                &_fx_system,
+                &_score_system,
+                &_pickup_system,
+                &_input_system,
+                &_sound_system })
+        , _drawable_systems(std::vector<sys::drawable_system*> {
+                &_drawing_system,
+                &_hud_system })
         , _ef(_resman,
                 _movement_system,
                 _collision_system,
@@ -413,39 +430,23 @@ public:
                         _en_man.reset();
                 }
 
-                // Manage the debug ouptut. 
-                _movement_system.set_debug_mode(_debug);
-                _collision_system.set_debug_mode(_debug);
-                _arms_system.set_debug_mode(_debug);
-                _pain_system.set_debug_mode(_debug);
-                _wellness_system.set_debug_mode(_debug);
-                _fx_system.set_debug_mode(_debug);
-                _drawing_system.set_debug_mode(_debug);
-                _score_system.set_debug_mode(_debug);
-                _pickup_system.set_debug_mode(_debug);
-                _input_system.set_debug_mode(_debug);
-                _hud_system.set_debug_mode(_debug);
-                _sound_system.set_debug_mode(_debug);
+                for (auto* s : _drawable_systems) {
+                        s->set_debug_mode(_debug);
+                }
 
-                // Update logic systems.
-                _movement_system.update(dt, _messages);
-                _collision_system.update();
-                _arms_system.update(dt, _messages);
-                _pain_system.update(_messages);
-                _wellness_system.update(dt, _messages);
-                _fx_system.update(dt, _messages);
-                _score_system.update();
-                _pickup_system.update(_messages); 
-                _input_system.update();
-                _sound_system.update(dt);
+                for (auto* s : _updatable_systems) {
+                        s->set_debug_mode(_debug);
+                        s->update(dt, _messages);
+                }
 
                 // Handle messages.
                 handle_messages(dt);
         }
 
         void draw(double weight) {
-                _drawing_system.update(weight);
-                _hud_system.update();
+                for (auto* s : _drawable_systems) {
+                        s->draw(weight);
+                }
         }
 
         void key_up(int k) {

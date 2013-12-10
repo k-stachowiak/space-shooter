@@ -33,9 +33,7 @@ namespace {
 
 namespace sys {
 
-void movement_system::update(
-                double dt,
-                comm::msg_queue& msgs) {
+void movement_system::update(double dt, comm::msg_queue& msgs) {
 
         for(auto const& n : _nodes) {
 

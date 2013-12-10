@@ -23,7 +23,7 @@
 
 namespace sys {
 
-void pain_system::update(comm::msg_queue& msgs) {
+void pain_system::update(double, comm::msg_queue& msgs) {
 
         for(auto const& n : _nodes) {
 

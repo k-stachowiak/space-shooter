@@ -22,7 +22,7 @@
 
 namespace sys {
 
-void pickup_system::update(comm::msg_queue& msgs) {
+void pickup_system::update(double, comm::msg_queue& msgs) {
         for(auto const& n : _nodes) {
                 n.coll_queue->for_each_report([&n, &msgs](cmp::coll_report const& r) {
                         if(r.pp) {

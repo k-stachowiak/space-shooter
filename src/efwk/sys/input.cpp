@@ -22,7 +22,7 @@
 
 namespace sys {
 
-void input_system::update() {
+void input_system::update(double, comm::msg_queue&) {
                 for(auto const& n : _nodes) {
                         n.dynamics->input(_keys);
                         n.weapon_beh->input(_keys);

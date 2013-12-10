@@ -28,7 +28,7 @@
 
 namespace sys {
 
-class hud_system : public system {
+class hud_system : public drawable_system {
 
         ALLEGRO_BITMAP* _hud_bg;
         ALLEGRO_BITMAP* _hud_health;
@@ -76,9 +76,8 @@ public:
         , _screen_h      (screen_h)
         {}
         void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
-        unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::hud_node node) { _nodes.push_back(node); }
-        void update();
+        void draw(double weight);
 };
 
 }

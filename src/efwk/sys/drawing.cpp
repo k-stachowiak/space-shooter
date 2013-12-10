@@ -39,8 +39,7 @@ void drawing_system::draw_plane(std::vector<nd::drawing_node> const& nodes, doub
         }
 }
 
-void drawing_system::update(double weight) {
-
+void drawing_system::draw(double weight) {
         al_clear_to_color(al_map_rgb_f(
                         cfg::real("gfx_background_r"),
                         cfg::real("gfx_background_g"),

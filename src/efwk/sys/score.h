@@ -28,19 +28,18 @@
 
 namespace sys {
 
-class score_system : public system {
+class score_system : public updatable_system {
         std::map<uint64_t, nd::score_node> _nodes;
         const std::map<cmp::score_class, double> _class_score_map;
 public:
         void remove_node(uint64_t id) { _nodes.erase(id); }
 
-        unsigned num_nodes() const { return _nodes.size(); }
         score_system(std::map<cmp::score_class, double> score_map)
         : _class_score_map(score_map)
         {}
 
         void add_node(nd::score_node n) { _nodes[n.id] = n; }
-        void update();
+        void update(double dt, comm::msg_queue& msg);
 
         double get_score(uint64_t id) { return *(_nodes[id].score); }
 };

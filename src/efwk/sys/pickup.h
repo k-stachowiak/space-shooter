@@ -28,13 +28,12 @@
 
 namespace sys {
 
-class pickup_system : public system {
+class pickup_system : public updatable_system {
         std::vector<nd::pickup_node> _nodes;
 public:
         void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
-        unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::pickup_node node) { _nodes.push_back(node); }
-        void update(comm::msg_queue& msgs);
+        void update(double dt, comm::msg_queue& msg);
 };
 
 }

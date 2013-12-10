@@ -22,7 +22,7 @@
 
 namespace sys {
 
-void score_system::update() {
+void score_system::update(double, comm::msg_queue&) {
 
         // Kind of a short-circuit internal message queue.
         std::multimap<uint64_t, double> score_increments;

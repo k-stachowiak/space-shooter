@@ -28,9 +28,8 @@ namespace {
 
 namespace sys {
 
-void fx_system::update(
-                double dt,
-                comm::msg_queue& msgs) {
+void fx_system::update(double dt, comm::msg_queue& msgs) {
+
         double x, y;
         for(auto const& n : _nodes) {
 

@@ -31,14 +31,13 @@
 
 namespace sys {
 
-class arms_system : public system {
+class arms_system : public updatable_system {
         std::vector<nd::arms_node> _nodes;
 
 public:
         void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
-        unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
-        void update(double dt, comm::msg_queue& msgs);
+        void update(double dt, comm::msg_queue& msg);
         void input(std::map<int, bool>& keys) {
                 for(auto& n : _nodes) {
                         n.weapon_beh->input(keys);

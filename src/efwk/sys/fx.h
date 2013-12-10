@@ -28,13 +28,12 @@
 
 namespace sys {
 
-class fx_system : public system {
+class fx_system : public updatable_system {
         std::vector<nd::fx_node> _nodes;
 public:
         void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
-        unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::fx_node n) { _nodes.push_back(n); }
-        void update(double dt, comm::msg_queue& msgs);
+        void update(double dt, comm::msg_queue& msg);
 };
 
 }

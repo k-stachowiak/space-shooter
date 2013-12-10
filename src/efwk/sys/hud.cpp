@@ -138,7 +138,7 @@ void hud_system::draw_upgrades(nd::hud_node const& n) {
 }
 
 
-void hud_system::update() {
+void hud_system::draw(double) {
         // This loop is a sloppy replacement for a "maybe type"
         // if the vector is empty, nothing will be drawn, otherwise
         // we will see the HUD for all the nodes defined here.

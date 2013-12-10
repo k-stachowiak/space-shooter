@@ -30,14 +30,13 @@
 
 namespace sys {
 
-class wellness_system : public system {
+class wellness_system : public updatable_system {
         std::vector<nd::wellness_node> _nodes;
 
 public:
         void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
-        unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::wellness_node node) { _nodes.push_back(node); }
-        void update(double dt, comm::msg_queue& msgs);
+        void update(double dt, comm::msg_queue& msg);
 };
 
 }

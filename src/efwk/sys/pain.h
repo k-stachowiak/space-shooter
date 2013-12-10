@@ -28,13 +28,12 @@
 
 namespace sys {
 
-class pain_system : public system {
+class pain_system : public updatable_system {
         std::vector<nd::pain_node> _nodes;
 public:
         void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
-        unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::pain_node node) { _nodes.push_back(node); }
-        void update(comm::msg_queue& msgs);
+        void update(double dt, comm::msg_queue& msg);
 };
 
 }

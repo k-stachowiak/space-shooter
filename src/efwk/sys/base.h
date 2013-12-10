@@ -24,6 +24,8 @@
 #include <stdint.h>
 #include <algorithm>
 
+#include "../comm.h"
+
 namespace sys {
 
 template<typename Collection>
@@ -41,7 +43,18 @@ public:
         virtual ~system() {}
         void set_debug_mode(bool debug_mode) { _debug_mode = debug_mode; }
         virtual void remove_node(uint64_t id) = 0;
-        virtual unsigned num_nodes() const = 0;
+};
+
+class updatable_system : public system
+{
+public:
+        virtual void update(double dt, comm::msg_queue& msgs) = 0;
+};
+
+class drawable_system : public system
+{
+public:
+        virtual void draw(double weight) = 0;
 };
 
 }

@@ -47,7 +47,7 @@ void collision_system::check_collision(
         }
 }
 
-void collision_system::update() {
+void collision_system::update(double, comm::msg_queue&) {
         // Clear the collision queues first.
         for(auto a = begin(_nodes); a != end(_nodes); ++a)
                 a->coll_queue->clear();

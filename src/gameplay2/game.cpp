@@ -24,6 +24,8 @@
 
 #include "../misc/config.h"
 
+
+
 namespace gplay
 {
 
@@ -64,45 +66,23 @@ void game::update(double dt)
 {
         // Update entities.
 
-        update_entity(m_player, dt);
+        update_ent(m_player, dt);
 
-        // TODO: Wtf? const? AAAAAAAA?
-        std::for_each(begin(m_bullets),
-                      end(m_bullets),
-                      std::bind(&game::update_entity<efwk::bullet>,
-                                this,
-                                std::placeholders::_1,
-                                dt));
+        for (efwk::bullet& b : m_bullets)
+                update_ent(b, dt);
 
-        std::for_each(begin(m_enemies), end(m_enemies), [dt, this](efwk::enemy& e) {
-                efwk::move_ent(e, dt);
-                efwk::bind_life(e, m_cbus);
-        });
+        for (efwk::enemy& e : m_enemies)
+                update_ent(e, dt);
 
         // Handle deletion messages.
 
         m_cbus.dels.visit(dt, [this](long rem_id) {
-                auto found_bullet = std::find_if(begin(m_bullets), end(m_bullets),
-                        [rem_id](const efwk::bullet& b) {
-                                return b.id == rem_id;
-                        });
-
-                if (found_bullet != end(m_bullets)) {
-                        *found_bullet = std::move(m_bullets.back());
-                        m_bullets.pop_back();
+                if (try_remove_ent(m_bullets, rem_id))
                         return;
-                }
-
-                auto found_enemy = std::find_if(begin(m_enemies), end(m_enemies),
-                        [rem_id](const efwk::enemy& e) {
-                                return e.id == rem_id;
-                        });
-
-                if (found_enemy != end(m_enemies)) {
-                        *found_enemy = std::move(m_enemies.back());
-                        m_enemies.pop_back();
+                if (try_remove_ent(m_entities, rem_id))
                         return;
-                }
+                if (rem_id == m_player.id)
+                        throw; // TODO: enable state end here.
         });
 
         // Handle creations messages.

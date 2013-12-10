@@ -73,7 +73,7 @@ weapon_input(   Entity& ent,
 
 template <class Entity>
 typename std::enable_if<!IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity&, const std::map<int, bool>&, double, res::resman, comm_bus&)
+weapon_input(Entity&, const std::map<int, bool>&, double, const res::resman&, comm_bus&)
 {
 }
 

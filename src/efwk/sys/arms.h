@@ -32,13 +32,12 @@
 namespace sys {
 
 class arms_system : public system {
-
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
         std::vector<nd::arms_node> _nodes;
 
 public:
-        void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
         unsigned num_nodes() const { return _nodes.size(); }
+        void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
         void update(double dt, comm::msg_queue& msgs);
         void input(std::map<int, bool>& keys) {
                 for(auto& n : _nodes) {

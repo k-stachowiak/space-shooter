@@ -31,10 +31,10 @@
 namespace sys {
 
 class input_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
         std::map<int, bool> _keys;
         std::vector<nd::input_node> _nodes;
 public:
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
         unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::input_node n) { _nodes.push_back(std::move(n)); }
         void update();

@@ -42,7 +42,6 @@ class hud_system : public system {
         ALLEGRO_FONT* _hud_font;
         double _screen_w, _screen_h;
 
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
         std::vector<nd::hud_node> _nodes;
 
         void draw_background();
@@ -76,6 +75,7 @@ public:
         , _screen_w      (screen_w)
         , _screen_h      (screen_h)
         {}
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
         unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::hud_node node) { _nodes.push_back(node); }
         void update();

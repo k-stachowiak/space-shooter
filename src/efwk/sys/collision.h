@@ -29,12 +29,12 @@
 namespace sys {
 
 class collision_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
         std::vector<nd::collision_node> _nodes;
         void check_collision(
                 nd::collision_node const& a,
                 nd::collision_node const& b) const;
 public:
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
         unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::collision_node node) { _nodes.push_back(node); }
         void update();

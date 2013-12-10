@@ -30,11 +30,11 @@ namespace sys {
 
 class sound_system : public system {
         res::resman const& _resman;
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
         std::vector<nd::sound_node> _nodes;
         del_queue<res::res_id> _noise_queue;
 public:
         sound_system(res::resman const& rm) : _resman(rm) {}
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
         unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::sound_node const& n) { _nodes.push_back(n); }
         void update(double dt);

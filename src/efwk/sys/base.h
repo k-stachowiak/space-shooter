@@ -22,18 +22,16 @@
 #define SYS_BASE_H
 
 #include <stdint.h>
+#include <algorithm>
 
 namespace sys {
 
-template<typename SYS>
-void remove_node(SYS& sys, uint64_t id) {
-        for(auto n = begin(sys._nodes); n != end(sys._nodes); ++n) {
-                if(n->id == id) {
-                        *n = sys._nodes.back();
-                        sys._nodes.pop_back();
-                        --n;
-                }
-        }
+template<typename Collection>
+void remove_nodes(Collection& col, uint64_t id) {
+        auto predicate = [id] (const typename Collection::value_type& v) {
+                return v.id == id;
+        };
+        col.erase(std::remove_if(begin(col), end(col), predicate), end(col));
 }
 
 class system {
@@ -42,6 +40,7 @@ protected:
 public:
         virtual ~system() {}
         void set_debug_mode(bool debug_mode) { _debug_mode = debug_mode; }
+        virtual void remove_node(uint64_t id) = 0;
         virtual unsigned num_nodes() const = 0;
 };
 

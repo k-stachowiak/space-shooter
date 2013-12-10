@@ -208,18 +208,18 @@ class game_state : public state {
                                     break;
                                 }
 
-                                remove_node(_movement_system, id);
-                                remove_node(_collision_system, id);
-                                remove_node(_arms_system, id);
-                                remove_node(_pain_system, id);
-                                remove_node(_wellness_system, id);
-                                remove_node(_fx_system, id);
-                                remove_node(_drawing_system, id);
-                                remove_node(_score_system, id);
-                                remove_node(_pickup_system, id);
-                                remove_node(_input_system, id);
-                                remove_node(_hud_system, id);
-                                remove_node(_sound_system, id);
+                                _movement_system.remove_node(id);
+                                _collision_system.remove_node(id);
+                                _arms_system.remove_node(id);
+                                _pain_system.remove_node(id);
+                                _wellness_system.remove_node(id);
+                                _fx_system.remove_node(id);
+                                _drawing_system.remove_node(id);
+                                _score_system.remove_node(id);
+                                _pickup_system.remove_node(id);
+                                _input_system.remove_node(id);
+                                _hud_system.remove_node(id);
+                                _sound_system.remove_node(id);
 
                                 break;
 

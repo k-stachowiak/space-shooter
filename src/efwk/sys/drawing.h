@@ -30,11 +30,17 @@
 namespace sys {
 
 class drawing_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
         std::map<cmp::draw_plane, std::vector<nd::drawing_node>> _nodes;
         ALLEGRO_FONT* _debug_font;
         void draw_plane(std::vector<nd::drawing_node> const& nodes, double weight);
 public:
+
+        void remove_node(uint64_t id)
+        {
+                for (auto& pr : _nodes)
+                        remove_nodes(pr.second, id);
+        }
+
         unsigned num_nodes() const {
                 unsigned sizes = 0;
                 for(auto const& pr : _nodes) {

@@ -29,9 +29,9 @@
 namespace sys {
 
 class movement_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
         std::vector<nd::movement_node> _nodes;
 public:
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
         unsigned num_nodes() const { return _nodes.size(); }
         void add_node(nd::movement_node n) { _nodes.push_back(n); }
         void update(double dt, comm::msg_queue& msgs);

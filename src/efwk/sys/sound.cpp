@@ -22,6 +22,7 @@
 
 #include "sound.h"
 
+// WTF? Can this be done in less obnoxious way?
 std::map<ALLEGRO_SAMPLE*, ALLEGRO_SAMPLE_ID> spl_id_map;
 
 namespace sys {

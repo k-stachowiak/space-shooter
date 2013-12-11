@@ -38,9 +38,9 @@ struct collision_node {
         // origin_id   - points to the entity that has spawned this if it's a projectile
         // orientation - the offset of the shape
         // cp          - determines the profile of the object from the collision system pov
+        // pp          - determines the profile of the object from the pickup system pov
         // shape       - enables the collision tests
         // coll_queue  - stores the collisions from the given frame
-        // name        - non-unique name for the debugging purposes
 
         uint64_t id;
         uint64_t origin_id;
@@ -49,7 +49,6 @@ struct collision_node {
         std::shared_ptr<cmp::pickup_profile> pp;
         std::shared_ptr<cmp::shape> shape;
         std::shared_ptr<cmp::coll_queue> coll_queue;
-        std::string name;
 };
 
 class collision_system : public updatable_system {

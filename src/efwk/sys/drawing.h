@@ -43,7 +43,7 @@ enum class draw_plane {
 
 struct drawing_node {
 
-        // draw_plane  - determines the order in which to draw entities
+        // plane       - determines the order in which to draw entities
         // appearance  - determines the bitmap to draw
         // orientation - determines to location and angle to draw at
         // shape       - allows for the debug drawing of the object's shape

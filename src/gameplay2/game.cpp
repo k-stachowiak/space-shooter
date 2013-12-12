@@ -79,7 +79,7 @@ void game::update(double dt)
         m_cbus.dels.visit(dt, [this](long rem_id) {
                 if (try_remove_ent(m_bullets, rem_id))
                         return;
-                if (try_remove_ent(m_entities, rem_id))
+                if (try_remove_ent(m_enemies, rem_id))
                         return;
                 if (rem_id == m_player.id)
                         throw; // TODO: enable state end here.

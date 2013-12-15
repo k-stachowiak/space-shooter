@@ -99,14 +99,14 @@ void game::draw(double weight)
 {
         al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
-        efwk::display_ent(m_player, weight);
+        efwk::display(m_player, weight);
 
         for (auto& b : m_bullets) {
-                efwk::display_ent(b, weight);
+                efwk::display(b, weight);
         }
 
         for (auto& e : m_enemies) {
-                efwk::display_ent(e, weight);
+                efwk::display(e, weight);
         }
 }
 

@@ -64,7 +64,7 @@ class game
         void update_ent(Entity& ent, double dt)
         {
                 efwk::weapon_input(ent, m_keys, dt, m_resman, m_cbus);
-                efwk::move_ent(ent, dt);
+                efwk::move(ent, dt);
                 efwk::bind_movement(ent);
                 efwk::bind_life(ent, m_cbus);
         }

@@ -24,12 +24,11 @@
 namespace efwk
 {
 
-template <class T>
-using IsMoveBoundable = TmpAll<HasOrientation<T>, HasMoveBounds<T>>;
+// Logic implementation.
+// =====================
 
 template <class Entity>
-typename std::enable_if<IsMoveBoundable<Entity>::value, void>::type
-bind_movement(Entity& ent)
+void bind_movement_impl(Entity& ent)
 {
         auto& ori = ent.ori;
         const auto& mbnd = ent.mbnd;
@@ -42,17 +41,7 @@ bind_movement(Entity& ent)
 }
 
 template <class Entity>
-typename std::enable_if<!IsMoveBoundable<Entity>::value, void>::type
-bind_movement(Entity&)
-{
-}
-
-template <class T>
-using IsLifeBoundable = TmpAll<HasOrientation<T>, HasLifeBounds<T>>;
-
-template <class Entity>
-typename std::enable_if<IsLifeBoundable<Entity>::value, void>::type
-bind_life(const Entity& ent, comm_bus& cbus)
+void bind_life_impl(const Entity& ent, comm_bus& cbus)
 {
         long id = ent.id;
         const auto& ori = ent.ori;
@@ -65,11 +54,36 @@ bind_life(const Entity& ent, comm_bus& cbus)
                 cbus.dels.push(id);
 }
 
+// Logic dispatch.
+// ===============
+
+// Move binding.
+// -------------
+
+template <class T>
+using IsMoveBoundable = TmpAll<HasOrientation<T>, HasMoveBounds<T>>;
+
+template <class Entity>
+typename std::enable_if<IsMoveBoundable<Entity>::value, void>::type
+bind_movement(Entity& ent) { bind_movement_impl(ent); }
+
+template <class Entity>
+typename std::enable_if<!IsMoveBoundable<Entity>::value, void>::type
+bind_movement(Entity&) {}
+
+// Life binding.
+// -------------
+
+template <class T>
+using IsLifeBoundable = TmpAll<HasOrientation<T>, HasLifeBounds<T>>;
+
+template <class Entity>
+typename std::enable_if<IsLifeBoundable<Entity>::value, void>::type
+bind_life(const Entity& ent, comm_bus& cbus) { bind_life_impl(ent, cbus); }
+
 template <class Entity>
 typename std::enable_if<!IsLifeBoundable<Entity>::value, void>::type
-bind_life(const Entity&, comm_bus&)
-{
-}
+bind_life(const Entity&, comm_bus&) {}
 
 }
 

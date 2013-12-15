@@ -21,6 +21,8 @@
 #ifndef ORIENTATION_H
 #define ORIENTATION_H
 
+#include "../sfinae.h"
+
 namespace efwk
 {
 

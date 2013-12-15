@@ -26,12 +26,8 @@
 namespace efwk
 {
 
-template <class T>
-using IsDisplayable = TmpAll<HasAppearance<T>, HasOrientation<T>>;
-
 template <class Entity>
-typename std::enable_if<IsDisplayable<Entity>::value, void>::type
-display_ent(const Entity& ent, double weight)
+void display_impl(const Entity& ent, double weight)
 {
         const auto& appr = ent.appr;
         const auto& ori = ent.ori;
@@ -48,11 +44,16 @@ display_ent(const Entity& ent, double weight)
         al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
 }
 
+template <class T>
+using IsDisplayable = TmpAll<HasAppearance<T>, HasOrientation<T>>;
+
+template <class Entity>
+typename std::enable_if<IsDisplayable<Entity>::value, void>::type
+display(const Entity& ent, double weight) { display_impl(ent, weight); }
+
 template <class Entity>
 typename std::enable_if<!IsDisplayable<Entity>::value, void>::type
-display_ent(const Entity&, double)
-{
-}
+display(const Entity&, double) {}
 
 }
 

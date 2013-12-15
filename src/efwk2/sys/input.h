@@ -29,16 +29,12 @@
 namespace efwk
 {
 
-template <class T>
-using IsWeaponInputable = TmpAll<HasPlayerWeapons<T>, HasOrientation<T>>;
-
 template <class Entity>
-typename std::enable_if<IsWeaponInputable<Entity>::value, void>::type
-weapon_input(   Entity& ent,
-                const std::map<int, bool>& keys,
-                double dt,
-                const res::resman& rm,
-                comm_bus& cbus)
+void weapon_input_impl(Entity& ent,
+                       const std::map<int, bool>& keys,
+                       double dt,
+                       const res::resman& rm, // TODO: Get rid of this - simplify creation scheduling.
+                       comm_bus& cbus)
 {
         auto& pweap = ent.pweap;
         const auto& ori = ent.ori;
@@ -52,7 +48,7 @@ weapon_input(   Entity& ent,
                         std::tie(x, y) = ori.interpolate_loc(0);
 
                         bullet blt(
-                                -1, // invalid_id
+                                -1, // invalid_id TODO: wow! this has got to go!
                                 rm.get_bitmap(res::res_id::BULLET_5),
                                 800.0, 0.0, -1.0,
                                 x, y, -3.1415 * 0.5,
@@ -71,11 +67,21 @@ weapon_input(   Entity& ent,
         }
 }
 
+template <class T>
+using IsWeaponInputable = TmpAll<HasPlayerWeapons<T>, HasOrientation<T>>;
+
+template <class Entity>
+typename std::enable_if<IsWeaponInputable<Entity>::value, void>::type
+weapon_input(Entity& ent,
+             const std::map<int, bool>& keys,
+             double dt,
+             const res::resman& rm,
+             comm_bus& cbus)
+{ weapon_input_impl(ent, keys, dt, rm, cbus); }
+
 template <class Entity>
 typename std::enable_if<!IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity&, const std::map<int, bool>&, double, const res::resman&, comm_bus&)
-{
-}
+weapon_input(Entity&, const std::map<int, bool>&, double, const res::resman&, comm_bus&) {}
 
 }
 

@@ -21,6 +21,10 @@
 #include "../cmp/shape.h"
 #include "../cmp/orientation.h"
 
+// TODO: implement the transformations wherever needed.
+//       right now many of the orientation arguments are not used. Fortunately
+//       the compiler shall point them out.
+
 namespace
 {
 
@@ -76,8 +80,8 @@ namespace efwk
 // ---------------------------------
 
 template <class Iter>
-int collide_impl(const shape_segment& seg1,
-                 const shape_segment& seg2,
+int collide_impl(const shape_segment& seg1, const orientation& seg1_ori,
+                 const shape_segment& seg2, const orientation& seg2_ori,
                  Iter& out)
 {
         // Decompose input.
@@ -108,9 +112,8 @@ int collide_impl(const shape_segment& seg1,
 }
 
 template <class Iter>
-int collide_impl(const shape_segment& seg,
-                 const shape_circle& cir,
-                 const orientation& cir_ori,
+int collide_impl(const shape_segment& seg, const orientation& seg_ori,
+                 const shape_circle& cir, const orientation& cir_ori,
                  Iter& out)
 {
         // 0.5 means half of pixel.
@@ -260,8 +263,8 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
 // Complex collision implementation.
 // ---------------------------------
 
-int collide_impl(const shape_segment& seg,
-                 const shape_polygon& poly,
+int collide_impl(const shape_segment& seg, const orientation& seg_ori,
+                 const shape_polygon& poly, const orientation& poly_ori,
                  Iter& out)
 {
         const auto first = begin(poly.segs);
@@ -273,9 +276,8 @@ int collide_impl(const shape_segment& seg,
         return count;
 }
 
-int collide_impl(const shape_segment& seg,
-                 const shape_square& sqr,
-                 const orientation& sqr_ori,
+int collide_impl(const shape_segment& seg, const orientation& seg_ori,
+                 const shape_square& sqr, const orientation& sqr_ori,
                  Iter& out)
 {
         int count = 0;
@@ -292,26 +294,20 @@ int collide_impl(const shape_segment& seg,
 template <class T>
 using IsCollidable = HasShape<T>;
 
-template <class Entity1, class Entity2>
+template <class Out, class Entity1, class Entity2>
 typename std::enable_if<IsCollidable<Entity1>::value &&
                         IsCollidable<Entity2>::value, int>::type
-check_collisions(Entity1& ent1, Entity2& ent2)
+check_collisions(Entity1& ent1, Entity2& ent2, Out& out)
 {
-        long id1 = ent1.id;
-        const auto& shp1 = ent1.shp;
-        const auto& ori1 = ent1.ori;
-
-        long id2 = ent2.id;
-        const auto& shp2 = ent2.shp;
-        const auto& ori2 = ent2.ori;
-
-        return collide_impl(shp1, ori1, shp2, ori2);
+        return collide_impl(ent1.shp, ent1.ori,
+                            ent2.shp, ent2.ori,
+                            out);
 }
 
-template <class Entity1, class Entity2>
+template <class Out, class Entity1, class Entity2>
 typename std::enable_if<!IsCollidable<Entity1>::value ||
                         !IsCollidable<Entity2>::value, int>::type
-check_collisions(Entity1&, Entity2&) {}
+check_collisions(Entity1&, Entity2&, Out&) { return 0; }
 
 // Operation: Collide collections.
 // -------------------------------
@@ -327,23 +323,23 @@ check_collisions(Entity1&, Entity2&) {}
 // (4) Only one half of the interaction matrix is checked, i.e. if A element was
 //     compared with B element, then no B with A check will be performed.
 
-template <class Coll>
-int collide_coll(Coll& coll)
+template <class Out, class Coll>
+int collide_coll(Out& out, Coll& coll)
 {
         int count = 0;
         for (auto i = begin(coll); i != end(coll); ++i)
                 for (auto j = (i + 1); j != end(coll); ++j)
-                        count += check_collisions(*i, *j);
+                        count += check_collisions(*i, *j, out);
         return count;
 }
 
-template <class Coll1, class Coll2>
-int collide_coll(Coll1& coll1, Coll2& coll2)
+template <class Out, class Coll1, class Coll2>
+int collide_coll(Out& out, Coll1& coll1, Coll2& coll2)
 {
         int count = 0;
         for (const auto& i : coll1)
                 for (const auto& j : coll2)
-                        count += check_collisions(i, j);
+                        count += check_collisions(i, j, out);
         return count;
 }
 
@@ -364,17 +360,17 @@ int collide_coll(Coll1& coll1, Coll2& coll2)
 //     recursion terminating case, no operation is performed and therefore 0 is
 //     returned.
 
-template <class Coll>
-int collide_first_rest(Coll& coll)
+template <class Out, class Coll>
+int collide_first_rest(Out&, Coll&)
 {
         return 0;
 }
 
-template <class Coll1, class Coll2, class... Rest>
-int collide_first_rest(Coll1& coll1, Coll2& coll2, Rest... rest)
+template <class Out, class Coll1, class Coll2, class... Rest>
+int collide_first_rest(Out& out, Coll1& coll1, Coll2& coll2, Rest... rest)
 {
-        return collide_coll(coll1, coll2) +
-               collide_first_rest(coll1, rest...);
+        return collide_coll(out, coll1, coll2) +
+               collide_first_rest(out, coll1, rest...);
 }
 
 // Operation: Collide all.
@@ -394,18 +390,18 @@ int collide_first_rest(Coll1& coll1, Coll2& coll2, Rest... rest)
 //     then only the collisions within the single collection are handled.
 // (5) The numbers of the collisions from all the checks are summed and returned.
 
-template <class Coll>
-int collide_all(Coll& coll)
+template <class Out, class Coll>
+int collide_all(Out& out, Coll& coll)
 {
-        return collide_coll(coll, coll);
+        return collide_coll(out, coll);
 }
 
-template <class Coll1, class Coll2, class... Rest>
-int collide_all(Coll1& first, Coll2& second, Rest... rest)
+template <class Out, class Coll1, class Coll2, class... Rest>
+int collide_all(Out& out, Coll1& first, Coll2& second, Rest... rest)
 {
-        return collide_coll(first) +
-               collide_first_rest(first, second, rest...) +
-               collide_all(second, rest...);
+        return collide_coll(out, first) +
+               collide_first_rest(out, first, second, rest...) +
+               collide_all(out, second, rest...);
 }
 
 }

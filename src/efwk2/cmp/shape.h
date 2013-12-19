@@ -33,141 +33,73 @@ struct point
         double x, y;
 };
 
-class segment;
-class polygon;
-class square;
-class circle;
-
-struct shape
+enum class shape_type
 {
-        virtual int collide_with(const orientation& this_ori,
-                        const shape& other, const orientation& other_ori,
-                        std::vector<point>& result) const = 0;
-
-        virtual int collide_with_segment(const orientation& this_ori,
-                        const segment& other, const orientation& other_ori,
-                        std::vector<point>& result) const = 0;
-
-        virtual int collide_with_polygon(const orientation& this_ori,
-                        const polygon& other, const orientation& other_ori,
-                        std::vector<point>& result) const = 0;
-
-        virtual int collide_with_square(const orientation& this_ori,
-                        const square& other, const orientation& other_ori,
-                        std::vector<point>& result) const = 0;
-
-        virtual int collide_with_circle(const orientation& this_ori,
-                        const circle& other, const orientation& other_ori,
-                        std::vector<point>& result) const = 0;
+        segment,
+        polygon,
+        square,
+        circle
 };
 
-
-struct segment : public shape
+struct shape_segment
 {
         point a;
         point b;
-
-        segment(point new_a, point new_b) : a(new_a), b(new_b) {}
-
-        int collide_with(const orientation& this_ori,
-                         const shape& other, const orientation& other_ori,
-                         std::vector<point>& result) const;
-
-        int collide_with_segment(const orientation& this_ori,
-                                 const segment& other, const orientation& other_ori,
-                                 std::vector<point>& result) const;
-
-        int collide_with_polygon(const orientation& this_ori,
-                                 const polygon& other, const orientation& other_ori,
-                                 std::vector<point>& result) const;
-
-        int collide_with_square(const orientation& this_ori,
-                                const square& other, const orientation& other_ori,
-                                std::vector<point>& result) const;
-
-        int collide_with_circle(const orientation& this_ori,
-                                const circle& other, const orientation& other_ori,
-                                std::vector<point>& result) const;
 };
 
-struct polygon : public shape
+struct shape_polygon
 {
-        std::vector<segment> segs;
-
-        int collide_with(const orientation& this_ori,
-                         const shape& other, const orientation& other_ori,
-                         std::vector<point>& result) const;
-
-        int collide_with_segment(const orientation& this_ori,
-                                 const segment& other, const orientation& other_ori,
-                                 std::vector<point>& result) const;
-
-        int collide_with_polygon(const orientation& this_ori,
-                                 const polygon& other, const orientation& other_ori,
-                                 std::vector<point>& result) const;
-
-        int collide_with_square(const orientation& this_ori,
-                                const square& other, const orientation& other_ori,
-                                std::vector<point>& result) const;
-
-        int collide_with_circle(const orientation& this_ori,
-                                const circle& other, const orientation& other_ori,
-                                std::vector<point>& result) const;
+        std::array<shape_segment, MAX_SEGS_IN_POLY> segs;
+        int num_segs;
 };
 
-struct square : public shape
+struct shape_square
 {
         double side;
-
-        int collide_with(const orientation& this_ori,
-                         const shape& other, const orientation& other_ori,
-                         std::vector<point>& result) const;
-
-        int collide_with_segment(const orientation& this_ori,
-                                 const segment& other, const orientation& other_ori,
-                                 std::vector<point>& result) const;
-
-        int collide_with_polygon(const orientation& this_ori,
-                                 const polygon& other, const orientation& other_ori,
-                                 std::vector<point>& result) const;
-
-        int collide_with_square(const orientation& this_ori,
-                                const square& other, const orientation& other_ori,
-                                std::vector<point>& result) const;
-
-        int collide_with_circle(const orientation& this_ori,
-                                const circle& other, const orientation& other_ori,
-                                std::vector<point>& result) const;
 };
 
-struct circle : public shape
+struct shape_circle
 {
         double radius;
-
-        int collide_with(const orientation& this_ori,
-                         const shape& other, const orientation& other_ori,
-                         std::vector<point>& result) const;
-
-        int collide_with_segment(const orientation& this_ori,
-                                 const segment& other, const orientation& other_ori,
-                                 std::vector<point>& result) const;
-
-        int collide_with_polygon(const orientation& this_ori,
-                                 const polygon& other, const orientation& other_ori,
-                                 std::vector<point>& result) const;
-
-        int collide_with_square(const orientation& this_ori,
-                                const square& other, const orientation& other_ori,
-                                std::vector<point>& result) const;
-
-        int collide_with_circle(const orientation& this_ori,
-                                const circle& other, const orientation& other_ori,
-                                std::vector<point>& result) const;
 };
 
-int collide(const shape& a, const orientation& a_ori,
-            const shape& b, const orientation& b_ori,
-            std::vector<point>& result);
+struct shape
+{
+        shape_type type;
+        shape_segment segment;
+        shape_polygon polygon;
+        shape_square square;
+        shape_circle circle;
+};
+
+inline shape_segment make_segment(double x1, double x2, double y1, double y2)
+{
+        return {{ x1, y1 }, { x2, y2 }};
+}
+
+template<class Iter>
+shape_polygon make_polygon(Iter first, Iter last)
+{
+        shape_polygon result;
+
+        const int size = std::distance(first, last);
+
+        assert(size <= MAX_SEGS_IN_POLY);
+        std::copy(first, last, &(result.segs.front()));
+        result.num_segs = size;
+
+        return result;
+}
+
+inline shape_square make_square(double side)
+{
+        return { side };
+}
+
+inline shape_circle make_circle(double radius)
+{
+        return { radius };
+}
 
 }
 

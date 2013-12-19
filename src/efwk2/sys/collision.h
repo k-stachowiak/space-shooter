@@ -76,7 +76,9 @@ namespace efwk
 // ---------------------------------
 
 template <class Iter>
-int collide_segment_segment(const shape_segment& seg1, const shape_segment& seg2, Iter& out)
+int collide_impl(const shape_segment& seg1,
+                 const shape_segment& seg2,
+                 Iter& out)
 {
         // Decompose input.
         const double& ax1 = seg1.a.x;
@@ -106,11 +108,10 @@ int collide_segment_segment(const shape_segment& seg1, const shape_segment& seg2
 }
 
 template <class Iter>
-int collide_segment_circle(
-                const shape_segment& seg,
-                const shape_circle& cir,
-                const orientation& cir_ori,
-                Iter& out)
+int collide_impl(const shape_segment& seg,
+                 const shape_circle& cir,
+                 const orientation& cir_ori,
+                 Iter& out)
 {
         // 0.5 means half of pixel.
         static const double epsilon = 0.5;
@@ -195,10 +196,9 @@ int collide_segment_circle(
 }
 
 template <class Iter>
-int collide_circle_circle(
-                const shape_circle& cir1, const orientation& ori1,
-                const shape_circle& cir2, const orientation& ori2,
-                Iter& out)
+int collide_impl(const shape_circle& cir1, const orientation& ori1,
+                 const shape_circle& cir2, const orientation& ori2,
+                 Iter& out)
 {
         // 0.5 means half of pixel.
         static const double epsilon = 0.5;
@@ -260,9 +260,9 @@ int collide_circle_circle(
 // Complex collision implementation.
 // ---------------------------------
 
-int collide_segment_polygon(const shape_segment& seg,
-                            const shape_polygon& poly,
-                            Iter& out)
+int collide_impl(const shape_segment& seg,
+                 const shape_polygon& poly,
+                 Iter& out)
 {
         const auto first = begin(poly.segs);
         const auto last = begin(poly.segs) + poly.num_segs;
@@ -273,10 +273,10 @@ int collide_segment_polygon(const shape_segment& seg,
         return count;
 }
 
-int collide_segment_square(const shape_segment& seg,
-                           const shape_square& sqr,
-                           const orientation& sqr_ori,
-                           Iter& out)
+int collide_impl(const shape_segment& seg,
+                 const shape_square& sqr,
+                 const orientation& sqr_ori,
+                 Iter& out)
 {
         int count = 0;
         for (const auto& s : segments(sqr)) {
@@ -286,90 +286,126 @@ int collide_segment_square(const shape_segment& seg,
         return count;
 }
 
-// Dispatch details.
-// -----------------
+// Dispatch implementation.
+// ========================
 
-template <class Iter>
-int collide_segment(const shape_segment& lshape,
-                    const shape& rshape, const orientation& rori,
-                    Iter& out)
+template <class T>
+using IsCollidable = HasShape<T>;
+
+template <class Entity1, class Entity2>
+typename std::enable_if<IsCollidable<Entity1>::value &&
+                        IsCollidable<Entity2>::value, int>::type
+check_collisions(Entity1& ent1, Entity2& ent2)
 {
-        switch (rshape.type) {
-        case shape_type::segment:
-                return collide_segment_segment(lshape, trans(rshape.segment, rori), out);
+        long id1 = ent1.id;
+        const auto& shp1 = ent1.shp;
+        const auto& ori1 = ent1.ori;
 
-        case shape_type::polygon:
-                return collide_segment_polygon(lshape, trans(rshape.polygon, rori), out);
+        long id2 = ent2.id;
+        const auto& shp2 = ent2.shp;
+        const auto& ori2 = ent2.ori;
 
-        case shape_type::square:
-                return collide_segment_square(lshape, rshape.square, rori, out);
-
-        case shape_type::circle:
-                return collide_segment_circle(lshape, rshape.circle, rori, out);
-
-        }
+        return collide_impl(shp1, ori1, shp2, ori2);
 }
 
-template <class Iter>
-int collide_polygon(const shape_polygon& lshape,
-                    const shape& rshape, const orientation& rori,
-                    Iter& out)
+template <class Entity1, class Entity2>
+typename std::enable_if<!IsCollidable<Entity1>::value ||
+                        !IsCollidable<Entity2>::value, int>::type
+check_collisions(Entity1&, Entity2&) {}
+
+// Operation: Collide collections.
+// -------------------------------
+//
+// Performs collection-level collision checking. This has two cases:
+//
+// (1) When a single collection is provided as an argument, the "self" checks
+//     are performed, i.e. only the pairs of the elements within the collection
+//     are tested.
+// (2) When a pair of collections is provided, then each element from the first
+//     collection is tested in pair with each element from the second collecrion.
+// (3) None of the elements is tested with itself.
+// (4) Only one half of the interaction matrix is checked, i.e. if A element was
+//     compared with B element, then no B with A check will be performed.
+
+template <class Coll>
+int collide_coll(Coll& coll)
 {
-        switch (rshape.type) {
-        case shape_type::segment:
-        case shape_type::polygon:
-        case shape_type::square:
-        case shape_type::circle:
-        }
+        int count = 0;
+        for (auto i = begin(coll); i != end(coll); ++i)
+                for (auto j = (i + 1); j != end(coll); ++j)
+                        count += check_collisions(*i, *j);
+        return count;
 }
 
-template <class Iter>
-int collide_square(const shape_square& lshape, const orientation& lori,
-                   const shape& rshape, const orientation& rori,
-                   Iter& out)
+template <class Coll1, class Coll2>
+int collide_coll(Coll1& coll1, Coll2& coll2)
 {
-        switch (rshape.type) {
-        case shape_type::segment:
-        case shape_type::polygon:
-        case shape_type::square:
-        case shape_type::circle:
-        }
+        int count = 0;
+        for (const auto& i : coll1)
+                for (const auto& j : coll2)
+                        count += check_collisions(i, j);
+        return count;
 }
 
-template <class Iter>
-int collide_circle(const shape_circle& lshape, const orientation& lori,
-                   const shape& rshape, const orientation& rori,
-                   Iter& out)
+// Operation: Collide first with rest.
+// -----------------------------------
+//
+// Takes a sequence of collections: c0, c1, c2, ... and performs the collisions check
+// for all the collection pairs: (c0 c1), (c0 c2), ... .
+//
+// (1) The call to the "collide collections" handles the collision between the
+//     first and the second argument.
+// (2) The recursive call drops the second argument and continues the operation
+//     for the further arguments.
+// (3) When a single argument is left, nothing is performed. NOTE: this operation
+//     doesn't perform the checks for the collisions between the first argument
+//     and self.
+// (4) The results of all the checks are summed and returned. NOTE: in the
+//     recursion terminating case, no operation is performed and therefore 0 is
+//     returned.
+
+template <class Coll>
+int collide_first_rest(Coll& coll)
 {
-        switch (rshape.type) {
-        case shape_type::segment:
-        case shape_type::polygon:
-        case shape_type::square:
-        case shape_type::circle:
-        }
+        return 0;
 }
 
-// Dispatch root.
-// --------------
-
-template <class Iter>
-int collide(const shape& lshape, const orientation& lori,
-            const shape& rshape, const orientation& rori,
-            Iter& out)
+template <class Coll1, class Coll2, class... Rest>
+int collide_first_rest(Coll1& coll1, Coll2& coll2, Rest... rest)
 {
-        switch (lshape.type) {
-        case shape_type::segment:
-                return collide_segment(trans(lshape.segment, lori), rshape, rori, out);
+        return collide_coll(coll1, coll2) +
+               collide_first_rest(coll1, rest...);
+}
 
-        case shape_type::polygon:
-                return collide_polygon(trans(lshape.polygon, lori), rshape, rori, out);
+// Operation: Collide all.
+// -----------------------
+//
+// Takes a sequence of collections for a carthesian product of the union of
+// the collections (only the upper half of the matrix) and performs the collisions
+// check for all such pairs of collections.
+//
+// (1) The call to "collide collection" handles the first collection's test with
+//     itself.
+// (2) The call to "collide first wiht rest" handles the collisions check between
+//     the first argument and each of the following ones
+// (3) The recursive call to "collide all" handles performing (1) for all of the
+//     following arguments...
+// (4) ...exccept for the case when only one argument is left in the recursion.
+//     then only the collisions within the single collection are handled.
+// (5) The numbers of the collisions from all the checks are summed and returned.
 
-        case shape_type::square:
-                return collide_square(lshape.square, lori, rshape, rori, out);
+template <class Coll>
+int collide_all(Coll& coll)
+{
+        return collide_coll(coll, coll);
+}
 
-        case shape_type::circle:
-                return collide_circle(lshape.circle, lori, rshape, rori, out);
-        }
+template <class Coll1, class Coll2, class... Rest>
+int collide_all(Coll1& first, Coll2& second, Rest... rest)
+{
+        return collide_coll(first) +
+               collide_first_rest(first, second, rest...) +
+               collide_all(second, rest...);
 }
 
 }

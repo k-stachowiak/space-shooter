@@ -18,6 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <type_traits>
+
 #include "../cmp/shape.h"
 #include "../cmp/orientation.h"
 
@@ -25,15 +27,21 @@
 //       right now many of the orientation arguments are not used. Fortunately
 //       the compiler shall point them out.
 
+template <class T>
+struct IsCollection : std::false_type {};
+
+template <class T>
+struct IsCollection<std::vector<T>> : std::true_type {};
+
 namespace
 {
 
-point trans(const point& in, const orientation& ori)
+efwk::point trans(const efwk::point& in, const efwk::orientation& ori)
 {
         // Rotate.
         const double phi = ori.interpolate_rot(0);
-        double out_x = i.x * cos(phi) - in.y * sin(phi);
-        double out_y = i.y * cos(phi) + in.x * sin(phi);
+        double out_x = in.x * cos(phi) - in.y * sin(phi);
+        double out_y = in.y * cos(phi) + in.x * sin(phi);
 
         // Translate.
         double x, y;
@@ -44,12 +52,13 @@ point trans(const point& in, const orientation& ori)
         return { out_x, out_y };
 }
 
-shape_segment trans(const shape_segment& in, const orientation& ori)
+efwk::shape_segment trans(const efwk::shape_segment& in,
+                          const efwk::orientation& ori)
 {
-        shape_segment { trans(in.a, ori), trans(in.b, ori) };
+        return efwk::shape_segment { trans(in.a, ori), trans(in.b, ori) };
 }
 
-std::vector<point> points(const shape_square& in)
+std::vector<efwk::point> points(const efwk::shape_square& in)
 {
         const double hs = in.side / 2.0;
         return {
@@ -60,9 +69,9 @@ std::vector<point> points(const shape_square& in)
         };
 }
 
-std::vector<segment> segments(const square& sqr)
+std::vector<efwk::shape_segment> segments(const efwk::shape_square& sqr)
 {
-        const std::vector<point> pts = compute_square_points(sqr);
+        const std::vector<efwk::point> pts = points(sqr);
         return {
                 { pts[0], pts[1] },
                 { pts[1], pts[2] },
@@ -126,7 +135,7 @@ int collide_impl(const shape_segment& seg, const orientation& seg_ori,
         const double& y2 = seg.b.y;
         const double& r = cir.radius;
         double xc, yc;
-        std::tie(xc, yc) = cir_ori.interpolate(0);
+        std::tie(xc, yc) = cir_ori.interpolate_loc(0);
 
         // Perform computations.
 
@@ -199,6 +208,14 @@ int collide_impl(const shape_segment& seg, const orientation& seg_ori,
 }
 
 template <class Iter>
+int collide_impl(const shape_circle& cir, const orientation& cir_ori,
+                 const shape_segment& seg, const orientation& seg_ori,
+                 Iter& out)
+{
+        return collide_impl(seg, seg_ori, cir, cir_ori, out);
+}
+
+template <class Iter>
 int collide_impl(const shape_circle& cir1, const orientation& ori1,
                  const shape_circle& cir2, const orientation& ori2,
                  Iter& out)
@@ -211,8 +228,8 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
         const double& r2 = cir2.radius;
 
         double x1, y1, x2, y2;
-        std::tie(x1, y1) = ori1.interpolate(0);
-        std::tie(x2, y2) = ori2.interpolate(0);
+        std::tie(x1, y1) = ori1.interpolate_loc(0);
+        std::tie(x2, y2) = ori2.interpolate_loc(0);
 
         // Perform the computation.
 
@@ -263,6 +280,7 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
 // Complex collision implementation.
 // ---------------------------------
 
+template <class Iter>
 int collide_impl(const shape_segment& seg, const orientation& seg_ori,
                  const shape_polygon& poly, const orientation& poly_ori,
                  Iter& out)
@@ -276,6 +294,15 @@ int collide_impl(const shape_segment& seg, const orientation& seg_ori,
         return count;
 }
 
+template <class Iter>
+int collide_impl(const shape_polygon& poly, const orientation& poly_ori,
+                 const shape_segment& seg, const orientation& seg_ori,
+                 Iter& out)
+{
+        return collide_impl(seg, seg_ori, poly, poly_ori, out);
+}
+
+template <class Iter>
 int collide_impl(const shape_segment& seg, const orientation& seg_ori,
                  const shape_square& sqr, const orientation& sqr_ori,
                  Iter& out)
@@ -286,6 +313,14 @@ int collide_impl(const shape_segment& seg, const orientation& seg_ori,
                 count += collide_segment_segment(seg, transformed, out);
         }
         return count;
+}
+
+template <class Iter>
+int collide_impl(const shape_square& sqr, const orientation& sqr_ori,
+                 const shape_segment& seg, const orientation& seg_ori,
+                 Iter& out)
+{
+        return collide_impl(seg, seg_ori, sqr, sqr_ori, out);
 }
 
 // Dispatch implementation.
@@ -309,23 +344,16 @@ typename std::enable_if<!IsCollidable<Entity1>::value ||
                         !IsCollidable<Entity2>::value, int>::type
 check_collisions(Entity1&, Entity2&, Out&) { return 0; }
 
-// Operation: Collide collections.
-// -------------------------------
-//
-// Performs collection-level collision checking. This has two cases:
-//
-// (1) When a single collection is provided as an argument, the "self" checks
-//     are performed, i.e. only the pairs of the elements within the collection
-//     are tested.
-// (2) When a pair of collections is provided, then each element from the first
-//     collection is tested in pair with each element from the second collecrion.
-// (3) None of the elements is tested with itself.
-// (4) Only one half of the interaction matrix is checked, i.e. if A element was
-//     compared with B element, then no B with A check will be performed.
+// Operation: Collide leaf.
+// ------------------------
+// Performs the low level dispatch of the collision checking between collections
+// and single objects.
 
 template <class Out, class Coll>
-int collide_coll(Out& out, Coll& coll)
+typename std::enable_if<IsCollection<Coll>::value, int>::type
+collide_leaf(Out& out, Coll& coll)
 {
+        // Collection with itself.
         int count = 0;
         for (auto i = begin(coll); i != end(coll); ++i)
                 for (auto j = (i + 1); j != end(coll); ++j)
@@ -333,9 +361,20 @@ int collide_coll(Out& out, Coll& coll)
         return count;
 }
 
-template <class Out, class Coll1, class Coll2>
-int collide_coll(Out& out, Coll1& coll1, Coll2& coll2)
+template <class Out, class Ent>
+typename std::enable_if<!IsCollection<Ent>::value, int>::type
+collide_leaf(Out& out, Ent& ent)
 {
+        // Entity with itself.
+        return 0;
+}
+
+template <class Out, class Coll1, class Coll2>
+typename std::enable_if<IsCollection<Coll1>::value &&
+                        IsCollection<Coll2>::value, int>::type
+collide_leaf(Out& out, Coll1& coll1, Coll2& coll2)
+{
+        // Collection with a collection.
         int count = 0;
         for (const auto& i : coll1)
                 for (const auto& j : coll2)
@@ -343,22 +382,39 @@ int collide_coll(Out& out, Coll1& coll1, Coll2& coll2)
         return count;
 }
 
+template <class Out, class Ent, class Coll>
+typename std::enable_if<IsCollection<Coll>::value &&
+                        !IsCollection<Ent>::value, int>::type
+collide_leaf(Out& out, Ent& ent, Coll& coll)
+{
+        // Entity with a collection.
+        int count = 0;
+        for (const auto& j : coll)
+                count += check_collisions(ent, j, out);
+        return count;
+}
+
+template <class Out, class Ent, class Coll>
+typename std::enable_if<IsCollection<Coll>::value &&
+                        !IsCollection<Ent>::value, int>::type
+collide_leaf(Out& out, Coll& coll, Ent& ent)
+{
+        return collide_leaf(out, ent, coll);
+}
+
+template <class Out, class Ent1, class Ent2>
+typename std::enable_if<!IsCollection<Ent1>::value &&
+                        !IsCollection<Ent2>::value, int>::type
+collide_leaf(Out& out, Ent1& ent1, Ent2& ent2)
+{
+        // Entity with an entity.
+        return check_collisions(ent1, ent2, out);
+}
+
 // Operation: Collide first with rest.
 // -----------------------------------
-//
 // Takes a sequence of collections: c0, c1, c2, ... and performs the collisions check
 // for all the collection pairs: (c0 c1), (c0 c2), ... .
-//
-// (1) The call to the "collide collections" handles the collision between the
-//     first and the second argument.
-// (2) The recursive call drops the second argument and continues the operation
-//     for the further arguments.
-// (3) When a single argument is left, nothing is performed. NOTE: this operation
-//     doesn't perform the checks for the collisions between the first argument
-//     and self.
-// (4) The results of all the checks are summed and returned. NOTE: in the
-//     recursion terminating case, no operation is performed and therefore 0 is
-//     returned.
 
 template <class Out, class Coll>
 int collide_first_rest(Out&, Coll&)
@@ -369,37 +425,26 @@ int collide_first_rest(Out&, Coll&)
 template <class Out, class Coll1, class Coll2, class... Rest>
 int collide_first_rest(Out& out, Coll1& coll1, Coll2& coll2, Rest... rest)
 {
-        return collide_coll(out, coll1, coll2) +
+        return collide_leaf(out, coll1, coll2) +
                collide_first_rest(out, coll1, rest...);
 }
 
 // Operation: Collide all.
 // -----------------------
-//
 // Takes a sequence of collections for a carthesian product of the union of
 // the collections (only the upper half of the matrix) and performs the collisions
 // check for all such pairs of collections.
-//
-// (1) The call to "collide collection" handles the first collection's test with
-//     itself.
-// (2) The call to "collide first wiht rest" handles the collisions check between
-//     the first argument and each of the following ones
-// (3) The recursive call to "collide all" handles performing (1) for all of the
-//     following arguments...
-// (4) ...exccept for the case when only one argument is left in the recursion.
-//     then only the collisions within the single collection are handled.
-// (5) The numbers of the collisions from all the checks are summed and returned.
 
 template <class Out, class Coll>
 int collide_all(Out& out, Coll& coll)
 {
-        return collide_coll(out, coll);
+        return collide_leaf(out, coll);
 }
 
 template <class Out, class Coll1, class Coll2, class... Rest>
 int collide_all(Out& out, Coll1& first, Coll2& second, Rest... rest)
 {
-        return collide_coll(out, first) +
+        return collide_leaf(out, first) +
                collide_first_rest(out, first, second, rest...) +
                collide_all(out, second, rest...);
 }

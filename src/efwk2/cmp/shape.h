@@ -21,9 +21,11 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 
+#define MAX_SEGS_IN_POLY 10
+
 #include <vector>
 
-#include "orientation.h"
+#include "../sfinae.h"
 
 namespace efwk
 {
@@ -33,19 +35,13 @@ struct point
         double x, y;
 };
 
-enum class shape_type
-{
-        segment,
-        polygon,
-        square,
-        circle
-};
-
 struct shape_segment
 {
         point a;
         point b;
 };
+
+SFINAE__DECLARE_HAS_MEMBER(HasSegmentShape, shape_segment, shp);
 
 struct shape_polygon
 {
@@ -53,29 +49,28 @@ struct shape_polygon
         int num_segs;
 };
 
+SFINAE__DECLARE_HAS_MEMBER(HasPolygonShape, shape_polygon, shp);
+
 struct shape_square
 {
         double side;
 };
+
+SFINAE__DECLARE_HAS_MEMBER(HasSquareShape, shape_square, shp);
 
 struct shape_circle
 {
         double radius;
 };
 
-struct shape
-{
-        shape_type type;
-        shape_segment segment;
-        shape_polygon polygon;
-        shape_square square;
-        shape_circle circle;
-};
+SFINAE__DECLARE_HAS_MEMBER(HasCircleShape, shape_circle, shp);
 
-inline shape_segment make_segment(double x1, double x2, double y1, double y2)
-{
-        return {{ x1, y1 }, { x2, y2 }};
-}
+template <class T>
+using HasShape = TmpAny<HasSegmentShape<T>,
+                        HasPolygonShape<T>,
+                        HasSquareShape<T>,
+                        HasCircleShape<T>>;
+
 
 template<class Iter>
 shape_polygon make_polygon(Iter first, Iter last)
@@ -89,16 +84,6 @@ shape_polygon make_polygon(Iter first, Iter last)
         result.num_segs = size;
 
         return result;
-}
-
-inline shape_square make_square(double side)
-{
-        return { side };
-}
-
-inline shape_circle make_circle(double radius)
-{
-        return { radius };
 }
 
 }

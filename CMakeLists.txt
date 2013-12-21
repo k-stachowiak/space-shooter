@@ -51,7 +51,6 @@ add_executable(shoot
         ./src/efwk/cmp/weapon_beh.cpp
         ./src/efwk/comm.cpp
         ./src/efwk2/comm.cpp
-        ./src/efwk2/cmp/shape.cpp
         ./src/resources/resman.cpp
         ./src/geometry/bezier.cpp)
 

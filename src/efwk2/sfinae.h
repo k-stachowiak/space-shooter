@@ -21,8 +21,14 @@
 #ifndef SFINAE_H
 #define SFINAE_H
 
+#include <type_traits>
+#include <algorithm>
+
 namespace efwk
 {
+
+// Sweet mother of Jesus, WTF is this!?
+// ------------------------------------
 
 #define SFINAE__DECLARE_HAS_MEMBER(IDENTIFIER, TYPE, NAME) \
 template<typename T> struct IDENTIFIER \
@@ -34,6 +40,9 @@ template<typename T> struct IDENTIFIER \
         template<typename C> static char (&f(...))[2]; \
         static bool const value = sizeof(f<Derived>(0)) == 2; \
 }
+
+// Template metaprogramming quantificators.
+// ----------------------------------------
 
 template<class Head, class... Tail>
 struct TmpAll
@@ -62,6 +71,39 @@ struct TmpAny<Head>
 {
         static bool const value = Head::value;
 };
+
+// General type assertions.
+// ------------------------
+
+template <class T>
+struct IsCollection : std::false_type {};
+
+template <class T>
+struct IsCollection<std::vector<T>> : std::true_type {};
+
+// General type algorithms.
+// ------------------------
+
+template <class Func>
+void for_all(Func)
+{
+}
+
+template <class Func, class Head, class... Tail>
+typename std::enable_if<!efwk::IsCollection<Head>::value, void>::type
+for_all(Func func, Head& head, Tail&... tail)
+{
+        func(head);
+        for_all(func, tail...);
+}
+
+template <class Func, class Head, class... Tail>
+typename std::enable_if<efwk::IsCollection<Head>::value, void>::type
+for_all(Func func, Head& head, Tail&... tail)
+{
+        std::for_each(begin(head), end(head), func);
+        for_all(func, tail...);
+}
 
 }
 

@@ -18,13 +18,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef BULLET_H
-#define BULLET_H
+#ifndef ENT_BULLET_H
+#define ENT_BULLET_H
 
-#include "../cmp/appearance.h"
-#include "../cmp/bounds.h"
-#include "../cmp/dynamics.h"
-#include "../cmp/orientation.h"
+#include "../efwk2/cmp/appearance.h"
+#include "../efwk2/cmp/bounds.h"
+#include "../efwk2/cmp/dynamics.h"
+#include "../efwk2/cmp/orientation.h"
+#include "../efwk2/cmp/shape.h"
 
 namespace efwk
 {
@@ -36,18 +37,21 @@ struct bullet
         life_bounds lbnd;
         const_vel_dynamics dyn;
         orientation ori;
+        shape_circle shp;
 
         bullet(long new_id,
                ALLEGRO_BITMAP* bmp,
                double velocity, double dx, double dy,
                double x, double y, double phi,
                double x_min, double y_min,
-               double x_max, double y_max) :
+               double x_max, double y_max,
+               double radius) :
                 id(new_id),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),
                 dyn(0, 0),
-                ori(x, y, phi)
+                ori(x, y, phi),
+                shp(radius)
         {
                 const double dx2 = dx * dx;
                 const double dy2 = dy * dy;

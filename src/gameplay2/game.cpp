@@ -24,7 +24,78 @@
 
 #include "../misc/config.h"
 
+namespace
+{
 
+// TODO:
+// - create a collision check state.
+
+// Generic operations on the whole entities.
+// -----------------------------------------
+
+class update_func
+{
+        const std::map<int, bool>& m_keys;
+        const res::resman& m_resman;
+        efwk::comm_bus& m_cbus;
+
+        double m_dt;
+
+public:
+        update_func(const std::map<int, bool>& keys,
+                    const res::resman& resman,
+                    efwk::comm_bus& cbus,
+                    double dt) :
+                m_keys(keys),
+                m_resman(resman),
+                m_cbus(cbus),
+                m_dt(dt)
+        {}
+
+        template <class Entity>
+        void operator()(Entity& ent)
+        {
+                efwk::weapon_input(ent, m_keys, m_dt, m_resman, m_cbus);
+                efwk::move(ent, m_dt);
+                efwk::bind_movement(ent);
+                efwk::bind_life(ent, m_cbus);
+        }
+};
+
+class draw_func
+{
+        double m_weight;
+
+public:
+        draw_func(double weight) : m_weight(weight) {}
+
+        template <class Entity>
+        void operator()(const Entity& ent)
+        {
+                efwk::display(ent, m_weight);
+                efwk::display_dbg(ent, m_weight);
+        }
+};
+
+template <class Entity>
+bool try_remove_ent(std::vector<Entity>& v, long rem_id)
+{
+        auto found = std::find_if(
+                begin(v), end(v),
+                [rem_id](const Entity& e) {
+                        return e.id == rem_id;
+                });
+
+        if (found != end(v)) {
+                *found = std::move(v.back());
+                v.pop_back();
+                return true;
+        }
+
+        return false;
+}
+
+}
 
 namespace gplay
 {
@@ -43,7 +114,8 @@ void game::spawn_enemy_process(double dt)
                 400.0, 10.0,
                 0, 0, 
                 cfg::integer("gfx_screen_w"),
-                cfg::integer("gfx_screen_h"));
+                cfg::integer("gfx_screen_h"),
+                32.0);
 }
 
 game::game(const res::resman& resman, const std::map<int, bool>& keys) :
@@ -65,17 +137,19 @@ game::game(const res::resman& resman, const std::map<int, bool>& keys) :
 void game::update(double dt)
 {
         // Update entities.
+        update_func uf { m_keys, m_resman, m_cbus, dt };
+        efwk::for_all(uf, m_player, m_bullets, m_enemies);
 
-        update_ent(m_player, dt);
+        // Perform collision tests.
+        std::vector<efwk::point> collisions;
+        auto inserter = std::back_inserter(collisions);
+        int col = efwk::collide_all(inserter, m_player, m_enemies);
 
-        for (efwk::bullet& b : m_bullets)
-                update_ent(b, dt);
-
-        for (efwk::enemy& e : m_enemies)
-                update_ent(e, dt);
+        if (col) {
+                std::cout << "Number of collisions : " << col << std::endl;
+        }
 
         // Handle deletion messages.
-
         m_cbus.dels.visit(dt, [this](long rem_id) {
                 if (try_remove_ent(m_bullets, rem_id))
                         return;
@@ -86,28 +160,27 @@ void game::update(double dt)
         });
 
         // Handle creations messages.
-
-        m_cbus.bullet_reqs.visit(dt, [this](efwk::bullet& b) {
-                b.id = next_id(); // Fix the id.
-                m_bullets.push_back(b);
+        m_cbus.bullet_reqs.visit(dt, [this](efwk::bullet_req& brq) {
+                m_bullets.emplace_back(
+                        next_id(),
+                        m_resman.get_bitmap(res::res_id::BULLET_5),
+                        800.0, brq.vx, brq.vy,
+                        brq.x, brq.y, -3.1415 / 2.0,
+                        0, 0,
+                        cfg::integer("gfx_screen_w"),
+                        cfg::integer("gfx_screen_h"),
+                        5.0);
         });
 
+        // Entity spawning processes.
         spawn_enemy_process(dt);
 }
 
 void game::draw(double weight)
 {
         al_clear_to_color(al_map_rgb_f(0, 0, 0));
-
-        efwk::display(m_player, weight);
-
-        for (auto& b : m_bullets) {
-                efwk::display(b, weight);
-        }
-
-        for (auto& e : m_enemies) {
-                efwk::display(e, weight);
-        }
+        draw_func df { weight };
+        efwk::for_all(df, m_player, m_bullets, m_enemies);
 }
 
 }

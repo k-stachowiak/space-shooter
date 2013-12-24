@@ -43,20 +43,9 @@ void weapon_input_impl(Entity& ent,
 
         if (keys.at(ALLEGRO_KEY_Z)) {
                 if (pweap.trigger_primary()) {
-
                         double x, y;
                         std::tie(x, y) = ori.interpolate_loc(0);
-
-                        bullet blt(
-                                -1, // invalid_id TODO: wow! this has got to go!
-                                rm.get_bitmap(res::res_id::BULLET_5),
-                                800.0, 0.0, -1.0,
-                                x, y, -3.1415 * 0.5,
-                                0.0, 0.0,
-                                cfg::integer("gfx_screen_w"),
-                                cfg::integer("gfx_screen_h"));
-
-                        cbus.bullet_reqs.push(blt);
+                        cbus.bullet_reqs.push({ x, y, 0, -1 });
                 }
         }
 

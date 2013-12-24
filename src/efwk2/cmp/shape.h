@@ -21,7 +21,7 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 
-#define MAX_SEGS_IN_POLY 10
+static const int MAX_SEGS_IN_POLY = 10;
 
 #include <vector>
 
@@ -35,6 +35,12 @@ struct point
         double x, y;
 };
 
+// Fundamental shape types.
+// ========================
+
+// Segment.
+// --------
+
 struct shape_segment
 {
         point a;
@@ -43,34 +49,14 @@ struct shape_segment
 
 SFINAE__DECLARE_HAS_MEMBER(HasSegmentShape, shape_segment, shp);
 
+// Polygon.
+// --------
+
 struct shape_polygon
 {
         std::array<shape_segment, MAX_SEGS_IN_POLY> segs;
         int num_segs;
 };
-
-SFINAE__DECLARE_HAS_MEMBER(HasPolygonShape, shape_polygon, shp);
-
-struct shape_square
-{
-        double side;
-};
-
-SFINAE__DECLARE_HAS_MEMBER(HasSquareShape, shape_square, shp);
-
-struct shape_circle
-{
-        double radius;
-};
-
-SFINAE__DECLARE_HAS_MEMBER(HasCircleShape, shape_circle, shp);
-
-template <class T>
-using HasShape = TmpAny<HasSegmentShape<T>,
-                        HasPolygonShape<T>,
-                        HasSquareShape<T>,
-                        HasCircleShape<T>>;
-
 
 template<class Iter>
 shape_polygon make_polygon(Iter first, Iter last)
@@ -85,6 +71,89 @@ shape_polygon make_polygon(Iter first, Iter last)
 
         return result;
 }
+
+SFINAE__DECLARE_HAS_MEMBER(HasPolygonShape, shape_polygon, shp);
+
+// Square.
+// -------
+
+struct shape_square
+{
+        double side;
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasSquareShape, shape_square, shp);
+
+// Circle.
+// -------
+
+struct shape_circle
+{
+        double radius;
+        shape_circle(double new_radius) : radius(new_radius) {}
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasCircleShape, shape_circle, shp);
+
+template <class T>
+using HasShape = TmpAny<HasSegmentShape<T>,
+                        HasPolygonShape<T>,
+                        HasSquareShape<T>,
+                        HasCircleShape<T>>;
+
+// Shape transformations.
+// ======================
+
+inline
+point trans(const point& in, double dx, double dy, double phi)
+{
+        // Rotate.
+        double out_x = in.x * cos(phi) - in.y * sin(phi);
+        double out_y = in.y * cos(phi) + in.x * sin(phi);
+
+        // Translate.
+        out_x += dx;
+        out_y += dy;
+
+        return { out_x, out_y };
+}
+
+inline
+shape_segment trans(const shape_segment& in,
+                    double x, double y, double phi)
+{
+        return shape_segment {
+                trans(in.a, x, y, phi),
+                trans(in.b, x, y, phi) };
+}
+
+// Shape decomposition.
+// ====================
+
+inline
+std::vector<efwk::point> points(const efwk::shape_square& in)
+{
+        const double hs = in.side / 2.0;
+        return {
+                { -hs, -hs },
+                {  hs, -hs },
+                {  hs,  hs },
+                { -hs,  hs }
+        };
+}
+
+inline
+std::vector<efwk::shape_segment> segments(const efwk::shape_square& sqr)
+{
+        const std::vector<efwk::point> pts = points(sqr);
+        return {
+                { pts[0], pts[1] },
+                { pts[1], pts[2] },
+                { pts[2], pts[3] },
+                { pts[3], pts[0] }
+        };
+}
+
 
 }
 

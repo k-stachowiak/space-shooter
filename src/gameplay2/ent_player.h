@@ -18,14 +18,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef PLAYER_CONTROLLED_H
-#define PLAYER_CONTROLLED_H
+#ifndef ENT_PLAYER_H
+#define ENT_PLAYER_H
 
-#include "../cmp/appearance.h"
-#include "../cmp/bounds.h"
-#include "../cmp/dynamics.h"
-#include "../cmp/orientation.h"
-#include "../cmp/weaponry.h"
+#include "../efwk2/cmp/appearance.h"
+#include "../efwk2/cmp/bounds.h"
+#include "../efwk2/cmp/dynamics.h"
+#include "../efwk2/cmp/orientation.h"
+#include "../efwk2/cmp/weaponry.h"
 
 namespace efwk
 {

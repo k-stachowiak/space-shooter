@@ -20,14 +20,20 @@
 
 #include "../misc/delq.h"
 
-#include "ent/bullet.h"
-
 namespace efwk
 {
 
+struct bullet_req
+{
+        double x;
+        double y;
+        double vx;
+        double vy;
+};
+
 struct comm_bus
 {
-        del_queue<bullet> bullet_reqs;
+        del_queue<bullet_req> bullet_reqs;
 
         del_queue<long> dels;
 };

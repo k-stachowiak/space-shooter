@@ -18,7 +18,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <type_traits>
+#ifndef COLLISION_H
+#define COLLISION_H
+
+// 0.5 means half of pixel.
+static const double EPSILON = 0.5;
 
 #include "../cmp/shape.h"
 #include "../cmp/orientation.h"
@@ -27,63 +31,31 @@
 //       right now many of the orientation arguments are not used. Fortunately
 //       the compiler shall point them out.
 
-template <class T>
-struct IsCollection : std::false_type {};
-
-template <class T>
-struct IsCollection<std::vector<T>> : std::true_type {};
-
-namespace
-{
-
-efwk::point trans(const efwk::point& in, const efwk::orientation& ori)
-{
-        // Rotate.
-        const double phi = ori.interpolate_rot(0);
-        double out_x = in.x * cos(phi) - in.y * sin(phi);
-        double out_y = in.y * cos(phi) + in.x * sin(phi);
-
-        // Translate.
-        double x, y;
-        std::tie(x, y) = ori.interpolate_loc(0);
-        out_x += x;
-        out_y += y;
-
-        return { out_x, out_y };
-}
-
-efwk::shape_segment trans(const efwk::shape_segment& in,
-                          const efwk::orientation& ori)
-{
-        return efwk::shape_segment { trans(in.a, ori), trans(in.b, ori) };
-}
-
-std::vector<efwk::point> points(const efwk::shape_square& in)
-{
-        const double hs = in.side / 2.0;
-        return {
-                { -hs, -hs },
-                {  hs, -hs },
-                {  hs,  hs },
-                { -hs,  hs }
-        };
-}
-
-std::vector<efwk::shape_segment> segments(const efwk::shape_square& sqr)
-{
-        const std::vector<efwk::point> pts = points(sqr);
-        return {
-                { pts[0], pts[1] },
-                { pts[1], pts[2] },
-                { pts[2], pts[3] },
-                { pts[3], pts[0] }
-        };
-}
-
-}
-
 namespace efwk
 {
+
+// Orientation based overloads for the transformation operation.
+// -------------------------------------------------------------
+
+inline
+point trans(const point& in, const orientation& ori)
+{
+        const double phi = ori.interpolate_rot(0);
+        double x, y;
+        std::tie(x, y) = ori.interpolate_loc(0);
+        return trans(in, x, y, phi);
+}
+
+inline
+shape_segment trans(const shape_segment& in,
+                    const orientation& ori)
+{
+        const double phi = ori.interpolate_rot(0);
+        double x, y;
+        std::tie(x, y) = ori.interpolate_loc(0);
+        return trans(in, x, y, phi);
+}
+
 
 // Simple collision implementations.
 // ---------------------------------
@@ -125,9 +97,6 @@ int collide_impl(const shape_segment& seg, const orientation& seg_ori,
                  const shape_circle& cir, const orientation& cir_ori,
                  Iter& out)
 {
-        // 0.5 means half of pixel.
-        static const double epsilon = 0.5;
-
         // Decmopose input.
         const double& x1 = seg.a.x;
         const double& y1 = seg.a.y;
@@ -171,12 +140,12 @@ int collide_impl(const shape_segment& seg, const orientation& seg_ori,
 #undef SQR
 
         // No results at all.
-        if (delta < -epsilon) {
+        if (delta < -EPSILON) {
                 return 0;
         }
 
         // Two potential results - very likely on collision.
-        if (delta > epsilon) {
+        if (delta > EPSILON) {
                 int result_count = 0;
                 const double sqrt_delta = sqrt(delta);
 
@@ -220,8 +189,6 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
                  const shape_circle& cir2, const orientation& ori2,
                  Iter& out)
 {
-        // 0.5 means half of pixel.
-        static const double epsilon = 0.5;
 
         // Decompose the input.
         const double& r1 = cir1.radius;
@@ -261,7 +228,7 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
         double xm = x1 + (a / d) * (x2 - x1);
         double ym = y1 + (a / d) * (y2 - y1);
 
-        if (std::abs(d - (r1 + r2)) < epsilon) {
+        if (std::abs(d - (r1 + r2)) < EPSILON) {
                 *(out++) = { xm, ym };
                 return 1;
         }
@@ -334,6 +301,7 @@ typename std::enable_if<IsCollidable<Entity1>::value &&
                         IsCollidable<Entity2>::value, int>::type
 check_collisions(Entity1& ent1, Entity2& ent2, Out& out)
 {
+        std::cout << "check_collision" << std::endl;
         return collide_impl(ent1.shp, ent1.ori,
                             ent2.shp, ent2.ori,
                             out);
@@ -423,7 +391,7 @@ int collide_first_rest(Out&, Coll&)
 }
 
 template <class Out, class Coll1, class Coll2, class... Rest>
-int collide_first_rest(Out& out, Coll1& coll1, Coll2& coll2, Rest... rest)
+int collide_first_rest(Out& out, Coll1& coll1, Coll2& coll2, Rest&... rest)
 {
         return collide_leaf(out, coll1, coll2) +
                collide_first_rest(out, coll1, rest...);
@@ -442,7 +410,7 @@ int collide_all(Out& out, Coll& coll)
 }
 
 template <class Out, class Coll1, class Coll2, class... Rest>
-int collide_all(Out& out, Coll1& first, Coll2& second, Rest... rest)
+int collide_all(Out& out, Coll1& first, Coll2& second, Rest&... rest)
 {
         return collide_leaf(out, first) +
                collide_first_rest(out, first, second, rest...) +
@@ -450,3 +418,5 @@ int collide_all(Out& out, Coll1& first, Coll2& second, Rest... rest)
 }
 
 }
+
+#endif

@@ -25,12 +25,13 @@
 
 #include "../efwk2/comm.h"
 
-#include "../efwk2/ent/player_controlled.h"
-#include "../efwk2/ent/enemy.h"
-#include "../efwk2/ent/bullet.h"
+#include "ent_player.h"
+#include "ent_enemy.h"
+#include "ent_bullet.h"
 
 #include "../efwk2/sys/bounding.h"
 #include "../efwk2/sys/display.h"
+#include "../efwk2/sys/display_dbg.h"
 #include "../efwk2/sys/movement.h"
 #include "../efwk2/sys/input.h"
 #include "../efwk2/sys/collision.h"
@@ -60,33 +61,6 @@ class game
         long next_id() { return ++m_next_id; }
 
         void spawn_enemy_process(double dt);
-
-        template <class Entity>
-        void update_ent(Entity& ent, double dt)
-        {
-                efwk::weapon_input(ent, m_keys, dt, m_resman, m_cbus);
-                efwk::move(ent, dt);
-                efwk::bind_movement(ent);
-                efwk::bind_life(ent, m_cbus);
-        }
-
-        template <class Entity>
-        bool try_remove_ent(std::vector<Entity>& v, long rem_id)
-        {
-                auto found = std::find_if(
-                        begin(v), end(v),
-                        [rem_id](const Entity& e) {
-                                return e.id == rem_id;
-                        });
-
-                if (found != end(v)) {
-                        *found = std::move(v.back());
-                        v.pop_back();
-                        return true;
-                }
-
-                return false;
-        }
 
 public:
         game(const res::resman& resman, const std::map<int, bool>& keys);

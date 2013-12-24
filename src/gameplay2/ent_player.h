@@ -27,25 +27,28 @@
 #include "../efwk2/cmp/orientation.h"
 #include "../efwk2/cmp/weaponry.h"
 
-namespace efwk
+namespace gplay 
 {
 
-struct player_controlled
+struct player
 {
         long id;
-        appearance appr;
-        player_ctrl_dynamics dyn;
-        orientation ori;
-        move_bounds mbnd;
-        player_weapons pweap;
+        const char* type_id;
+        efwk::appearance appr;
+        efwk::player_ctrl_dynamics dyn;
+        efwk::orientation ori;
+        efwk::move_bounds mbnd;
+        efwk::player_weapons pweap;
 
-        player_controlled(
+        player(
                 long new_id,
                 ALLEGRO_BITMAP* bmp,
                 double velocity, const std::map<int, bool>& keys,
                 double x, double y, double phi,
                 double x_min, double y_min, double x_max, double y_max,
                 double minigun_interval, double rocket_launcher_interval) :
+                        id(new_id),
+                        type_id("player"),
                         appr(bmp),
                         dyn(velocity, keys),
                         ori(x, y, phi),

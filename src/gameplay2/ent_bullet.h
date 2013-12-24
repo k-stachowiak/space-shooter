@@ -27,17 +27,18 @@
 #include "../efwk2/cmp/orientation.h"
 #include "../efwk2/cmp/shape.h"
 
-namespace efwk
+namespace gplay
 {
 
 struct bullet
 {
         long id;
-        appearance appr;
-        life_bounds lbnd;
-        const_vel_dynamics dyn;
-        orientation ori;
-        shape_circle shp;
+        const char* type_id;
+        efwk::appearance appr;
+        efwk::life_bounds lbnd;
+        efwk::const_vel_dynamics dyn;
+        efwk::orientation ori;
+        efwk::shape_circle shp;
 
         bullet(long new_id,
                ALLEGRO_BITMAP* bmp,
@@ -47,6 +48,7 @@ struct bullet
                double x_max, double y_max,
                double radius) :
                 id(new_id),
+                type_id("bullet"),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),
                 dyn(0, 0),

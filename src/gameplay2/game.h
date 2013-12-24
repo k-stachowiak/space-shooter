@@ -52,9 +52,9 @@ class game
 
         double m_next_enemy_counter;
 
-        efwk::player_controlled m_player;
-        std::vector<efwk::bullet> m_bullets;
-        std::vector<efwk::enemy> m_enemies;
+        player m_player;
+        std::vector<bullet> m_bullets;
+        std::vector<enemy> m_enemies;
 
         efwk::comm_bus m_cbus;
 

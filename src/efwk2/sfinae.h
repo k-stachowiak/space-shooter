@@ -81,6 +81,9 @@ struct IsCollection : std::false_type {};
 template <class T>
 struct IsCollection<std::vector<T>> : std::true_type {};
 
+template <class T>
+struct IsCollection<std::vector<T>&> : std::true_type {};
+
 // General type algorithms.
 // ------------------------
 
@@ -90,18 +93,18 @@ void for_all(Func)
 }
 
 template <class Func, class Head, class... Tail>
-typename std::enable_if<!efwk::IsCollection<Head>::value, void>::type
-for_all(Func func, Head& head, Tail&... tail)
-{
-        func(head);
-        for_all(func, tail...);
-}
-
-template <class Func, class Head, class... Tail>
 typename std::enable_if<efwk::IsCollection<Head>::value, void>::type
 for_all(Func func, Head& head, Tail&... tail)
 {
         std::for_each(begin(head), end(head), func);
+        for_all(func, tail...);
+}
+
+template <class Func, class Head, class... Tail>
+typename std::enable_if<!efwk::IsCollection<Head>::value, void>::type
+for_all(Func func, Head& head, Tail&... tail)
+{
+        func(head);
         for_all(func, tail...);
 }
 

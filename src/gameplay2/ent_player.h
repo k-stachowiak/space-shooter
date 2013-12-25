@@ -26,6 +26,8 @@
 #include "../efwk2/cmp/dynamics.h"
 #include "../efwk2/cmp/orientation.h"
 #include "../efwk2/cmp/weaponry.h"
+#include "../efwk2/cmp/shape.h"
+#include "../efwk2/cmp/coll_queue.h"
 
 namespace gplay 
 {
@@ -39,6 +41,8 @@ struct player
         efwk::orientation ori;
         efwk::move_bounds mbnd;
         efwk::player_weapons pweap;
+        efwk::shape_circle shp;
+        efwk::coll_queue collq;
 
         player(
                 long new_id,
@@ -46,14 +50,16 @@ struct player
                 double velocity, const std::map<int, bool>& keys,
                 double x, double y, double phi,
                 double x_min, double y_min, double x_max, double y_max,
-                double minigun_interval, double rocket_launcher_interval) :
+                double minigun_interval, double rocket_launcher_interval,
+                double radius) :
                         id(new_id),
                         type_id("player"),
                         appr(bmp),
                         dyn(velocity, keys),
                         ori(x, y, phi),
                         mbnd(x_min, y_min, x_max, y_max),
-                        pweap(minigun_interval, rocket_launcher_interval)
+                        pweap(minigun_interval, rocket_launcher_interval),
+                        shp(radius)
         {
         }
 };

@@ -26,6 +26,7 @@
 #include "../efwk2/cmp/dynamics.h"
 #include "../efwk2/cmp/orientation.h"
 #include "../efwk2/cmp/shape.h"
+#include "../efwk2/cmp/coll_queue.h"
 
 namespace gplay
 {
@@ -39,6 +40,7 @@ struct bullet
         efwk::const_vel_dynamics dyn;
         efwk::orientation ori;
         efwk::shape_circle shp;
+        efwk::coll_queue collq;
 
         bullet(long new_id,
                ALLEGRO_BITMAP* bmp,

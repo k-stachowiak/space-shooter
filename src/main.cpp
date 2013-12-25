@@ -114,13 +114,13 @@ int main() {
         script::test_expect();
 
         try {
-                logger::logger::instance().trace("BEGIN program.");
+                logger::instance().trace("BEGIN program.");
 
                 application app;
                 app.loop();
 
-                logger::logger::instance().trace("END program.");
-                logger::logger::instance().flush();
+                logger::instance().trace("END program.");
+                logger::instance().flush();
 
                 return 0;
 

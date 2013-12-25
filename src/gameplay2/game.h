@@ -60,7 +60,12 @@ class game
 
         long next_id() { return ++m_next_id; }
 
-        void spawn_enemy_process(double dt);
+        void log_state();
+
+        void update_entities(double dt);
+        void handle_collisions();
+        void handle_deletions(double dt);
+        void handle_creations(double dt);
 
 public:
         game(const res::resman& resman, const std::map<int, bool>& keys);

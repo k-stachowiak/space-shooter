@@ -24,11 +24,16 @@
 // 0.5 means half of pixel.
 static const double EPSILON = 0.5;
 
+#include "../../misc/logger.h"
+
 #include "../cmp/shape.h"
 #include "../cmp/orientation.h"
 
 namespace efwk
 {
+
+// Helper structures.
+// ------------------
 
 // Orientation based overloads for the transformation operation.
 // -------------------------------------------------------------
@@ -57,10 +62,10 @@ shape_segment trans(const shape_segment& in,
 // ---------------------------------
 
 // Segment - Segment
-template <class Iter>
+template <class PointIt>
 int collide_impl(const shape_segment& seg1, const orientation& seg1_ori,
                  const shape_segment& seg2, const orientation& seg2_ori,
-                 Iter& out)
+                 PointIt& point_it)
 {
         const shape_segment trans_seg1 = trans(seg1, seg1_ori);
         const shape_segment trans_seg2 = trans(seg2, seg2_ori);
@@ -85,7 +90,7 @@ int collide_impl(const shape_segment& seg1, const orientation& seg1_ori,
         const float t = (sx2 * (ay1 - ay2) - sy2 * (ax1 - ax2)) / (-sx2 * sy1 + sx1 * sy2);
 
         if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-                *(out++) = { seg1.a.x + (t * sx1), seg1.a.y + (t * sy1) };
+                *(point_it++) = { seg1.a.x + (t * sx1), seg1.a.y + (t * sy1) };
                 return 1;
         } else {
                 return 0;
@@ -93,10 +98,10 @@ int collide_impl(const shape_segment& seg1, const orientation& seg1_ori,
 }
 
 // Segment - Circle
-template <class Iter>
+template <class PointIt>
 int collide_impl(const shape_segment& seg, const orientation& seg_ori,
                  const shape_circle& cir, const orientation& cir_ori,
-                 Iter& out)
+                 PointIt& point_it)
 {
         const shape_segment trans_seg = trans(seg, seg_ori);
 
@@ -155,14 +160,14 @@ int collide_impl(const shape_segment& seg, const orientation& seg_ori,
                 const double t1 = (-b - sqrt_delta) / (2 * a);
                 if (t1 >= 0 && t1 <= 1) {
                         ++result_count;
-                        *(out++) = { x1 * t1 + x2 * (1 - t1),
+                        *(point_it++) = { x1 * t1 + x2 * (1 - t1),
                                      y1 * t1 + y2 * (1 - t1) };
                 }
 
                 const double t2 = (-b + sqrt_delta) / (2 * a);
                 if (t2 >= 0 && t2 <= 1) {
                         ++result_count;
-                        *(out++) = { x1 * t2 + x2 * (1 - t2),
+                        *(point_it++) = { x1 * t2 + x2 * (1 - t2),
                                      y1 * t2 + y2 * (1 - t2) };
                 }
 
@@ -174,24 +179,24 @@ int collide_impl(const shape_segment& seg, const orientation& seg_ori,
         if (t < 0 || t > 1)
                 return 0;
 
-        *(out++) = { x1 * t + x2 * (1 - t),
+        *(point_it++) = { x1 * t + x2 * (1 - t),
                      y1 * t + y2 * (1 - t) };
         return 1;
 }
 
-template <class Iter>
+template <class PointIt>
 int collide_impl(const shape_circle& cir, const orientation& cir_ori,
                  const shape_segment& seg, const orientation& seg_ori,
-                 Iter& out)
+                 PointIt& point_it)
 {
-        return collide_impl(seg, seg_ori, cir, cir_ori, out);
+        return collide_impl(seg, seg_ori, cir, cir_ori, point_it);
 }
 
 // Circle - Circle
-template <class Iter>
+template <class PointIt>
 int collide_impl(const shape_circle& cir1, const orientation& ori1,
                  const shape_circle& cir2, const orientation& ori2,
-                 Iter& out)
+                 PointIt& point_it)
 {
         // Decompose the input.
         const double& r1 = cir1.radius;
@@ -232,7 +237,7 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
         double ym = y1 + (a / d) * (y2 - y1);
 
         if (std::abs(d - (r1 + r2)) < EPSILON) {
-                *(out++) = { xm, ym };
+                *(point_it++) = { xm, ym };
                 return 1;
         }
 
@@ -242,8 +247,8 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
 #undef SQR
 
         // The result points.
-        *(out++) = { xm + h * (y2 - y1) / d, ym - h * (x2 - x1) / d };
-        *(out++) = { xm - h * (y2 - y1) / d, ym + h * (x2 - x1) / d };
+        *(point_it++) = { xm + h * (y2 - y1) / d, ym - h * (x2 - x1) / d };
+        *(point_it++) = { xm - h * (y2 - y1) / d, ym + h * (x2 - x1) / d };
         return 2;
 }
 
@@ -251,165 +256,173 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
 // ---------------------------------
 
 // Segment - Polygon
-template <class Iter>
+template <class PointIt>
 int collide_impl(const shape_segment& seg, const orientation& seg_ori,
                  const shape_polygon& poly, const orientation& poly_ori,
-                 Iter& out)
+                 PointIt& point_it)
 {
         const auto first = begin(poly.segs);
         const auto last = begin(poly.segs) + poly.num_segs;
         int count = 0;
         for (auto poly_seg = first; poly_seg != last; ++poly_seg) {
-                count += collide_impl(seg, seg_ori, *poly_seg, poly_ori, out);
+                count += collide_impl(seg, seg_ori, *poly_seg, poly_ori, point_it);
         }
         return count;
 }
 
-template <class Iter>
+template <class PointIt>
 int collide_impl(const shape_polygon& poly, const orientation& poly_ori,
                  const shape_segment& seg, const orientation& seg_ori,
-                 Iter& out)
+                 PointIt& point_it)
 {
-        return collide_impl(seg, seg_ori, poly, poly_ori, out);
+        return collide_impl(seg, seg_ori, poly, poly_ori, point_it);
 }
 
 // Segment - Square
-template <class Iter>
+template <class PointIt>
 int collide_impl(const shape_segment& seg, const orientation& seg_ori,
                  const shape_square& sqr, const orientation& sqr_ori,
-                 Iter& out)
+                 PointIt& point_it)
 {
         int count = 0;
         for (const auto& sqr_seg : segments(sqr)) {
-                count += collide_impl(seg, seg_ori, sqr_seg, sqr_ori, out);
+                count += collide_impl(seg, seg_ori, sqr_seg, sqr_ori, point_it);
         }
         return count;
 }
 
-template <class Iter>
+template <class PointIt>
 int collide_impl(const shape_square& sqr, const orientation& sqr_ori,
                  const shape_segment& seg, const orientation& seg_ori,
-                 Iter& out)
+                 PointIt& point_it)
 {
-        return collide_impl(seg, seg_ori, sqr, sqr_ori, out);
+        return collide_impl(seg, seg_ori, sqr, sqr_ori, point_it);
 }
 
 // Dispatch implementation.
 // ========================
 
 template <class T>
-using IsCollidable = HasShape<T>;
+using IsCollidable = TmpAny<HasShape<T>, HasCollisionQueue<T>>;
 
-template <class Out, class Entity1, class Entity2>
+template <class Entity1, class Entity2>
 typename std::enable_if<IsCollidable<Entity1>::value &&
-                        IsCollidable<Entity2>::value, int>::type
-check_collisions(Entity1& ent1, Entity2& ent2, Out& out)
+                        IsCollidable<Entity2>::value, void>::type
+check_collisions(Entity1& ent1, Entity2& ent2)
 {
-        return collide_impl(ent1.shp, ent1.ori, ent2.shp, ent2.ori, out);
+        // Initialize the basic report information.
+        coll_report report {
+                { ent1.id, ent1.type_id },
+                { ent2.id, ent2.type_id },
+                {}
+        };
+
+        // Determine the collision points.
+        auto inserter = std::back_inserter(report.points);
+        collide_impl(ent1.shp, ent1.ori, ent2.shp, ent2.ori, inserter);
+
+        // Store the report.
+        if (!report.points.empty()) {
+                ent1.collq.push(report);
+                ent2.collq.push(report);
+        }
 }
 
-template <class Out, class Entity1, class Entity2>
+template <class Entity1, class Entity2>
 typename std::enable_if<!IsCollidable<Entity1>::value ||
-                        !IsCollidable<Entity2>::value, int>::type
-check_collisions(Entity1&, Entity2&, Out&) { return 0; }
+                        !IsCollidable<Entity2>::value, void>::type
+check_collisions(Entity1&, Entity2&)
+{
+}
 
 // Operation: Collide leaf.
 // ------------------------
 
 // Elements of the same collection with each other.
-template <class Out, class Coll>
-typename std::enable_if<IsCollection<Coll>::value, int>::type
-collide_leaf(Out& out, Coll& coll)
+template <class Coll>
+typename std::enable_if<IsCollection<Coll>::value, void>::type
+collide_leaf(Coll& coll)
 {
-        int count = 0;
         for (auto i = begin(coll); i != end(coll); ++i)
                 for (auto j = (i + 1); j != end(coll); ++j)
-                        count += check_collisions(*i, *j, out);
-        return count;
+                        check_collisions(*i, *j);
 }
 
-// Element with itself.
-template <class Out, class Ent>
-typename std::enable_if<!IsCollection<Ent>::value, int>::type
-collide_leaf(Out& out, Ent& ent)
+template <class Ent>
+typename std::enable_if<!IsCollection<Ent>::value, void>::type
+collide_leaf(Ent&)
 {
-        return 0;
 }
 
 // Elements of one collection with elements from another collection.
-template <class Out, class Coll1, class Coll2>
+template <class Coll1, class Coll2>
 typename std::enable_if<IsCollection<Coll1>::value &&
-                        IsCollection<Coll2>::value, int>::type
-collide_leaf(Out& out, Coll1& coll1, Coll2& coll2)
+                        IsCollection<Coll2>::value, void>::type
+collide_leaf(Coll1& coll1, Coll2& coll2)
 {
-        int count = 0;
-        for (const auto& i : coll1)
-                for (const auto& j : coll2)
-                        count += check_collisions(i, j, out);
-        return count;
+        for (auto& i : coll1)
+                for (auto& j : coll2)
+                        check_collisions(i, j);
 }
 
 // Single element with all from a collection.
-template <class Out, class Ent, class Coll>
+template <class Ent, class Coll>
 typename std::enable_if<IsCollection<Coll>::value &&
-                        !IsCollection<Ent>::value, int>::type
-collide_leaf(Out& out, Ent& ent, Coll& coll)
+                        !IsCollection<Ent>::value, void>::type
+collide_leaf(Ent& ent, Coll& coll)
 {
-        int count = 0;
-        for (const auto& j : coll)
-                count += check_collisions(ent, j, out);
-        return count;
+        for (auto& j : coll)
+                check_collisions(ent, j);
 }
 
 // Single element with all from a collection - reversed arguments overload.
-template <class Out, class Ent, class Coll>
+template <class Ent, class Coll>
 typename std::enable_if<IsCollection<Coll>::value &&
-                        !IsCollection<Ent>::value, int>::type
-collide_leaf(Out& out, Coll& coll, Ent& ent)
+                        !IsCollection<Ent>::value, void>::type
+collide_leaf(Coll& coll, Ent& ent)
 {
-        return collide_leaf(out, ent, coll);
+        collide_leaf(ent, coll);
 }
 
 // Single element with another single element.
-template <class Out, class Ent1, class Ent2>
+template <class Ent1, class Ent2>
 typename std::enable_if<!IsCollection<Ent1>::value &&
-                        !IsCollection<Ent2>::value, int>::type
-collide_leaf(Out& out, Ent1& ent1, Ent2& ent2)
+                        !IsCollection<Ent2>::value, void>::type
+collide_leaf(Ent1& ent1, Ent2& ent2)
 {
-        return check_collisions(ent1, ent2, out);
+        check_collisions(ent1, ent2);
 }
 
 // Operation: Collide first with rest.
 // -----------------------------------
 
-template <class Out, class Coll>
-int collide_first_rest(Out&, Coll&)
+template <class Coll>
+void collide_first_rest(Coll&)
 {
-        return 0;
 }
 
-template <class Out, class Coll1, class Coll2, class... Rest>
-int collide_first_rest(Out& out, Coll1& coll1, Coll2& coll2, Rest&... rest)
+template <class Coll1, class Coll2, class... Rest>
+void collide_first_rest(Coll1& coll1, Coll2& coll2, Rest&... rest)
 {
-        return collide_leaf(out, coll1, coll2) +
-               collide_first_rest(out, coll1, rest...);
+        collide_leaf(coll1, coll2);
+        collide_first_rest(coll1, rest...);
 }
 
 // Operation: Collide all.
 // -----------------------
 
-template <class Out, class Coll>
-int collide_all(Out& out, Coll& coll)
+template <class Coll>
+void collide_all(Coll& coll)
 {
-        return collide_leaf(out, coll);
+        collide_leaf(coll);
 }
 
-template <class Out, class Coll1, class Coll2, class... Rest>
-int collide_all(Out& out, Coll1& first, Coll2& second, Rest&... rest)
+template <class Coll1, class Coll2, class... Rest>
+void collide_all(Coll1& first, Coll2& second, Rest&... rest)
 {
-        return collide_leaf(out, first) +
-               collide_first_rest(out, first, second, rest...) +
-               collide_all(out, second, rest...);
+        collide_leaf(first);
+        collide_first_rest(first, second, rest...);
+        collide_all(second, rest...);
 }
 
 }

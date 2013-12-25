@@ -18,24 +18,42 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef APPEARANCE_H
-#define APPEARANCE_H
-
-#include <allegro5/allegro.h>
+#ifndef COLL_QUEUE_H
+#define COLL_QUEUE_H
 
 #include "../tmp/sfinae.h"
 
 namespace efwk
 {
 
-struct appearance
+struct coll_report
 {
-        ALLEGRO_BITMAP* current_bitmap;
-        appearance(ALLEGRO_BITMAP* bitmap) : current_bitmap(bitmap) {}
+        struct
+        {
+                long id;
+                const char* type_id;
+        } a, b;
+        std::vector<point> points;
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasAppearance, appearance, appr);
+class coll_queue
+{
+        std::vector<coll_report> m_reports;
+
+public:
+        void push(coll_report report)
+        {
+                m_reports.push_back(std::move(report));
+        }
+
+        void clear()
+        {
+                m_reports.clear();
+        }
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasCollisionQueue, coll_queue, collq);
 
 }
 
-#endif /* APPEARANCE_H_ */
+#endif

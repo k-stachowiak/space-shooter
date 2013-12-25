@@ -25,7 +25,7 @@ static const int MAX_SEGS_IN_POLY = 10;
 
 #include <vector>
 
-#include "../sfinae.h"
+#include "../tmp/sfinae.h"
 
 namespace efwk
 {

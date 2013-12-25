@@ -39,7 +39,7 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
                 throw parsing_error("Wave descriptor isn't a list.");
 
         std::vector<std::pair<double, pattern>> patterns;
-        
+
         // Read the patterns
         for(script::dom_node const& ps : wave_desc.list) {
 
@@ -88,7 +88,7 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
                 else
                         throw parsing_error("unrecognized enemy type "
                                         "descriptor encountered.");
-                
+
                 // parse formation
                 std::string formation_desc = ps.list[1].atom;
                 std::vector<pattern::element> formation;
@@ -98,10 +98,10 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
 
                 else if(formation_desc == "pair")
                         formation = pattern::el_pair(et);
-                
+
                 else if(formation_desc == "triangle")
                         formation = pattern::el_triangle(et);
-                
+
                 else if(formation_desc == "quad")
                         formation = pattern::el_quad(et);
 
@@ -127,7 +127,7 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
                 else
                         throw parsing_error("unrecognized movement type "
                                         "descriptor encountered.");
-                
+
                 // Register pattern.
                 patterns.emplace_back(delay, pattern { formation, mt });
         }
@@ -290,7 +290,7 @@ class game_state : public state {
                                         msg.spawn_battery_pickup.vx,
                                         msg.spawn_battery_pickup.vy);
                                 break;
-                                
+
                         case comm::msg_t::spawn_bullet_upgrade_pickup:
                                 _ef.create_bullet_upgrade_pickup(
                                         msg.spawn_bullet_upgrade_pickup.x,

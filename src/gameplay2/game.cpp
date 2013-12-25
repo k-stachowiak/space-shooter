@@ -64,15 +64,19 @@ public:
 class draw_func
 {
         double m_weight;
+        ALLEGRO_FONT* m_debug_font;
 
 public:
-        draw_func(double weight) : m_weight(weight) {}
+        draw_func(double weight, ALLEGRO_FONT* debug_font) :
+                m_weight(weight),
+                m_debug_font(debug_font)
+        {}
 
         template <class Entity>
         void operator()(const Entity& ent)
         {
                 efwk::display(ent, m_weight);
-                efwk::display_dbg(ent, m_weight);
+                efwk::display_dbg(ent, m_weight, m_debug_font);
         }
 };
 
@@ -211,6 +215,7 @@ game::game(const res::resman& resman, const std::map<int, bool>& keys) :
         m_screen_w(cfg::integer("gfx_screen_w")),
         m_screen_h(cfg::integer("gfx_screen_h")),
         m_keys(keys),
+        m_debug_font(m_resman.get_font(res::res_id::TINY_FONT)),
         m_next_id(0),
         m_next_enemy_counter(0),
         m_player(next_id(),
@@ -220,6 +225,7 @@ game::game(const res::resman& resman, const std::map<int, bool>& keys) :
                 0.0, 0.0, m_screen_w, m_screen_h,
                 0.1, 1.0,
                 24.0,
+                100.0,
                 100.0)
 {
 }
@@ -237,7 +243,7 @@ void game::update(double dt)
 void game::draw(double weight)
 {
         al_clear_to_color(al_map_rgb_f(0, 0, 0));
-        draw_func df { weight };
+        draw_func df { weight, m_debug_font };
         efwk::map(df, m_player, m_bullets, m_enemies);
 }
 

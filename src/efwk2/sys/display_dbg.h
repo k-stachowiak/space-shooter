@@ -63,16 +63,26 @@ namespace
         {
                 al_draw_circle(x, y, cir.radius, al_map_rgb_f(1, 1, 0), 1);
         }
+
+        template <class Wellness>
+        void display_wellness(double x, double y,
+                              const Wellness& wlns,
+                              ALLEGRO_FONT* font)
+        {
+                al_draw_textf(font, al_map_rgb_f(1, 1, 1), x, y, 0,
+                              "H(%f)", wlns.get_health());
+        }
 }
 
 namespace efwk
 {
 
 template <class Entity>
-void display_dbg_impl(const Entity& ent, double weight)
+void display_dbg_impl(const Entity& ent, double weight, ALLEGRO_FONT* font)
 {
         const auto& shp = ent.shp;
         const auto& ori = ent.ori;
+        const auto& wlns = ent.wlns;
 
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(weight);
@@ -80,21 +90,25 @@ void display_dbg_impl(const Entity& ent, double weight)
         double phi = ori.interpolate_rot(weight);
 
         display_shape(x, y, phi, shp);
+        display_wellness(x, y, wlns, font);
 }
 
 template <class T>
-using IsDbgDisplayable = TmpAll<HasShape<T>, HasOrientation<T>>;
+using IsDbgDisplayable = TmpAll<HasShape<T>,
+                                HasOrientation<T>,
+                                HasCollidableTraits<T>,
+                                HasWellness<T>>;
 
 template <class Entity>
 typename std::enable_if<IsDbgDisplayable<Entity>::value, void>::type
-display_dbg(const Entity& ent, double weight)
+display_dbg(const Entity& ent, double weight, ALLEGRO_FONT* font)
 {
-        display_dbg_impl(ent, weight);
+        display_dbg_impl(ent, weight, font);
 }
 
 template <class Entity>
 typename std::enable_if<!IsDbgDisplayable<Entity>::value, void>::type
-display_dbg(const Entity&, double)
+display_dbg(const Entity&, double, ALLEGRO_FONT*)
 {
 }
 

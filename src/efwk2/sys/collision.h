@@ -64,9 +64,9 @@ shape_segment trans(const shape_segment& in,
 
 // Segment - Segment
 template <class PointIt>
-int collide_impl(const shape_segment& seg1, const orientation& seg1_ori,
-                 const shape_segment& seg2, const orientation& seg2_ori,
-                 PointIt& point_it)
+bool collide_impl(const shape_segment& seg1, const orientation& seg1_ori,
+                  const shape_segment& seg2, const orientation& seg2_ori,
+                  PointIt& point_it)
 {
         const shape_segment trans_seg1 = trans(seg1, seg1_ori);
         const shape_segment trans_seg2 = trans(seg2, seg2_ori);
@@ -92,17 +92,17 @@ int collide_impl(const shape_segment& seg1, const orientation& seg1_ori,
 
         if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
                 *(point_it++) = { seg1.a.x + (t * sx1), seg1.a.y + (t * sy1) };
-                return 1;
-        } else {
-                return 0;
+                return true;
         }
+
+        return false;
 }
 
 // Segment - Circle
 template <class PointIt>
-int collide_impl(const shape_segment& seg, const orientation& seg_ori,
-                 const shape_circle& cir, const orientation& cir_ori,
-                 PointIt& point_it)
+bool collide_impl(const shape_segment& seg, const orientation& seg_ori,
+                  const shape_circle& cir, const orientation& cir_ori,
+                  PointIt& point_it)
 {
         const shape_segment trans_seg = trans(seg, seg_ori);
 
@@ -150,54 +150,51 @@ int collide_impl(const shape_segment& seg, const orientation& seg_ori,
 
         // No results at all.
         if (delta < -EPSILON) {
-                return 0;
+                return false;
         }
 
         // Two potential results - very likely on collision.
         if (delta > EPSILON) {
-                int result_count = 0;
                 const double sqrt_delta = sqrt(delta);
 
                 const double t1 = (-b - sqrt_delta) / (2 * a);
                 if (t1 >= 0 && t1 <= 1) {
-                        ++result_count;
                         *(point_it++) = { x1 * t1 + x2 * (1 - t1),
                                      y1 * t1 + y2 * (1 - t1) };
                 }
 
                 const double t2 = (-b + sqrt_delta) / (2 * a);
                 if (t2 >= 0 && t2 <= 1) {
-                        ++result_count;
                         *(point_it++) = { x1 * t2 + x2 * (1 - t2),
                                      y1 * t2 + y2 * (1 - t2) };
                 }
 
-                return result_count;
+                return true;
         }
 
         // One collision - rare.
         const double t = (-b) / (2 * a);
         if (t < 0 || t > 1)
-                return 0;
+                return false;
 
         *(point_it++) = { x1 * t + x2 * (1 - t),
                      y1 * t + y2 * (1 - t) };
-        return 1;
+        return true;
 }
 
 template <class PointIt>
-int collide_impl(const shape_circle& cir, const orientation& cir_ori,
-                 const shape_segment& seg, const orientation& seg_ori,
-                 PointIt& point_it)
+bool collide_impl(const shape_circle& cir, const orientation& cir_ori,
+                  const shape_segment& seg, const orientation& seg_ori,
+                  PointIt& point_it)
 {
         return collide_impl(seg, seg_ori, cir, cir_ori, point_it);
 }
 
 // Circle - Circle
 template <class PointIt>
-int collide_impl(const shape_circle& cir1, const orientation& ori1,
-                 const shape_circle& cir2, const orientation& ori2,
-                 PointIt& point_it)
+bool collide_impl(const shape_circle& cir1, const orientation& ori1,
+                  const shape_circle& cir2, const orientation& ori2,
+                  PointIt& point_it)
 {
         // Decompose the input.
         const double& r1 = cir1.radius;
@@ -219,12 +216,13 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
 
         // Too far.
         if (d > (r1 + r2)) {
-                return 0;
+                return false;
         }
 
         // Too small and too inside.
+        // Note: True returned, but no collision points added.
         if (d < std::abs(r1 - r2)) {
-                return 0;
+                return true;
         }
 
         // The solution.
@@ -239,7 +237,7 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
 
         if (std::abs(d - (r1 + r2)) < EPSILON) {
                 *(point_it++) = { xm, ym };
-                return 1;
+                return true;
         }
 
         // The distance from pm to intersection points.
@@ -250,7 +248,7 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
         // The result points.
         *(point_it++) = { xm + h * (y2 - y1) / d, ym - h * (x2 - x1) / d };
         *(point_it++) = { xm - h * (y2 - y1) / d, ym + h * (x2 - x1) / d };
-        return 2;
+        return true;
 }
 
 // Complex collision implementation.
@@ -258,44 +256,48 @@ int collide_impl(const shape_circle& cir1, const orientation& ori1,
 
 // Segment - Polygon
 template <class PointIt>
-int collide_impl(const shape_segment& seg, const orientation& seg_ori,
-                 const shape_polygon& poly, const orientation& poly_ori,
-                 PointIt& point_it)
+bool collide_impl(const shape_segment& seg, const orientation& seg_ori,
+                  const shape_polygon& poly, const orientation& poly_ori,
+                  PointIt& point_it)
 {
         const auto first = begin(poly.segs);
         const auto last = begin(poly.segs) + poly.num_segs;
+
+        // TODO: Consider case when segment is inside polygon.
+
         int count = 0;
         for (auto poly_seg = first; poly_seg != last; ++poly_seg) {
                 count += collide_impl(seg, seg_ori, *poly_seg, poly_ori, point_it);
         }
-        return count;
+        return count > 0;
 }
 
 template <class PointIt>
-int collide_impl(const shape_polygon& poly, const orientation& poly_ori,
-                 const shape_segment& seg, const orientation& seg_ori,
-                 PointIt& point_it)
+bool collide_impl(const shape_polygon& poly, const orientation& poly_ori,
+                  const shape_segment& seg, const orientation& seg_ori,
+                  PointIt& point_it)
 {
         return collide_impl(seg, seg_ori, poly, poly_ori, point_it);
 }
 
 // Segment - Square
 template <class PointIt>
-int collide_impl(const shape_segment& seg, const orientation& seg_ori,
-                 const shape_square& sqr, const orientation& sqr_ori,
-                 PointIt& point_it)
+bool collide_impl(const shape_segment& seg, const orientation& seg_ori,
+                  const shape_square& sqr, const orientation& sqr_ori,
+                  PointIt& point_it)
 {
+        // TODO: Consider case when the segment is insidethe square.
         int count = 0;
         for (const auto& sqr_seg : segments(sqr)) {
                 count += collide_impl(seg, seg_ori, sqr_seg, sqr_ori, point_it);
         }
-        return count;
+        return count > 0;
 }
 
 template <class PointIt>
-int collide_impl(const shape_square& sqr, const orientation& sqr_ori,
-                 const shape_segment& seg, const orientation& seg_ori,
-                 PointIt& point_it)
+bool collide_impl(const shape_square& sqr, const orientation& sqr_ori,
+                  const shape_segment& seg, const orientation& seg_ori,
+                  PointIt& point_it)
 {
         return collide_impl(seg, seg_ori, sqr, sqr_ori, point_it);
 }
@@ -314,10 +316,10 @@ check_collisions(Entity1& ent1, Entity2& ent2)
         // Determine the collision points.
         std::vector<point> points;
         auto inserter = std::back_inserter(points);
-        collide_impl(ent1.shp, ent1.ori, ent2.shp, ent2.ori, inserter);
+        bool result = collide_impl(ent1.shp, ent1.ori, ent2.shp, ent2.ori, inserter);
 
         // Store the report.
-        if (!points.empty()) {
+        if (result) {
                 ent1.collq.push({ ent2.id, ent2.type_id, ent2.collt, ent2.collc, ent2.colld, points });
                 ent2.collq.push({ ent1.id, ent1.type_id, ent1.collt, ent1.collc, ent1.colld, points });
         }

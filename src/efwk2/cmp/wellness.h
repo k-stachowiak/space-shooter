@@ -21,6 +21,8 @@
 #ifndef WELLNESS_H
 #define WELLNESS_H
 
+#include <limits>
+
 #include "../tmp/sfinae.h"
 
 namespace efwk
@@ -44,6 +46,11 @@ public:
         {
                 return m_health > 0;
         }
+
+        double get_health() const
+        {
+                return m_health;
+        }
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasWellnessRegular, wellness_regular, wlns);
@@ -51,7 +58,13 @@ SFINAE__DECLARE_HAS_MEMBER(HasWellnessRegular, wellness_regular, wlns);
 struct wellness_invulnerable
 {
         void hurt(double) {}
+
         bool alive() const { return true; }
+
+        double get_health() const
+        {
+                return std::numeric_limits<double>::infinity();
+        }
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasWellnessInvulnerable, wellness_invulnerable, wlns);

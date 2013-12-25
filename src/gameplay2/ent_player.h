@@ -48,6 +48,7 @@ struct player
         efwk::coll_class collc;
         efwk::coll_dmg colld;
         efwk::coll_queue collq;
+        efwk::wellness_regular wlns;
 
         player(long new_id,
                ALLEGRO_BITMAP* bmp,
@@ -56,7 +57,8 @@ struct player
                double x_min, double y_min, double x_max, double y_max,
                double minigun_interval, double rocket_launcher_interval,
                double radius,
-               double damage) :
+               double damage,
+               double health) :
                         id(new_id),
                         parent_id(new_id),
                         type_id("player"),
@@ -68,7 +70,8 @@ struct player
                         shp(radius),
                         collt(efwk::coll_team::player),
                         collc(efwk::coll_class::ship),
-                        colld(damage)
+                        colld(damage),
+                        wlns(health)
         {
         }
 };

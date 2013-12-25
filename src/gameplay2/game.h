@@ -51,6 +51,8 @@ class game
 
         const std::map<int, bool>& m_keys;
 
+        ALLEGRO_FONT* const m_debug_font;
+
         long m_next_id;
 
         double m_next_enemy_counter;

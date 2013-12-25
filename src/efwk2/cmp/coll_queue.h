@@ -28,11 +28,8 @@ namespace efwk
 
 struct coll_report
 {
-        struct
-        {
-                long id;
-                const char* type_id;
-        } a, b;
+        long id;
+        const char* type_id;
         std::vector<point> points;
 };
 

@@ -208,7 +208,6 @@ void game::update(double dt)
         handle_collisions();
         handle_deletions(dt);
         handle_creations(dt);
-
         logger::instance().flush();
 }
 

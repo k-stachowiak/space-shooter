@@ -311,30 +311,22 @@ typename std::enable_if<IsCollidable<Entity1>::value &&
                         IsCollidable<Entity2>::value, void>::type
 check_collisions(Entity1& ent1, Entity2& ent2)
 {
-        // Initialize the basic report information.
-        coll_report report {
-                { ent1.id, ent1.type_id },
-                { ent2.id, ent2.type_id },
-                {}
-        };
-
         // Determine the collision points.
-        auto inserter = std::back_inserter(report.points);
+        std::vector<point> points;
+        auto inserter = std::back_inserter(points);
         collide_impl(ent1.shp, ent1.ori, ent2.shp, ent2.ori, inserter);
 
         // Store the report.
-        if (!report.points.empty()) {
-                ent1.collq.push(report);
-                ent2.collq.push(report);
+        if (!points.empty()) {
+                ent1.collq.push({ ent2.id, ent2.type_id, points });
+                ent2.collq.push({ ent1.id, ent1.type_id, points });
         }
 }
 
 template <class Entity1, class Entity2>
 typename std::enable_if<!IsCollidable<Entity1>::value ||
                         !IsCollidable<Entity2>::value, void>::type
-check_collisions(Entity1&, Entity2&)
-{
-}
+check_collisions(Entity1&, Entity2&) {}
 
 }
 

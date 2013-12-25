@@ -55,8 +55,7 @@ map(Func func, Head& head, Tail&... tail)
 // Map funcrion to all pairs of elements in argument bag.
 // ------------------------------------------------------
 
-// TODO:
-// increase the dispatch depth to decrease the cases count. E.g.:
+// TODO: consider refactoring to reduce the number of cases to consired.
 
 template <class Func, class First>
 typename std::enable_if<IsCollection<First>::value, void>::type

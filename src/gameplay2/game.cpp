@@ -76,6 +76,15 @@ public:
         }
 };
 
+struct collide_func
+{
+        template <class First, class Second>
+        void operator()(First& first, Second& second)
+        {
+                efwk::check_collisions(first, second);
+        }
+};
+
 struct collq_clear_func
 {
         template <class Entity>
@@ -128,7 +137,7 @@ void game::update_entities(double dt)
 void game::handle_collisions()
 {
         efwk::map(collq_clear_func(), m_player, m_bullets, m_enemies);
-        efwk::collide_all(m_player, m_bullets, m_enemies);
+        efwk::map2(collide_func(), m_player, m_bullets, m_enemies);
 }
 
 void game::handle_deletions(double dt)
@@ -199,6 +208,8 @@ void game::update(double dt)
         handle_collisions();
         handle_deletions(dt);
         handle_creations(dt);
+
+        logger::instance().flush();
 }
 
 void game::draw(double weight)

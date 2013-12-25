@@ -304,7 +304,7 @@ int collide_impl(const shape_square& sqr, const orientation& sqr_ori,
 // ========================
 
 template <class T>
-using IsCollidable = TmpAny<HasShape<T>, HasCollisionQueue<T>>;
+using IsCollidable = TmpAll<HasShape<T>, HasCollisionQueue<T>>;
 
 template <class Entity1, class Entity2>
 typename std::enable_if<IsCollidable<Entity1>::value &&
@@ -334,96 +334,6 @@ typename std::enable_if<!IsCollidable<Entity1>::value ||
                         !IsCollidable<Entity2>::value, void>::type
 check_collisions(Entity1&, Entity2&)
 {
-}
-
-// Operation: Collide leaf.
-// ------------------------
-
-// Elements of the same collection with each other.
-template <class Coll>
-typename std::enable_if<IsCollection<Coll>::value, void>::type
-collide_leaf(Coll& coll)
-{
-        for (auto i = begin(coll); i != end(coll); ++i)
-                for (auto j = (i + 1); j != end(coll); ++j)
-                        check_collisions(*i, *j);
-}
-
-template <class Ent>
-typename std::enable_if<!IsCollection<Ent>::value, void>::type
-collide_leaf(Ent&)
-{
-}
-
-// Elements of one collection with elements from another collection.
-template <class Coll1, class Coll2>
-typename std::enable_if<IsCollection<Coll1>::value &&
-                        IsCollection<Coll2>::value, void>::type
-collide_leaf(Coll1& coll1, Coll2& coll2)
-{
-        for (auto& i : coll1)
-                for (auto& j : coll2)
-                        check_collisions(i, j);
-}
-
-// Single element with all from a collection.
-template <class Ent, class Coll>
-typename std::enable_if<IsCollection<Coll>::value &&
-                        !IsCollection<Ent>::value, void>::type
-collide_leaf(Ent& ent, Coll& coll)
-{
-        for (auto& j : coll)
-                check_collisions(ent, j);
-}
-
-// Single element with all from a collection - reversed arguments overload.
-template <class Ent, class Coll>
-typename std::enable_if<IsCollection<Coll>::value &&
-                        !IsCollection<Ent>::value, void>::type
-collide_leaf(Coll& coll, Ent& ent)
-{
-        collide_leaf(ent, coll);
-}
-
-// Single element with another single element.
-template <class Ent1, class Ent2>
-typename std::enable_if<!IsCollection<Ent1>::value &&
-                        !IsCollection<Ent2>::value, void>::type
-collide_leaf(Ent1& ent1, Ent2& ent2)
-{
-        check_collisions(ent1, ent2);
-}
-
-// Operation: Collide first with rest.
-// -----------------------------------
-
-template <class Coll>
-void collide_first_rest(Coll&)
-{
-}
-
-template <class Coll1, class Coll2, class... Rest>
-void collide_first_rest(Coll1& coll1, Coll2& coll2, Rest&... rest)
-{
-        collide_leaf(coll1, coll2);
-        collide_first_rest(coll1, rest...);
-}
-
-// Operation: Collide all.
-// -----------------------
-
-template <class Coll>
-void collide_all(Coll& coll)
-{
-        collide_leaf(coll);
-}
-
-template <class Coll1, class Coll2, class... Rest>
-void collide_all(Coll1& first, Coll2& second, Rest&... rest)
-{
-        collide_leaf(first);
-        collide_first_rest(first, second, rest...);
-        collide_all(second, rest...);
 }
 
 }

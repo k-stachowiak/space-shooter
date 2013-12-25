@@ -84,8 +84,8 @@ map2_impl(Func func, First& first, Second& second)
 }
 
 template <class Func, class First, class Second>
-typename std::enable_if<IsCollection<First>::value &&
-                        !IsCollection<Second>::value, void>::type
+typename std::enable_if<!IsCollection<First>::value &&
+                        IsCollection<Second>::value, void>::type
 map2_impl(Func func, First& first, Second& second)
 {
         for (auto& j : second)
@@ -93,8 +93,8 @@ map2_impl(Func func, First& first, Second& second)
 }
 
 template <class Func, class First, class Second>
-typename std::enable_if<IsCollection<Second>::value &&
-                        !IsCollection<First>::value, void>::type
+typename std::enable_if<IsCollection<First>::value &&
+                        !IsCollection<Second>::value, void>::type
 map2_impl(Func func, First& first, Second& second)
 {
         map2_impl(second, first);
@@ -114,7 +114,7 @@ void map2_first_rest(Func, First&)
 }
 
 template <class Func, class First, class Second, class... Rest>
-void map2_first_rest(Func func, First& first, Second& second, Rest... rest)
+void map2_first_rest(Func func, First& first, Second& second, Rest&... rest)
 {
         map2_impl(func, first, second);
         map2_first_rest(func, first, rest...);
@@ -123,13 +123,13 @@ void map2_first_rest(Func func, First& first, Second& second, Rest... rest)
 template <class Func, class First>
 void map2(Func func, First& first)
 {
-        map2_self(func, first);
+        map2_impl(func, first);
 }
 
 template <class Func, class First, class Second, class... Rest>
 void map2(Func func, First& first, Second& second, Rest&... rest)
 {
-        map2_self(func, first);
+        map2_impl(func, first);
         map2_first_rest(func, first, second, rest...);
         map2(func, second, rest...);
 }

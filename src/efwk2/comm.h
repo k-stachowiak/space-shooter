@@ -29,6 +29,8 @@ struct bullet_req
         double y;
         double vx;
         double vy;
+        bool is_enemy;
+        double damage;
 };
 
 struct comm_bus

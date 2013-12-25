@@ -33,7 +33,6 @@ template <class Entity>
 void weapon_input_impl(Entity& ent,
                        const std::map<int, bool>& keys,
                        double dt,
-                       const res::resman& rm, // TODO: Get rid of this - simplify creation scheduling.
                        comm_bus& cbus)
 {
         auto& pweap = ent.pweap;
@@ -45,7 +44,7 @@ void weapon_input_impl(Entity& ent,
                 if (pweap.trigger_primary()) {
                         double x, y;
                         std::tie(x, y) = ori.interpolate_loc(0);
-                        cbus.bullet_reqs.push({ x, y, 0, -1 });
+                        cbus.bullet_reqs.push({ x, y, 0, -1, false, 10.0 });
                 }
         }
 
@@ -64,13 +63,12 @@ typename std::enable_if<IsWeaponInputable<Entity>::value, void>::type
 weapon_input(Entity& ent,
              const std::map<int, bool>& keys,
              double dt,
-             const res::resman& rm,
              comm_bus& cbus)
-{ weapon_input_impl(ent, keys, dt, rm, cbus); }
+{ weapon_input_impl(ent, keys, dt, cbus); }
 
 template <class Entity>
 typename std::enable_if<!IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity&, const std::map<int, bool>&, double, const res::resman&, comm_bus&) {}
+weapon_input(Entity&, const std::map<int, bool>&, double, comm_bus&) {}
 
 }
 

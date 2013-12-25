@@ -27,6 +27,7 @@
 #include "../efwk2/cmp/orientation.h"
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/cmp/coll_queue.h"
+#include "../efwk2/cmp/wellness.h"
 
 namespace gplay
 {
@@ -34,13 +35,18 @@ namespace gplay
 struct enemy
 {
         long id;
+        long parent_id;
         const char* type_id;
         efwk::appearance appr;
         efwk::life_bounds lbnd;
         efwk::const_vel_dynamics dyn;
         efwk::orientation ori;
         efwk::shape_circle shp;
+        efwk::coll_team collt;
+        efwk::coll_class collc;
+        efwk::coll_dmg colld;
         efwk::coll_queue collq;
+        efwk::wellness_regular wlns;
 
         enemy(long new_id,
               ALLEGRO_BITMAP* bmp,
@@ -48,14 +54,21 @@ struct enemy
               double x, double y,
               double x_min, double y_min,
               double x_max, double y_max,
-              double radius) :
+              double radius,
+              double damage,
+              double health) :
                 id(new_id),
+                parent_id(new_id),
                 type_id("enemy"),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),
                 dyn(0, velocity),
                 ori(x, y, 3.1415 * 0.5),
-                shp(radius)
+                shp(radius),
+                collt(efwk::coll_team::enemy),
+                collc(efwk::coll_class::ship),
+                colld(damage),
+                wlns(health)
         {
         }
 };

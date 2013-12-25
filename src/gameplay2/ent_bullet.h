@@ -27,6 +27,7 @@
 #include "../efwk2/cmp/orientation.h"
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/cmp/coll_queue.h"
+#include "../efwk2/cmp/wellness.h"
 
 namespace gplay
 {
@@ -34,28 +35,39 @@ namespace gplay
 struct bullet
 {
         long id;
+        long parent_id;
         const char* type_id;
         efwk::appearance appr;
         efwk::life_bounds lbnd;
         efwk::const_vel_dynamics dyn;
         efwk::orientation ori;
         efwk::shape_circle shp;
+        efwk::coll_team collt;
+        efwk::coll_class collc;
+        efwk::coll_dmg colld;
         efwk::coll_queue collq;
+        efwk::wellness_invulnerable wlns;
 
         bullet(long new_id,
+               long new_parent_id,
                ALLEGRO_BITMAP* bmp,
                double velocity, double dx, double dy,
                double x, double y, double phi,
                double x_min, double y_min,
                double x_max, double y_max,
-               double radius) :
+               double radius,
+               bool is_enemy, double damage) :
                 id(new_id),
+                parent_id(new_parent_id),
                 type_id("bullet"),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),
                 dyn(0, 0),
                 ori(x, y, phi),
-                shp(radius)
+                shp(radius),
+                collt(is_enemy ? efwk::coll_team::enemy : efwk::coll_team::player),
+                collc(efwk::coll_class::projectile),
+                colld(damage)
         {
                 const double dx2 = dx * dx;
                 const double dy2 = dy * dy;

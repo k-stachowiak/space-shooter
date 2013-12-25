@@ -37,6 +37,7 @@
 #include "../efwk2/sys/movement.h"
 #include "../efwk2/sys/input.h"
 #include "../efwk2/sys/collision.h"
+#include "../efwk2/sys/pain.h"
 
 namespace gplay
 {

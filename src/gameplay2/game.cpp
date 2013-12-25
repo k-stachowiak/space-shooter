@@ -54,7 +54,7 @@ public:
         template <class Entity>
         void operator()(Entity& ent)
         {
-                efwk::weapon_input(ent, m_keys, m_dt, m_resman, m_cbus);
+                efwk::weapon_input(ent, m_keys, m_dt, m_cbus);
                 efwk::move(ent, m_dt);
                 efwk::bind_movement(ent);
                 efwk::bind_life(ent, m_cbus);
@@ -82,6 +82,22 @@ struct collide_func
         void operator()(First& first, Second& second)
         {
                 efwk::check_collisions(first, second);
+        }
+};
+
+class pain_func
+{
+        efwk::comm_bus& m_cbus;
+
+public:
+        pain_func(efwk::comm_bus& cbus) :
+                m_cbus(cbus)
+        {}
+
+        template <class Entity>
+        void operator()(Entity& ent)
+        {
+                efwk::pain(ent, m_cbus);
         }
 };
 
@@ -138,6 +154,7 @@ void game::handle_collisions()
 {
         efwk::map(collq_clear_func(), m_player, m_bullets, m_enemies);
         efwk::map2(collide_func(), m_player, m_bullets, m_enemies);
+        efwk::map(pain_func(m_cbus), m_player, m_bullets, m_enemies);
 }
 
 void game::handle_deletions(double dt)
@@ -158,13 +175,16 @@ void game::handle_creations(double dt)
         m_cbus.bullet_reqs.visit(dt, [this](efwk::bullet_req& brq) {
                 m_bullets.emplace_back(
                         next_id(),
+                        m_player.id,
                         m_resman.get_bitmap(res::res_id::BULLET_5),
                         800.0, brq.vx, brq.vy,
                         brq.x, brq.y, -3.1415 / 2.0,
                         0, 0,
                         cfg::integer("gfx_screen_w"),
                         cfg::integer("gfx_screen_h"),
-                        5.0);
+                        5.0,
+                        brq.is_enemy,
+                        brq.damage);
         });
 
         // Spawn enemy.
@@ -181,7 +201,9 @@ void game::handle_creations(double dt)
                 0, 0, 
                 cfg::integer("gfx_screen_w"),
                 cfg::integer("gfx_screen_h"),
-                32.0);
+                32.0,
+                100.0,
+                50.0);
 }
 
 game::game(const res::resman& resman, const std::map<int, bool>& keys) :
@@ -197,7 +219,8 @@ game::game(const res::resman& resman, const std::map<int, bool>& keys) :
                 100.0, 100.0, -3.1415 * 0.5,
                 0.0, 0.0, m_screen_w, m_screen_h,
                 0.1, 1.0,
-                24.0)
+                24.0,
+                100.0)
 {
 }
 

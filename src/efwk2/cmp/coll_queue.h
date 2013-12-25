@@ -26,10 +26,64 @@
 namespace efwk
 {
 
+enum class coll_team
+{
+        player, enemy
+};
+
+inline
+std::string to_string(const coll_team& ct)
+{
+        switch (ct) {
+        case coll_team::player:
+                return "player";
+        case coll_team::enemy:
+                return "enemy";
+        }
+
+        exit(1);
+        return {};
+}
+
+SFINAE__DECLARE_HAS_MEMBER(HasCollisionTeam, coll_team, collt);
+
+enum class coll_class
+{
+        ship, projectile
+};
+
+inline
+std::string to_string(const coll_class& cc)
+{
+        switch (cc) {
+        case coll_class::ship:
+                return "ship";
+        case coll_class::projectile:
+                return "projectile";
+        }
+
+        exit(1);
+        return {};
+}
+
+SFINAE__DECLARE_HAS_MEMBER(HasCollisionClass, coll_class, collc);
+
+struct coll_dmg
+{
+        double damage;
+
+        coll_dmg(double new_damage) : damage(new_damage) {}
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasCollisionDamage, coll_dmg, colld);
+
 struct coll_report
 {
         long id;
         const char* type_id;
+        coll_team collt;
+        coll_class collc;
+        coll_dmg colld;
         std::vector<point> points;
 };
 
@@ -43,6 +97,12 @@ public:
                 m_reports.push_back(std::move(report));
         }
 
+        template<class Func>
+        void for_each_report(Func func) const
+        {
+                std::for_each(begin(m_reports), end(m_reports), func);
+        }
+
         void clear()
         {
                 m_reports.clear();
@@ -50,6 +110,12 @@ public:
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasCollisionQueue, coll_queue, collq);
+
+template <class T>
+using HasCollidableTraits = TmpAll<HasCollisionTeam<T>,
+                                   HasCollisionClass<T>,
+                                   HasCollisionDamage<T>,
+                                   HasCollisionQueue<T>>;
 
 }
 

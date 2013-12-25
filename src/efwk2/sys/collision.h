@@ -304,7 +304,7 @@ int collide_impl(const shape_square& sqr, const orientation& sqr_ori,
 // ========================
 
 template <class T>
-using IsCollidable = TmpAll<HasShape<T>, HasCollisionQueue<T>>;
+using IsCollidable = TmpAll<HasShape<T>, HasCollidableTraits<T>>;
 
 template <class Entity1, class Entity2>
 typename std::enable_if<IsCollidable<Entity1>::value &&
@@ -318,8 +318,8 @@ check_collisions(Entity1& ent1, Entity2& ent2)
 
         // Store the report.
         if (!points.empty()) {
-                ent1.collq.push({ ent2.id, ent2.type_id, points });
-                ent2.collq.push({ ent1.id, ent1.type_id, points });
+                ent1.collq.push({ ent2.id, ent2.type_id, ent2.collt, ent2.collc, ent2.colld, points });
+                ent2.collq.push({ ent1.id, ent1.type_id, ent1.collt, ent1.collc, ent1.colld, points });
         }
 }
 

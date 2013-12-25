@@ -31,8 +31,8 @@ class wellness_regular
         double m_health;
 public:
 
-        wellness(double health) :
-                m_healtn(health)
+        wellness_regular(double health) :
+                m_health(health)
         {}
 
         void hurt(double d_health)
@@ -46,7 +46,7 @@ public:
         }
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasWelnessRegular, wellness_regular, wlns);
+SFINAE__DECLARE_HAS_MEMBER(HasWellnessRegular, wellness_regular, wlns);
 
 struct wellness_invulnerable
 {
@@ -54,10 +54,10 @@ struct wellness_invulnerable
         bool alive() const { return true; }
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasWelnessInvulnerable, wellness_invulnerable, wlns);
+SFINAE__DECLARE_HAS_MEMBER(HasWellnessInvulnerable, wellness_invulnerable, wlns);
 
 template <class T>
-using HasWellness = TmpAny<HasWellnessRegular<T>, HasWellnessInuvlnerable<T>>;
+using HasWellness = TmpAny<HasWellnessRegular<T>, HasWellnessInvulnerable<T>>;
 
 }
 

@@ -122,12 +122,12 @@ void game::log_state()
 void game::update_entities(double dt)
 {
         update_func uf { m_keys, m_resman, m_cbus, dt };
-        efwk::for_all(uf, m_player, m_bullets, m_enemies);
+        efwk::map(uf, m_player, m_bullets, m_enemies);
 }
 
 void game::handle_collisions()
 {
-        efwk::for_all(collq_clear_func(), m_player, m_bullets, m_enemies);
+        efwk::map(collq_clear_func(), m_player, m_bullets, m_enemies);
         efwk::collide_all(m_player, m_bullets, m_enemies);
 }
 
@@ -205,7 +205,7 @@ void game::draw(double weight)
 {
         al_clear_to_color(al_map_rgb_f(0, 0, 0));
         draw_func df { weight };
-        efwk::for_all(df, m_player, m_bullets, m_enemies);
+        efwk::map(df, m_player, m_bullets, m_enemies);
 }
 
 }

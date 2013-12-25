@@ -28,6 +28,7 @@ static const double EPSILON = 0.5;
 
 #include "../cmp/shape.h"
 #include "../cmp/orientation.h"
+#include "../tmp/traits.h"
 
 namespace efwk
 {

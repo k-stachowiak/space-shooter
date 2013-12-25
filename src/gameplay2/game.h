@@ -25,6 +25,8 @@
 
 #include "../efwk2/comm.h"
 
+#include "../efwk2/tmp/map.h"
+
 #include "ent_player.h"
 #include "ent_enemy.h"
 #include "ent_bullet.h"

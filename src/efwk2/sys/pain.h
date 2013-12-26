@@ -98,6 +98,7 @@ void pain_impl(Entity& ent, comm_bus& cbus)
         const coll_queue& collq = ent.collq;
         auto& wlns = ent.wlns;
 
+        // TODO: Turn the below into lambdas.
         ship_reaction_func<decltype(ent.wlns)> srf(id, collt, colld, wlns, cbus);
         projectile_reaction_func prf(id, collt, cbus);
 

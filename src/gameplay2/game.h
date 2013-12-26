@@ -63,14 +63,14 @@ class game
 
         efwk::comm_bus m_cbus;
 
-        long next_id() { return ++m_next_id; }
+        long m_get_next_id() { return ++m_next_id; }
 
-        void log_state();
+        void m_log_state();
 
-        void update_entities(double dt);
-        void handle_collisions();
-        void handle_deletions(double dt);
-        void handle_creations(double dt);
+        void m_update_entities(double dt);
+        void m_handle_collisions();
+        void m_handle_deletions(double dt);
+        void m_handle_creations(double dt);
 
 public:
         game(const res::resman& resman, const std::map<int, bool>& keys);

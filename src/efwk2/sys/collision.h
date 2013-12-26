@@ -306,7 +306,7 @@ bool collide_impl(const shape_square& sqr, const orientation& sqr_ori,
 // ========================
 
 template <class T>
-using IsCollidable = TmpAll<HasShape<T>, HasCollidableTraits<T>>;
+using IsCollidable = TmpAll<HasShape<T>, HasCollisionTraits<T>>;
 
 template <class Entity1, class Entity2>
 typename std::enable_if<IsCollidable<Entity1>::value &&

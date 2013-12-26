@@ -38,6 +38,7 @@ void bind_movement_impl(Entity& ent)
 
         if (!point_in_bounds(x, y, mbnd))
                 ori.cancel_move();
+                // TODO: enable sliding based on the old implementation.
 }
 
 template <class Entity>

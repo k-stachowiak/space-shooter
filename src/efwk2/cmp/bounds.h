@@ -33,6 +33,7 @@ struct bounds
         double x_max;
         double y_max;
 
+protected:
         bounds(double new_x_min, double new_y_min,
                double new_x_max, double new_y_max) :
                 x_min(new_x_min), y_min(new_y_min),

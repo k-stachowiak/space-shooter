@@ -25,7 +25,7 @@ namespace efwk
 {
 
 template <class Wellness>
-struct ship_pain_func
+struct ship_reaction_func
 {
         long id;
         const coll_team& collt;
@@ -33,11 +33,11 @@ struct ship_pain_func
         Wellness& wlns;
         comm_bus& cbus;
 
-        ship_pain_func(long new_id,
-                       const coll_team& new_collt,
-                       const coll_dmg& new_colld,
-                       Wellness& new_wlns,
-                       comm_bus& new_cbus) :
+        ship_reaction_func(long new_id,
+                           const coll_team& new_collt,
+                           const coll_dmg& new_colld,
+                           Wellness& new_wlns,
+                           comm_bus& new_cbus) :
                 id(new_id),
                 collt(new_collt),
                 colld(new_colld),
@@ -63,14 +63,18 @@ struct ship_pain_func
         }
 };
 
-struct projectile_pain_func
+struct projectile_reaction_func
 {
         long id;
         const coll_team& collt;
         comm_bus& cbus;
 
-        projectile_pain_func(long new_id, const coll_team& new_collt, comm_bus& new_cbus) :
-                id(new_id), collt(new_collt), cbus(new_cbus)
+        projectile_reaction_func(long new_id,
+                                 const coll_team& new_collt,
+                                 comm_bus& new_cbus) :
+                id(new_id),
+                collt(new_collt),
+                cbus(new_cbus)
         {}
 
         void operator()(const coll_report& cr)
@@ -94,29 +98,26 @@ void pain_impl(Entity& ent, comm_bus& cbus)
         const coll_queue& collq = ent.collq;
         auto& wlns = ent.wlns;
 
-        ship_pain_func<decltype(ent.wlns)> spf(id, collt, colld, wlns, cbus);
-        projectile_pain_func ppf(id, collt, cbus);
+        ship_reaction_func<decltype(ent.wlns)> srf(id, collt, colld, wlns, cbus);
+        projectile_reaction_func prf(id, collt, cbus);
 
         switch (collc) {
         case coll_class::ship:
-                collq.for_each_report(spf);
+                collq.for_each_report(srf);
                 break;
 
         case coll_class::projectile:
-                collq.for_each_report(ppf);
+                collq.for_each_report(prf);
                 break;
         }
 }
 
 template <class T>
-using IsPainable = TmpAll<HasWellness<T>, HasCollidableTraits<T>>;
+using IsPainable = TmpAll<HasWellness<T>, HasCollisionTraits<T>>;
 
 template <class Entity>
 typename std::enable_if<IsPainable<Entity>::value, void>::type
-pain(Entity& ent, comm_bus& cbus)
-{
-        pain_impl(ent, cbus);
-}
+pain(Entity& ent, comm_bus& cbus) { pain_impl(ent, cbus); }
 
 template <class Entity>
 typename std::enable_if<!IsPainable<Entity>::value, void>::type

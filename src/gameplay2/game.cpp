@@ -26,6 +26,8 @@
 #include "../misc/logger.h"
 #include "../misc/config.h"
 
+// TODO: Introduce units for values like location, health, etc.
+
 namespace
 {
 
@@ -137,7 +139,7 @@ bool try_remove_ent(std::vector<Entity>& v, long rem_id)
 namespace gplay
 {
 
-void game::log_state()
+void game::m_log_state()
 {
         std::stringstream ss;
 
@@ -148,20 +150,20 @@ void game::log_state()
         logger::instance().trace(ss.str());
 }
 
-void game::update_entities(double dt)
+void game::m_update_entities(double dt)
 {
         update_func uf { m_keys, m_resman, m_cbus, dt };
         efwk::map(uf, m_player, m_bullets, m_enemies);
 }
 
-void game::handle_collisions()
+void game::m_handle_collisions()
 {
         efwk::map(collq_clear_func(), m_player, m_bullets, m_enemies);
         efwk::map2(collide_func(), m_player, m_bullets, m_enemies);
         efwk::map(pain_func(m_cbus), m_player, m_bullets, m_enemies);
 }
 
-void game::handle_deletions(double dt)
+void game::m_handle_deletions(double dt)
 {
         m_cbus.dels.visit(dt, [this](long rem_id) {
                 if (try_remove_ent(m_bullets, rem_id))
@@ -173,12 +175,12 @@ void game::handle_deletions(double dt)
         });
 }
 
-void game::handle_creations(double dt)
+void game::m_handle_creations(double dt)
 {
         // Handle creation messages.
         m_cbus.bullet_reqs.visit(dt, [this](efwk::bullet_req& brq) {
                 m_bullets.emplace_back(
-                        next_id(),
+                        m_get_next_id(),
                         m_player.id,
                         m_resman.get_bitmap(res::res_id::BULLET_5),
                         800.0, brq.vx, brq.vy,
@@ -198,7 +200,7 @@ void game::handle_creations(double dt)
 
         m_next_enemy_counter += 3.0;
         m_enemies.emplace_back(
-                next_id(),
+                m_get_next_id(),
                 m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER),
                 100.0,
                 400.0, 10.0,
@@ -218,7 +220,7 @@ game::game(const res::resman& resman, const std::map<int, bool>& keys) :
         m_debug_font(m_resman.get_font(res::res_id::TINY_FONT)),
         m_next_id(0),
         m_next_enemy_counter(0),
-        m_player(next_id(),
+        m_player(m_get_next_id(),
                 m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
                 400.0, m_keys,
                 100.0, 100.0, -3.1415 * 0.5,
@@ -232,11 +234,11 @@ game::game(const res::resman& resman, const std::map<int, bool>& keys) :
 
 void game::update(double dt)
 {
-        log_state();
-        update_entities(dt);
-        handle_collisions();
-        handle_deletions(dt);
-        handle_creations(dt);
+        m_log_state();
+        m_update_entities(dt);
+        m_handle_collisions();
+        m_handle_deletions(dt);
+        m_handle_creations(dt);
         logger::instance().flush();
 }
 

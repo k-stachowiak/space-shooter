@@ -18,8 +18,8 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef COLL_QUEUE_H
-#define COLL_QUEUE_H
+#ifndef COLL_TRAITS_H
+#define COLL_TRAITS_H
 
 #include "../tmp/sfinae.h"
 
@@ -112,10 +112,10 @@ public:
 SFINAE__DECLARE_HAS_MEMBER(HasCollisionQueue, coll_queue, collq);
 
 template <class T>
-using HasCollidableTraits = TmpAll<HasCollisionTeam<T>,
-                                   HasCollisionClass<T>,
-                                   HasCollisionDamage<T>,
-                                   HasCollisionQueue<T>>;
+using HasCollisionTraits = TmpAll<HasCollisionTeam<T>,
+                                  HasCollisionClass<T>,
+                                  HasCollisionDamage<T>,
+                                  HasCollisionQueue<T>>;
 
 }
 

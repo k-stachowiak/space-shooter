@@ -96,7 +96,7 @@ void display_dbg_impl(const Entity& ent, double weight, ALLEGRO_FONT* font)
 template <class T>
 using IsDbgDisplayable = TmpAll<HasShape<T>,
                                 HasOrientation<T>,
-                                HasCollidableTraits<T>,
+                                HasCollisionTraits<T>,
                                 HasWellness<T>>;
 
 template <class Entity>

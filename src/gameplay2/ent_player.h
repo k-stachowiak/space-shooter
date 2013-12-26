@@ -27,7 +27,7 @@
 #include "../efwk2/cmp/orientation.h"
 #include "../efwk2/cmp/weaponry.h"
 #include "../efwk2/cmp/shape.h"
-#include "../efwk2/cmp/coll_queue.h"
+#include "../efwk2/cmp/coll_traits.h"
 #include "../efwk2/cmp/wellness.h"
 
 namespace gplay 

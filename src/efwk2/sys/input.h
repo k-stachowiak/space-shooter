@@ -64,11 +64,14 @@ weapon_input(Entity& ent,
              const std::map<int, bool>& keys,
              double dt,
              comm_bus& cbus)
-{ weapon_input_impl(ent, keys, dt, cbus); }
+{
+        weapon_input_impl(ent, keys, dt, cbus);
+}
 
 template <class Entity>
 typename std::enable_if<!IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity&, const std::map<int, bool>&, double, comm_bus&) {}
+weapon_input(Entity&, const std::map<int, bool>&, double, comm_bus&)
+{}
 
 }
 

@@ -27,12 +27,22 @@ namespace efwk
 template <class Wellness>
 struct ship_pain_func
 {
+        long id;
         const coll_team& collt;
         const coll_dmg& colld;
         Wellness& wlns;
+        comm_bus& cbus;
 
-        ship_pain_func(const coll_team& new_collt, const coll_dmg& new_colld, Wellness& new_wlns) :
-                collt(new_collt), colld(new_colld), wlns(new_wlns)
+        ship_pain_func(long new_id,
+                       const coll_team& new_collt,
+                       const coll_dmg& new_colld,
+                       Wellness& new_wlns,
+                       comm_bus& new_cbus) :
+                id(new_id),
+                collt(new_collt),
+                colld(new_colld),
+                wlns(new_wlns),
+                cbus(new_cbus)
         {}
 
         void operator()(const coll_report& cr)
@@ -45,6 +55,10 @@ struct ship_pain_func
 
                 if (other_hurts && other_is_enemy) {
                         wlns.hurt(cr.colld.damage);
+                }
+
+                if (!wlns.alive()) {
+                        cbus.dels.push(id);
                 }
         }
 };
@@ -80,7 +94,7 @@ void pain_impl(Entity& ent, comm_bus& cbus)
         const coll_queue& collq = ent.collq;
         auto& wlns = ent.wlns;
 
-        ship_pain_func<decltype(ent.wlns)> spf(collt, colld, wlns);
+        ship_pain_func<decltype(ent.wlns)> spf(id, collt, colld, wlns, cbus);
         projectile_pain_func ppf(id, collt, cbus);
 
         switch (collc) {

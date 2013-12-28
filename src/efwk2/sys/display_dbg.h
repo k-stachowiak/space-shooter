@@ -27,7 +27,9 @@
 #include <allegro5/allegro_primitives.h>
 
 #include "../cmp/shape.h"
+#include "../cmp/coll_traits.h"
 #include "../cmp/orientation.h"
+#include "../cmp/wellness.h"
 
 namespace
 {
@@ -70,7 +72,7 @@ namespace
                               ALLEGRO_FONT* font)
         {
                 al_draw_textf(font, al_map_rgb_f(1, 1, 1), x, y, 0,
-                              "H(%f)", wlns.get_health());
+                              "H(%.2f)", wlns.get_health());
         }
 }
 

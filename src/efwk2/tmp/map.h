@@ -28,6 +28,24 @@
 namespace efwk
 {
 
+// Try on argument bag until success.
+// ----------------------------------
+
+template <class Func>
+bool try_each(Func)
+{
+        return false;
+}
+
+template <class Func, class Head, class... Tail>
+bool try_each(Func func, Head& hd, Tail&... tl)
+{
+        if (func(hd))
+                return true;
+
+        return try_each(func, tl...);
+}
+
 // Map function to argument bag.
 // -----------------------------
 

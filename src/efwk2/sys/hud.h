@@ -18,38 +18,19 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef MOVEMENT_H
-#define MOVEMENT_H
+#ifndef HUD_H
+#define HUD_H
 
-#include <algorithm>
-#include <functional>
-#include <type_traits>
-
-#include "../cmp/dynamics.h"
-#include "../cmp/orientation.h"
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
 
 namespace efwk
 {
 
-template <class Entity>
-void move_impl(Entity& ent, double dt)
+inline void draw_hud(ALLEGRO_FONT* font, int score)
 {
-        auto& dyn = ent.dyn;
-        auto& ori = ent.ori;
-        dyn.update(dt);
-        ori.shift(dyn.vx * dt, dyn.vy * dt);
+        al_draw_textf(font, al_map_rgb_f(1, 1, 1), 10, 10, 0, "Score : %d", score);
 }
-
-template <class T>
-using IsMovable = TmpAll<HasDynamics<T>, HasOrientation<T>>;
-
-template<class Entity>
-typename std::enable_if<IsMovable<Entity>::value, void>::type
-move(Entity& ent, double dt) { move_impl(ent, dt); }
-
-template<class Entity>
-typename std::enable_if<!IsMovable<Entity>::value, void>::type
-move(Entity&, double) {}
 
 }
 

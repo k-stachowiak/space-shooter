@@ -18,6 +18,9 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+#ifndef COMM_H
+#define COMM_H
+
 #include "../misc/delq.h"
 
 namespace efwk
@@ -33,11 +36,28 @@ struct bullet_req
         double damage;
 };
 
+struct death_event
+{
+        long dying_id;
+        long score_id;
+};
+
 struct comm_bus
 {
+        // Low level requests.
         del_queue<bullet_req> bullet_reqs;
+        del_queue<long> del_reqs;
 
-        del_queue<long> dels;
+        // Events.
+        std::vector<death_event> death_events;
+
+        // Helpers.
+        void clear_events()
+        {
+                death_events.clear();
+        }
 };
 
 }
+
+#endif

@@ -26,6 +26,9 @@
 #include "../../misc/config.h"
 #include "../../resources/resman.h"
 
+#include "../cmp/weaponry.h"
+#include "../cmp/orientation.h"
+
 namespace efwk
 {
 

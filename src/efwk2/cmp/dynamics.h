@@ -26,6 +26,8 @@
 
 #include <allegro5/allegro5.h>
 
+#include "../tmp/map.h"
+
 namespace efwk
 {
 

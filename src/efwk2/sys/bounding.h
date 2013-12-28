@@ -21,6 +21,13 @@
 #ifndef BOUNDING_H
 #define BOUNDING_H
 
+#include "../comm.h"
+#include "../tmp/sfinae.h"
+#include "../tmp/traits.h"
+
+#include "../cmp/orientation.h"
+#include "../cmp/bounds.h"
+
 namespace efwk
 {
 
@@ -52,7 +59,7 @@ void bind_life_impl(const Entity& ent, comm_bus& cbus)
         std::tie(x, y) = ori.interpolate_loc(1.0);
 
         if (!point_in_bounds(x, y, lbnd))
-                cbus.dels.push(id);
+                cbus.del_reqs.push(id);
 }
 
 // Logic dispatch.

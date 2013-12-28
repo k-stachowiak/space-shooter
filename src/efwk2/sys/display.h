@@ -23,6 +23,9 @@
 
 #include <allegro5/allegro.h>
 
+#include "../cmp/appearance.h"
+#include "../cmp/orientation.h"
+
 namespace efwk
 {
 

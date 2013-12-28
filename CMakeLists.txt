@@ -20,7 +20,6 @@ add_executable(shoot
         ./src/misc/high_score.cpp
         ./src/misc/rand.cpp
         ./src/misc/config.cpp
-        ./src/gameplay2/game.cpp
         ./src/main.cpp
         ./src/efwk/game_ent_fac.cpp
         ./src/efwk/sys/pain.cpp

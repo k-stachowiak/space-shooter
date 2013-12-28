@@ -35,7 +35,7 @@ namespace gplay
 struct enemy
 {
         long id;
-        long parent_id;
+        long score_id;
         const char* type_id;
         efwk::appearance appr;
         efwk::life_bounds lbnd;
@@ -58,7 +58,7 @@ struct enemy
               double damage,
               double health) :
                 id(new_id),
-                parent_id(new_id),
+                score_id(new_id),
                 type_id("enemy"),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),

@@ -36,7 +36,7 @@ namespace gplay
 struct player
 {
         long id;
-        long parent_id;
+        long score_id;
         const char* type_id;
         efwk::appearance appr;
         efwk::player_ctrl_dynamics dyn;
@@ -60,7 +60,7 @@ struct player
                double damage,
                double health) :
                         id(new_id),
-                        parent_id(new_id),
+                        score_id(new_id),
                         type_id("player"),
                         appr(bmp),
                         dyn(velocity, keys),

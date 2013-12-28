@@ -61,6 +61,8 @@ class game
         std::vector<bullet> m_bullets;
         std::vector<enemy> m_enemies;
 
+        std::map<long, int> m_score_map;
+
         efwk::comm_bus m_cbus;
 
         long m_get_next_id() { return ++m_next_id; }

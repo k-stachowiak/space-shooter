@@ -35,7 +35,7 @@ namespace gplay
 struct bullet
 {
         long id;
-        long parent_id;
+        long score_id;
         const char* type_id;
         efwk::appearance appr;
         efwk::life_bounds lbnd;
@@ -49,7 +49,7 @@ struct bullet
         efwk::wellness_invulnerable wlns;
 
         bullet(long new_id,
-               long new_parent_id,
+               long new_score_id,
                ALLEGRO_BITMAP* bmp,
                double velocity, double dx, double dy,
                double x, double y, double phi,
@@ -58,7 +58,7 @@ struct bullet
                double radius,
                bool is_enemy, double damage) :
                 id(new_id),
-                parent_id(new_parent_id),
+                score_id(new_score_id),
                 type_id("bullet"),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),

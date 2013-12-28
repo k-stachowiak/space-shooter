@@ -80,6 +80,7 @@ SFINAE__DECLARE_HAS_MEMBER(HasCollisionDamage, coll_dmg, colld);
 struct coll_report
 {
         long id;
+        long score_id;
         const char* type_id;
         coll_team collt;
         coll_class collc;

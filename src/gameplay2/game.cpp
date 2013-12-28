@@ -93,17 +93,19 @@ struct collide_func
 
 class pain_func
 {
+        std::map<long, int>& m_score_map;
         efwk::comm_bus& m_cbus;
 
 public:
-        pain_func(efwk::comm_bus& cbus) :
+        pain_func(std::map<long, int>& score_map, efwk::comm_bus& cbus) :
+                m_score_map(score_map),
                 m_cbus(cbus)
         {}
 
         template <class Entity>
         void operator()(Entity& ent)
         {
-                efwk::pain(ent, m_cbus);
+                efwk::pain(ent, m_score_map, m_cbus);
         }
 };
 
@@ -160,7 +162,8 @@ void game::m_handle_collisions()
 {
         efwk::map(collq_clear_func(), m_player, m_bullets, m_enemies);
         efwk::map2(collide_func(), m_player, m_bullets, m_enemies);
-        efwk::map(pain_func(m_cbus), m_player, m_bullets, m_enemies);
+        efwk::map(pain_func(m_score_map, m_cbus), m_player, m_bullets, m_enemies);
+        std::cout << "Player score: " << (m_score_map[m_player.id]) << std::endl;
 }
 
 void game::m_handle_deletions(double dt)
@@ -228,7 +231,8 @@ game::game(const res::resman& resman, const std::map<int, bool>& keys) :
                 0.1, 1.0,
                 24.0,
                 100.0,
-                100.0)
+                100.0),
+        m_score_map({ { m_player.id, 0 } })
 {
 }
 
@@ -247,6 +251,7 @@ void game::draw(double weight)
         al_clear_to_color(al_map_rgb_f(0, 0, 0));
         draw_func df { weight, m_debug_font };
         efwk::map(df, m_player, m_bullets, m_enemies);
+        // efwk::draw_hud(m_score_map);
 }
 
 }

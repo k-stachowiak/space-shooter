@@ -21,6 +21,20 @@
 #ifndef PAIN_H
 #define PAIN_H
 
+namespace
+{
+
+void try_registering_score(std::map<long, int>& score_map, long id, int score)
+{
+        auto found = score_map.find(id);
+        if (found == end(score_map))
+                return;
+
+        score_map[id] += score;
+}
+
+}
+
 namespace efwk
 {
 
@@ -31,17 +45,20 @@ struct ship_reaction_func
         const coll_team& collt;
         const coll_dmg& colld;
         Wellness& wlns;
+        std::map<long, int>& score_map;
         comm_bus& cbus;
 
         ship_reaction_func(long new_id,
                            const coll_team& new_collt,
                            const coll_dmg& new_colld,
                            Wellness& new_wlns,
+                           std::map<long, int>& new_score_map,
                            comm_bus& new_cbus) :
                 id(new_id),
                 collt(new_collt),
                 colld(new_colld),
                 wlns(new_wlns),
+                score_map(new_score_map),
                 cbus(new_cbus)
         {}
 
@@ -59,6 +76,7 @@ struct ship_reaction_func
 
                 if (!wlns.alive()) {
                         cbus.dels.push(id);
+                        try_registering_score(score_map, cr.score_id, 10);
                 }
         }
 };
@@ -67,13 +85,16 @@ struct projectile_reaction_func
 {
         long id;
         const coll_team& collt;
+        std::map<long, int>& score_map;
         comm_bus& cbus;
 
         projectile_reaction_func(long new_id,
                                  const coll_team& new_collt,
+                                 std::map<long, int>& new_score_map,
                                  comm_bus& new_cbus) :
                 id(new_id),
                 collt(new_collt),
+                score_map(new_score_map),
                 cbus(new_cbus)
         {}
 
@@ -84,12 +105,13 @@ struct projectile_reaction_func
 
                 if (must_hit_other && other_is_enemy) {
                         cbus.dels.push(id);
+                        try_registering_score(score_map, cr.score_id, 10);
                 }
         }
 };
 
 template <class Entity>
-void pain_impl(Entity& ent, comm_bus& cbus)
+void pain_impl(Entity& ent, std::map<long, int>& score_map, comm_bus& cbus)
 {
         long id = ent.id;
         const coll_class& collc = ent.collc;
@@ -98,8 +120,8 @@ void pain_impl(Entity& ent, comm_bus& cbus)
         const coll_queue& collq = ent.collq;
         auto& wlns = ent.wlns;
 
-        ship_reaction_func<decltype(ent.wlns)> srf(id, collt, colld, wlns, cbus);
-        projectile_reaction_func prf(id, collt, cbus);
+        ship_reaction_func<decltype(ent.wlns)> srf { id, collt, colld, wlns, score_map, cbus };
+        projectile_reaction_func prf { id, collt, score_map, cbus };
 
         switch (collc) {
         case coll_class::ship:
@@ -117,11 +139,14 @@ using IsPainable = TmpAll<HasWellness<T>, HasCollisionTraits<T>>;
 
 template <class Entity>
 typename std::enable_if<IsPainable<Entity>::value, void>::type
-pain(Entity& ent, comm_bus& cbus) { pain_impl(ent, cbus); }
+pain(Entity& ent, std::map<long, int>& score_map, comm_bus& cbus)
+{
+        pain_impl(ent, score_map, cbus);
+}
 
 template <class Entity>
 typename std::enable_if<!IsPainable<Entity>::value, void>::type
-pain(Entity&, comm_bus&) {}
+pain(Entity&, std::map<long, int>&, comm_bus&) {}
 
 }
 

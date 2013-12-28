@@ -320,8 +320,8 @@ check_collisions(Entity1& ent1, Entity2& ent2)
 
         // Store the report.
         if (result) {
-                ent1.collq.push({ ent2.id, ent2.type_id, ent2.collt, ent2.collc, ent2.colld, points });
-                ent2.collq.push({ ent1.id, ent1.type_id, ent1.collt, ent1.collc, ent1.colld, points });
+                ent1.collq.push({ ent2.id, ent2.score_id, ent2.type_id, ent2.collt, ent2.collc, ent2.colld, points });
+                ent2.collq.push({ ent1.id, ent1.score_id, ent1.type_id, ent1.collt, ent1.collc, ent1.colld, points });
         }
 }
 

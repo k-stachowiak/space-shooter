@@ -29,7 +29,6 @@ namespace efwk
 struct bullet_req
 {
         double x, y;
-        double vx, vy;
         bool is_enemy;
         double damage;
 };

@@ -119,27 +119,24 @@ class new_engine_state: public state
         {
                 // Handle creation messages.
                 m_cbus.bullet_reqs.visit(dt, [this](efwk::bullet_req& brq) {
-                        m_bullets.emplace_back(
-                                m_get_next_id(),
-                                m_player.id,
-                                m_resman.get_bitmap(res::res_id::BULLET_5),
-                                800.0, brq.vx, brq.vy,
-                                brq.x, brq.y, -3.1415 / 2.0,
-                                0, 0,
-                                cfg::integer("gfx_screen_w"),
-                                cfg::integer("gfx_screen_h"),
-                                5.0,
-                                brq.is_enemy,
-                                brq.damage);
+                        m_bullets.push_back(
+                                gplay::make_bullet(
+                                        m_get_next_id(),
+                                        m_player.id,
+                                        brq.x, brq.y,
+                                        brq.is_enemy,
+                                        brq.damage,
+                                        m_resman.get_bitmap(res::res_id::BULLET_5)));
                 });
 
                 m_cbus.spark_reqs.visit(dt, [this](efwk::spark_req& srq) {
-                        m_sparks.emplace_back(
-                                m_get_next_id(),
-                                srq.ttl,
-                                srq.rgb,
-                                srq.vx, srq.vy,
-                                srq.x, srq.y);
+                        m_sparks.push_back(
+                                gplay::make_spark(
+                                        m_get_next_id(),
+                                        srq.ttl,
+                                        srq.rgb,
+                                        srq.x, srq.y,
+                                        srq.vx, srq.vy));
                 });
 
                 // Spawn enemy.
@@ -148,17 +145,11 @@ class new_engine_state: public state
                 }
 
                 m_next_enemy_counter += 3.0;
-                m_enemies.emplace_back(
-                        m_get_next_id(),
-                        m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER),
-                        100.0,
-                        400.0, 10.0,
-                        0, 0, 
-                        cfg::integer("gfx_screen_w"),
-                        cfg::integer("gfx_screen_h"),
-                        40.0,
-                        100.0,
-                        50.0);
+                m_enemies.push_back(
+                        gplay::make_light_fighter(
+                                m_get_next_id(),
+                                m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER),
+                                400.0, 10.0));
         }
 
 public:
@@ -174,15 +165,12 @@ public:
                         m_score_font(m_resman.get_font(res::res_id::FONT)),
                         m_next_id(0),
                         m_next_enemy_counter(0),
-                        m_player(m_get_next_id(),
-                                m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
-                                400.0, m_keys,
-                                100.0, 100.0, -3.1415 * 0.5,
-                                0.0, 0.0, m_screen_w, m_screen_h,
-                                0.1, 1.0,
-                                24.0,
-                                100.0,
-                                100.0),
+                        m_player(
+                                gplay::make_player(
+                                        m_get_next_id(),
+                                        m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
+                                        m_keys,
+                                        100.0, 100.0)),
                         m_player_score(0)
         {
                 m_keys[ALLEGRO_KEY_LEFT] = false;

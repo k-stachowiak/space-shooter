@@ -19,7 +19,6 @@
 */
 
 // TODO:
-// - Introduce units to the components, and improve the apis by the means of the type system.
 // - Introduce "script" component with scripted or hard coded "event handling"
 
 #include <iostream>

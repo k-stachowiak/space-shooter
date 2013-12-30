@@ -44,7 +44,7 @@ void weapon_input_impl(player_weapons& pweap,
                 if (pweap.trigger_primary()) {
                         double x, y;
                         std::tie(x, y) = ori.interpolate_loc(0);
-                        cbus.bullet_reqs.push({ x, y, 0, -1, false, 10.0 });
+                        cbus.bullet_reqs.push({ x, y, false, 10.0 });
                 }
         }
 

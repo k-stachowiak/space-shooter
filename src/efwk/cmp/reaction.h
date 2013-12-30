@@ -30,6 +30,7 @@ namespace cmp {
 
 class shape;
 
+// TODO: Maybe rename this into "event" ?
 class reaction {
 public:
         virtual ~reaction() {}

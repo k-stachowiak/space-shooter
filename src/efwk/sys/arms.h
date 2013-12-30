@@ -25,21 +25,37 @@
 #include <memory>
 #include <map>
 
+#include "../cmp/orientation.h"
+#include "../cmp/weapon_beh.h"
+#include "../cmp/upgrades.h"
+#include "../cmp/noise_queue.h"
+
 #include "../../misc/maybe.h"
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
-class arms_system : public system {
+struct arms_node {
 
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        std::vector<nd::arms_node> _nodes;
+        // orientation - determines the location base for spawning the bullets etc.
+        // weapon_beh  - determines the projectiles spawning patterns
+        // upgrades    - provides the information about the current player's upgrades
+        // nqueue      - enables scheduling of the samples' playing
+
+        uint64_t id;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::weapon_beh> weapon_beh;
+        std::shared_ptr<cmp::upgrades> upgrades;
+        std::shared_ptr<cmp::noise_queue> nqueue;
+};
+
+class arms_system : public updatable_system {
+        std::vector<arms_node> _nodes;
 
 public:
-        void add_node(nd::arms_node const& n) { _nodes.push_back(n); }
-        unsigned num_nodes() const { return _nodes.size(); }
-        void update(double dt, comm::msg_queue& msgs);
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
+        void add_node(arms_node const& n) { _nodes.push_back(n); }
+        void update(double dt, comm::msg_queue& msg);
         void input(std::map<int, bool>& keys) {
                 for(auto& n : _nodes) {
                         n.weapon_beh->input(keys);

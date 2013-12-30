@@ -23,18 +23,38 @@
 
 #include <vector>
 
+#include "../cmp/appr.h"
+#include "../cmp/orientation.h"
+#include "../cmp/shape.h"
+#include "../cmp/wellness.h"
+#include "../cmp/fx.h"
+
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
-class fx_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        std::vector<nd::fx_node> _nodes;
+struct fx_node {
+
+        // appearance  - The FX sys. is responsible for the updating of the appearance.
+        // orientation - determines, where to draw the effect
+        // shape       - enables picking a point from the shape
+        // wellness    - for the wellness dependent effects
+        // effects     - the fx object to be updated each frame
+
+        uint64_t id;
+        std::shared_ptr<cmp::appearance> appearance;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::fx> effects;
+};
+
+class fx_system : public updatable_system {
+        std::vector<fx_node> _nodes;
 public:
-        unsigned num_nodes() const { return _nodes.size(); }
-        void add_node(nd::fx_node n) { _nodes.push_back(n); }
-        void update(double dt, comm::msg_queue& msgs);
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
+        void add_node(fx_node n) { _nodes.push_back(n); }
+        void update(double dt, comm::msg_queue& msg);
 };
 
 }

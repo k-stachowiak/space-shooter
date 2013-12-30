@@ -24,42 +24,57 @@
 #include <vector>
 #include <map>
 
+#include "../cmp/appr.h"
+#include "../cmp/orientation.h"
+#include "../cmp/shape.h"
+#include "../cmp/dynamics.h"
+
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
-class drawing_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        std::map<cmp::draw_plane, std::vector<nd::drawing_node>> _nodes;
+// The drawing order management.
+enum class draw_plane {
+        BACKGROUND,
+        SHIPS,
+        FX,
+        PROJECTILES
+};
+
+struct drawing_node {
+
+        // plane       - determines the order in which to draw entities
+        // appearance  - determines the bitmap to draw
+        // orientation - determines to location and angle to draw at
+        // shape       - allows for the debug drawing of the object's shape
+        // dynamics    - allows for the debug print of the dynamical parameters
+
+        uint64_t id;
+        draw_plane plane;
+        std::shared_ptr<cmp::appearance> appearance;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::dynamics> dynamics;
+};
+
+
+class drawing_system : public drawable_system {
+        std::map<draw_plane, std::vector<drawing_node>> _nodes;
         ALLEGRO_FONT* _debug_font;
-        void draw_plane(std::vector<nd::drawing_node> const& nodes, double weight);
+        void draw_on_plane(std::vector<drawing_node> const& nodes, double weight);
 public:
-        unsigned num_nodes() const {
-                unsigned sizes = 0;
-                for(auto const& pr : _nodes) {
-                        sizes += pr.second.size();
-                }
-                return sizes;
+
+        void remove_node(uint64_t id)
+        {
+                for (auto& pr : _nodes)
+                        remove_nodes(pr.second, id);
         }
 
         drawing_system(ALLEGRO_FONT* debug_font) : _debug_font(debug_font) {}
 
-        void add_node(nd::drawing_node n) { _nodes[n.draw_plane].push_back(n); }
+        void add_node(drawing_node n) { _nodes[n.plane].push_back(n); }
 
-        void update(double weight);
-
-        friend void remove_node(drawing_system& sys, uint64_t id) {
-                for(auto& pr : sys._nodes) {
-                        for(auto n = begin(pr.second); n != end(pr.second); ++n) {
-                                if(n->id == id) {
-                                        *n = pr.second.back();
-                                        pr.second.pop_back();
-                                        --n;
-                                }
-                        }
-                }
-        }
+        void draw(double weight);
 };
 
 }

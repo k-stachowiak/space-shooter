@@ -23,7 +23,7 @@
 
 namespace sys {
 
-void drawing_system::draw_plane(std::vector<nd::drawing_node> const& nodes, double weight) {
+void drawing_system::draw_on_plane(std::vector<drawing_node> const& nodes, double weight) {
 
         double x, y;
         double phi;
@@ -39,17 +39,16 @@ void drawing_system::draw_plane(std::vector<nd::drawing_node> const& nodes, doub
         }
 }
 
-void drawing_system::update(double weight) {
-
+void drawing_system::draw(double weight) {
         al_clear_to_color(al_map_rgb_f(
                         cfg::real("gfx_background_r"),
                         cfg::real("gfx_background_g"),
                         cfg::real("gfx_background_b")));
 
-        draw_plane(_nodes[cmp::draw_plane::BACKGROUND], weight);
-        draw_plane(_nodes[cmp::draw_plane::SHIPS], weight);
-        draw_plane(_nodes[cmp::draw_plane::PROJECTILES], weight);
-        draw_plane(_nodes[cmp::draw_plane::FX], weight);
+        draw_on_plane(_nodes[draw_plane::BACKGROUND], weight);
+        draw_on_plane(_nodes[draw_plane::SHIPS], weight);
+        draw_on_plane(_nodes[draw_plane::PROJECTILES], weight);
+        draw_on_plane(_nodes[draw_plane::FX], weight);
 
 }
 

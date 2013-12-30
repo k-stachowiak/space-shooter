@@ -29,8 +29,8 @@ namespace {
 
 namespace sys {
 void collision_system::check_collision(
-                nd::collision_node const& a,
-                nd::collision_node const& b) const {
+                collision_node const& a,
+                collision_node const& b) const {
 
         cmp::shape const& shp_a = *(a.shape);
         cmp::shape const& shp_b = *(b.shape);
@@ -47,7 +47,7 @@ void collision_system::check_collision(
         }
 }
 
-void collision_system::update() {
+void collision_system::update(double, comm::msg_queue&) {
         // Clear the collision queues first.
         for(auto a = begin(_nodes); a != end(_nodes); ++a)
                 a->coll_queue->clear();

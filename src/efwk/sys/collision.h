@@ -23,21 +23,43 @@
 
 #include <vector>
 
+#include "../cmp/orientation.h"
+#include "../cmp/col_profile.h"
+#include "../cmp/pickup_profile.h"
+#include "../cmp/shape.h"
+#include "../cmp/coll_queue.h"
+
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
-class collision_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        std::vector<nd::collision_node> _nodes;
+struct collision_node {
+
+        // origin_id   - points to the entity that has spawned this if it's a projectile
+        // orientation - the offset of the shape
+        // cp          - determines the profile of the object from the collision system pov
+        // pp          - determines the profile of the object from the pickup system pov
+        // shape       - enables the collision tests
+        // coll_queue  - stores the collisions from the given frame
+
+        uint64_t id;
+        uint64_t origin_id;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::collision_profile> cp;
+        std::shared_ptr<cmp::pickup_profile> pp;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::coll_queue> coll_queue;
+};
+
+class collision_system : public updatable_system {
+        std::vector<collision_node> _nodes;
         void check_collision(
-                nd::collision_node const& a,
-                nd::collision_node const& b) const;
+                collision_node const& a,
+                collision_node const& b) const;
 public:
-        unsigned num_nodes() const { return _nodes.size(); }
-        void add_node(nd::collision_node node) { _nodes.push_back(node); }
-        void update();
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
+        void add_node(collision_node node) { _nodes.push_back(node); }
+        void update(double dt, comm::msg_queue& msg);
 };
 
 }

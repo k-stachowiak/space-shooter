@@ -25,19 +25,30 @@
 #include <map>
 #include <utility>
 
+#include "../cmp/dynamics.h"
+#include "../cmp/weapon_beh.h"
+
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
-class input_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
+struct input_node {
+
+        // dynamics   - allows for controlling the movement.
+        // weapon_beh - The weapon behavior to be triggered by the input.
+
+        uint64_t id;
+        std::shared_ptr<cmp::dynamics> dynamics;
+        std::shared_ptr<cmp::weapon_beh> weapon_beh;
+};
+
+class input_system : public updatable_system {
         std::map<int, bool> _keys;
-        std::vector<nd::input_node> _nodes;
+        std::vector<input_node> _nodes;
 public:
-        unsigned num_nodes() const { return _nodes.size(); }
-        void add_node(nd::input_node n) { _nodes.push_back(std::move(n)); }
-        void update();
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
+        void add_node(input_node n) { _nodes.push_back(std::move(n)); }
+        void update(double dt, comm::msg_queue& msg);
         void key_down(int k) { _keys[k] = true; }
         void key_up(int k) { _keys[k] = false; }
         bool pressed(int k) { return _keys[k]; }

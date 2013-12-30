@@ -177,6 +177,9 @@ class game_state : public state {
         sys::hud_system         _hud_system;
         sys::sound_system       _sound_system;
 
+        std::vector<sys::updatable_system*> _updatable_systems;
+        std::vector<sys::drawable_system*> _drawable_systems;
+
         // Factories.
         // ----------
         entity_factory _ef;
@@ -208,18 +211,18 @@ class game_state : public state {
                                     break;
                                 }
 
-                                remove_node(_movement_system, id);
-                                remove_node(_collision_system, id);
-                                remove_node(_arms_system, id);
-                                remove_node(_pain_system, id);
-                                remove_node(_wellness_system, id);
-                                remove_node(_fx_system, id);
-                                remove_node(_drawing_system, id);
-                                remove_node(_score_system, id);
-                                remove_node(_pickup_system, id);
-                                remove_node(_input_system, id);
-                                remove_node(_hud_system, id);
-                                remove_node(_sound_system, id);
+                                _movement_system.remove_node(id);
+                                _collision_system.remove_node(id);
+                                _arms_system.remove_node(id);
+                                _pain_system.remove_node(id);
+                                _wellness_system.remove_node(id);
+                                _fx_system.remove_node(id);
+                                _drawing_system.remove_node(id);
+                                _score_system.remove_node(id);
+                                _pickup_system.remove_node(id);
+                                _input_system.remove_node(id);
+                                _hud_system.remove_node(id);
+                                _sound_system.remove_node(id);
 
                                 break;
 
@@ -322,12 +325,12 @@ public:
         , _debug(false)
         , _done(false)
         , _drawing_system(resman.get_font(res::res_id::TINY_FONT))
-        , _score_system(std::map<cmp::score_class, double> {
-                { cmp::score_class::PLAYER, cfg::real("gameplay_score_for_player") },
-                { cmp::score_class::ENEMY_LIGHT_FIGHTER, cfg::real("gameplay_score_for_lfighter") },
-                { cmp::score_class::ENEMY_HEAVY_FIGHTER, cfg::real("gameplay_score_for_hfighter") },
-                { cmp::score_class::ENEMY_LIGHT_BOMBER, cfg::real("gameplay_score_for_lbomber")},
-                { cmp::score_class::ENEMY_HEAVY_BOMBER, cfg::real("gameplay_score_for_hbomber") } })
+        , _score_system(std::map<sys::score_class, double> {
+                { sys::score_class::PLAYER, cfg::real("gameplay_score_for_player") },
+                { sys::score_class::ENEMY_LIGHT_FIGHTER, cfg::real("gameplay_score_for_lfighter") },
+                { sys::score_class::ENEMY_HEAVY_FIGHTER, cfg::real("gameplay_score_for_hfighter") },
+                { sys::score_class::ENEMY_LIGHT_BOMBER, cfg::real("gameplay_score_for_lbomber")},
+                { sys::score_class::ENEMY_HEAVY_BOMBER, cfg::real("gameplay_score_for_hbomber") } })
         , _hud_system(
                 _resman.get_bitmap(res::res_id::HUD_BG),
                 _resman.get_bitmap(res::res_id::HEALTH),
@@ -341,6 +344,20 @@ public:
                 cfg::integer("gfx_screen_w"),
                 cfg::integer("gfx_screen_h"))
         , _sound_system(_resman)
+        , _updatable_systems(std::vector<sys::updatable_system*> {
+                &_movement_system,
+                &_collision_system,
+                &_arms_system,
+                &_pain_system,
+                &_wellness_system,
+                &_fx_system,
+                &_score_system,
+                &_pickup_system,
+                &_input_system,
+                &_sound_system })
+        , _drawable_systems(std::vector<sys::drawable_system*> {
+                &_drawing_system,
+                &_hud_system })
         , _ef(_resman,
                 _movement_system,
                 _collision_system,
@@ -413,39 +430,23 @@ public:
                         _en_man.reset();
                 }
 
-                // Manage the debug ouptut. 
-                _movement_system.set_debug_mode(_debug);
-                _collision_system.set_debug_mode(_debug);
-                _arms_system.set_debug_mode(_debug);
-                _pain_system.set_debug_mode(_debug);
-                _wellness_system.set_debug_mode(_debug);
-                _fx_system.set_debug_mode(_debug);
-                _drawing_system.set_debug_mode(_debug);
-                _score_system.set_debug_mode(_debug);
-                _pickup_system.set_debug_mode(_debug);
-                _input_system.set_debug_mode(_debug);
-                _hud_system.set_debug_mode(_debug);
-                _sound_system.set_debug_mode(_debug);
+                for (auto* s : _drawable_systems) {
+                        s->set_debug_mode(_debug);
+                }
 
-                // Update logic systems.
-                _movement_system.update(dt, _messages);
-                _collision_system.update();
-                _arms_system.update(dt, _messages);
-                _pain_system.update(_messages);
-                _wellness_system.update(dt, _messages);
-                _fx_system.update(dt, _messages);
-                _score_system.update();
-                _pickup_system.update(_messages); 
-                _input_system.update();
-                _sound_system.update(dt);
+                for (auto* s : _updatable_systems) {
+                        s->set_debug_mode(_debug);
+                        s->update(dt, _messages);
+                }
 
                 // Handle messages.
                 handle_messages(dt);
         }
 
         void draw(double weight) {
-                _drawing_system.update(weight);
-                _hud_system.update();
+                for (auto* s : _drawable_systems) {
+                        s->draw(weight);
+                }
         }
 
         void key_up(int k) {

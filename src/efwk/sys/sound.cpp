@@ -22,11 +22,12 @@
 
 #include "sound.h"
 
+// WTF? Can this be done in less obnoxious way?
 std::map<ALLEGRO_SAMPLE*, ALLEGRO_SAMPLE_ID> spl_id_map;
 
 namespace sys {
 
-void sound_system::update(double dt) {
+void sound_system::update(double dt, comm::msg_queue&) {
 
         // Handle local queue.
         _noise_queue.visit(dt, [this](res::res_id rid) {

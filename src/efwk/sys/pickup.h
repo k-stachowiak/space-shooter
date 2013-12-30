@@ -23,18 +23,35 @@
 
 #include <vector>
 
+#include "../cmp/coll_queue.h"
+#include "../cmp/wellness.h"
+#include "../cmp/upgrades.h"
+#include "../cmp/noise_queue.h"
+
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
-class pickup_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        std::vector<nd::pickup_node> _nodes;
+struct pickup_node {
+
+        // coll_queue - contains candidates for the pickup
+        // wellness   - to be modified if health picked up
+        // upgrades   - to be modified if upgrade picked up
+        // nqueue     - to play sound upon pickup
+
+        uint64_t id;
+        std::shared_ptr<cmp::coll_queue> coll_queue;
+        std::shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::upgrades> upgrades;
+        std::shared_ptr<cmp::noise_queue> nqueue;
+};
+
+class pickup_system : public updatable_system {
+        std::vector<pickup_node> _nodes;
 public:
-        unsigned num_nodes() const { return _nodes.size(); }
-        void add_node(nd::pickup_node node) { _nodes.push_back(node); }
-        void update(comm::msg_queue& msgs);
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
+        void add_node(pickup_node node) { _nodes.push_back(node); }
+        void update(double dt, comm::msg_queue& msg);
 };
 
 }

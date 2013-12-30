@@ -23,18 +23,37 @@
 
 #include <vector>
 
+#include "../cmp/dynamics.h"
+#include "../cmp/orientation.h"
+#include "../cmp/shape.h"
+#include "../cmp/bounds.h"
+
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
-class movement_system : public system {
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        std::vector<nd::movement_node> _nodes;
+struct movement_node {
+
+        // dynamics        - determines the velocity of the entity in each frame
+        // orientation     - is updated based on the current velocity
+        // shape           - is updated based on the current velocity
+        // movement_bounds - enables limiting the movement area of the entity
+        // life_bounds     - enables killing an entity upon leaving the given area
+
+        uint64_t id;
+        std::shared_ptr<cmp::dynamics> dynamics;
+        std::shared_ptr<cmp::orientation> orientation;
+        std::shared_ptr<cmp::shape> shape;
+        std::shared_ptr<cmp::bounds> movement_bounds;
+        std::shared_ptr<cmp::bounds> life_bounds;
+};
+
+class movement_system : public updatable_system {
+        std::vector<movement_node> _nodes;
 public:
-        unsigned num_nodes() const { return _nodes.size(); }
-        void add_node(nd::movement_node n) { _nodes.push_back(n); }
-        void update(double dt, comm::msg_queue& msgs);
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
+        void add_node(movement_node n) { _nodes.push_back(n); }
+        void update(double dt, comm::msg_queue& msg);
 };
 
 }

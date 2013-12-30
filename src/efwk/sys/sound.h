@@ -21,23 +21,31 @@
 #ifndef SYS_SOUND_H
 #define SYS_SOUND_H
 
+#include "../cmp/noise_queue.h"
+
 #include "../../resources/resman.h"
 #include "../../misc/delq.h"
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
-class sound_system : public system {
+struct sound_node {
+
+        // nqueue - the queue of the noises to be played.
+
+        uint64_t id;
+        std::shared_ptr<cmp::noise_queue> nqueue;
+};
+
+class sound_system : public updatable_system {
         res::resman const& _resman;
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        std::vector<nd::sound_node> _nodes;
+        std::vector<sound_node> _nodes;
         del_queue<res::res_id> _noise_queue;
 public:
         sound_system(res::resman const& rm) : _resman(rm) {}
-        unsigned num_nodes() const { return _nodes.size(); }
-        void add_node(nd::sound_node const& n) { _nodes.push_back(n); }
-        void update(double dt);
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
+        void add_node(sound_node const& n) { _nodes.push_back(n); }
+        void update(double dt, comm::msg_queue& msg);
 };
 
 }

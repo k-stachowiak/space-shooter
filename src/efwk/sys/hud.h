@@ -23,12 +23,26 @@
 
 #include <vector>
 
+#include "../cmp/wellness.h"
+#include "../cmp/upgrades.h"
+
 #include "base.h"
-#include "nodes.h"
 
 namespace sys {
 
-class hud_system : public system {
+struct hud_node {
+
+        // score    - the value to be displayed
+        // wellness - for the health and shield display
+        // upgrade  - the upgrades' status
+
+        uint64_t id;
+        std::shared_ptr<double> score;
+        std::shared_ptr<cmp::wellness> wellness;
+        std::shared_ptr<cmp::upgrades> upgrades;
+};
+
+class hud_system : public drawable_system {
 
         ALLEGRO_BITMAP* _hud_bg;
         ALLEGRO_BITMAP* _hud_health;
@@ -42,14 +56,13 @@ class hud_system : public system {
         ALLEGRO_FONT* _hud_font;
         double _screen_w, _screen_h;
 
-        template<typename SYS> friend void remove_node(SYS&, uint64_t);
-        std::vector<nd::hud_node> _nodes;
+        std::vector<hud_node> _nodes;
 
         void draw_background();
-        void draw_score(nd::hud_node const& n);
-        void draw_wellness(nd::hud_node const& n);
-        void draw_upgrades(nd::hud_node const& n);
-        void draw_ammo(nd::hud_node const& n);
+        void draw_score(hud_node const& n);
+        void draw_wellness(hud_node const& n);
+        void draw_upgrades(hud_node const& n);
+        void draw_ammo(hud_node const& n);
 
 public:
         hud_system(
@@ -76,9 +89,9 @@ public:
         , _screen_w      (screen_w)
         , _screen_h      (screen_h)
         {}
-        unsigned num_nodes() const { return _nodes.size(); }
-        void add_node(nd::hud_node node) { _nodes.push_back(node); }
-        void update();
+        void remove_node(uint64_t id) { remove_nodes(_nodes, id); }
+        void add_node(hud_node node) { _nodes.push_back(node); }
+        void draw(double weight);
 };
 
 }

@@ -125,21 +125,8 @@ void pain_impl(long id,
                Wellness& wlns,
                comm_bus& cbus)
 {
-<<<<<<< HEAD
         ship_reaction_func<decltype(wlns)> srf { id, collt, colld, wlns, cbus };
         projectile_reaction_func prf { id, collt, cbus };
-=======
-        long id = ent.id;
-        const coll_class& collc = ent.collc;
-        const coll_team& collt = ent.collt;
-        const coll_dmg& colld = ent.colld;
-        const coll_queue& collq = ent.collq;
-        auto& wlns = ent.wlns;
-
-        // TODO: Turn the below into lambdas.
-        ship_reaction_func<decltype(ent.wlns)> srf(id, collt, colld, wlns, cbus);
-        projectile_reaction_func prf(id, collt, cbus);
->>>>>>> 6d872f05a88adc79ef371762e1490711322d9986
 
         switch (collc) {
         case coll_class::ship:

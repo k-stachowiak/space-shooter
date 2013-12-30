@@ -32,15 +32,12 @@
 namespace efwk
 {
 
-template <class Entity>
-void weapon_input_impl(Entity& ent,
+void weapon_input_impl(player_weapons& pweap,
+                       const orientation& ori,
                        const std::map<int, bool>& keys,
                        double dt,
                        comm_bus& cbus)
 {
-        auto& pweap = ent.pweap;
-        const auto& ori = ent.ori;
-
         pweap.update(dt);
 
         if (keys.at(ALLEGRO_KEY_Z)) {
@@ -68,13 +65,12 @@ weapon_input(Entity& ent,
              double dt,
              comm_bus& cbus)
 {
-        weapon_input_impl(ent, keys, dt, cbus);
+        weapon_input_impl(ent.pweap, ent.ori, keys, dt, cbus);
 }
 
 template <class Entity>
 typename std::enable_if<!IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity&, const std::map<int, bool>&, double, comm_bus&)
-{}
+weapon_input(Entity&, const std::map<int, bool>&, double, comm_bus&) {}
 
 }
 

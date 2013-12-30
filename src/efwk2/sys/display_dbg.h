@@ -81,13 +81,13 @@ void display_wellness(double x, double y,
                       "H(%.2f)", wlns.get_health());
 }
 
-template <class Entity>
-void display_dbg_impl(const Entity& ent, double weight, ALLEGRO_FONT* font)
+template <class Shape, class Wellness>
+void display_dbg_impl(const Shape& shp,
+                      const orientation& ori,
+                      const Wellness& wlns,
+                      double weight,
+                      ALLEGRO_FONT* font)
 {
-        const auto& shp = ent.shp;
-        const auto& ori = ent.ori;
-        const auto& wlns = ent.wlns;
-
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(weight);
 
@@ -107,14 +107,12 @@ template <class Entity>
 typename std::enable_if<IsDbgDisplayable<Entity>::value, void>::type
 display_dbg(const Entity& ent, double weight, ALLEGRO_FONT* font)
 {
-        display_dbg_impl(ent, weight, font);
+        display_dbg_impl(ent.shp, ent.ori, ent.wlns, weight, font);
 }
 
 template <class Entity>
 typename std::enable_if<!IsDbgDisplayable<Entity>::value, void>::type
-display_dbg(const Entity&, double, ALLEGRO_FONT*)
-{
-}
+display_dbg(const Entity&, double, ALLEGRO_FONT*) {}
 
 }
 

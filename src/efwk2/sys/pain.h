@@ -116,17 +116,16 @@ struct projectile_reaction_func
         }
 };
 
-template <class Entity>
-void pain_impl(Entity& ent, comm_bus& cbus)
+template <class Wellness>
+void pain_impl(long id,
+               const coll_class& collc,
+               const coll_team& collt,
+               const coll_dmg& colld,
+               const coll_queue& collq,
+               Wellness& wlns,
+               comm_bus& cbus)
 {
-        long id = ent.id;
-        const coll_class& collc = ent.collc;
-        const coll_team& collt = ent.collt;
-        const coll_dmg& colld = ent.colld;
-        const coll_queue& collq = ent.collq;
-        auto& wlns = ent.wlns;
-
-        ship_reaction_func<decltype(ent.wlns)> srf { id, collt, colld, wlns, cbus };
+        ship_reaction_func<decltype(wlns)> srf { id, collt, colld, wlns, cbus };
         projectile_reaction_func prf { id, collt, cbus };
 
         switch (collc) {
@@ -147,7 +146,7 @@ template <class Entity>
 typename std::enable_if<IsPainable<Entity>::value, void>::type
 pain(Entity& ent, comm_bus& cbus)
 {
-        pain_impl(ent, cbus);
+        pain_impl(ent.id, ent.collc, ent.collt, ent.colld, ent.collq, ent.wlns, cbus);
 }
 
 template <class Entity>

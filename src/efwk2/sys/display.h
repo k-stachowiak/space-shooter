@@ -57,10 +57,7 @@ template <class Entity>
 typename std::enable_if<IsDisplayable<Entity>::value, void>::type
 display(const Entity& ent, double weight)
 {
-        const auto& appr = ent.appr;
-        const auto& ori = ent.ori;
-
-        display_impl(appr, ori, weight);
+        display_impl(ent.appr, ent.ori, weight);
 }
 
 template <class Entity>

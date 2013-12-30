@@ -34,12 +34,9 @@ namespace efwk
 // Logic implementation.
 // =====================
 
-template <class Entity>
-void bind_movement_impl(Entity& ent)
+inline
+void bind_movement_impl(orientation& ori, const move_bounds& mbnd)
 {
-        auto& ori = ent.ori;
-        const auto& mbnd = ent.mbnd;
-
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(1.0);
 
@@ -48,13 +45,12 @@ void bind_movement_impl(Entity& ent)
                 // TODO: enable sliding based on the old implementation.
 }
 
-template <class Entity>
-void bind_life_impl(const Entity& ent, comm_bus& cbus)
+inline
+void bind_life_impl(long id,
+                    const orientation& ori,
+                    const life_bounds& lbnd,
+                    comm_bus& cbus)
 {
-        long id = ent.id;
-        const auto& ori = ent.ori;
-        const auto& lbnd = ent.lbnd;
-
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(1.0);
 
@@ -73,7 +69,10 @@ using IsMoveBoundable = TmpAll<HasOrientation<T>, HasMoveBounds<T>>;
 
 template <class Entity>
 typename std::enable_if<IsMoveBoundable<Entity>::value, void>::type
-bind_movement(Entity& ent) { bind_movement_impl(ent); }
+bind_movement(Entity& ent)
+{
+        bind_movement_impl(ent.ori, ent.mbnd);
+}
 
 template <class Entity>
 typename std::enable_if<!IsMoveBoundable<Entity>::value, void>::type
@@ -87,7 +86,10 @@ using IsLifeBoundable = TmpAll<HasOrientation<T>, HasLifeBounds<T>>;
 
 template <class Entity>
 typename std::enable_if<IsLifeBoundable<Entity>::value, void>::type
-bind_life(const Entity& ent, comm_bus& cbus) { bind_life_impl(ent, cbus); }
+bind_life(const Entity& ent, comm_bus& cbus)
+{
+        bind_life_impl(ent.id, ent.ori, ent.lbnd, cbus);
+}
 
 template <class Entity>
 typename std::enable_if<!IsLifeBoundable<Entity>::value, void>::type

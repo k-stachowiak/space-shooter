@@ -24,17 +24,32 @@
 #include <allegro5/allegro.h>
 
 #include "../tmp/sfinae.h"
+#include "../tmp/traits.h"
 
 namespace efwk
 {
 
-struct appearance
+struct appearance_static_bmp
 {
         ALLEGRO_BITMAP* current_bitmap;
-        appearance(ALLEGRO_BITMAP* bitmap) : current_bitmap(bitmap) {}
+        appearance_static_bmp(ALLEGRO_BITMAP* bitmap) : current_bitmap(bitmap) {}
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasAppearance, appearance, appr);
+SFINAE__DECLARE_HAS_MEMBER(HasAppearanceStaticBmp, appearance_static_bmp, appr);
+
+struct appearance_pixel
+{
+        double r, g, b;
+        appearance_pixel(double new_r, double new_g, double new_b) :
+                r(new_r), g(new_g), b(new_b)
+        {}
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasAppearancePixel, appearance_pixel, appr);
+
+template <class T>
+using HasAppearance = TmpAny<HasAppearanceStaticBmp<T>,
+                             HasAppearancePixel<T>>;
 
 }
 

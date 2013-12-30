@@ -38,7 +38,7 @@ struct player
         long id;
         long score_id;
         const char* type_id;
-        efwk::appearance appr;
+        efwk::appearance_static_bmp appr;
         efwk::player_ctrl_dynamics dyn;
         efwk::orientation ori;
         efwk::move_bounds mbnd;

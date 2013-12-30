@@ -29,12 +29,15 @@
 namespace efwk
 {
 
-template <class Entity>
-void display_impl(const Entity& ent, double weight)
+void display_impl(const appearance_pixel& appr, const orientation& ori, double weight)
 {
-        const auto& appr = ent.appr;
-        const auto& ori = ent.ori;
+        double x, y;
+        std::tie(x, y) = ori.interpolate_loc(weight);
+        al_draw_pixel(x, y, al_map_rgb_f(appr.r, appr.g, appr.b));
+}
 
+void display_impl(const appearance_static_bmp& appr, const orientation& ori, double weight)
+{
         ALLEGRO_BITMAP* bmp = appr.current_bitmap;
 
         double x, y;
@@ -52,7 +55,13 @@ using IsDisplayable = TmpAll<HasAppearance<T>, HasOrientation<T>>;
 
 template <class Entity>
 typename std::enable_if<IsDisplayable<Entity>::value, void>::type
-display(const Entity& ent, double weight) { display_impl(ent, weight); }
+display(const Entity& ent, double weight)
+{
+        const auto& appr = ent.appr;
+        const auto& ori = ent.ori;
+
+        display_impl(appr, ori, weight);
+}
 
 template <class Entity>
 typename std::enable_if<!IsDisplayable<Entity>::value, void>::type

@@ -21,6 +21,8 @@
 #ifndef PAIN_H
 #define PAIN_H
 
+#include "../../misc/rand.h"
+
 namespace efwk
 {
 
@@ -70,13 +72,34 @@ struct projectile_reaction_func
         const coll_team& collt;
         comm_bus& cbus;
 
+        std::bernoulli_distribution spark_dir_distr;
+        std::uniform_real_distribution<double> spark_vel_distr;
+        std::uniform_real_distribution<double> spark_bri_distr;
+
         projectile_reaction_func(long new_id,
                                  const coll_team& new_collt,
                                  comm_bus& new_cbus) :
                 id(new_id),
                 collt(new_collt),
-                cbus(new_cbus)
+                cbus(new_cbus),
+                spark_dir_distr(0.5),
+                spark_vel_distr(50.0, 200.0),
+                spark_bri_distr(0.5, 1.0)
         {}
+
+        spark_req gen_spark(double x, double y)
+        {
+                double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                double vel_x = spark_vel_distr(rnd::engine);
+                double vel_y = spark_vel_distr(rnd::engine);
+                return {
+                        x, y,
+                        vel_x * dir_x,
+                        vel_y,
+                        { 1.0, 1.0, spark_bri_distr(rnd::engine) },
+                        1.0
+                };
+        }
 
         void operator()(const coll_report& cr)
         {
@@ -86,6 +109,9 @@ struct projectile_reaction_func
                 if (must_hit_other && other_is_enemy) {
                         cbus.del_reqs.push(id);
                         cbus.death_events.push_back({ id, cr.score_id });
+                        for (const auto& p : cr.points) {
+                                cbus.spark_reqs.push(gen_spark(p.x, p.y));
+                        }
                 }
         }
 };

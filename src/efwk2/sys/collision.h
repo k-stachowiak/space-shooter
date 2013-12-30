@@ -28,6 +28,7 @@ static const double EPSILON = 0.5;
 
 #include "../cmp/shape.h"
 #include "../cmp/orientation.h"
+#include "../cmp/coll_traits.h"
 #include "../tmp/traits.h"
 
 namespace efwk
@@ -241,7 +242,7 @@ bool collide_impl(const shape_circle& cir1, const orientation& ori1,
         }
 
         // The distance from pm to intersection points.
-        double h = sqrt(SQR(r1) + SQR(r2) / 2 * d - SQR(r1) / 2 * d - d / 2);
+        double h = sqrt(SQR(r1) - SQR(a));
 
 #undef SQR
 

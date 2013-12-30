@@ -28,12 +28,18 @@ namespace efwk
 
 struct bullet_req
 {
-        double x;
-        double y;
-        double vx;
-        double vy;
+        double x, y;
+        double vx, vy;
         bool is_enemy;
         double damage;
+};
+
+struct spark_req
+{
+        double x, y;
+        double vx, vy;
+        std::array<double, 3> rgb;
+        double ttl;
 };
 
 struct death_event
@@ -46,6 +52,7 @@ struct comm_bus
 {
         // Low level requests.
         del_queue<bullet_req> bullet_reqs;
+        del_queue<spark_req> spark_reqs;
         del_queue<long> del_reqs;
 
         // Events.

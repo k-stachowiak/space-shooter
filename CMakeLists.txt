@@ -10,6 +10,7 @@ add_executable(shoot
         ./src/script/dom.cpp
         ./src/script/expect.cpp
         ./src/states/new_engine_state.cpp
+        ./src/states/coll_test_state.cpp
         ./src/states/hs_enter_state.cpp
         ./src/states/menu_state.cpp
         ./src/states/hs_display_state.cpp

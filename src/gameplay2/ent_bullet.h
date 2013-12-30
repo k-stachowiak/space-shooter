@@ -37,7 +37,7 @@ struct bullet
         long id;
         long score_id;
         const char* type_id;
-        efwk::appearance appr;
+        efwk::appearance_static_bmp appr;
         efwk::life_bounds lbnd;
         efwk::const_vel_dynamics dyn;
         efwk::orientation ori;

@@ -25,59 +25,61 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_ttf.h>
 
 #include "../cmp/shape.h"
 #include "../cmp/coll_traits.h"
 #include "../cmp/orientation.h"
 #include "../cmp/wellness.h"
 
-namespace
+namespace efwk
 {
-        void display_shape(double x, double y, double phi,
-                           const efwk::shape_segment& seg)
-        {
-                auto transformed = trans(seg, x, y, phi);
-                al_draw_line(transformed.a.x, transformed.a.y,
-                             transformed.b.x, transformed.b.y,
-                             al_map_rgb_f(1, 1, 0), 1);
-        }
 
-        void display_shape(double x, double y, double phi,
-                           const efwk::shape_polygon& poly)
-        {
-                std::for_each(begin(poly.segs), begin(poly.segs) + poly.num_segs,
-                        [x, y, phi] (const efwk::shape_segment& seg) {
-                                  display_shape(x, y, phi, seg);
-                        });
-        }
+inline
+void display_shape(double x, double y, double phi,
+                   const efwk::shape_segment& seg)
+{
+        auto transformed = trans(seg, x, y, phi);
+        al_draw_line(transformed.a.x, transformed.a.y,
+                     transformed.b.x, transformed.b.y,
+                     al_map_rgb_f(1, 1, 0), 1);
+}
 
-        void display_shape(double x, double y, double phi,
-                           const efwk::shape_square& sqr)
-        {
-                auto segs = segments(sqr);
-                for (const auto& seg : segs) {
-                        display_shape(x, y, phi, seg);
-                }
-        }
+inline
+void display_shape(double x, double y, double phi,
+                   const efwk::shape_polygon& poly)
+{
+        std::for_each(begin(poly.segs), begin(poly.segs) + poly.num_segs,
+                [x, y, phi] (const efwk::shape_segment& seg) {
+                          display_shape(x, y, phi, seg);
+                });
+}
 
-        void display_shape(double x, double y, double,
-                           const efwk::shape_circle& cir)
-        {
-                al_draw_circle(x, y, cir.radius, al_map_rgb_f(1, 1, 0), 1);
-        }
-
-        template <class Wellness>
-        void display_wellness(double x, double y,
-                              const Wellness& wlns,
-                              ALLEGRO_FONT* font)
-        {
-                al_draw_textf(font, al_map_rgb_f(1, 1, 1), x, y, 0,
-                              "H(%.2f)", wlns.get_health());
+inline
+void display_shape(double x, double y, double phi,
+                   const efwk::shape_square& sqr)
+{
+        auto segs = segments(sqr);
+        for (const auto& seg : segs) {
+                display_shape(x, y, phi, seg);
         }
 }
 
-namespace efwk
+inline
+void display_shape(double x, double y, double,
+                   const efwk::shape_circle& cir)
 {
+        al_draw_circle(x, y, cir.radius, al_map_rgb_f(1, 1, 0), 1);
+}
+
+template <class Wellness>
+void display_wellness(double x, double y,
+                      const Wellness& wlns,
+                      ALLEGRO_FONT* font)
+{
+        al_draw_textf(font, al_map_rgb_f(1, 1, 1), x, y, 0,
+                      "H(%.2f)", wlns.get_health());
+}
 
 template <class Entity>
 void display_dbg_impl(const Entity& ent, double weight, ALLEGRO_FONT* font)

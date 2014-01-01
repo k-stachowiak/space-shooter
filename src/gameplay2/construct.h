@@ -25,6 +25,7 @@
 #include "ent_enemy.h"
 #include "ent_player.h"
 #include "ent_spark.h"
+#include "ent_anim_sprite.h"
 
 namespace gplay
 {
@@ -79,6 +80,11 @@ spark make_spark(long id,
                  double vx, double vy)
 {
         return { id, ttl, rgb, vx, vy, x, y };
+}
+
+inline
+anim_sprite make_explosion(long id, double x, double y)
+{
 }
 
 inline

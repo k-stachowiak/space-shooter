@@ -1,4 +1,4 @@
-/* Copyright (C) 2013 Krzysztof Stachowiak */
+/* Copyright (C) 2012,2013 Krzysztof Stachowiak */
 
 /*
  * This file is part of space-shooter.
@@ -18,40 +18,36 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef ENT_SPARK_H
-#define ENT_SPARK_H
-
-#include "../efwk2/cmp/appearance.h"
-#include "../efwk2/cmp/dynamics.h"
-#include "../efwk2/cmp/orientation.h"
+#ifndef ENT_ANIM_SPRITE_H
+#define ENT_ANIM_SPRITE_H
 
 namespace gplay
 {
 
-struct spark
+struct anim_sprite
 {
         long id;
         const char* type_id;
         double ttl;
-        efwk::appearance_pixel appr;
-        efwk::const_vel_dynamics dyn;
+        efwk::appearance_animated_bmp appr;
         efwk::orientation ori;
 
-        spark(long new_id,
-              double new_ttl,
-              std::array<double, 3> rgb,
-              double vx,
-              double vy,
-              double x,
-              double y) :
+        anim_sprite(long new_id,
+                    double new_ttl,
+                    ALLEGRO_BITMAP* bitmap,
+                    int frame_width,
+                    int num_frames,
+                    FrameCollection frame_defs,
+                    int repeat_count,
+                    double x,
+                    double y) :
                 id(new_id),
-                type_id("spark"),
+                type_id("anim_sprite"),
                 ttl(new_ttl),
-                appr(rgb[0], rgb[1], rgb[2]),
-                dyn(vx, vy),
+                appr(bitmap, frame_width, num_frames, frame_defs, repeat_count),
                 ori(x, y, 0)
         {}
-};
+}
 
 }
 

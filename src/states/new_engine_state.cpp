@@ -18,10 +18,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-// TODO: create a test state for the collisions test between different shapes...
-//       then the sparks should almost work (negative velocities aren't generated
-//       by the current formula).
-
 #include "state.h"
 
 #include "../efwk2/tmp/map.h"

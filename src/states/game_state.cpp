@@ -416,7 +416,7 @@ public:
         }
 
         void update(double t, double dt) {
-                
+
                 // Trigger the clocks.
                 _star_spawn_clk.tick(dt);
 

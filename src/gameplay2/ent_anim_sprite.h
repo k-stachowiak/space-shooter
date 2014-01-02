@@ -32,6 +32,7 @@ struct anim_sprite
         efwk::appearance_animated_bmp appr;
         efwk::orientation ori;
 
+        template <class FrameCollection>
         anim_sprite(long new_id,
                     double new_ttl,
                     ALLEGRO_BITMAP* bitmap,
@@ -47,7 +48,7 @@ struct anim_sprite
                 appr(bitmap, frame_width, num_frames, frame_defs, repeat_count),
                 ori(x, y, 0)
         {}
-}
+};
 
 }
 

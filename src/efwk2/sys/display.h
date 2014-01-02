@@ -107,6 +107,22 @@ void display_impl(const appearance_static_bmp& appr, const orientation& ori, dou
         al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
 }
 
+void display_impl(const appearance_animated_bmp& appr,
+                  const orientation& ori,
+                  double weight)
+{
+        ALLEGRO_BITMAP* bmp = appr.current_bitmap();
+
+        double x, y;
+        std::tie(x, y) = ori.interpolate_loc(weight);
+
+        double phi = ori.interpolate_rot(weight);
+
+        int w = al_get_bitmap_width(bmp);
+        int h = al_get_bitmap_height(bmp);
+        al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
+}
+
 template <class T>
 using IsDisplayable = TmpAll<HasAppearance<T>, HasOrientation<T>>;
 
@@ -156,6 +172,29 @@ display_dbg(const Entity& ent, double weight, ALLEGRO_FONT* font)
 template <class Entity>
 typename std::enable_if<!IsDbgDisplayable<Entity>::value, void>::type
 display_dbg(const Entity&, double, ALLEGRO_FONT*) {}
+
+// Appearance update routines.
+// ===========================
+
+template <class Appearance>
+void display_update_impl(Appearance& appr, double dt)
+{
+        appr.update(dt);
+}
+
+template <class T>
+using IsApprUpdatable = HasAppearance<T>;
+
+template <class Entity>
+typename std::enable_if<IsApprUpdatable<Entity>::value, void>::type
+display_update(Entity& ent, double dt)
+{
+        display_update_impl(ent.appr, dt);
+}
+
+template <class Entity>
+typename std::enable_if<!IsApprUpdatable<Entity>::value, void>::type
+display_update(Entity&, double) {}
 
 }
 

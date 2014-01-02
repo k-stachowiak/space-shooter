@@ -31,10 +31,12 @@ namespace efwk
 class wellness_regular
 {
         double m_health;
-public:
+        int m_explosions;
 
-        wellness_regular(double health) :
-                m_health(health)
+public:
+        wellness_regular(double health, int explosions) :
+                m_health(health),
+                m_explosions(explosions)
         {}
 
         void hurt(double d_health)
@@ -51,6 +53,11 @@ public:
         {
                 return m_health;
         }
+
+        int get_explosions() const
+        {
+                return m_explosions;
+        }
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasWellnessRegular, wellness_regular, wlns);
@@ -65,6 +72,8 @@ struct wellness_invulnerable
         {
                 return std::numeric_limits<double>::infinity();
         }
+
+        int get_explosions() const { return 0; }
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasWellnessInvulnerable, wellness_invulnerable, wlns);

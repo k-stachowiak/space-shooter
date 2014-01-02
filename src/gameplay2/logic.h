@@ -21,6 +21,8 @@
 #ifndef LOGIC_H
 #define LOGIC_H
 
+// TODO: Move this to efwk/sys as "complex"
+
 #include "../efwk2/sys/bounding.h"
 #include "../efwk2/sys/display.h"
 #include "../efwk2/sys/movement.h"
@@ -58,6 +60,8 @@ public:
                 efwk::move(ent, m_dt);
                 efwk::bind_movement(ent);
                 efwk::bind_life(ent, m_cbus);
+                efwk::bind_time(ent, m_dt, m_cbus);
+                efwk::display_update(ent, m_dt);
         }
 };
 

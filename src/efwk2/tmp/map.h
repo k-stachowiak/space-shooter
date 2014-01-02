@@ -55,6 +55,10 @@ void map(Func)
 }
 
 template <class Func, class Head, class... Tail>
+typename std::enable_if<!IsCollection<Head>::value, void>::type
+map(Func, Head&, Tail&...);
+
+template <class Func, class Head, class... Tail>
 typename std::enable_if<IsCollection<Head>::value, void>::type
 map(Func func, Head& head, Tail&... tail)
 {

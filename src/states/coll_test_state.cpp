@@ -23,9 +23,6 @@
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/sys/collision.h"
 
-// TODO: merge the display and the display dbg modules and have two operations
-//       available inside.
-
 #include "state.h"
 
 class coll_test_state : public state {

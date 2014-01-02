@@ -56,7 +56,8 @@ struct enemy
               double x_max, double y_max,
               double radius,
               double damage,
-              double health) :
+              double health,
+              double explosions) :
                 id(new_id),
                 score_id(new_id),
                 type_id("enemy"),
@@ -68,7 +69,7 @@ struct enemy
                 collt(efwk::coll_team::enemy),
                 collc(efwk::coll_class::ship),
                 colld(damage),
-                wlns(health)
+                wlns(health, explosions)
         {
         }
 };

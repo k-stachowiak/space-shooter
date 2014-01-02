@@ -41,6 +41,12 @@ struct spark_req
         double ttl;
 };
 
+struct explosion_req
+{
+        double x;
+        double y;
+};
+
 struct death_event
 {
         long dying_id;
@@ -52,6 +58,7 @@ struct comm_bus
         // Low level requests.
         del_queue<bullet_req> bullet_reqs;
         del_queue<spark_req> spark_reqs;
+        del_queue<explosion_req> expl_reqs;
         del_queue<long> del_reqs;
 
         // Events.

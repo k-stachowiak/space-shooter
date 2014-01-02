@@ -33,6 +33,7 @@ struct appearance_static_bmp
 {
         ALLEGRO_BITMAP* current_bitmap;
         appearance_static_bmp(ALLEGRO_BITMAP* bitmap) : current_bitmap(bitmap) {}
+        void update(double) {}
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasAppearanceStaticBmp, appearance_static_bmp, appr);
@@ -144,7 +145,7 @@ public:
 
                 // Switch the current frame if necessary.
                 if (!m_done && (m_time_to_switch <= 0.0)) {
-                        
+
                         // Are we done?
                         if (m_current_def == m_num_defs -1) {
                                 if (m_repeat_count > 0)
@@ -183,6 +184,8 @@ struct appearance_pixel
         appearance_pixel(double new_r, double new_g, double new_b) :
                 r(new_r), g(new_g), b(new_b)
         {}
+
+        void update(double) {}
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasAppearancePixel, appearance_pixel, appr);

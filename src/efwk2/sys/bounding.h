@@ -58,6 +58,14 @@ void bind_life_impl(long id,
                 cbus.del_reqs.push(id);
 }
 
+inline
+void bind_time_impl(long id, double& ttl, double dt, comm_bus& cbus)
+{
+        if ((ttl -= dt) <= 0) {
+                cbus.del_reqs.push(id);
+        }
+}
+
 // Logic dispatch.
 // ===============
 
@@ -94,6 +102,25 @@ bind_life(const Entity& ent, comm_bus& cbus)
 template <class Entity>
 typename std::enable_if<!IsLifeBoundable<Entity>::value, void>::type
 bind_life(const Entity&, comm_bus&) {}
+
+// Time binding.
+// -------------
+
+SFINAE__DECLARE_HAS_MEMBER(HasTimeToLive, double, ttl);
+
+template <class T>
+using IsTimeBoundable = HasTimeToLive<T>;
+
+template <class Entity>
+typename std::enable_if<IsTimeBoundable<Entity>::value, void>::type
+bind_time(Entity& ent, double dt, comm_bus& cbus)
+{
+        bind_time_impl(ent.id, ent.ttl, dt, cbus);
+}
+
+template <class Entity>
+typename std::enable_if<!IsTimeBoundable<Entity>::value, void>::type
+bind_time(Entity&, double, comm_bus&) {}
 
 }
 

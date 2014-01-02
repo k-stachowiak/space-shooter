@@ -27,6 +27,7 @@
 #include "../gameplay2/ent_enemy.h"
 #include "../gameplay2/ent_spark.h"
 #include "../gameplay2/ent_bullet.h"
+#include "../gameplay2/ent_anim_sprite.h"
 #include "../gameplay2/logic.h"
 #include "../gameplay2/construct.h"
 
@@ -52,11 +53,12 @@ class new_engine_state: public state
         double m_next_enemy_counter;
 
         gplay::player m_player;
+        int m_player_score;
+
         std::vector<gplay::bullet> m_bullets;
         std::vector<gplay::spark> m_sparks;
         std::vector<gplay::enemy> m_enemies;
-
-        int m_player_score;
+        std::vector<gplay::anim_sprite> m_sprites;
 
         efwk::comm_bus m_cbus;
 
@@ -81,7 +83,7 @@ class new_engine_state: public state
         void m_update_entities(double dt)
         {
                 gplay::pre_collision_update_func precuf { m_keys, m_resman, m_cbus, dt };
-                efwk::map(precuf, m_player, m_bullets, m_sparks, m_enemies);
+                efwk::map(precuf, m_player, m_bullets, m_sparks, m_enemies, m_sprites);
 
                 gplay::collq_clear_func ccf;
                 efwk::map(ccf, m_player, m_bullets, m_enemies);
@@ -89,7 +91,7 @@ class new_engine_state: public state
                 efwk::map2(cf, m_player, m_bullets, m_enemies);
 
                 gplay::post_collision_update_func postcuf { m_cbus };
-                efwk::map(postcuf, m_player, m_bullets, m_sparks, m_enemies);
+                efwk::map(postcuf, m_player, m_bullets, m_sparks, m_enemies, m_sprites);
         }
 
         void m_handle_events()
@@ -103,11 +105,13 @@ class new_engine_state: public state
         {
                 m_cbus.del_reqs.visit(dt, [this](long rem_id) {
 
-                        if (rem_id == m_player.id)
-                                throw; // TODO: enable state end here.
+                        if (m_done || rem_id == m_player.id) {
+                                m_done = true;
+                                return;
+                        }
 
                         gplay::try_remove_func trf { rem_id };
-                        efwk::try_each(trf, m_bullets, m_sparks, m_enemies);
+                        efwk::try_each(trf, m_bullets, m_sparks, m_enemies, m_sprites);
                 });
         }
 
@@ -133,6 +137,14 @@ class new_engine_state: public state
                                         srq.rgb,
                                         srq.x, srq.y,
                                         srq.vx, srq.vy));
+                });
+
+                m_cbus.expl_reqs.visit(dt, [this](efwk::explosion_req& erq) {
+                        m_sprites.push_back(
+                                gplay::make_explosion(
+                                        m_get_next_id(),
+                                        m_resman.get_bitmap(res::res_id::EXPLOSION),
+                                        erq.x, erq.y));
                 });
 
                 // Spawn enemy.
@@ -206,7 +218,7 @@ public:
         {
                 al_clear_to_color(al_map_rgb_f(0, 0, 0));
                 gplay::draw_func df { m_keys.at(ALLEGRO_KEY_SPACE), weight, m_debug_font };
-                efwk::map(df, m_player, m_bullets, m_sparks, m_enemies);
+                efwk::map(df, m_player, m_bullets, m_sparks, m_enemies, m_sprites);
                 efwk::draw_hud(m_score_font, m_player_score);
         }
 

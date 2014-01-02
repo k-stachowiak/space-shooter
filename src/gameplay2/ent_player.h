@@ -58,7 +58,8 @@ struct player
                double minigun_interval, double rocket_launcher_interval,
                double radius,
                double damage,
-               double health) :
+               double health,
+               int num_explosions) :
                         id(new_id),
                         score_id(new_id),
                         type_id("player"),
@@ -71,7 +72,7 @@ struct player
                         collt(efwk::coll_team::player),
                         collc(efwk::coll_class::ship),
                         colld(damage),
-                        wlns(health)
+                        wlns(health, num_explosions)
         {
         }
 };

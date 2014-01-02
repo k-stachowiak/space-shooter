@@ -47,7 +47,31 @@ player make_player(long id,
                 0.1, 1.0,
                 24.0,
                 100.0,
-                100.0
+                100.0,
+                3
+        };
+}
+
+inline
+anim_sprite make_explosion(long id, ALLEGRO_BITMAP* bmp, double x, double y)
+{
+        static int frame_width = cfg::integer("gfx_explosion_frame_width");
+        static int num_frames = cfg::integer("gfx_explosion_num_frames");
+        static double frame_time = cfg::real("gfx_explosion_frame_time");
+
+        std::vector<std::pair<int, double>> frame_defs;
+        for (int i = 0; i < num_frames; ++i)
+                frame_defs.emplace_back(i, frame_time);
+
+        return {
+                id,
+                num_frames * frame_time,
+                bmp,
+                frame_width,
+                num_frames,
+                frame_defs,
+                -1,
+                x, y
         };
 }
 
@@ -83,11 +107,6 @@ spark make_spark(long id,
 }
 
 inline
-anim_sprite make_explosion(long id, double x, double y)
-{
-}
-
-inline
 enemy make_light_fighter(long id,
                          ALLEGRO_BITMAP* bmp,
                          double x, double y)
@@ -101,7 +120,8 @@ enemy make_light_fighter(long id,
                 static_cast<double>(cfg::integer("gfx_screen_h")),
                 40.0,
                 100.0,
-                50.0
+                50.0,
+                1
         };
 }
 

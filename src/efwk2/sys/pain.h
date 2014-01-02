@@ -30,17 +30,21 @@ template <class Wellness>
 struct ship_reaction_func
 {
         long id;
+        double x;
+        double y;
         const coll_team& collt;
         const coll_dmg& colld;
         Wellness& wlns;
         comm_bus& cbus;
 
         ship_reaction_func(long new_id,
+                           double new_x, double new_y,
                            const coll_team& new_collt,
                            const coll_dmg& new_colld,
                            Wellness& new_wlns,
                            comm_bus& new_cbus) :
                 id(new_id),
+                x(new_x), y(new_y),
                 collt(new_collt),
                 colld(new_colld),
                 wlns(new_wlns),
@@ -62,6 +66,11 @@ struct ship_reaction_func
                 if (!wlns.alive()) {
                         cbus.del_reqs.push(id);
                         cbus.death_events.push_back({ id, cr.score_id });
+
+                        int expl = wlns.get_explosions();
+                        for (int i = 0; i < expl; ++i) {
+                                cbus.expl_reqs.push({ x, y }, 0.5 * i);
+                        }
                 }
         }
 };
@@ -118,6 +127,7 @@ struct projectile_reaction_func
 
 template <class Wellness>
 void pain_impl(long id,
+               const orientation& ori,
                const coll_class& collc,
                const coll_team& collt,
                const coll_dmg& colld,
@@ -125,7 +135,10 @@ void pain_impl(long id,
                Wellness& wlns,
                comm_bus& cbus)
 {
-        ship_reaction_func<decltype(wlns)> srf { id, collt, colld, wlns, cbus };
+        double x, y;
+        std::tie(x, y) = ori.interpolate_loc(0);
+
+        ship_reaction_func<decltype(wlns)> srf { id, x, y, collt, colld, wlns, cbus };
         projectile_reaction_func prf { id, collt, cbus };
 
         switch (collc) {
@@ -140,13 +153,13 @@ void pain_impl(long id,
 }
 
 template <class T>
-using IsPainable = TmpAll<HasWellness<T>, HasCollisionTraits<T>>;
+using IsPainable = TmpAll<HasWellness<T>, HasCollisionTraits<T>, HasOrientation<T>>;
 
 template <class Entity>
 typename std::enable_if<IsPainable<Entity>::value, void>::type
 pain(Entity& ent, comm_bus& cbus)
 {
-        pain_impl(ent.id, ent.collc, ent.collt, ent.colld, ent.collq, ent.wlns, cbus);
+        pain_impl(ent.id, ent.ori, ent.collc, ent.collt, ent.colld, ent.collq, ent.wlns, cbus);
 }
 
 template <class Entity>

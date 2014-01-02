@@ -21,6 +21,7 @@
 #include "state.h"
 
 #include "../efwk2/tmp/map.h"
+#include "../efwk2/sys/complex.h"
 #include "../efwk2/comm.h"
 
 #include "../gameplay2/ent_player.h"
@@ -28,7 +29,6 @@
 #include "../gameplay2/ent_spark.h"
 #include "../gameplay2/ent_bullet.h"
 #include "../gameplay2/ent_anim_sprite.h"
-#include "../gameplay2/logic.h"
 #include "../gameplay2/construct.h"
 
 #include "../misc/logger.h"
@@ -53,7 +53,6 @@ class new_engine_state: public state
         double m_next_enemy_counter;
 
         gplay::player m_player;
-        int m_player_score;
 
         std::vector<gplay::bullet> m_bullets;
         std::vector<gplay::spark> m_sparks;
@@ -82,21 +81,21 @@ class new_engine_state: public state
 
         void m_update_entities(double dt)
         {
-                gplay::pre_collision_update_func precuf { m_keys, m_resman, m_cbus, dt };
+                efwk::pre_collision_update_func precuf { m_keys, m_resman, m_cbus, dt };
                 efwk::map(precuf, m_player, m_bullets, m_sparks, m_enemies, m_sprites);
 
-                gplay::collq_clear_func ccf;
+                efwk::collq_clear_func ccf;
                 efwk::map(ccf, m_player, m_bullets, m_enemies);
-                gplay::collide_func cf;
+                efwk::collide_func cf;
                 efwk::map2(cf, m_player, m_bullets, m_enemies);
 
-                gplay::post_collision_update_func postcuf { m_cbus };
+                efwk::post_collision_update_func postcuf { m_cbus };
                 efwk::map(postcuf, m_player, m_bullets, m_sparks, m_enemies, m_sprites);
         }
 
         void m_handle_events()
         {
-                gplay::handle_event_func hef { m_player, m_player_score };
+                efwk::handle_event_func hef { m_player.id, m_player.score };
                 efwk::map(hef, m_cbus.death_events);
                 m_cbus.clear_events();
         }
@@ -110,7 +109,7 @@ class new_engine_state: public state
                                 return;
                         }
 
-                        gplay::try_remove_func trf { rem_id };
+                        efwk::try_remove_func trf { rem_id };
                         efwk::try_each(trf, m_bullets, m_sparks, m_enemies, m_sprites);
                 });
         }
@@ -178,8 +177,7 @@ public:
                                         m_get_next_id(),
                                         m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
                                         m_keys,
-                                        100.0, 100.0)),
-                        m_player_score(0)
+                                        100.0, 100.0))
         {
                 m_keys[ALLEGRO_KEY_LEFT] = false;
                 m_keys[ALLEGRO_KEY_UP] = false;
@@ -217,9 +215,9 @@ public:
         void draw(double weight) override
         {
                 al_clear_to_color(al_map_rgb_f(0, 0, 0));
-                gplay::draw_func df { m_keys.at(ALLEGRO_KEY_SPACE), weight, m_debug_font };
+                efwk::draw_func df { m_keys.at(ALLEGRO_KEY_SPACE), weight, m_debug_font };
                 efwk::map(df, m_player, m_bullets, m_sparks, m_enemies, m_sprites);
-                efwk::draw_hud(m_score_font, m_player_score);
+                efwk::draw_hud(m_score_font, m_player.score);
         }
 
         void key_down(int k) override

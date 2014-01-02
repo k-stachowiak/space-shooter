@@ -38,6 +38,7 @@ struct player
         long id;
         long score_id;
         const char* type_id;
+        int score;
         efwk::appearance_static_bmp appr;
         efwk::player_ctrl_dynamics dyn;
         efwk::orientation ori;
@@ -63,6 +64,7 @@ struct player
                         id(new_id),
                         score_id(new_id),
                         type_id("player"),
+                        score(0),
                         appr(bmp),
                         dyn(velocity, keys),
                         ori(x, y, phi),

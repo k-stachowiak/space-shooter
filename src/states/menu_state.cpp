@@ -152,6 +152,10 @@ public:
                         menu_action();
                         break;
 
+                case ALLEGRO_KEY_ESCAPE:
+                        _done = true;
+                        break;
+
                 default:
                         break;
                 }

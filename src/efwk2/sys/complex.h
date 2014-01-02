@@ -97,7 +97,7 @@ public:
 
 class handle_event_func
 {
-        long m_player_id; // TODO: consider having the score as a normal component like in the old days.
+        long m_player_id;
         int& m_player_score;
 
 public:

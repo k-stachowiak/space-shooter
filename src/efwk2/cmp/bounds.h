@@ -42,10 +42,20 @@ protected:
         }
 };
 
+inline bool point_in_x_bounds(double x, double y, const bounds& bnd)
+{
+        return x >= bnd.x_min && x <= bnd.x_max;
+}
+
+inline bool point_in_y_bounds(double x, double y, const bounds& bnd)
+{
+        return y >= bnd.y_min && y <= bnd.y_max;
+}
+
 inline bool point_in_bounds(double x, double y, const bounds& bnd)
 {
-        return x >= bnd.x_min && x <= bnd.x_max &&
-               y >= bnd.y_min && y <= bnd.y_max;
+        return point_in_x_bounds(x, y, bnd) &&
+               point_in_y_bounds(x, y, bnd);
 }
 
 struct move_bounds : public bounds

@@ -81,10 +81,20 @@ public:
                 return m_phi * weight + m_prev_phi * (1.0 - weight);
         }
 
-        void cancel_move()
+        void cancel_x_move()
         {
                 m_x = m_prev_x;
+        }
+
+        void cancel_y_move()
+        {
                 m_y = m_prev_y;
+        }
+
+        void cancel_move()
+        {
+                cancel_x_move();
+                cancel_y_move();
         }
 };
 

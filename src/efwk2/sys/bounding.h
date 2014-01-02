@@ -40,9 +40,11 @@ void bind_movement_impl(orientation& ori, const move_bounds& mbnd)
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(1.0);
 
-        if (!point_in_bounds(x, y, mbnd))
-                ori.cancel_move();
-                // TODO: enable sliding based on the old implementation.
+        if (!point_in_x_bounds(x, y, mbnd))
+                ori.cancel_x_move();
+
+        if (!point_in_y_bounds(y, y, mbnd))
+                ori.cancel_y_move();
 }
 
 inline

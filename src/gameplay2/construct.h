@@ -21,7 +21,7 @@
 #ifndef CONSTRUCT_H
 #define CONSTRUCT_H
 
-#include "ent_bullet.h"
+#include "ent_projectile.h"
 #include "ent_enemy.h"
 #include "ent_player.h"
 #include "ent_spark.h"
@@ -76,11 +76,11 @@ anim_sprite make_explosion(long id, ALLEGRO_BITMAP* bmp, double x, double y)
 }
 
 inline
-bullet make_bullet(long id, long score_id,
-                   double x, double y,
-                   bool is_enemy,
-                   double damage,
-                   ALLEGRO_BITMAP* bmp)
+projectile make_bullet(long id, long score_id,
+                       double x, double y,
+                       bool is_enemy,
+                       double damage,
+                       ALLEGRO_BITMAP* bmp)
 {
         const double vx = 0.0;
         const double vy = is_enemy ? 1.0 : -1;

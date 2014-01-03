@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef ENT_BULLET_H
-#define ENT_BULLET_H
+#ifndef ENT_PROJECTILE_H
+#define ENT_PROJECTILE_H
 
 #include "../efwk2/cmp/appearance.h"
 #include "../efwk2/cmp/bounds.h"
@@ -32,7 +32,7 @@
 namespace gplay
 {
 
-struct bullet
+struct projectile
 {
         long id;
         long score_id;
@@ -48,15 +48,15 @@ struct bullet
         efwk::coll_queue collq;
         efwk::wellness_invulnerable wlns;
 
-        bullet(long new_id,
-               long new_score_id,
-               ALLEGRO_BITMAP* bmp,
-               double velocity, double dx, double dy,
-               double x, double y, double phi,
-               double x_min, double y_min,
-               double x_max, double y_max,
-               double radius,
-               bool is_enemy, double damage) :
+        projectile(long new_id,
+                   long new_score_id,
+                   ALLEGRO_BITMAP* bmp,
+                   double velocity, double dx, double dy,
+                   double x, double y, double phi,
+                   double x_min, double y_min,
+                   double x_max, double y_max,
+                   double radius,
+                   bool is_enemy, double damage) :
                 id(new_id),
                 score_id(new_score_id),
                 type_id("bullet"),

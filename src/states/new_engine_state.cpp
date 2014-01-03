@@ -27,7 +27,7 @@
 #include "../gameplay2/ent_player.h"
 #include "../gameplay2/ent_enemy.h"
 #include "../gameplay2/ent_spark.h"
-#include "../gameplay2/ent_bullet.h"
+#include "../gameplay2/ent_projectile.h"
 #include "../gameplay2/ent_anim_sprite.h"
 #include "../gameplay2/construct.h"
 
@@ -54,7 +54,7 @@ class new_engine_state: public state
 
         gplay::player m_player;
 
-        std::vector<gplay::bullet> m_bullets;
+        std::vector<gplay::projectile> m_projectiles;
         std::vector<gplay::spark> m_sparks;
         std::vector<gplay::enemy> m_enemies;
         std::vector<gplay::anim_sprite> m_sprites;
@@ -71,7 +71,7 @@ class new_engine_state: public state
         {
                 std::stringstream ss;
                 ss << "Frame logic state:" << std::endl;
-                ss << "Bullets count: " << m_bullets.size() << "." << std::endl;
+                ss << "Projectiles count: " << m_projectiles.size() << "." << std::endl;
                 ss << "Sparks count: " << m_sparks.size() << "." << std::endl;
                 ss << "Enemies count: " << m_enemies.size() << ".";
                 logger::instance().trace(ss.str());
@@ -82,15 +82,16 @@ class new_engine_state: public state
         void m_update_entities(double dt)
         {
                 efwk::pre_collision_update_func precuf { m_keys, m_resman, m_cbus, dt };
-                efwk::map(precuf, m_player, m_bullets, m_sparks, m_enemies, m_sprites);
+                efwk::map(precuf, m_player, m_projectiles, m_sparks, m_enemies, m_sprites);
 
                 efwk::collq_clear_func ccf;
-                efwk::map(ccf, m_player, m_bullets, m_enemies);
+                efwk::map(ccf, m_player, m_projectiles, m_enemies);
+
                 efwk::collide_func cf;
-                efwk::map2(cf, m_player, m_bullets, m_enemies);
+                efwk::map2(cf, m_player, m_projectiles, m_enemies);
 
                 efwk::post_collision_update_func postcuf { m_cbus };
-                efwk::map(postcuf, m_player, m_bullets, m_sparks, m_enemies, m_sprites);
+                efwk::map(postcuf, m_player, m_projectiles, m_sparks, m_enemies, m_sprites);
         }
 
         void m_handle_events()
@@ -110,7 +111,7 @@ class new_engine_state: public state
                         }
 
                         efwk::try_remove_func trf { rem_id };
-                        efwk::try_each(trf, m_bullets, m_sparks, m_enemies, m_sprites);
+                        efwk::try_each(trf, m_projectiles, m_sparks, m_enemies, m_sprites);
                 });
         }
 
@@ -118,7 +119,7 @@ class new_engine_state: public state
         {
                 // Handle creation messages.
                 m_cbus.bullet_reqs.visit(dt, [this](efwk::bullet_req& brq) {
-                        m_bullets.push_back(
+                        m_projectiles.push_back(
                                 gplay::make_bullet(
                                         m_get_next_id(),
                                         m_player.id,
@@ -214,9 +215,12 @@ public:
 
         void draw(double weight) override
         {
+                const bool debug_mode = m_keys[ALLEGRO_KEY_SPACE];
+
                 al_clear_to_color(al_map_rgb_f(0, 0, 0));
-                efwk::draw_func df { m_keys.at(ALLEGRO_KEY_SPACE), weight, m_debug_font };
-                efwk::map(df, m_player, m_bullets, m_sparks, m_enemies, m_sprites);
+
+                efwk::draw_func df { debug_mode, weight, m_debug_font };
+                efwk::map(df, m_player, m_projectiles, m_sparks, m_enemies, m_sprites);
                 efwk::draw_hud(m_score_font, m_player.score);
         }
 

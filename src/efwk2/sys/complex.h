@@ -28,6 +28,7 @@
 #include "collision.h"
 #include "pain.h"
 #include "hud.h"
+#include "emissions.h"
 
 namespace efwk
 {
@@ -60,6 +61,7 @@ public:
                 bind_life(ent, m_cbus);
                 bind_time(ent, m_dt, m_cbus);
                 display_update(ent, m_dt);
+                emit(ent, m_dt, m_cbus);
         }
 };
 

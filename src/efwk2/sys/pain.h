@@ -105,7 +105,7 @@ struct projectile_reaction_func
                         x, y,
                         vel_x * dir_x,
                         vel_y,
-                        { 1.0, 1.0, spark_bri_distr(rnd::engine) },
+                        {{ 1.0, 1.0, spark_bri_distr(rnd::engine) }},
                         1.0
                 };
         }

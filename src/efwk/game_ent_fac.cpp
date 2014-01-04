@@ -115,7 +115,6 @@ uint64_t entity_factory::create_smoke(double x, double y, comm::smoke_size size)
         for(uint32_t i = 0; i < num_frames; ++i)
                 frame_defs.emplace_back(i, frame_time);
 
-        
         // Common components.
         // ------------------
         uint64_t id = ++_last_id;

@@ -4,6 +4,7 @@ project(shoot)
 
 link_directories(/usr/local/lib)
 
+set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Werror -g -O0")
 
 add_executable(shoot
@@ -53,4 +54,4 @@ add_executable(shoot
         ./src/resources/resman.cpp
         ./src/geometry/bezier.cpp)
 
-target_link_libraries(shoot allegro_monolith)
+target_link_libraries(shoot allegro_monolith m)

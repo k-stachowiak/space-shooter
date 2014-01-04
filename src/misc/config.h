@@ -25,6 +25,8 @@
 
 #include "../script/dom.h"
 
+// TODO: Don't evaluate missing symbol to 0!
+
 namespace cfg {
 
         // Main API.

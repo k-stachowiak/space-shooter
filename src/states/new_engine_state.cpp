@@ -40,6 +40,8 @@ class new_engine_state: public state
         res::resman const& m_resman;
         script::scriptman const& m_sman;
 
+        const gplay::entity_constructor m_econstr;
+
         const double m_screen_w;
         const double m_screen_h;
 
@@ -120,18 +122,27 @@ class new_engine_state: public state
                 // Handle creation messages.
                 m_cbus.bullet_reqs.visit(dt, [this](efwk::bullet_req& brq) {
                         m_projectiles.push_back(
-                                gplay::make_bullet(
+                                m_econstr.make_bullet(
                                         m_get_next_id(),
                                         m_player.id,
                                         brq.x, brq.y,
                                         brq.is_enemy,
-                                        brq.damage,
-                                        m_resman.get_bitmap(res::res_id::BULLET_5)));
+                                        brq.damage));
+                });
+
+                m_cbus.missile_reqs.visit(dt, [this](efwk::missile_req& mrq) {
+                        m_projectiles.push_back(
+                                m_econstr.make_missile(
+                                        m_get_next_id(),
+                                        m_player.id,
+                                        mrq.x, mrq.y,
+                                        mrq.is_enemy,
+                                        mrq.damage));
                 });
 
                 m_cbus.spark_reqs.visit(dt, [this](efwk::spark_req& srq) {
                         m_sparks.push_back(
-                                gplay::make_spark(
+                                m_econstr.make_spark(
                                         m_get_next_id(),
                                         srq.ttl,
                                         srq.rgb,
@@ -140,11 +151,11 @@ class new_engine_state: public state
                 });
 
                 m_cbus.expl_reqs.visit(dt, [this](efwk::explosion_req& erq) {
-                        m_sprites.push_back(
-                                gplay::make_explosion(
-                                        m_get_next_id(),
-                                        m_resman.get_bitmap(res::res_id::EXPLOSION),
-                                        erq.x, erq.y));
+                        m_sprites.push_back(m_econstr.make_explosion(m_get_next_id(), erq.x, erq.y));
+                });
+
+                m_cbus.smoke_reqs.visit(dt, [this](efwk::smoke_req& srq) {
+                        m_sprites.push_back(m_econstr.make_smoke_big(m_get_next_id(), srq.x, srq.y));
                 });
 
                 // Spawn enemy.
@@ -154,9 +165,8 @@ class new_engine_state: public state
 
                 m_next_enemy_counter += 3.0;
                 m_enemies.push_back(
-                        gplay::make_light_fighter(
+                        m_econstr.make_light_fighter(
                                 m_get_next_id(),
-                                m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER),
                                 400.0, 10.0));
         }
 
@@ -167,18 +177,14 @@ public:
                         m_done(false),
                         m_resman(resman),
                         m_sman(sman),
+                        m_econstr(resman),
                         m_screen_w(cfg::integer("gfx_screen_w")),
                         m_screen_h(cfg::integer("gfx_screen_h")),
                         m_debug_font(m_resman.get_font(res::res_id::TINY_FONT)),
                         m_score_font(m_resman.get_font(res::res_id::FONT)),
                         m_next_id(0),
                         m_next_enemy_counter(0),
-                        m_player(
-                                gplay::make_player(
-                                        m_get_next_id(),
-                                        m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
-                                        m_keys,
-                                        100.0, 100.0))
+                        m_player(m_econstr.make_player(m_get_next_id(), m_keys, 100.0, 100.0))
         {
                 m_keys[ALLEGRO_KEY_LEFT] = false;
                 m_keys[ALLEGRO_KEY_UP] = false;

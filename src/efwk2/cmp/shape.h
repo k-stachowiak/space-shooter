@@ -158,6 +158,8 @@ std::vector<efwk::shape_segment> segments(const efwk::shape_square& sqr)
         };
 }
 
+// Generating a radom point within the shapes.
+// ===========================================
 
 }
 

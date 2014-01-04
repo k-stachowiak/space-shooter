@@ -324,7 +324,7 @@ public:
         , _sman(sman)
         , _debug(false)
         , _done(false)
-        , _drawing_system(resman.get_font(res::res_id::TINY_FONT))
+        , _drawing_system()
         , _score_system(std::map<sys::score_class, double> {
                 { sys::score_class::PLAYER, cfg::real("gameplay_score_for_player") },
                 { sys::score_class::ENEMY_LIGHT_FIGHTER, cfg::real("gameplay_score_for_lfighter") },

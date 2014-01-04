@@ -29,6 +29,7 @@
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/cmp/coll_traits.h"
 #include "../efwk2/cmp/wellness.h"
+#include "../efwk2/cmp/fx.h"
 
 namespace gplay 
 {
@@ -50,6 +51,7 @@ struct player
         efwk::coll_dmg colld;
         efwk::coll_queue collq;
         efwk::wellness_regular wlns;
+        efwk::fx_emit_smoke eff;
 
         player(long new_id,
                ALLEGRO_BITMAP* bmp,
@@ -74,7 +76,8 @@ struct player
                         collt(efwk::coll_team::player),
                         collc(efwk::coll_class::ship),
                         colld(damage),
-                        wlns(health, num_explosions)
+                        wlns(health, num_explosions),
+                        eff(1.0)
         {
         }
 };

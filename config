@@ -37,6 +37,9 @@
 	
 	(gfx_smoke_expand_scale 3.0)
 	(gfx_smoke_frame_width_base (* gfx_smoke_expand_scale 32))
+	(gfx_smoke_frame_width_sml (* gfx_smoke_frame_width_base 0.5))
+	(gfx_smoke_frame_width_med (* gfx_smoke_frame_width_base 1.0))
+	(gfx_smoke_frame_width_big (* gfx_smoke_frame_width_base 2.0))
 	(gfx_smoke_num_frames 10)
 	(gfx_smoke_frame_time 0.0333)
 	

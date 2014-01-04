@@ -33,6 +33,13 @@ struct bullet_req
         double damage;
 };
 
+struct missile_req
+{
+        double x, y;
+        bool is_enemy;
+        double damage;
+};
+
 struct spark_req
 {
         double x, y;
@@ -42,6 +49,12 @@ struct spark_req
 };
 
 struct explosion_req
+{
+        double x;
+        double y;
+};
+
+struct smoke_req
 {
         double x;
         double y;
@@ -57,8 +70,10 @@ struct comm_bus
 {
         // Low level requests.
         del_queue<bullet_req> bullet_reqs;
+        del_queue<missile_req> missile_reqs;
         del_queue<spark_req> spark_reqs;
         del_queue<explosion_req> expl_reqs;
+        del_queue<smoke_req> smoke_reqs;
         del_queue<long> del_reqs;
 
         // Events.

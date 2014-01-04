@@ -111,6 +111,8 @@ public:
                         m_frame_images[i] = al_clone_bitmap(copy.m_frame_images[i]);
         }
 
+        appearance_animated_bmp(appearance_animated_bmp&& moved) = delete;
+
         ~appearance_animated_bmp()
         {
                 for (int i = 0; i < m_num_frames; ++i)
@@ -119,9 +121,11 @@ public:
 
         appearance_animated_bmp& operator=(appearance_animated_bmp rhs)
         {
-               swap(*this, rhs);
-               return *this;
+                swap(*this, rhs);
+                return *this;
         }
+
+        appearance_animated_bmp& operator=(appearance_animated_bmp&& rhs) = delete;
 
         friend void swap(appearance_animated_bmp& lhs,
                          appearance_animated_bmp& rhs)
@@ -130,6 +134,7 @@ public:
                 swap(lhs.m_bitmap, rhs.m_bitmap);
                 swap(lhs.m_frame_width, rhs.m_frame_width);
                 swap(lhs.m_num_frames, rhs.m_num_frames);
+                swap(lhs.m_frame_images, rhs.m_frame_images);
                 swap(lhs.m_num_defs, rhs.m_num_defs);
                 swap(lhs.m_frame_defs, rhs.m_frame_defs);
                 swap(lhs.m_repeat_count, rhs.m_repeat_count);

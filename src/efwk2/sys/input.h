@@ -50,7 +50,9 @@ void weapon_input_impl(player_weapons& pweap,
 
         if (keys.at(ALLEGRO_KEY_X)) {
                 if (pweap.trigger_secondary()) {
-                        std::cout << "fire secondary" << std::endl;
+                        double x, y;
+                        std::tie(x, y) = ori.interpolate_loc(0);
+                        cbus.missile_reqs.push({ x, y, false, 75.0 });
                 }
         }
 }

@@ -60,7 +60,6 @@ struct drawing_node {
 
 class drawing_system : public drawable_system {
         std::map<draw_plane, std::vector<drawing_node>> _nodes;
-        ALLEGRO_FONT* _debug_font;
         void draw_on_plane(std::vector<drawing_node> const& nodes, double weight);
 public:
 
@@ -69,8 +68,6 @@ public:
                 for (auto& pr : _nodes)
                         remove_nodes(pr.second, id);
         }
-
-        drawing_system(ALLEGRO_FONT* debug_font) : _debug_font(debug_font) {}
 
         void add_node(drawing_node n) { _nodes[n.plane].push_back(n); }
 

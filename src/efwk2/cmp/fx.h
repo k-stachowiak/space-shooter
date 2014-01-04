@@ -18,31 +18,36 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef COL_REPORT_H
-#define COL_REPORT_H
+#ifndef FX_H
+#define FX_H
 
-#include <memory>
+#include "ucmp.h"
+#include "../tmp/sfinae.h"
+#include "../tmp/traits.h"
 
-namespace cmp {
+namespace efwk
+{
 
-    class shape;
-    struct collision_profile;
-    struct pickup_profile;
+struct fx_emit_spark
+{
+        cooldown_stat cdown;
+        fx_emit_spark(double interval) : cdown(interval) {}
+};
 
-    // Collision report type.
-    //
-    // Note: The origin id is the identifier of the node which
-    // deals damage through this node. E.g. If this node is a
-    // bullet, the origin_id will be that of the ship, who has
-    // launched the bullet. This way the entity responsible
-    // for the damage may be determined.
-    struct coll_report {
-            uint64_t id;
-            uint64_t origin_id;
-            std::shared_ptr<collision_profile> cp;
-            std::shared_ptr<pickup_profile> pp;
-            std::shared_ptr<shape> shp;
-    };
+SFINAE__DECLARE_HAS_MEMBER(HasFxEmitSpark, fx_emit_spark, eff);
+
+struct fx_emit_smoke
+{
+        cooldown_stat cdown;
+        fx_emit_smoke(double interval) : cdown(interval) {}
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasFxEmitSmoke, fx_emit_smoke, eff);
+
+template <class T>
+// TODO: Instead of TmpAny implement and use TmpOneOnly
+using HasFxEmit = TmpAny<HasFxEmitSmoke<T>,
+                         HasFxEmitSpark<T>>;
 
 }
 

@@ -59,7 +59,7 @@ struct projectile
                    bool is_enemy, double damage) :
                 id(new_id),
                 score_id(new_score_id),
-                type_id("bullet"),
+                type_id("projectile"),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),
                 dyn(0, 0),

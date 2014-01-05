@@ -26,6 +26,8 @@
 #include "../tmp/sfinae.h"
 #include "../tmp/traits.h"
 
+#include "../../misc/logger.h"
+
 namespace efwk
 {
 
@@ -83,6 +85,7 @@ public:
                                         m_frame_width,
                                         al_get_bitmap_height(m_bitmap));
                 }
+
 
                 // Store the definitions.
                 m_num_defs = std::distance(begin(frame_defs), end(frame_defs));
@@ -195,10 +198,36 @@ struct appearance_pixel
 
 SFINAE__DECLARE_HAS_MEMBER(HasAppearancePixel, appearance_pixel, appr);
 
+// Stupid hack for sfinae traits - my TMP-foo sucks.
+struct appearance_bin_proxy_base {};
+
+template <class Appr1, class Appr2>
+struct appearance_bin_proxy : public appearance_bin_proxy_base
+{
+        Appr1 appr1;
+        Appr2 appr2;
+        bool state;
+
+        appearance_bin_proxy(Appr1 new_appr1, Appr2 new_appr2) :
+                appr1(new_appr1), appr2(new_appr2)
+        {}
+
+        void update(double dt)
+        {
+                if (state)
+                        appr1.update(dt);
+                else
+                        appr2.update(dt);
+        }
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasAppearanceBinProxy, appearance_bin_proxy_base, appr);
+
 template <class T>
 using HasAppearance = TmpAny<HasAppearanceStaticBmp<T>,
                              HasAppearanceAnimatedBmp<T>,
-                             HasAppearancePixel<T>>;
+                             HasAppearancePixel<T>,
+                             HasAppearanceBinProxy<T>>;
 
 }
 

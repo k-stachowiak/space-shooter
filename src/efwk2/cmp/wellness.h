@@ -32,16 +32,30 @@ class wellness_regular
 {
         double m_health;
         int m_explosions;
+        bool m_hurt_flag; // Hackish...
 
 public:
         wellness_regular(double health, int explosions) :
                 m_health(health),
-                m_explosions(explosions)
+                m_explosions(explosions),
+                m_hurt_flag(false)
         {}
 
         void hurt(double d_health)
         {
                 m_health -= d_health;
+                if (d_health > 0)
+                        m_hurt_flag = true;
+        }
+
+        void reset_hurt_flag()
+        {
+                m_hurt_flag = false;
+        }
+
+        bool get_hurt_flag() const
+        {
+                return m_hurt_flag;
         }
 
         bool alive() const
@@ -65,7 +79,8 @@ SFINAE__DECLARE_HAS_MEMBER(HasWellnessRegular, wellness_regular, wlns);
 struct wellness_invulnerable
 {
         void hurt(double) {}
-
+        void reset_hurt_flag() {}
+        bool get_hurt_flag() const { return false; }
         bool alive() const { return true; }
 
         double get_health() const

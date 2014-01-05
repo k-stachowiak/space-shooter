@@ -23,8 +23,15 @@
 
 #include "../../misc/rand.h"
 
+#include "../cmp/wellness.h"
+#include "../cmp/coll_traits.h"
+#include "../cmp/orientation.h"
+
 namespace efwk
 {
+
+// Per collision operations.
+// =========================
 
 template <class Wellness>
 struct ship_reaction_func
@@ -53,12 +60,14 @@ struct ship_reaction_func
 
         void operator()(const coll_report& cr)
         {
+                // Analyze report.
                 bool other_hurts =
                         cr.collc == coll_class::ship ||
                         cr.collc == coll_class::projectile;
 
                 bool other_is_enemy = cr.collt != collt;
 
+                // Handle pain if necessary.
                 if (other_hurts && other_is_enemy) {
                         wlns.hurt(cr.colld.damage);
                 }
@@ -127,6 +136,9 @@ struct projectile_reaction_func
         }
 };
 
+// Logic implementation.
+// =====================
+
 template <class Wellness>
 void pain_impl(long id,
                const orientation& ori,
@@ -137,6 +149,8 @@ void pain_impl(long id,
                Wellness& wlns,
                comm_bus& cbus)
 {
+        wlns.reset_hurt_flag();
+
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(0);
 
@@ -154,14 +168,24 @@ void pain_impl(long id,
         }
 }
 
+// Logic dispatch.
+// ===============
+
 template <class T>
-using IsPainable = TmpAll<HasWellness<T>, HasCollisionTraits<T>, HasOrientation<T>>;
+using IsPainable = TmpAll<HasWellness<T>,
+                          HasCollisionTraits<T>,
+                          HasOrientation<T>>;
 
 template <class Entity>
 typename std::enable_if<IsPainable<Entity>::value, void>::type
 pain(Entity& ent, comm_bus& cbus)
 {
-        pain_impl(ent.id, ent.ori, ent.collc, ent.collt, ent.colld, ent.collq, ent.wlns, cbus);
+        pain_impl(ent.id, ent.ori,
+                  ent.ctraits.cclass,
+                  ent.ctraits.cteam,
+                  ent.ctraits.cdmg,
+                  ent.ctraits.cqueue,
+                  ent.wlns, cbus);
 }
 
 template <class Entity>

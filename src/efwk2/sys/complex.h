@@ -29,6 +29,7 @@
 #include "pain.h"
 #include "hud.h"
 #include "emissions.h"
+#include "flashing.h"
 
 namespace efwk
 {
@@ -70,7 +71,7 @@ struct collq_clear_func
         template <class Entity>
         void operator()(Entity& ent)
         {
-                ent.collq.clear();
+                ent.ctraits.cqueue.clear();
         }
 };
 
@@ -86,19 +87,25 @@ struct collide_func
 class post_collision_update_func
 {
         comm_bus& m_cbus;
+        double m_dt;
 
 public:
-        post_collision_update_func(comm_bus& cbus) : m_cbus(cbus) {}
+        post_collision_update_func(comm_bus& cbus, double dt) :
+                m_cbus(cbus),
+                m_dt(dt)
+        {}
 
         template <class Entity>
         void operator()(Entity& ent)
         {
                 pain(ent, m_cbus);
+                flashing(ent, m_dt);
         }
 };
 
 class handle_event_func
 {
+        // TODO: turn this into a scoring system.
         long m_player_id;
         int& m_player_score;
 

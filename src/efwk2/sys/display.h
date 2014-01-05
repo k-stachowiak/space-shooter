@@ -31,6 +31,8 @@
 #include "../cmp/coll_traits.h"
 #include "../cmp/wellness.h"
 
+#include "../../misc/logger.h"
+
 namespace efwk
 {
 
@@ -121,6 +123,17 @@ void display_impl(const appearance_animated_bmp& appr,
         int w = al_get_bitmap_width(bmp);
         int h = al_get_bitmap_height(bmp);
         al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
+}
+
+template <class Appr1, class Appr2>
+void display_impl(const appearance_bin_proxy<Appr1, Appr2>& appr,
+                  const orientation& ori,
+                  double weight)
+{
+        if (!appr.state)
+                display_impl(appr.appr1, ori, weight);
+        else
+                display_impl(appr.appr2, ori, weight);
 }
 
 template <class T>

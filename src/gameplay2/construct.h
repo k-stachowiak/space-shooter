@@ -29,6 +29,8 @@
 #include "ent_spark.h"
 #include "ent_anim_sprite.h"
 
+#include "../misc/logger.h"
+
 namespace gplay
 {
 
@@ -69,9 +71,11 @@ public:
 
         player make_player(long id, const std::map<int, bool>& keys, double x, double y) const
         {
+                logger::instance().trace("Initializing player.");
                 return {
                         id,
                         m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
+                        m_resman.get_bitmap(res::res_id::PLAYER_SHIP_FLASH),
                         400.0,
                         keys,
                         x, y, -3.1415 / 2.0,
@@ -190,9 +194,11 @@ public:
 
         enemy make_light_fighter(long id, double x, double y) const
         {
+                logger::instance().trace("Initializing light fighter.");
                 return {
                         id,
                         m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER),
+                        m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER_FLASH),
                         100.0,
                         x, y,
                         0, 0,

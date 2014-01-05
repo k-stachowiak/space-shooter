@@ -54,8 +54,6 @@ SFINAE__DECLARE_HAS_MEMBER(HasSegmentShape, shape_segment, shp);
 // Polygon.
 // --------
 
-// TODO: Consider defining the global begin and end functions for
-//       this that will enable more generic iteration over the segments.
 struct shape_polygon
 {
         std::array<shape_segment, MAX_SEGS_IN_POLY> segs;

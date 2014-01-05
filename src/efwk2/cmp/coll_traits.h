@@ -45,8 +45,6 @@ std::string to_string(const coll_team& ct)
         return {};
 }
 
-SFINAE__DECLARE_HAS_MEMBER(HasCollisionTeam, coll_team, collt);
-
 enum class coll_class
 {
         ship, projectile
@@ -66,16 +64,12 @@ std::string to_string(const coll_class& cc)
         return {};
 }
 
-SFINAE__DECLARE_HAS_MEMBER(HasCollisionClass, coll_class, collc);
-
 struct coll_dmg
 {
         double damage;
 
         coll_dmg(double new_damage) : damage(new_damage) {}
 };
-
-SFINAE__DECLARE_HAS_MEMBER(HasCollisionDamage, coll_dmg, colld);
 
 struct coll_report
 {
@@ -110,14 +104,24 @@ public:
         }
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasCollisionQueue, coll_queue, collq);
+// TODO: consider extracting the collision queue as an individual component.
+struct coll_traits
+{
+        coll_team cteam;
+        coll_class cclass;
+        coll_dmg cdmg;
+        coll_queue cqueue;
 
-// TODO: look, all are necesary - maybe merge them in one component?
-template <class T>
-using HasCollisionTraits = TmpAll<HasCollisionTeam<T>,
-                                  HasCollisionClass<T>,
-                                  HasCollisionDamage<T>,
-                                  HasCollisionQueue<T>>;
+        coll_traits(coll_team new_cteam,
+                    coll_class new_cclass,
+                    double damage) :
+                cteam(new_cteam),
+                cclass(new_cclass),
+                cdmg(damage)
+        {}
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasCollisionTraits, coll_traits, ctraits);
 
 }
 

@@ -19,7 +19,8 @@
 */
 
 // TODO:
-// - Introduce "script" component with scripted or hard coded "event handling"
+// - carry on with the old gameplay porting:
+//     - pain flash.
 
 #include <iostream>
 #include <memory>

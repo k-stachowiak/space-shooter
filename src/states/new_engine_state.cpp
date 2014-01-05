@@ -83,17 +83,29 @@ class new_engine_state: public state
 
         void m_update_entities(double dt)
         {
-                efwk::pre_collision_update_func precuf { m_keys, m_resman, m_cbus, dt };
-                efwk::map(precuf, m_player, m_projectiles, m_sparks, m_enemies, m_sprites);
+                efwk::pre_collision_update_func pre_coll { m_keys, m_resman, m_cbus, dt };
+                efwk::map(pre_coll, m_player,
+                                    m_projectiles,
+                                    m_sparks,
+                                    m_enemies,
+                                    m_sprites);
 
-                efwk::collq_clear_func ccf;
-                efwk::map(ccf, m_player, m_projectiles, m_enemies);
+                efwk::collq_clear_func coll_clr;
+                efwk::map(coll_clr, m_player,
+                                    m_projectiles,
+                                    m_enemies);
 
-                efwk::collide_func cf;
-                efwk::map2(cf, m_player, m_projectiles, m_enemies);
+                efwk::collide_func coll;
+                efwk::map2(coll, m_player,
+                                 m_projectiles,
+                                 m_enemies);
 
-                efwk::post_collision_update_func postcuf { m_cbus };
-                efwk::map(postcuf, m_player, m_projectiles, m_sparks, m_enemies, m_sprites);
+                efwk::post_collision_update_func post_coll { m_cbus, dt };
+                efwk::map(post_coll, m_player,
+                                     m_projectiles,
+                                     m_sparks,
+                                     m_enemies,
+                                     m_sprites);
         }
 
         void m_handle_events()

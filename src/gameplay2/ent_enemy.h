@@ -28,6 +28,7 @@
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/cmp/coll_traits.h"
 #include "../efwk2/cmp/wellness.h"
+#include "../efwk2/cmp/flash.h"
 
 namespace gplay
 {
@@ -37,19 +38,19 @@ struct enemy
         long id;
         long score_id;
         const char* type_id;
-        efwk::appearance_static_bmp appr;
+        efwk::flash flsh;
+        efwk::appearance_bin_proxy<efwk::appearance_static_bmp,
+                                   efwk::appearance_static_bmp> appr;
         efwk::life_bounds lbnd;
         efwk::const_vel_dynamics dyn;
         efwk::orientation ori;
         efwk::shape_circle shp;
-        efwk::coll_team collt;
-        efwk::coll_class collc;
-        efwk::coll_dmg colld;
-        efwk::coll_queue collq;
+        efwk::coll_traits ctraits;
         efwk::wellness_regular wlns;
 
         enemy(long new_id,
               ALLEGRO_BITMAP* bmp,
+              ALLEGRO_BITMAP* bmp_flash,
               double velocity,
               double x, double y,
               double x_min, double y_min,
@@ -61,14 +62,15 @@ struct enemy
                 id(new_id),
                 score_id(new_id),
                 type_id("enemy"),
-                appr(bmp),
+                flsh(0.05),
+                appr(bmp, bmp_flash),
                 lbnd(x_min, y_min, x_max, y_max),
                 dyn(0, velocity),
                 ori(x, y, 3.1415 * 0.5),
                 shp(radius),
-                collt(efwk::coll_team::enemy),
-                collc(efwk::coll_class::ship),
-                colld(damage),
+                ctraits(efwk::coll_team::enemy,
+                        efwk::coll_class::ship,
+                        damage),
                 wlns(health, explosions)
         {
         }

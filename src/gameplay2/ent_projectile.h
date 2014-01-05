@@ -43,10 +43,7 @@ struct projectile
         efwk::const_vel_dynamics dyn;
         efwk::orientation ori;
         efwk::shape_circle shp;
-        efwk::coll_team collt;
-        efwk::coll_class collc;
-        efwk::coll_dmg colld;
-        efwk::coll_queue collq;
+        efwk::coll_traits ctraits;
         efwk::wellness_invulnerable wlns;
         efwk::fx_emit_compound eff;
 
@@ -69,9 +66,9 @@ struct projectile
                 dyn(0, 0),
                 ori(x, y, phi),
                 shp(radius),
-                collt(is_enemy ? efwk::coll_team::enemy : efwk::coll_team::player),
-                collc(efwk::coll_class::projectile),
-                colld(damage),
+                ctraits(is_enemy ? efwk::coll_team::enemy : efwk::coll_team::player,
+                        efwk::coll_class::projectile,
+                        damage),
                 eff((spark_interval > 0) ? efwk::fx_state::enabled : efwk::fx_state::disabled,
                         spark_interval,
                     (smoke_interval > 0) ? efwk::fx_state::enabled : efwk::fx_state::disabled,

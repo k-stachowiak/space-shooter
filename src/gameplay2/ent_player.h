@@ -76,7 +76,7 @@ struct player
                         ctraits(efwk::coll_team::player,
                                 efwk::coll_class::ship,
                                 damage),
-                        wlns(health, num_explosions)
+                        wlns(health)
         {
         }
 };

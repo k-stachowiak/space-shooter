@@ -29,6 +29,7 @@
 #include "../efwk2/cmp/coll_traits.h"
 #include "../efwk2/cmp/wellness.h"
 #include "../efwk2/cmp/flash.h"
+#include "../efwk2/cmp/death_spawner.h"
 
 namespace gplay
 {
@@ -47,6 +48,7 @@ struct enemy
         efwk::shape_circle shp;
         efwk::coll_traits ctraits;
         efwk::wellness_regular wlns;
+        efwk::death_spawner dspwn;
 
         enemy(long new_id,
               ALLEGRO_BITMAP* bmp,
@@ -71,7 +73,8 @@ struct enemy
                 ctraits(efwk::coll_team::enemy,
                         efwk::coll_class::ship,
                         damage),
-                wlns(health, explosions)
+                wlns(health),
+                dspwn(0, 1)
         {
         }
 };

@@ -31,13 +31,11 @@ namespace efwk
 class wellness_regular
 {
         double m_health;
-        int m_explosions;
         bool m_hurt_flag; // Hackish...
 
 public:
-        wellness_regular(double health, int explosions) :
+        wellness_regular(double health) :
                 m_health(health),
-                m_explosions(explosions),
                 m_hurt_flag(false)
         {}
 
@@ -67,34 +65,27 @@ public:
         {
                 return m_health;
         }
-
-        int get_explosions() const
-        {
-                return m_explosions;
-        }
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasWellnessRegular, wellness_regular, wlns);
 
-struct wellness_invulnerable
+struct wellness_paper
 {
-        void hurt(double) {}
+        bool is_alive;
+
+        wellness_paper() : is_alive(true) {}
+
+        void hurt(double) { is_alive = false; }
         void reset_hurt_flag() {}
-        bool get_hurt_flag() const { return false; }
-        bool alive() const { return true; }
-
-        double get_health() const
-        {
-                return std::numeric_limits<double>::infinity();
-        }
-
-        int get_explosions() const { return 0; }
+        bool get_hurt_flag() const { return !is_alive; }
+        bool alive() const { return is_alive; }
+        double get_health() const { return 0; }
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasWellnessInvulnerable, wellness_invulnerable, wlns);
+SFINAE__DECLARE_HAS_MEMBER(HasWellnessPaper, wellness_paper, wlns);
 
 template <class T>
-using HasWellness = TmpAny<HasWellnessRegular<T>, HasWellnessInvulnerable<T>>;
+using HasWellness = TmpAny<HasWellnessRegular<T>, HasWellnessPaper<T>>;
 
 }
 

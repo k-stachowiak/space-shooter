@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef EMISSIONS_H
-#define EMISSIONS_H
+#ifndef FX_EMIT_H
+#define FX_EMIT_H
 
 #include "../../comm.h"
 #include "../../tmp/sfinae.h"

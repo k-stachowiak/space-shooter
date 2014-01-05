@@ -33,27 +33,21 @@ namespace efwk
 // Per collision operations.
 // =========================
 
+// TODO: notice that the ones below have gotten disturbingly similar.
 template <class Wellness>
 struct ship_reaction_func
 {
         long id;
-        double x;
-        double y;
         const coll_team& collt;
-        const coll_dmg& colld;
         Wellness& wlns;
         comm_bus& cbus;
 
         ship_reaction_func(long new_id,
-                           double new_x, double new_y,
                            const coll_team& new_collt,
-                           const coll_dmg& new_colld,
                            Wellness& new_wlns,
                            comm_bus& new_cbus) :
                 id(new_id),
-                x(new_x), y(new_y),
                 collt(new_collt),
-                colld(new_colld),
                 wlns(new_wlns),
                 cbus(new_cbus)
         {}
@@ -75,51 +69,27 @@ struct ship_reaction_func
                 if (!wlns.alive()) {
                         cbus.del_reqs.push(id);
                         cbus.death_events.push_back({ id, cr.score_id });
-
-                        int expl = wlns.get_explosions();
-                        for (int i = 0; i < expl; ++i) {
-                                cbus.expl_reqs.push({ x, y }, 0.5 * i);
-                        }
                 }
         }
 };
 
+template <class Wellness>
 struct projectile_reaction_func
 {
         long id;
         const coll_team& collt;
+        Wellness& wlns;
         comm_bus& cbus;
-
-        std::bernoulli_distribution spark_dir_distr;
-        std::uniform_real_distribution<double> spark_vel_distr;
-        std::uniform_real_distribution<double> spark_bri_distr;
 
         projectile_reaction_func(long new_id,
                                  const coll_team& new_collt,
+                                 Wellness& new_wlns,
                                  comm_bus& new_cbus) :
                 id(new_id),
                 collt(new_collt),
-                cbus(new_cbus),
-                spark_dir_distr(0.5),
-                spark_vel_distr(50.0, 100.0),
-                spark_bri_distr(0.5, 1.0)
+                wlns(new_wlns),
+                cbus(new_cbus)
         {}
-
-        spark_req gen_spark(double x, double y)
-        {
-                double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                double dir_y = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                double vel_x = spark_vel_distr(rnd::engine);
-                double vel_y = spark_vel_distr(rnd::engine);
-                double bri = spark_bri_distr(rnd::engine);
-                return {
-                        x, y,
-                        vel_x * dir_x,
-                        vel_y * dir_y,
-                        {{ bri, bri, bri }},
-                        0.2
-                };
-        }
 
         void operator()(const coll_report& cr)
         {
@@ -127,11 +97,12 @@ struct projectile_reaction_func
                 bool other_is_enemy = cr.collt != collt;
 
                 if (must_hit_other && other_is_enemy) {
+                        wlns.hurt(cr.colld.damage);
+                }
+
+                if (!wlns.alive()) {
                         cbus.del_reqs.push(id);
                         cbus.death_events.push_back({ id, cr.score_id });
-                        for (const auto& p : cr.points) {
-                                cbus.spark_reqs.push(gen_spark(p.x, p.y));
-                        }
                 }
         }
 };
@@ -141,21 +112,16 @@ struct projectile_reaction_func
 
 template <class Wellness>
 void pain_impl(long id,
-               const orientation& ori,
                const coll_class& collc,
                const coll_team& collt,
-               const coll_dmg& colld,
                const coll_queue& collq,
                Wellness& wlns,
                comm_bus& cbus)
 {
         wlns.reset_hurt_flag();
 
-        double x, y;
-        std::tie(x, y) = ori.interpolate_loc(0);
-
-        ship_reaction_func<decltype(wlns)> srf { id, x, y, collt, colld, wlns, cbus };
-        projectile_reaction_func prf { id, collt, cbus };
+        ship_reaction_func<decltype(wlns)> srf { id, collt, wlns, cbus };
+        projectile_reaction_func<decltype(wlns)> prf { id, collt, wlns, cbus };
 
         switch (collc) {
         case coll_class::ship:
@@ -173,17 +139,15 @@ void pain_impl(long id,
 
 template <class T>
 using IsPainable = TmpAll<HasWellness<T>,
-                          HasCollisionTraits<T>,
-                          HasOrientation<T>>;
+                          HasCollisionTraits<T>>;
 
 template <class Entity>
 typename std::enable_if<IsPainable<Entity>::value, void>::type
 pain(Entity& ent, comm_bus& cbus)
 {
-        pain_impl(ent.id, ent.ori,
+        pain_impl(ent.id,
                   ent.ctraits.cclass,
                   ent.ctraits.cteam,
-                  ent.ctraits.cdmg,
                   ent.ctraits.cqueue,
                   ent.wlns, cbus);
 }

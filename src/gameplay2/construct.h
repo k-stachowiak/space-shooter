@@ -156,7 +156,8 @@ public:
                         static_cast<double>(cfg::integer("gfx_screen_h")),
                         5.0, is_enemy, damage,
                         0.0,
-                        0.0
+                        0.0,
+                        3, 0
                 };
         }
 
@@ -183,7 +184,8 @@ public:
                         static_cast<double>(cfg::integer("gfx_screen_h")),
                         5.0, is_enemy, damage,
                         0.01,
-                        0.05
+                        0.05,
+                        10, 1
                 };
         }
 

@@ -18,23 +18,27 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef FX_H
-#define FX_H
+#ifndef DEATH_SPAWNER_H
+#define DEATH_SPAWNER_H
 
-#include "sub/fx_emit.h"
-#include "sub/fx_flash.h"
-#include "sub/fx_deathspawn.h"
+#include "../tmp/sfinae.h"
 
 namespace efwk
 {
 
-template <class Entity>
-void fx(Entity& ent, double dt, comm_bus& cbus)
+struct death_spawner
 {
-        fx_emit(ent, dt, cbus);
-        fx_flash(ent, dt);
-        fx_death_spawn(ent, cbus);
-}
+        int num_sparks;
+        int num_explosions;
+
+        death_spawner(int new_num_sparks,
+                      int new_num_explosions) :
+                num_sparks(new_num_sparks),
+                num_explosions(new_num_explosions)
+        {}
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasDeathSpawner, death_spawner, dspwn);
 
 }
 

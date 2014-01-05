@@ -28,6 +28,7 @@
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/cmp/coll_traits.h"
 #include "../efwk2/cmp/wellness.h"
+#include "../efwk2/cmp/fx.h"
 
 namespace gplay
 {
@@ -47,6 +48,7 @@ struct projectile
         efwk::coll_dmg colld;
         efwk::coll_queue collq;
         efwk::wellness_invulnerable wlns;
+        efwk::fx_emit_compound eff;
 
         projectile(long new_id,
                    long new_score_id,
@@ -56,7 +58,9 @@ struct projectile
                    double x_min, double y_min,
                    double x_max, double y_max,
                    double radius,
-                   bool is_enemy, double damage) :
+                   bool is_enemy, double damage,
+                   double spark_interval,
+                   double smoke_interval) :
                 id(new_id),
                 score_id(new_score_id),
                 type_id("projectile"),
@@ -67,7 +71,11 @@ struct projectile
                 shp(radius),
                 collt(is_enemy ? efwk::coll_team::enemy : efwk::coll_team::player),
                 collc(efwk::coll_class::projectile),
-                colld(damage)
+                colld(damage),
+                eff((spark_interval > 0) ? efwk::fx_state::enabled : efwk::fx_state::disabled,
+                        spark_interval,
+                    (smoke_interval > 0) ? efwk::fx_state::enabled : efwk::fx_state::disabled,
+                        smoke_interval)
         {
                 const double dx2 = dx * dx;
                 const double dy2 = dy * dy;

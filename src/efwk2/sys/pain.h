@@ -92,21 +92,23 @@ struct projectile_reaction_func
                 collt(new_collt),
                 cbus(new_cbus),
                 spark_dir_distr(0.5),
-                spark_vel_distr(50.0, 200.0),
+                spark_vel_distr(50.0, 100.0),
                 spark_bri_distr(0.5, 1.0)
         {}
 
         spark_req gen_spark(double x, double y)
         {
                 double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                double dir_y = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
                 double vel_x = spark_vel_distr(rnd::engine);
                 double vel_y = spark_vel_distr(rnd::engine);
+                double bri = spark_bri_distr(rnd::engine);
                 return {
                         x, y,
                         vel_x * dir_x,
-                        vel_y,
-                        {{ 1.0, 1.0, spark_bri_distr(rnd::engine) }},
-                        1.0
+                        vel_y * dir_y,
+                        {{ bri, bri, bri }},
+                        0.2
                 };
         }
 

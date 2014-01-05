@@ -155,7 +155,7 @@ class new_engine_state: public state
                 });
 
                 m_cbus.smoke_reqs.visit(dt, [this](efwk::smoke_req& srq) {
-                        m_sprites.push_back(m_econstr.make_smoke_big(m_get_next_id(), srq.x, srq.y));
+                        m_sprites.push_back(m_econstr.make_smoke_small(m_get_next_id(), srq.x, srq.y));
                 });
 
                 // Spawn enemy.
@@ -226,7 +226,7 @@ public:
                 al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
                 efwk::draw_func df { debug_mode, weight, m_debug_font };
-                efwk::map(df, m_player, m_projectiles, m_sparks, m_enemies, m_sprites);
+                efwk::map(df, m_player, m_projectiles, m_enemies, m_sprites, m_sparks);
                 efwk::draw_hud(m_score_font, m_player.score);
         }
 

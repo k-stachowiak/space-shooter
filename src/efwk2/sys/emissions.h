@@ -39,6 +39,9 @@ void emit_impl(fx_emit_smoke& eff,
                double dt,
                comm_bus& cbus)
 {
+        if (eff.state == fx_state::disabled)
+                return;
+
         eff.cdown.update(dt);
         if (eff.cdown.trigger()) {
                 double x, y;
@@ -54,10 +57,42 @@ void emit_impl(fx_emit_spark& eff,
                double dt,
                comm_bus& cbus)
 {
+        if (eff.state == fx_state::disabled)
+                return;
+
+        std::bernoulli_distribution spark_dir_distr { 0.5 };
+        std::uniform_real_distribution<double> spark_vel_distr { 30, 70 };
+        std::uniform_real_distribution<double> spark_bri_distr { 0.25, 1.0 };
+
+        double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
+        double dir_y = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
+        double vel_x = spark_vel_distr(rnd::engine);
+        double vel_y = spark_vel_distr(rnd::engine);
+        double bri = spark_bri_distr(rnd::engine);
+
         eff.cdown.update(dt);
         if (eff.cdown.trigger()) {
-                std::cout << "Emitting spark" << std::endl;
+                double x, y;
+                std::tie(x, y) = ori.interpolate_loc(0);
+                cbus.spark_reqs.push({
+                        x, y,
+                        vel_x * dir_x,
+                        vel_y * dir_y,
+                        {{ bri, bri, bri }},
+                        0.5
+                });
         }
+}
+
+template <class Shape>
+void emit_impl(fx_emit_compound& eff,
+               const orientation& ori,
+               const Shape& shp,
+               double dt,
+               comm_bus& cbus)
+{
+        emit_impl(eff.spark, ori, shp, dt, cbus);
+        emit_impl(eff.smoke, ori, shp, dt, cbus);
 }
 
 template <class T>

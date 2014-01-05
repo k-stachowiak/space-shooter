@@ -112,6 +112,7 @@ public:
 
 SFINAE__DECLARE_HAS_MEMBER(HasCollisionQueue, coll_queue, collq);
 
+// TODO: look, all are necesary - maybe merge them in one component?
 template <class T>
 using HasCollisionTraits = TmpAll<HasCollisionTeam<T>,
                                   HasCollisionClass<T>,

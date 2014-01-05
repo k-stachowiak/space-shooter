@@ -28,26 +28,51 @@
 namespace efwk
 {
 
+enum class fx_state { disabled, enabled };
+
 struct fx_emit_spark
 {
+        fx_state state;
         cooldown_stat cdown;
-        fx_emit_spark(double interval) : cdown(interval) {}
+        fx_emit_spark(fx_state new_state, double interval) :
+                state(new_state),
+                cdown(interval)
+        {}
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasFxEmitSpark, fx_emit_spark, eff);
 
 struct fx_emit_smoke
 {
+        fx_state state;
         cooldown_stat cdown;
-        fx_emit_smoke(double interval) : cdown(interval) {}
+        fx_emit_smoke(fx_state new_state, double interval) :
+                state(new_state),
+                cdown(interval)
+        {}
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasFxEmitSmoke, fx_emit_smoke, eff);
 
+struct fx_emit_compound
+{
+        fx_emit_spark spark;
+        fx_emit_smoke smoke;
+
+        fx_emit_compound(fx_state spark_state, double spark_interval,
+                         fx_state smoke_state, double smoke_interval) :
+                spark(spark_state, spark_interval),
+                smoke(smoke_state, smoke_interval)
+        {}
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasFxEmitCompound, fx_emit_compound, eff);
+
 template <class T>
 // TODO: Instead of TmpAny implement and use TmpOneOnly
 using HasFxEmit = TmpAny<HasFxEmitSmoke<T>,
-                         HasFxEmitSpark<T>>;
+                         HasFxEmitSpark<T>,
+                         HasFxEmitCompound<T>>;
 
 }
 

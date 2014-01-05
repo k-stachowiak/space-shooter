@@ -40,8 +40,7 @@ struct dynamics
 protected:
         dynamics(double new_vx, double new_vy, double new_theta) :
                 vx(new_vx), vy(new_vy), theta(new_theta)
-        {
-        }
+        {}
 };
 
 class const_vel_dynamics: public dynamics
@@ -56,6 +55,29 @@ public:
 };
 
 SFINAE__DECLARE_HAS_MEMBER(HasDynamicsConstVel, const_vel_dynamics, dyn);
+
+struct const_acc_dynamics : public dynamics
+{
+        double m_vx0, m_vy0;
+        double m_ax, m_ay;
+        double m_t;
+
+        const_acc_dynamics(double vx0, double vy0, double ax, double ay) :
+                dynamics(0, 0, 0),
+                m_vx0(vx0), m_vy0(vy0),
+                m_ax(ax), m_ay(ay),
+                m_t(0)
+        {}
+
+        void update(double dt)
+        {
+                m_t += dt;
+                vx = m_vx0 + m_ax * m_t;
+                vy = m_vy0 + m_ay * m_t;
+        }
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasDynamicsConstAcc, const_acc_dynamics, dyn);
 
 class player_ctrl_dynamics: public dynamics
 {
@@ -111,7 +133,9 @@ public:
 SFINAE__DECLARE_HAS_MEMBER(HasDynamicsPlayCtrl, player_ctrl_dynamics, dyn);
 
 template<class T>
-using HasDynamics = TmpAny<HasDynamicsConstVel<T>, HasDynamicsPlayCtrl<T>>;
+using HasDynamics = TmpAny<HasDynamicsConstVel<T>,
+                           HasDynamicsConstAcc<T>,
+                           HasDynamicsPlayCtrl<T>>;
 
 }
 

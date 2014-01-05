@@ -40,7 +40,7 @@ struct projectile
         const char* type_id;
         efwk::appearance_static_bmp appr;
         efwk::life_bounds lbnd;
-        efwk::const_vel_dynamics dyn;
+        efwk::const_acc_dynamics dyn;
         efwk::orientation ori;
         efwk::shape_circle shp;
         efwk::coll_traits ctraits;
@@ -51,6 +51,7 @@ struct projectile
                    long new_score_id,
                    ALLEGRO_BITMAP* bmp,
                    double velocity, double dx, double dy,
+                   double acceleration,
                    double x, double y, double phi,
                    double x_min, double y_min,
                    double x_max, double y_max,
@@ -63,7 +64,7 @@ struct projectile
                 type_id("projectile"),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),
-                dyn(0, 0),
+                dyn(0, 0, 0, 0), // Decided to initialize this in the body.
                 ori(x, y, phi),
                 shp(radius),
                 ctraits(is_enemy ? efwk::coll_team::enemy : efwk::coll_team::player,
@@ -74,14 +75,20 @@ struct projectile
                     (smoke_interval > 0) ? efwk::fx_state::enabled : efwk::fx_state::disabled,
                         smoke_interval)
         {
+                // Didn't want to force feed this into the initialization list,
+                // but it can be done for the sake of constness and encapsulation.
+                // If you read this, the above values have not turned out to be
+                // imortant enough so far.
                 const double dx2 = dx * dx;
                 const double dy2 = dy * dy;
                 const double len = sqrt(dx2 + dy2);
-
                 if (len != 0) {
-                        dyn.vx = dx * velocity / len;
-                        dyn.vy = dy * velocity / len;
+                        dyn.m_vx0 = dx * velocity / len;
+                        dyn.m_vy0 = dy * velocity / len;
                 }
+
+                double mul = is_enemy ? 1 : -1;
+                dyn.m_ay = mul * acceleration;
         }
 };
 

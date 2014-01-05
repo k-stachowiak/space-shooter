@@ -18,40 +18,21 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef FLASH_H
-#define FLASH_H
+#ifndef FX_H
+#define FX_H
+
+#include "sub/fx_emit.h"
+#include "sub/fx_flash.h"
 
 namespace efwk
 {
 
-struct flash
+template <class Entity>
+void fx(Entity& ent, double dt, comm_bus& cbus)
 {
-        double interval;
-        double counter;
-
-        flash(double new_interval) :
-                interval(new_interval),
-                counter(0)
-        {}
-
-        void reset()
-        {
-                counter = interval;
-        }
-
-        void update(double dt)
-        {
-                if (counter > 0)
-                        counter -= dt;
-        }
-
-        bool is_flashing() const
-        {
-                return counter > 0;
-        }
-};
-
-SFINAE__DECLARE_HAS_MEMBER(HasFlash, flash, flsh);
+        fx_emit(ent, dt, cbus);
+        fx_flash(ent, dt);
+}
 
 }
 

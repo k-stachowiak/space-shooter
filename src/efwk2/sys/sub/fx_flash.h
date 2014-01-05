@@ -18,18 +18,18 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef FLASHING_H
-#define FLASHING_H
+#ifndef FX_FLASH_H
+#define FX_FLASH_H
 
-#include "../cmp/appearance.h"
-#include "../cmp/flash.h"
-#include "../cmp/wellness.h"
+#include "../../cmp/appearance.h"
+#include "../../cmp/flash.h"
+#include "../../cmp/wellness.h"
 
 namespace efwk
 {
 
 template <class Wellness, class Appr1, class Appr2>
-void flashing_impl(const Wellness& wlns,
+void fx_flash_impl(const Wellness& wlns,
                    appearance_bin_proxy<Appr1, Appr2>& appr,
                    flash& flsh,
                    double dt)
@@ -43,20 +43,20 @@ void flashing_impl(const Wellness& wlns,
 }
 
 template <class T>
-using IsFlashable = TmpAll<HasWellness<T>,
-                           HasAppearanceBinProxy<T>,
-                           HasFlash<T>>;
+using IsFxFlashable = TmpAll<HasWellness<T>,
+                             HasAppearanceBinProxy<T>,
+                             HasFlash<T>>;
 
 template <class Entity>
-typename std::enable_if<IsFlashable<Entity>::value, void>::type
-flashing(Entity& ent, double dt)
+typename std::enable_if<IsFxFlashable<Entity>::value, void>::type
+fx_flash(Entity& ent, double dt)
 {
-        flashing_impl(ent.wlns, ent.appr, ent.flsh, dt);
+        fx_flash_impl(ent.wlns, ent.appr, ent.flsh, dt);
 }
 
 template <class Entity>
-typename std::enable_if<!IsFlashable<Entity>::value, void>::type
-flashing(Entity&, double) {}
+typename std::enable_if<!IsFxFlashable<Entity>::value, void>::type
+fx_flash(Entity&, double) {}
 
 }
 

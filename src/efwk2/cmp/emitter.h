@@ -18,9 +18,10 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef FX_H
-#define FX_H
+#ifndef EMITTER_H
+#define EMITTER_H
 
+#include "common.h"
 #include "ucmp.h"
 #include "../tmp/sfinae.h"
 #include "../tmp/traits.h"
@@ -28,51 +29,48 @@
 namespace efwk
 {
 
-enum class fx_state { disabled, enabled };
-
-struct fx_emit_spark
+struct emitter_spark
 {
-        fx_state state;
+        cmp_state state;
         cooldown_stat cdown;
-        fx_emit_spark(fx_state new_state, double interval) :
+        emitter_spark(cmp_state new_state, double interval) :
                 state(new_state),
                 cdown(interval)
         {}
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasFxEmitSpark, fx_emit_spark, eff);
+SFINAE__DECLARE_HAS_MEMBER(HasEmitterSpark, emitter_spark, emit);
 
-struct fx_emit_smoke
+struct emitter_smoke
 {
-        fx_state state;
+        cmp_state state;
         cooldown_stat cdown;
-        fx_emit_smoke(fx_state new_state, double interval) :
+        emitter_smoke(cmp_state new_state, double interval) :
                 state(new_state),
                 cdown(interval)
         {}
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasFxEmitSmoke, fx_emit_smoke, eff);
+SFINAE__DECLARE_HAS_MEMBER(HasEmitterSmoke, emitter_smoke, emit);
 
-struct fx_emit_compound
+struct emitter_compound
 {
-        fx_emit_spark spark;
-        fx_emit_smoke smoke;
+        emitter_spark spark;
+        emitter_smoke smoke;
 
-        fx_emit_compound(fx_state spark_state, double spark_interval,
-                         fx_state smoke_state, double smoke_interval) :
+        emitter_compound(cmp_state spark_state, double spark_interval,
+                         cmp_state smoke_state, double smoke_interval) :
                 spark(spark_state, spark_interval),
                 smoke(smoke_state, smoke_interval)
         {}
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasFxEmitCompound, fx_emit_compound, eff);
+SFINAE__DECLARE_HAS_MEMBER(HasEmitterCompound, emitter_compound, emit);
 
 template <class T>
-// TODO: Instead of TmpAny implement and use TmpOneOnly
-using HasFxEmit = TmpAny<HasFxEmitSmoke<T>,
-                         HasFxEmitSpark<T>,
-                         HasFxEmitCompound<T>>;
+using HasEmitter = TmpAny<HasEmitterSmoke<T>,
+                          HasEmitterSpark<T>,
+                          HasEmitterCompound<T>>;
 
 }
 

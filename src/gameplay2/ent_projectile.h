@@ -28,7 +28,7 @@
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/cmp/coll_traits.h"
 #include "../efwk2/cmp/wellness.h"
-#include "../efwk2/cmp/fx.h"
+#include "../efwk2/cmp/emitter.h"
 
 namespace gplay
 {
@@ -45,7 +45,7 @@ struct projectile
         efwk::shape_circle shp;
         efwk::coll_traits ctraits;
         efwk::wellness_invulnerable wlns;
-        efwk::fx_emit_compound eff;
+        efwk::emitter_compound emit;
 
         projectile(long new_id,
                    long new_score_id,
@@ -70,10 +70,14 @@ struct projectile
                 ctraits(is_enemy ? efwk::coll_team::enemy : efwk::coll_team::player,
                         efwk::coll_class::projectile,
                         damage),
-                eff((spark_interval > 0) ? efwk::fx_state::enabled : efwk::fx_state::disabled,
-                        spark_interval,
-                    (smoke_interval > 0) ? efwk::fx_state::enabled : efwk::fx_state::disabled,
-                        smoke_interval)
+                emit((spark_interval > 0)
+                        ? efwk::cmp_state::enabled
+                        : efwk::cmp_state::disabled,
+                      spark_interval,
+                     (smoke_interval > 0)
+                        ? efwk::cmp_state::enabled
+                        : efwk::cmp_state::disabled,
+                      smoke_interval)
         {
                 // Didn't want to force feed this into the initialization list,
                 // but it can be done for the sake of constness and encapsulation.

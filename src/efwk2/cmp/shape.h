@@ -26,16 +26,12 @@ static const int MAX_SEGS_IN_POLY = 10;
 #include <cassert>
 #include <vector>
 
+#include "common.h"
 #include "../tmp/sfinae.h"
 #include "../tmp/traits.h"
 
 namespace efwk
 {
-
-struct point
-{
-        double x, y;
-};
 
 // Fundamental shape types.
 // ========================
@@ -158,6 +154,8 @@ std::vector<efwk::shape_segment> segments(const efwk::shape_square& sqr)
 
 // Generating a radom point within the shapes.
 // ===========================================
+
+// TODO: copy the implementation.
 
 }
 

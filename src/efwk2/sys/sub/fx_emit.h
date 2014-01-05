@@ -21,29 +21,29 @@
 #ifndef EMISSIONS_H
 #define EMISSIONS_H
 
-#include "../comm.h"
-#include "../tmp/sfinae.h"
-#include "../tmp/traits.h"
+#include "../../comm.h"
+#include "../../tmp/sfinae.h"
+#include "../../tmp/traits.h"
 
-#include "../cmp/fx.h"
-#include "../cmp/orientation.h"
-#include "../cmp/shape.h"
+#include "../../cmp/orientation.h"
+#include "../../cmp/shape.h"
+#include "../../cmp/emitter.h"
 
 namespace efwk
 {
 
 template <class Shape>
-void emit_impl(fx_emit_smoke& eff,
-               const orientation& ori,
-               const Shape& shp,
-               double dt,
-               comm_bus& cbus)
+void fx_emit_impl(emitter_smoke& emit,
+                  const orientation& ori,
+                  const Shape& shp,
+                  double dt,
+                  comm_bus& cbus)
 {
-        if (eff.state == fx_state::disabled)
+        if (emit.state == cmp_state::disabled)
                 return;
 
-        eff.cdown.update(dt);
-        if (eff.cdown.trigger()) {
+        emit.cdown.update(dt);
+        if (emit.cdown.trigger()) {
                 double x, y;
                 std::tie(x, y) = ori.interpolate_loc(0);
                 cbus.smoke_reqs.push({ x, y });
@@ -51,13 +51,13 @@ void emit_impl(fx_emit_smoke& eff,
 }
 
 template <class Shape>
-void emit_impl(fx_emit_spark& eff,
-               const orientation& ori,
-               const Shape& shp,
-               double dt,
-               comm_bus& cbus)
+void fx_emit_impl(emitter_spark& emit,
+                  const orientation& ori,
+                  const Shape& shp,
+                  double dt,
+                  comm_bus& cbus)
 {
-        if (eff.state == fx_state::disabled)
+        if (emit.state == cmp_state::disabled)
                 return;
 
         std::bernoulli_distribution spark_dir_distr { 0.5 };
@@ -70,8 +70,8 @@ void emit_impl(fx_emit_spark& eff,
         double vel_y = spark_vel_distr(rnd::engine);
         double bri = spark_bri_distr(rnd::engine);
 
-        eff.cdown.update(dt);
-        if (eff.cdown.trigger()) {
+        emit.cdown.update(dt);
+        if (emit.cdown.trigger()) {
                 double x, y;
                 std::tie(x, y) = ori.interpolate_loc(0);
                 cbus.spark_reqs.push({
@@ -85,29 +85,29 @@ void emit_impl(fx_emit_spark& eff,
 }
 
 template <class Shape>
-void emit_impl(fx_emit_compound& eff,
-               const orientation& ori,
-               const Shape& shp,
-               double dt,
-               comm_bus& cbus)
+void fx_emit_impl(emitter_compound& emit,
+                  const orientation& ori,
+                  const Shape& shp,
+                  double dt,
+                  comm_bus& cbus)
 {
-        emit_impl(eff.spark, ori, shp, dt, cbus);
-        emit_impl(eff.smoke, ori, shp, dt, cbus);
+        fx_emit_impl(emit.spark, ori, shp, dt, cbus);
+        fx_emit_impl(emit.smoke, ori, shp, dt, cbus);
 }
 
 template <class T>
-using IsEmitting = TmpAll<HasFxEmit<T>, HasOrientation<T>, HasShape<T>>;
+using IsFxEmitter = TmpAll<HasEmitter<T>, HasOrientation<T>, HasShape<T>>;
 
 template <class Entity>
-typename std::enable_if<IsEmitting<Entity>::value, void>::type
-emit(Entity& ent, double dt, comm_bus& cbus)
+typename std::enable_if<IsFxEmitter<Entity>::value, void>::type
+fx_emit(Entity& ent, double dt, comm_bus& cbus)
 {
-        emit_impl(ent.eff, ent.ori, ent.shp, dt, cbus);
+        fx_emit_impl(ent.emit, ent.ori, ent.shp, dt, cbus);
 }
 
 template <class Entity>
-typename std::enable_if<!IsEmitting<Entity>::value, void>::type
-emit(Entity& ent, double dt, comm_bus& cbus) {}
+typename std::enable_if<!IsFxEmitter<Entity>::value, void>::type
+fx_emit(Entity& ent, double dt, comm_bus& cbus) {}
 
 }
 

@@ -28,8 +28,7 @@
 #include "collision.h"
 #include "pain.h"
 #include "hud.h"
-#include "emissions.h"
-#include "flashing.h"
+#include "fx.h"
 
 namespace efwk
 {
@@ -62,7 +61,6 @@ public:
                 bind_life(ent, m_cbus);
                 bind_time(ent, m_dt, m_cbus);
                 display_update(ent, m_dt);
-                emit(ent, m_dt, m_cbus);
         }
 };
 
@@ -99,7 +97,7 @@ public:
         void operator()(Entity& ent)
         {
                 pain(ent, m_cbus);
-                flashing(ent, m_dt);
+                fx(ent, m_dt, m_cbus);
         }
 };
 

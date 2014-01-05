@@ -21,42 +21,11 @@
 #ifndef BOUNDS_H
 #define BOUNDS_H
 
+#include "common.h"
 #include "../tmp/sfinae.h"
 
 namespace efwk
 {
-
-struct bounds
-{
-        double x_min;
-        double y_min;
-        double x_max;
-        double y_max;
-
-protected:
-        bounds(double new_x_min, double new_y_min,
-               double new_x_max, double new_y_max) :
-                x_min(new_x_min), y_min(new_y_min),
-                x_max(new_x_max), y_max(new_y_max)
-        {
-        }
-};
-
-inline bool point_in_x_bounds(double x, double y, const bounds& bnd)
-{
-        return x >= bnd.x_min && x <= bnd.x_max;
-}
-
-inline bool point_in_y_bounds(double x, double y, const bounds& bnd)
-{
-        return y >= bnd.y_min && y <= bnd.y_max;
-}
-
-inline bool point_in_bounds(double x, double y, const bounds& bnd)
-{
-        return point_in_x_bounds(x, y, bnd) &&
-               point_in_y_bounds(x, y, bnd);
-}
 
 struct move_bounds : public bounds
 {

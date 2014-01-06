@@ -30,6 +30,7 @@
 #include "../efwk2/cmp/wellness.h"
 #include "../efwk2/cmp/flash.h"
 #include "../efwk2/cmp/death_spawner.h"
+#include "../efwk2/cmp/pain_spawner.h"
 
 namespace gplay
 {
@@ -50,6 +51,7 @@ struct enemy
         efwk::coll_traits ctraits;
         efwk::wellness_regular wlns;
         efwk::death_spawner dspwn;
+        efwk::pain_spawner pspwn;
 
         enemy(const long new_id,
               ALLEGRO_BITMAP* const bmp,
@@ -64,7 +66,9 @@ struct enemy
               const double radius,
               const double damage,
               const double health,
-              const double explosions) :
+              const double explosions,
+              const double pain_smoke_threshold,
+              const double pain_smoke_interval) :
                 id(new_id),
                 score_id(new_id),
                 type_id("enemy"),
@@ -78,7 +82,10 @@ struct enemy
                         efwk::coll_class::ship,
                         damage),
                 wlns(health),
-                dspwn(0, 1)
+                dspwn(0, 1),
+                pspwn(efwk::cmp_state::enabled,
+                      pain_smoke_threshold,
+                      pain_smoke_interval)
         {
         }
 };

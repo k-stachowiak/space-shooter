@@ -18,10 +18,6 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-// TODO:
-// - carry on with the old gameplay porting:
-//     - pain flash.
-
 #include <iostream>
 #include <memory>
 

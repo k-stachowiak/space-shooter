@@ -34,6 +34,14 @@
 #include "../misc/logger.h"
 #include "../misc/config.h"
 
+// TODO:
+//
+// - smoke when hurt
+// - drop pickups
+// - pick pickups up
+// - upgrades to weapons
+// - shooting enemies
+
 class new_engine_state: public state
 {
         bool m_done;

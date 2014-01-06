@@ -18,25 +18,32 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef FX_H
-#define FX_H
+#ifndef PAIN_SPAWNER_H
+#define PAIN_SPAWNER_H
 
-#include "sub/fx_emit.h"
-#include "sub/fx_flash.h"
-#include "sub/fx_deathspawn.h"
-#include "sub/fx_painspawn.h"
+#include "common.h"
+#include "ucmp.h"
+#include "../tmp/sfinae.h"
 
 namespace efwk
 {
 
-template <class Entity>
-void fx(Entity& ent, const double dt, comm_bus& cbus)
+struct pain_spawner
 {
-        fx_emit(ent, dt, cbus);
-        fx_flash(ent, dt);
-        fx_death_spawn(ent, cbus);
-        fx_pain_spawn(ent, dt, cbus);
-}
+        cmp_state smoke_state;
+        double smoke_threshold; // i.e. the health ratio.
+        cooldown_stat smoke_cdown;
+
+        pain_spawner(cmp_state new_smoke_state,
+                     double smoke_threshold,
+                     double smoke_interval) :
+                smoke_state(new_smoke_state),
+                smoke_threshold(smoke_threshold),
+                smoke_cdown(smoke_interval)
+        {}
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasPainSpawner, pain_spawner, pspwn);
 
 }
 

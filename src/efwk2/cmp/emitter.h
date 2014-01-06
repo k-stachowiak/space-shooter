@@ -26,6 +26,8 @@
 #include "../tmp/sfinae.h"
 #include "../tmp/traits.h"
 
+// TODO: rename emitters into spawners to increase the consistency.
+
 namespace efwk
 {
 

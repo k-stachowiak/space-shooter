@@ -31,11 +31,13 @@ namespace efwk
 class wellness_regular
 {
         double m_health;
+        double m_health_max;
         bool m_hurt_flag; // Hackish...
 
 public:
         wellness_regular(double health) :
                 m_health(health),
+                m_health_max(health),
                 m_hurt_flag(false)
         {}
 
@@ -64,6 +66,11 @@ public:
         double get_health() const
         {
                 return m_health;
+        }
+
+        double get_health_max() const
+        {
+                return m_health_max;
         }
 };
 

@@ -33,15 +33,15 @@ struct anim_sprite
         efwk::orientation ori;
 
         template <class FrameCollection>
-        anim_sprite(long new_id,
-                    double new_ttl,
-                    ALLEGRO_BITMAP* bitmap,
-                    int frame_width,
-                    int num_frames,
-                    FrameCollection frame_defs,
-                    int repeat_count,
-                    double x,
-                    double y) :
+        anim_sprite(const long new_id,
+                    const double new_ttl,
+                    ALLEGRO_BITMAP* const bitmap,
+                    const int frame_width,
+                    const int num_frames,
+                    const FrameCollection frame_defs,
+                    const int repeat_count,
+                    const double x,
+                    const double y) :
                 id(new_id),
                 type_id("anim_sprite"),
                 ttl(new_ttl),

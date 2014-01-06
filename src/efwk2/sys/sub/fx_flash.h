@@ -32,7 +32,7 @@ template <class Wellness, class Appr1, class Appr2>
 void fx_flash_impl(const Wellness& wlns,
                    appearance_bin_proxy<Appr1, Appr2>& appr,
                    flash& flsh,
-                   double dt)
+                   const double dt)
 {
         if (wlns.get_hurt_flag())
                 flsh.reset();
@@ -49,14 +49,14 @@ using IsFxFlashable = TmpAll<HasWellness<T>,
 
 template <class Entity>
 typename std::enable_if<IsFxFlashable<Entity>::value, void>::type
-fx_flash(Entity& ent, double dt)
+fx_flash(Entity& ent, const double dt)
 {
         fx_flash_impl(ent.wlns, ent.appr, ent.flsh, dt);
 }
 
 template <class Entity>
 typename std::enable_if<!IsFxFlashable<Entity>::value, void>::type
-fx_flash(Entity&, double) {}
+fx_flash(Entity&, const double) {}
 
 }
 

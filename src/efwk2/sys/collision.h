@@ -230,11 +230,11 @@ bool collide_impl(const shape_circle& cir1, const orientation& ori1,
         // -------------
 
         // The distance from p1 to pm - the middle of the intersection.
-        double a = (SQR(r1) - SQR(r2) + SQR(d)) / (2 * d);
+        const double a = (SQR(r1) - SQR(r2) + SQR(d)) / (2 * d);
 
         // The coordinates of the point in the middle of the intersection.
-        double xm = x1 + (a / d) * (x2 - x1);
-        double ym = y1 + (a / d) * (y2 - y1);
+        const double xm = x1 + (a / d) * (x2 - x1);
+        const double ym = y1 + (a / d) * (y2 - y1);
 
         if (std::abs(d - (r1 + r2)) < EPSILON) {
                 *(point_it++) = { xm, ym };
@@ -242,7 +242,7 @@ bool collide_impl(const shape_circle& cir1, const orientation& ori1,
         }
 
         // The distance from pm to intersection points.
-        double h = sqrt(SQR(r1) - SQR(a));
+        const double h = sqrt(SQR(r1) - SQR(a));
 
 #undef SQR
 
@@ -317,7 +317,7 @@ check_collisions(Entity1& ent1, Entity2& ent2)
         // Determine the collision points.
         std::vector<point> points;
         auto inserter = std::back_inserter(points);
-        bool result = collide_impl(ent1.shp, ent1.ori, ent2.shp, ent2.ori, inserter);
+        const bool result = collide_impl(ent1.shp, ent1.ori, ent2.shp, ent2.ori, inserter);
 
         // Store the report.
         if (result) {

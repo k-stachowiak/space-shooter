@@ -49,20 +49,27 @@ struct projectile
         efwk::emitter_compound emit;
         efwk::death_spawner dspwn;
 
-        projectile(long new_id,
-                   long new_score_id,
-                   ALLEGRO_BITMAP* bmp,
-                   double velocity, double dx, double dy,
-                   double acceleration,
-                   double x, double y, double phi,
-                   double x_min, double y_min,
-                   double x_max, double y_max,
-                   double radius,
-                   bool is_enemy, double damage,
-                   double spark_interval,
-                   double smoke_interval,
-                   int sparks_on_death,
-                   int expl_on_death) :
+        projectile(const long new_id,
+                   const long new_score_id,
+                   ALLEGRO_BITMAP* const bmp,
+                   const double velocity,
+                   const double dx,
+                   const double dy,
+                   const double acceleration,
+                   const double x,
+                   const double y,
+                   const double phi,
+                   const double x_min,
+                   const double y_min,
+                   const double x_max,
+                   const double y_max,
+                   const double radius,
+                   const bool is_enemy,
+                   const double damage,
+                   const double spark_interval,
+                   const double smoke_interval,
+                   const int sparks_on_death,
+                   const int expl_on_death) :
                 id(new_id),
                 score_id(new_score_id),
                 type_id("projectile"),
@@ -97,7 +104,7 @@ struct projectile
                         dyn.m_vy0 = dy * velocity / len;
                 }
 
-                double mul = is_enemy ? 1 : -1;
+                const double mul = is_enemy ? 1 : -1;
                 dyn.m_ay = mul * acceleration;
         }
 };

@@ -32,7 +32,7 @@ namespace efwk
 {
 
 template <class Dynamics>
-void move_impl(Dynamics& dyn, orientation& ori, double dt)
+void move_impl(Dynamics& dyn, orientation& ori, const double dt)
 {
         dyn.update(dt);
         ori.shift(dyn.vx * dt, dyn.vy * dt);
@@ -43,14 +43,14 @@ using IsMovable = TmpAll<HasDynamics<T>, HasOrientation<T>>;
 
 template<class Entity>
 typename std::enable_if<IsMovable<Entity>::value, void>::type
-move(Entity& ent, double dt)
+move(Entity& ent, const double dt)
 {
         move_impl(ent.dyn, ent.ori, dt);
 }
 
 template<class Entity>
 typename std::enable_if<!IsMovable<Entity>::value, void>::type
-move(Entity&, double) {}
+move(Entity&, const double) {}
 
 }
 

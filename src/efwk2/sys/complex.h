@@ -39,7 +39,7 @@ class pre_collision_update_func
         const res::resman& m_resman;
         comm_bus& m_cbus;
 
-        double m_dt;
+        const double m_dt;
 
 public:
         pre_collision_update_func(const std::map<int, bool>& keys,
@@ -85,7 +85,7 @@ struct collide_func
 class post_collision_update_func
 {
         comm_bus& m_cbus;
-        double m_dt;
+        const double m_dt;
 
 public:
         post_collision_update_func(comm_bus& cbus, double dt) :
@@ -104,7 +104,7 @@ public:
 class handle_event_func
 {
         // TODO: turn this into a scoring system.
-        long m_player_id;
+        const long m_player_id;
         int& m_player_score;
 
 public:
@@ -125,7 +125,7 @@ public:
 
 class try_remove_func
 {
-        long m_id;
+        const long m_id;
 
 public:
         try_remove_func(long id) : m_id(id) {}
@@ -151,12 +151,14 @@ public:
 
 class draw_func
 {
-        bool m_debug_key;
-        double m_weight;
-        ALLEGRO_FONT* m_debug_font;
+        const bool m_debug_key;
+        const double m_weight;
+        ALLEGRO_FONT* const m_debug_font;
 
 public:
-        draw_func(bool debug_key, double weight, ALLEGRO_FONT* debug_font) :
+        draw_func(const bool debug_key,
+                  const double weight,
+                  ALLEGRO_FONT* const debug_font) :
                 m_debug_key(debug_key),
                 m_weight(weight),
                 m_debug_font(debug_font)

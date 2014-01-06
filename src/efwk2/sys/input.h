@@ -35,7 +35,7 @@ namespace efwk
 void weapon_input_impl(player_weapons& pweap,
                        const orientation& ori,
                        const std::map<int, bool>& keys,
-                       double dt,
+                       const double dt,
                        comm_bus& cbus)
 {
         pweap.update(dt);
@@ -64,7 +64,7 @@ template <class Entity>
 typename std::enable_if<IsWeaponInputable<Entity>::value, void>::type
 weapon_input(Entity& ent,
              const std::map<int, bool>& keys,
-             double dt,
+             const double dt,
              comm_bus& cbus)
 {
         weapon_input_impl(ent.pweap, ent.ori, keys, dt, cbus);
@@ -72,7 +72,7 @@ weapon_input(Entity& ent,
 
 template <class Entity>
 typename std::enable_if<!IsWeaponInputable<Entity>::value, void>::type
-weapon_input(Entity&, const std::map<int, bool>&, double, comm_bus&) {}
+weapon_input(Entity&, const std::map<int, bool>&, const double, comm_bus&) {}
 
 }
 

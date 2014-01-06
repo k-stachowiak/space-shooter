@@ -27,7 +27,7 @@
 namespace efwk
 {
 
-inline void draw_hud(ALLEGRO_FONT* font, int score)
+inline void draw_hud(ALLEGRO_FONT const * const font, const int score)
 {
         al_draw_textf(font, al_map_rgb_f(1, 1, 1), 10, 10, 0, "Score : %d", score);
 }

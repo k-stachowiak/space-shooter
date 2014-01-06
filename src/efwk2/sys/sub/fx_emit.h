@@ -36,7 +36,7 @@ template <class Shape>
 void fx_emit_impl(emitter_smoke& emit,
                   const orientation& ori,
                   const Shape& shp,
-                  double dt,
+                  const double dt,
                   comm_bus& cbus)
 {
         if (emit.state == cmp_state::disabled)
@@ -54,7 +54,7 @@ template <class Shape>
 void fx_emit_impl(emitter_spark& emit,
                   const orientation& ori,
                   const Shape& shp,
-                  double dt,
+                  const double dt,
                   comm_bus& cbus)
 {
         if (emit.state == cmp_state::disabled)
@@ -64,11 +64,13 @@ void fx_emit_impl(emitter_spark& emit,
         std::uniform_real_distribution<double> spark_vel_distr { 30, 70 };
         std::uniform_real_distribution<double> spark_bri_distr { 0.25, 1.0 };
 
-        double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-        double dir_y = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-        double vel_x = spark_vel_distr(rnd::engine);
-        double vel_y = spark_vel_distr(rnd::engine);
-        double bri = spark_bri_distr(rnd::engine);
+        // TODO: Notice that the spark parameters code is repeated in few places,
+        //       consider dealing with this.
+        const double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
+        const double dir_y = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
+        const double vel_x = spark_vel_distr(rnd::engine);
+        const double vel_y = spark_vel_distr(rnd::engine);
+        const double bri = spark_bri_distr(rnd::engine);
 
         emit.cdown.update(dt);
         if (emit.cdown.trigger()) {
@@ -88,7 +90,7 @@ template <class Shape>
 void fx_emit_impl(emitter_compound& emit,
                   const orientation& ori,
                   const Shape& shp,
-                  double dt,
+                  const double dt,
                   comm_bus& cbus)
 {
         fx_emit_impl(emit.spark, ori, shp, dt, cbus);
@@ -100,14 +102,14 @@ using IsFxEmitter = TmpAll<HasEmitter<T>, HasOrientation<T>, HasShape<T>>;
 
 template <class Entity>
 typename std::enable_if<IsFxEmitter<Entity>::value, void>::type
-fx_emit(Entity& ent, double dt, comm_bus& cbus)
+fx_emit(Entity& ent, const double dt, comm_bus& cbus)
 {
         fx_emit_impl(ent.emit, ent.ori, ent.shp, dt, cbus);
 }
 
 template <class Entity>
 typename std::enable_if<!IsFxEmitter<Entity>::value, void>::type
-fx_emit(Entity& ent, double dt, comm_bus& cbus) {}
+fx_emit(Entity& ent, const double dt, comm_bus& cbus) {}
 
 }
 

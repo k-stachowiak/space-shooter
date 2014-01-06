@@ -41,8 +41,9 @@ struct player
         const char* type_id;
         int score;
         efwk::flash flsh;
-        efwk::appearance_bin_proxy<efwk::appearance_static_bmp,
-                                   efwk::appearance_static_bmp> appr;
+        efwk::appearance_bin_proxy<
+                efwk::appearance_static_bmp,
+                efwk::appearance_static_bmp> appr;
         efwk::player_ctrl_dynamics dyn;
         efwk::orientation ori;
         efwk::move_bounds mbnd;
@@ -52,16 +53,22 @@ struct player
         efwk::wellness_regular wlns;
 
         player(long new_id,
-               ALLEGRO_BITMAP* bmp,
-               ALLEGRO_BITMAP* bmp_flash,
-               double velocity, const std::map<int, bool>& keys,
-               double x, double y, double phi,
-               double x_min, double y_min, double x_max, double y_max,
-               double minigun_interval, double rocket_launcher_interval,
-               double radius,
-               double damage,
-               double health,
-               int num_explosions) :
+               ALLEGRO_BITMAP* const bmp,
+               ALLEGRO_BITMAP* const bmp_flash,
+               const double velocity,
+               const std::map<int, bool>& keys,
+               const double x,
+               const double y,
+               const double phi,
+               const double x_min,
+               const double y_min,
+               const double x_max,
+               const double y_max,
+               const double minigun_interval,
+               const double rocket_launcher_interval,
+               const double radius,
+               const double damage,
+               const double health) :
                         id(new_id),
                         score_id(new_id),
                         type_id("player"),

@@ -38,15 +38,15 @@ class entity_constructor
 {
         const res::resman& m_resman;
 
-        anim_sprite m_make_smoke(long id,
-                                 ALLEGRO_BITMAP* bmp,
-                                 int frame_width,
-                                 double x,
-                                 double y) const
+        anim_sprite m_make_smoke(const long id,
+                                 ALLEGRO_BITMAP* const bmp,
+                                 const int frame_width,
+                                 const double x,
+                                 const double y) const
         {
                 // TODO: enable in the script multiplication by not only literal.
-                static int num_frames = cfg::integer("gfx_smoke_num_frames");
-                static double frame_time = cfg::real("gfx_smoke_frame_time");
+                static const int num_frames = cfg::integer("gfx_smoke_num_frames");
+                static const double frame_time = cfg::real("gfx_smoke_frame_time");
 
                 std::vector<std::pair<int, double>> frame_defs;
                 for (int i = 0; i < num_frames; ++i)
@@ -69,9 +69,11 @@ public:
                 m_resman(rman)
         {}
 
-        player make_player(long id, const std::map<int, bool>& keys, double x, double y) const
+        player make_player(const long id,
+                           const std::map<int, bool>& keys,
+                           const double x,
+                           const double y) const
         {
-                logger::instance().trace("Initializing player.");
                 return {
                         id,
                         m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
@@ -85,16 +87,17 @@ public:
                         0.1, 1.0,
                         24.0,
                         100.0,
-                        100.0,
-                        3
+                        100.0
                 };
         }
 
-        anim_sprite make_explosion(long id, double x, double y) const
+        anim_sprite make_explosion(const long id,
+                                   const double x,
+                                   const double y) const
         {
-                static int frame_width = cfg::integer("gfx_explosion_frame_width");
-                static int num_frames = cfg::integer("gfx_explosion_num_frames");
-                static double frame_time = cfg::real("gfx_explosion_frame_time");
+                static const int frame_width = cfg::integer("gfx_explosion_frame_width");
+                static const int num_frames = cfg::integer("gfx_explosion_num_frames");
+                static const double frame_time = cfg::real("gfx_explosion_frame_time");
 
                 std::vector<std::pair<int, double>> frame_defs;
                 for (int i = 0; i < num_frames; ++i)
@@ -112,37 +115,39 @@ public:
                 };
         }
 
-        anim_sprite make_smoke_small(long id, double x, double y) const
+        anim_sprite make_smoke_small(const long id, const double x, const double y) const
         {
-                static ALLEGRO_BITMAP* bmp = m_resman.get_bitmap(res::res_id::SMOKE_SMALL);
-                static int frame_width = cfg::real("gfx_smoke_frame_width_sml");
+                static ALLEGRO_BITMAP* const bmp = m_resman.get_bitmap(res::res_id::SMOKE_SMALL);
+                static const int frame_width = cfg::real("gfx_smoke_frame_width_sml");
                 return m_make_smoke(id, bmp, frame_width, x, y);
         }
 
-        anim_sprite make_smoke_medium(long id, double x, double y) const
+        anim_sprite make_smoke_medium(const long id, const double x, const double y) const
         {
-                static ALLEGRO_BITMAP* bmp = m_resman.get_bitmap(res::res_id::SMOKE);
-                static int frame_width = cfg::real("gfx_smoke_frame_width_med");
+                static ALLEGRO_BITMAP* const bmp = m_resman.get_bitmap(res::res_id::SMOKE);
+                static const int frame_width = cfg::real("gfx_smoke_frame_width_med");
                 return m_make_smoke(id, bmp, frame_width, x, y);
         }
 
-        anim_sprite make_smoke_big(long id, double x, double y) const
+        anim_sprite make_smoke_big(const long id, const double x, const double y) const
         {
-                static ALLEGRO_BITMAP* bmp = m_resman.get_bitmap(res::res_id::SMOKE_BIG);
-                static int frame_width = cfg::real("gfx_smoke_frame_width_big");
+                static ALLEGRO_BITMAP* const bmp = m_resman.get_bitmap(res::res_id::SMOKE_BIG);
+                static const int frame_width = cfg::real("gfx_smoke_frame_width_big");
                 return m_make_smoke(id, bmp, frame_width, x, y);
         }
 
-        projectile make_bullet(long id, long score_id,
-                               double x, double y,
-                               bool is_enemy,
-                               double damage) const
+        projectile make_bullet(const long id,
+                               const long score_id,
+                               const double x,
+                               const double y,
+                               const bool is_enemy,
+                               const double damage) const
         {
                 const double vx = 0.0;
                 const double vy = is_enemy ? 1.0 : -1;
                 const double phi = is_enemy ? (3.1415 / 2.0) : (-3.1415 / 2.0);
 
-                static ALLEGRO_BITMAP* bmp = m_resman.get_bitmap(res::res_id::BULLET_5);
+                static ALLEGRO_BITMAP* const bmp = m_resman.get_bitmap(res::res_id::BULLET_5);
 
                 return {
                         id,
@@ -161,16 +166,18 @@ public:
                 };
         }
 
-        projectile make_missile(long id, long score_id,
-                                double x, double y,
-                                bool is_enemy,
-                                double damage) const
+        projectile make_missile(const long id,
+                                const long score_id,
+                                const double x,
+                                const double y,
+                                const bool is_enemy,
+                                const double damage) const
         {
                 const double vx = 0.0;
                 const double vy = is_enemy ? 1.0 : -1;
                 const double phi = is_enemy ? (3.1415 / 2.0) : (-3.1415 / 2.0);
 
-                static ALLEGRO_BITMAP* bmp = m_resman.get_bitmap(res::res_id::MISSILE);
+                static ALLEGRO_BITMAP* const bmp = m_resman.get_bitmap(res::res_id::MISSILE);
 
                 return {
                         id,
@@ -189,16 +196,20 @@ public:
                 };
         }
 
-        spark make_spark(long id,
-                         double ttl,
-                         std::array<double, 3> rgb,
-                         double x, double y,
-                         double vx, double vy) const
+        spark make_spark(const long id,
+                         const double ttl,
+                         const std::array<double, 3> rgb,
+                         const double x,
+                         const double y,
+                         const double vx,
+                         const double vy) const
         {
                 return { id, ttl, rgb, vx, vy, x, y };
         }
 
-        enemy make_light_fighter(long id, double x, double y) const
+        enemy make_light_fighter(const long id,
+                                 const double x,
+                                 const double y) const
         {
                 logger::instance().trace("Initializing light fighter.");
                 return {

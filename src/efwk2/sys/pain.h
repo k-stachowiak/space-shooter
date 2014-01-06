@@ -37,12 +37,12 @@ namespace efwk
 template <class Wellness>
 struct ship_reaction_func
 {
-        long id;
+        const long id;
         const coll_team& collt;
         Wellness& wlns;
         comm_bus& cbus;
 
-        ship_reaction_func(long new_id,
+        ship_reaction_func(const long new_id,
                            const coll_team& new_collt,
                            Wellness& new_wlns,
                            comm_bus& new_cbus) :
@@ -55,11 +55,11 @@ struct ship_reaction_func
         void operator()(const coll_report& cr)
         {
                 // Analyze report.
-                bool other_hurts =
+                const bool other_hurts =
                         cr.collc == coll_class::ship ||
                         cr.collc == coll_class::projectile;
 
-                bool other_is_enemy = cr.collt != collt;
+                const bool other_is_enemy = cr.collt != collt;
 
                 // Handle pain if necessary.
                 if (other_hurts && other_is_enemy) {
@@ -76,12 +76,12 @@ struct ship_reaction_func
 template <class Wellness>
 struct projectile_reaction_func
 {
-        long id;
+        const long id;
         const coll_team& collt;
         Wellness& wlns;
         comm_bus& cbus;
 
-        projectile_reaction_func(long new_id,
+        projectile_reaction_func(const long new_id,
                                  const coll_team& new_collt,
                                  Wellness& new_wlns,
                                  comm_bus& new_cbus) :
@@ -93,8 +93,8 @@ struct projectile_reaction_func
 
         void operator()(const coll_report& cr)
         {
-                bool must_hit_other = cr.collc != coll_class::projectile;
-                bool other_is_enemy = cr.collt != collt;
+                const bool must_hit_other = cr.collc != coll_class::projectile;
+                const bool other_is_enemy = cr.collt != collt;
 
                 if (must_hit_other && other_is_enemy) {
                         wlns.hurt(cr.colld.damage);
@@ -111,7 +111,7 @@ struct projectile_reaction_func
 // =====================
 
 template <class Wellness>
-void pain_impl(long id,
+void pain_impl(const long id,
                const coll_class& collc,
                const coll_team& collt,
                const coll_queue& collq,

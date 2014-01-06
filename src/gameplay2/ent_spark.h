@@ -37,13 +37,13 @@ struct spark
         efwk::const_vel_dynamics dyn;
         efwk::orientation ori;
 
-        spark(long new_id,
-              double new_ttl,
-              std::array<double, 3> rgb,
-              double vx,
-              double vy,
-              double x,
-              double y) :
+        spark(const long new_id,
+              const double new_ttl,
+              const std::array<double, 3> rgb,
+              const double vx,
+              const double vy,
+              const double x,
+              const double y) :
                 id(new_id),
                 type_id("spark"),
                 ttl(new_ttl),

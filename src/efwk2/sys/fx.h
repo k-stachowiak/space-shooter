@@ -29,7 +29,7 @@ namespace efwk
 {
 
 template <class Entity>
-void fx(Entity& ent, double dt, comm_bus& cbus)
+void fx(Entity& ent, const double dt, comm_bus& cbus)
 {
         fx_emit(ent, dt, cbus);
         fx_flash(ent, dt);

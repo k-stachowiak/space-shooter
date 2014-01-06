@@ -40,8 +40,9 @@ struct enemy
         long score_id;
         const char* type_id;
         efwk::flash flsh;
-        efwk::appearance_bin_proxy<efwk::appearance_static_bmp,
-                                   efwk::appearance_static_bmp> appr;
+        efwk::appearance_bin_proxy<
+                efwk::appearance_static_bmp,
+                efwk::appearance_static_bmp> appr;
         efwk::life_bounds lbnd;
         efwk::const_vel_dynamics dyn;
         efwk::orientation ori;
@@ -50,17 +51,20 @@ struct enemy
         efwk::wellness_regular wlns;
         efwk::death_spawner dspwn;
 
-        enemy(long new_id,
-              ALLEGRO_BITMAP* bmp,
-              ALLEGRO_BITMAP* bmp_flash,
-              double velocity,
-              double x, double y,
-              double x_min, double y_min,
-              double x_max, double y_max,
-              double radius,
-              double damage,
-              double health,
-              double explosions) :
+        enemy(const long new_id,
+              ALLEGRO_BITMAP* const bmp,
+              ALLEGRO_BITMAP* const bmp_flash,
+              const double velocity,
+              const double x,
+              const double y,
+              const double x_min,
+              const double y_min,
+              const double x_max,
+              const double y_max,
+              const double radius,
+              const double damage,
+              const double health,
+              const double explosions) :
                 id(new_id),
                 score_id(new_id),
                 type_id("enemy"),

@@ -43,7 +43,7 @@ inline
 void display_shape(double x, double y, double phi,
                    const efwk::shape_segment& seg)
 {
-        auto transformed = trans(seg, x, y, phi);
+        const auto transformed = trans(seg, x, y, phi);
         al_draw_line(transformed.a.x, transformed.a.y,
                      transformed.b.x, transformed.b.y,
                      al_map_rgb_f(1, 1, 0), 1);
@@ -63,7 +63,7 @@ inline
 void display_shape(double x, double y, double phi,
                    const efwk::shape_square& sqr)
 {
-        auto segs = segments(sqr);
+        const auto segs = segments(sqr);
         for (const auto& seg : segs) {
                 display_shape(x, y, phi, seg);
         }
@@ -102,10 +102,10 @@ void display_impl(const appearance_static_bmp& appr, const orientation& ori, dou
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(weight);
 
-        double phi = ori.interpolate_rot(weight);
+        const double phi = ori.interpolate_rot(weight);
 
-        int w = al_get_bitmap_width(bmp);
-        int h = al_get_bitmap_height(bmp);
+        const int w = al_get_bitmap_width(bmp);
+        const int h = al_get_bitmap_height(bmp);
         al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
 }
 
@@ -118,10 +118,10 @@ void display_impl(const appearance_animated_bmp& appr,
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(weight);
 
-        double phi = ori.interpolate_rot(weight);
+        const double phi = ori.interpolate_rot(weight);
 
-        int w = al_get_bitmap_width(bmp);
-        int h = al_get_bitmap_height(bmp);
+        const int w = al_get_bitmap_width(bmp);
+        const int h = al_get_bitmap_height(bmp);
         al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
 }
 
@@ -163,7 +163,7 @@ void display_dbg_impl(const Shape& shp,
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(weight);
 
-        double phi = ori.interpolate_rot(weight);
+        const double phi = ori.interpolate_rot(weight);
 
         display_shape(x, y, phi, shp);
         display_wellness(x, y, wlns, font);

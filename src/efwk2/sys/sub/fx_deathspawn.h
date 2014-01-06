@@ -51,11 +51,11 @@ void fx_death_spawn_impl(const Wellness& wlns,
         static std::uniform_real_distribution<double> spark_bri_distr(0.5, 1.0);
 
         for (int i = 0; i < dspwn.num_sparks; ++i) {
-                double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                double dir_y = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                double vel_x = spark_vel_distr(rnd::engine);
-                double vel_y = spark_vel_distr(rnd::engine);
-                double bri = spark_bri_distr(rnd::engine);
+                const double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                const double dir_y = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                const double vel_x = spark_vel_distr(rnd::engine);
+                const double vel_y = spark_vel_distr(rnd::engine);
+                const double bri = spark_bri_distr(rnd::engine);
                 cbus.spark_reqs.push({
                         x, y,
                         vel_x * dir_x,

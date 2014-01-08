@@ -22,6 +22,7 @@
 
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/sys/collision.h"
+#include "../efwk2/sys/display.h"
 
 #include "state.h"
 
@@ -30,11 +31,14 @@ class coll_test_state : public state {
         const script::scriptman& m_sman;
         bool m_done;
 
-        efwk::shape_circle m_cir1;
-        double m_x1, m_y1;
+        efwk::shape_circle m_shp1;
+        efwk::orientation m_ori1;
 
-        efwk::shape_circle m_cir2;
-        double m_x2, m_y2;
+        efwk::shape_circle m_shp2;
+        efwk::orientation m_ori2;
+
+        efwk::shape_compound<efwk::shape_circle, efwk::shape_square> m_shp3;
+        efwk::orientation m_ori3;
 
         std::map<int, bool> m_keys;
         std::vector<efwk::point> m_points;
@@ -44,10 +48,11 @@ public:
                 m_resman(resman),
                 m_sman(sman),
                 m_done(false),
-                m_cir1(100),
-                m_x1(100), m_y1(100),
-                m_cir2(150),
-                m_x2(300), m_y2(100),
+                m_shp1(100), m_ori1(100, 100, 0),
+                m_shp2(150), m_ori2(300, 100, 0),
+                m_shp3(std::make_pair(efwk::shape_circle { 50 }, efwk::orientation { 0, 0, 0 }),
+                       std::make_pair(efwk::shape_square { 70 }, efwk::orientation { 10, 10, 0 })),
+                m_ori3(200, 200, 0),
                 m_keys({
                         { ALLEGRO_KEY_UP, false },
                         { ALLEGRO_KEY_RIGHT, false },
@@ -83,15 +88,14 @@ public:
                 dy -= m_keys[ALLEGRO_KEY_UP];
                 dy += m_keys[ALLEGRO_KEY_DOWN];
 
-                m_x2 += dx * dt * 100;
-                m_y2 += dy * dt * 100;
+                m_ori3.shift(dx * dt * 100, dy * dt * 100);
 
                 // Collision detection.
                 m_points.clear();
                 auto inserter = std::back_inserter(m_points);
-                collide_impl(m_cir1, efwk::orientation { m_x1, m_y1, 0 },
-                             m_cir2, efwk::orientation { m_x2, m_y2, 0 },
-                             inserter);
+                collide_impl(m_shp1, m_ori1, m_shp2, m_ori2, inserter);
+                collide_impl(m_shp1, m_ori1, m_shp3, m_ori3, inserter);
+                collide_impl(m_shp2, m_ori2, m_shp3, m_ori3, inserter);
         }
 
         void draw(double weight)
@@ -99,8 +103,9 @@ public:
                 al_clear_to_color(al_map_rgb_f(0.333, 0.5, 0.667));
 
                 // Draw shapes.
-                al_draw_circle(m_x1, m_y1, m_cir1.radius, al_map_rgb_f(1, 1, 1), 1);
-                al_draw_circle(m_x2, m_y2, m_cir2.radius, al_map_rgb_f(1, 1, 1), 1);
+                display_shape(m_ori1, m_shp1);
+                display_shape(m_ori2, m_shp2);
+                display_shape(m_ori3, m_shp3);
 
                 // Draw collision points.
                 for (const auto& p : m_points) {

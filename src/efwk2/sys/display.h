@@ -40,47 +40,64 @@ namespace efwk
 // ========================
 
 inline
-void display_shape(double x, double y, double phi,
-                   const efwk::shape_segment& seg)
+void display_shape(const efwk::orientation& ori, const efwk::shape_segment& seg)
 {
-        const auto transformed = trans(seg, x, y, phi);
+        const auto transformed = trans(seg, ori);
         al_draw_line(transformed.a.x, transformed.a.y,
                      transformed.b.x, transformed.b.y,
                      al_map_rgb_f(1, 1, 0), 1);
 }
 
 inline
-void display_shape(double x, double y, double phi,
-                   const efwk::shape_polygon& poly)
+void display_shape(const efwk::orientation& ori, const efwk::shape_polygon& poly)
 {
-        std::for_each(begin(poly.segs), begin(poly.segs) + poly.num_segs,
-                [x, y, phi] (const efwk::shape_segment& seg) {
-                          display_shape(x, y, phi, seg);
-                });
+        for_each_segment(poly, [ori](const efwk::shape_segment& seg)
+        {
+                display_shape(ori, seg);
+        });
 }
 
 inline
-void display_shape(double x, double y, double phi,
-                   const efwk::shape_square& sqr)
+void display_shape(const efwk::orientation& ori, const efwk::shape_square& sqr)
 {
-        const auto segs = segments(sqr);
-        for (const auto& seg : segs) {
-                display_shape(x, y, phi, seg);
-        }
+        for_each_segment(sqr, [ori](const efwk::shape_segment& seg)
+        {
+                display_shape(ori, seg);
+        });
 }
 
 inline
-void display_shape(double x, double y, double,
-                   const efwk::shape_circle& cir)
+void display_shape(const efwk::orientation& ori, const efwk::shape_circle& cir)
 {
+        double x, y;
+        std::tie(x, y) = ori.interpolate_loc(0);
         al_draw_circle(x, y, cir.radius, al_map_rgb_f(1, 1, 0), 1);
 }
 
-template <class Wellness>
-void display_wellness(double x, double y,
-                      const Wellness& wlns,
-                      ALLEGRO_FONT* font)
+struct shape_displayer
 {
+        const efwk::orientation& cpd_ori;
+
+        template <class Shape>
+        void operator()(const Shape& current_shp, const efwk::orientation& current_ori)
+        {
+                orientation composed_ori = compose(current_ori, cpd_ori);
+                display_shape(composed_ori, current_shp);
+        }
+};
+
+template <class... Shapes>
+void display_shape(const efwk::orientation& ori, const efwk::shape_compound<Shapes...>& cpd)
+{
+        shape_displayer displayer { ori };
+        for_each_shape(cpd, displayer);
+}
+
+template <class Wellness>
+void display_wellness(const efwk::orientation& ori, const Wellness& wlns, ALLEGRO_FONT* font)
+{
+        double x, y;
+        std::tie(x, y) = ori.interpolate_loc(0);
         al_draw_textf(font, al_map_rgb_f(1, 1, 1), x, y, 0,
                       "H(%.2f)", wlns.get_health());
 }
@@ -88,6 +105,7 @@ void display_wellness(double x, double y,
 // Regular display routines.
 // =========================
 
+inline
 void display_impl(const appearance_pixel& appr, const orientation& ori, double weight)
 {
         double x, y;
@@ -95,6 +113,7 @@ void display_impl(const appearance_pixel& appr, const orientation& ori, double w
         al_draw_pixel(x, y, al_map_rgb_f(appr.r, appr.g, appr.b));
 }
 
+inline
 void display_impl(const appearance_static_bmp& appr, const orientation& ori, double weight)
 {
         ALLEGRO_BITMAP* bmp = appr.current_bitmap;
@@ -109,6 +128,7 @@ void display_impl(const appearance_static_bmp& appr, const orientation& ori, dou
         al_draw_rotated_bitmap(bmp, w / 2, h / 2, x, y, phi, 0);
 }
 
+inline
 void display_impl(const appearance_animated_bmp& appr,
                   const orientation& ori,
                   double weight)
@@ -163,10 +183,8 @@ void display_dbg_impl(const Shape& shp,
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(weight);
 
-        const double phi = ori.interpolate_rot(weight);
-
-        display_shape(x, y, phi, shp);
-        display_wellness(x, y, wlns, font);
+        display_shape(ori, shp);
+        display_wellness(ori, wlns, font);
 }
 
 template <class T>

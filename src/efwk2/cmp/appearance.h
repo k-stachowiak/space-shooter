@@ -27,6 +27,7 @@
 #include "../tmp/traits.h"
 
 #include "../../misc/logger.h"
+#include "../../misc/config.h"
 
 namespace efwk
 {

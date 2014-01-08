@@ -34,32 +34,6 @@ static const double EPSILON = 0.5;
 namespace efwk
 {
 
-// Helper structures.
-// ------------------
-
-// Orientation based overloads for the transformation operation.
-// -------------------------------------------------------------
-
-inline
-point trans(const point& in, const orientation& ori)
-{
-        const double phi = ori.interpolate_rot(0);
-        double x, y;
-        std::tie(x, y) = ori.interpolate_loc(0);
-        return trans(in, x, y, phi);
-}
-
-inline
-shape_segment trans(const shape_segment& in,
-                    const orientation& ori)
-{
-        const double phi = ori.interpolate_rot(0);
-        double x, y;
-        std::tie(x, y) = ori.interpolate_loc(0);
-        return trans(in, x, y, phi);
-}
-
-
 // Simple collision implementations.
 // ---------------------------------
 
@@ -253,54 +227,119 @@ bool collide_impl(const shape_circle& cir1, const orientation& ori1,
 }
 
 // Complex collision implementation.
-// ---------------------------------
+// =================================
 
-// Segment - Polygon
-template <class PointIt>
-bool collide_impl(const shape_segment& seg, const orientation& seg_ori,
-                  const shape_polygon& poly, const orientation& poly_ori,
-                  PointIt& point_it)
+// Collision functors.
+// -------------------
+
+template <class OtherShape, class PointIt>
+struct seg_collide_func
 {
-        const auto first = begin(poly.segs);
-        const auto last = begin(poly.segs) + poly.num_segs;
+        // In.
+        const orientation& poly_ori;
+        const OtherShape& other;
+        const orientation& other_ori;
 
-        // TODO: Consider case when segment is inside polygon.
+        // Out.
+        PointIt& point_it;
+        bool& result;
 
-        int count = 0;
-        for (auto poly_seg = first; poly_seg != last; ++poly_seg) {
-                count += collide_impl(seg, seg_ori, *poly_seg, poly_ori, point_it);
+        void operator()(const shape_segment& seg)
+        {
+                result |= collide_impl(seg, poly_ori, other, other_ori, point_it);
         }
-        return count > 0;
-}
+};
 
-template <class PointIt>
-bool collide_impl(const shape_polygon& poly, const orientation& poly_ori,
-                  const shape_segment& seg, const orientation& seg_ori,
+template <class OtherShape, class PointIt>
+struct shp_collide_func
+{
+        // In.
+        const orientation& cpd_ori;
+        const OtherShape& other;
+        const orientation& other_ori;
+
+        // Out.
+        PointIt& point_it;
+        bool& result;
+
+        template <class CurrentShape>
+        void operator()(const CurrentShape& current_shp,
+                        const orientation& current_ori)
+        {
+                orientation composed_ori = compose(current_ori, cpd_ori);
+                result |= collide_impl(current_shp, composed_ori,
+                                       other, other_ori,
+                                       point_it);
+        };
+};
+
+// Collision implementations.
+// --------------------------
+
+// Square - whatever.
+
+template <class OtherShape, class PointIt>
+bool collide_impl(const shape_square& sqr, const orientation& sqr_ori,
+                  const OtherShape& other, const orientation& other_ori,
                   PointIt& point_it)
 {
-        return collide_impl(seg, seg_ori, poly, poly_ori, point_it);
+        bool result = false;
+        for_each_segment(sqr, seg_collide_func<OtherShape, PointIt> {
+                sqr_ori, other, other_ori, point_it, result
+        });
+        return result;
 }
 
-// Segment - Square
-template <class PointIt>
-bool collide_impl(const shape_segment& seg, const orientation& seg_ori,
+template <class OtherShape, class PointIt>
+bool collide_impl(const OtherShape& other, const orientation& other_ori,
                   const shape_square& sqr, const orientation& sqr_ori,
                   PointIt& point_it)
 {
-        // TODO: Consider case when the segment is insidethe square.
-        int count = 0;
-        for (const auto& sqr_seg : segments(sqr)) {
-                count += collide_impl(seg, seg_ori, sqr_seg, sqr_ori, point_it);
-        }
-        return count > 0;
+        return collide_impl(sqr, sqr_ori, other, other_ori, point_it);
 }
 
-template <class PointIt>
-bool collide_impl(const shape_square& sqr, const orientation& sqr_ori,
-                  const shape_segment& seg, const orientation& seg_ori,
+// Polygon - whatever.
+
+template <class OtherShape, class PointIt>
+bool collide_impl(const shape_polygon& poly, const orientation& poly_ori,
+                  const OtherShape& other, const orientation& other_ori,
                   PointIt& point_it)
 {
-        return collide_impl(seg, seg_ori, sqr, sqr_ori, point_it);
+        bool result = false;
+        for_each_segment(poly, seg_collide_func<OtherShape, PointIt> {
+                poly_ori, other, other_ori, point_it, result
+        });
+        return result;
+}
+
+template <class OtherShape, class PointIt>
+bool collide_impl(const OtherShape& other, const orientation& other_ori,
+                  const shape_polygon& poly, const orientation& poly_ori,
+                  PointIt& point_it)
+{
+        return collide_impl(poly, poly_ori, other, other_ori, point_it);
+}
+
+// Compound - whatever.
+
+template <class... CpdShapes, class OtherShape, class PointIt>
+bool collide_impl(const shape_compound<CpdShapes...>& cpd, const orientation& cpd_ori,
+                  const OtherShape& other, const orientation& other_ori,
+                  PointIt& point_it)
+{
+        bool result = false;
+        for_each_shape(cpd, shp_collide_func<OtherShape, PointIt> {
+                cpd_ori, other, other_ori, point_it, result
+        });
+        return result;
+}
+
+template <class... CpdShapes, class OtherShape, class PointIt>
+bool collide_impl(const OtherShape& other, const orientation& other_ori,
+                  const shape_compound<CpdShapes...>& cpd, const orientation& cpd_ori,
+                  PointIt& point_it)
+{
+        return collide_impl(cpd, cpd_ori, other, other_ori, point_it);
 }
 
 // Dispatch implementation.

@@ -90,7 +90,8 @@ struct projectile
                         : efwk::cmp_state::disabled,
                       smoke_interval),
                 dspwn(sparks_on_death,
-                      expl_on_death)
+                      expl_on_death,
+                      0.0)
         {
                 // Didn't want to force feed this into the initialization list,
                 // but it can be done for the sake of constness and encapsulation.

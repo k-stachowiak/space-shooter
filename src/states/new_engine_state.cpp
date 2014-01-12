@@ -66,6 +66,7 @@ class new_engine_state: public state
 
         std::vector<gplay::projectile> m_projectiles;
         std::vector<gplay::spark> m_sparks;
+        std::vector<gplay::pickup> m_pickups;
         std::vector<gplay::enemy> m_enemies;
         std::vector<gplay::anim_sprite> m_sprites;
 
@@ -95,23 +96,28 @@ class new_engine_state: public state
                 efwk::map(pre_coll, m_player,
                                     m_projectiles,
                                     m_sparks,
+                                    m_pickups,
                                     m_enemies,
                                     m_sprites);
 
+                // TODO: move the collision queue clearing to the pre collision update.
                 efwk::collq_clear_func coll_clr;
                 efwk::map(coll_clr, m_player,
                                     m_projectiles,
+                                    m_pickups,
                                     m_enemies);
 
                 efwk::collide_func coll;
                 efwk::map2(coll, m_player,
                                  m_projectiles,
+                                 m_pickups,
                                  m_enemies);
 
                 efwk::post_collision_update_func post_coll { m_cbus, dt };
                 efwk::map(post_coll, m_player,
                                      m_projectiles,
                                      m_sparks,
+                                     m_pickups,
                                      m_enemies,
                                      m_sprites);
         }
@@ -133,7 +139,11 @@ class new_engine_state: public state
                         }
 
                         efwk::try_remove_func trf { rem_id };
-                        efwk::try_each(trf, m_projectiles, m_sparks, m_enemies, m_sprites);
+                        efwk::try_each(trf, m_projectiles,
+                                            m_sparks,
+                                            m_pickups,
+                                            m_enemies,
+                                            m_sprites);
                 });
         }
 
@@ -168,6 +178,15 @@ class new_engine_state: public state
                                         srq.rgb,
                                         srq.x, srq.y,
                                         srq.vx, srq.vy));
+                });
+
+                m_cbus.health_reqs.visit(dt, [this](efwk::pickup_req& prq) {
+                        m_pickups.push_back(
+                                m_econstr.make_health_pickup(
+                                        m_get_next_id(),
+                                        prq.score_id,
+                                        prq.x, prq.y,
+                                        prq.vx, prq.vy));
                 });
 
                 m_cbus.expl_reqs.visit(dt, [this](efwk::explosion_req& erq) {
@@ -255,7 +274,7 @@ public:
                 al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
                 efwk::draw_func df { debug_mode, weight, m_debug_font };
-                efwk::map(df, m_player, m_projectiles, m_enemies, m_sprites, m_sparks);
+                efwk::map(df, m_player, m_projectiles, m_enemies, m_sprites, m_sparks, m_pickups);
                 efwk::draw_hud(m_score_font, m_player.score);
         }
 

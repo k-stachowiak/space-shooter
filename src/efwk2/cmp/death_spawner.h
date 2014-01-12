@@ -30,11 +30,14 @@ struct death_spawner
 {
         int num_sparks;
         int num_explosions;
+        double health_prob;
 
         death_spawner(int new_num_sparks,
-                      int new_num_explosions) :
+                      int new_num_explosions,
+                      double new_health_prob) :
                 num_sparks(new_num_sparks),
-                num_explosions(new_num_explosions)
+                num_explosions(new_num_explosions),
+                health_prob(new_health_prob)
         {}
 };
 

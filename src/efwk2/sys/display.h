@@ -168,8 +168,6 @@ display(const Entity& ent, double weight)
         display_impl(ent.appr, ent.ori, weight);
 }
 
-// TODO: Implement displaying of the bin_proxy shape.
-
 template <class Entity>
 typename std::enable_if<!IsDisplayable<Entity>::value, void>::type
 display(const Entity&, double) {}

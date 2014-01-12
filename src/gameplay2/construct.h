@@ -27,6 +27,7 @@
 #include "ent_enemy.h"
 #include "ent_player.h"
 #include "ent_spark.h"
+#include "ent_pickup.h"
 #include "ent_anim_sprite.h"
 
 #include "../misc/logger.h"
@@ -205,6 +206,26 @@ public:
                          const double vy) const
         {
                 return { id, ttl, rgb, vx, vy, x, y };
+        }
+
+        pickup make_health_pickup(const long id,
+                                  const long score_id,
+                                  const double x,
+                                  const double y,
+                                  const double vx,
+                                  const double vy) const
+        {
+                return {
+                        id,
+                        score_id,
+                        m_resman.get_bitmap(res::res_id::HEALTH),
+                        vx, vy,
+                        x, y,
+                        0, 0,
+                        static_cast<double>(cfg::integer("gfx_screen_w")),
+                        static_cast<double>(cfg::integer("gfx_screen_h")),
+                        32
+                };
         }
 
         enemy make_light_fighter(const long id, const double x, const double y) const

@@ -31,7 +31,8 @@ namespace efwk
 {
 
 template <class Wellness>
-void fx_death_spawn_impl(const Wellness& wlns,
+void fx_death_spawn_impl(const long id,
+                         const Wellness& wlns,
                          const death_spawner& dspwn,
                          const orientation& ori,
                          comm_bus& cbus)
@@ -42,10 +43,13 @@ void fx_death_spawn_impl(const Wellness& wlns,
         double x, y;
         std::tie(x, y) = ori.interpolate_loc(0);
 
+        // Spawn explosions.
         for (int i = 0; i < dspwn.num_explosions; ++i) {
                 cbus.expl_reqs.push({ x, y }, 0.5 * i);
         }
 
+        // Spawn sparks.
+        // TODO: generalize the emission of something at a random direction.
         static std::bernoulli_distribution spark_dir_distr(0.5);
         static std::uniform_real_distribution<double> spark_vel_distr(50, 100);
         static std::uniform_real_distribution<double> spark_bri_distr(0.5, 1.0);
@@ -64,6 +68,20 @@ void fx_death_spawn_impl(const Wellness& wlns,
                         0.2
                 });
         }
+
+        // Spawn pickups.
+        static std::bernoulli_distribution pickup_dir_distr(0.5);
+        static std::uniform_real_distribution<double> pickup_vel_distr(50, 100);
+        static std::uniform_real_distribution<double> pickup_bri_distr(0.5, 1.0);
+
+        std::bernoulli_distribution health_drop_distr(dspwn.health_prob);
+        if (health_drop_distr(rnd::engine)) {
+                const double dir_x = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                const double dir_y = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                const double vel_x = pickup_vel_distr(rnd::engine);
+                const double vel_y = pickup_vel_distr(rnd::engine);
+                cbus.health_reqs.push({ id, x, y, vel_x * dir_x, vel_y * dir_y });
+        }
 }
 
 template <class T>
@@ -75,7 +93,7 @@ template <class Entity>
 typename std::enable_if<IsDeathSpawnable<Entity>::value, void>::type
 fx_death_spawn(const Entity& ent, comm_bus& cbus)
 {
-        fx_death_spawn_impl(ent.wlns, ent.dspwn, ent.ori, cbus);
+        fx_death_spawn_impl(ent.id, ent.wlns, ent.dspwn, ent.ori, cbus);
 }
 
 template <class Entity>

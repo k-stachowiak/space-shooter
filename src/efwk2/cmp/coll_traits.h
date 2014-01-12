@@ -28,7 +28,7 @@ namespace efwk
 
 enum class coll_team
 {
-        player, enemy
+        player, enemy, none
 };
 
 inline
@@ -39,6 +39,8 @@ std::string to_string(const coll_team& ct)
                 return "player";
         case coll_team::enemy:
                 return "enemy";
+        case coll_team::none:
+                return "none";
         }
 
         exit(1);
@@ -47,7 +49,7 @@ std::string to_string(const coll_team& ct)
 
 enum class coll_class
 {
-        ship, projectile
+        ship, projectile, pickup
 };
 
 inline
@@ -58,6 +60,8 @@ std::string to_string(const coll_class& cc)
                 return "ship";
         case coll_class::projectile:
                 return "projectile";
+        case coll_class::pickup:
+                return "pickup";
         }
 
         exit(1);

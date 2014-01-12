@@ -48,6 +48,13 @@ struct spark_req
         double ttl;
 };
 
+struct pickup_req
+{
+        long score_id;
+        double x, y;
+        double vx, vy;
+};
+
 struct explosion_req
 {
         double x;
@@ -74,6 +81,7 @@ struct comm_bus
         del_queue<explosion_req> expl_reqs;
         del_queue<smoke_req> smoke_reqs;
         del_queue<spark_req> spark_reqs;
+        del_queue<pickup_req> health_reqs;
         del_queue<long> del_reqs;
 
         // Events.

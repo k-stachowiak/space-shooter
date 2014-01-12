@@ -97,7 +97,7 @@ struct enemy
                         efwk::coll_class::ship,
                         damage),
                 wlns(health),
-                dspwn(0, 1),
+                dspwn(0, 1, 1.0),
                 pspwn(efwk::cmp_state::enabled,
                       pain_smoke_threshold,
                       pain_smoke_interval)

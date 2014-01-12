@@ -33,7 +33,6 @@ namespace efwk
 // Per collision operations.
 // =========================
 
-// TODO: notice that the ones below have gotten disturbingly similar.
 template <class Wellness>
 struct ship_reaction_func
 {
@@ -41,16 +40,6 @@ struct ship_reaction_func
         const coll_team& collt;
         Wellness& wlns;
         comm_bus& cbus;
-
-        ship_reaction_func(const long new_id,
-                           const coll_team& new_collt,
-                           Wellness& new_wlns,
-                           comm_bus& new_cbus) :
-                id(new_id),
-                collt(new_collt),
-                wlns(new_wlns),
-                cbus(new_cbus)
-        {}
 
         void operator()(const coll_report& cr)
         {
@@ -81,16 +70,6 @@ struct projectile_reaction_func
         Wellness& wlns;
         comm_bus& cbus;
 
-        projectile_reaction_func(const long new_id,
-                                 const coll_team& new_collt,
-                                 Wellness& new_wlns,
-                                 comm_bus& new_cbus) :
-                id(new_id),
-                collt(new_collt),
-                wlns(new_wlns),
-                cbus(new_cbus)
-        {}
-
         void operator()(const coll_report& cr)
         {
                 const bool must_hit_other = cr.collc != coll_class::projectile;
@@ -104,6 +83,18 @@ struct projectile_reaction_func
                         cbus.del_reqs.push(id);
                         cbus.death_events.push_back({ id, cr.score_id });
                 }
+        }
+};
+
+template <class Wellness>
+struct pickup_reaction_func
+{
+        const long id;
+        const comm_bus& cbus;
+        Wellness& wlns;
+
+        void operator()(const coll_report& cr)
+        {
         }
 };
 
@@ -122,6 +113,7 @@ void pain_impl(const long id,
 
         ship_reaction_func<decltype(wlns)> srf { id, collt, wlns, cbus };
         projectile_reaction_func<decltype(wlns)> prf { id, collt, wlns, cbus };
+        pickup_reaction_func<decltype(wlns)> pckrf { id, cbus, wlns };
 
         switch (collc) {
         case coll_class::ship:
@@ -130,6 +122,10 @@ void pain_impl(const long id,
 
         case coll_class::projectile:
                 collq.for_each_report(prf);
+                break;
+
+        case coll_class::pickup:
+                collq.for_each_report(pckrf);
                 break;
         }
 }

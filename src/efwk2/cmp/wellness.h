@@ -43,9 +43,17 @@ public:
 
         void hurt(double d_health)
         {
+                // Note that the delta health argument
+                // doesn't have to be positive.
                 m_health -= d_health;
                 if (d_health > 0)
                         m_hurt_flag = true;
+
+                // Cap the health value.
+                if (m_health < 0)
+                        m_health = 0;
+                if (m_health > m_health_max)
+                        m_health = m_health_max;
         }
 
         void reset_hurt_flag()

@@ -47,7 +47,8 @@ struct pickup
                const double y_min,
                const double x_max,
                const double y_max,
-               const double radius) :
+               const double radius,
+               const double pick_health) :
                 id(new_id),
                 score_id(new_score_id),
                 type_id("pickup"),
@@ -58,7 +59,8 @@ struct pickup
                 shp(radius),
                 ctraits(efwk::coll_team::none,
                         efwk::coll_class::pickup,
-                        0)
+                        0,
+                        pick_health)
         {
         }
 };

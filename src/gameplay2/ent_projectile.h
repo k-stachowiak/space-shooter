@@ -80,7 +80,8 @@ struct projectile
                 shp(radius),
                 ctraits(is_enemy ? efwk::coll_team::enemy : efwk::coll_team::player,
                         efwk::coll_class::projectile,
-                        damage),
+                        damage,
+                        0),
                 emit((spark_interval > 0)
                         ? efwk::cmp_state::enabled
                         : efwk::cmp_state::disabled,

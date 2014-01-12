@@ -36,7 +36,6 @@
 
 // TODO:
 //
-// - drop pickups
 // - pick pickups up
 // - upgrades to weapons
 // - shooting enemies

@@ -43,7 +43,8 @@ struct ship_reaction_func
 
         void operator()(const coll_report& cr)
         {
-                // Analyze report.
+                // Pain case.
+                // ---------
                 const bool other_hurts =
                         cr.collc == coll_class::ship ||
                         cr.collc == coll_class::projectile;
@@ -54,6 +55,23 @@ struct ship_reaction_func
                 if (other_hurts && other_is_enemy) {
                         wlns.hurt(cr.colld.damage);
                 }
+
+                // Pickup case.
+                // ------------
+
+                const bool other_is_pickup =
+                        cr.collc == coll_class::pickup;
+
+                const bool this_can_pick =
+                        collt == coll_team::player;
+
+                if (other_is_pickup && this_can_pick) {
+                        wlns.hurt(-cr.collp.health);
+                        cbus.del_reqs.push(cr.id);
+                }
+
+                // Wellness tracking.
+                // ------------------
 
                 if (!wlns.alive()) {
                         cbus.del_reqs.push(id);
@@ -72,7 +90,7 @@ struct projectile_reaction_func
 
         void operator()(const coll_report& cr)
         {
-                const bool must_hit_other = cr.collc != coll_class::projectile;
+                const bool must_hit_other = cr.collc == coll_class::ship;
                 const bool other_is_enemy = cr.collt != collt;
 
                 if (must_hit_other && other_is_enemy) {
@@ -83,18 +101,6 @@ struct projectile_reaction_func
                         cbus.del_reqs.push(id);
                         cbus.death_events.push_back({ id, cr.score_id });
                 }
-        }
-};
-
-template <class Wellness>
-struct pickup_reaction_func
-{
-        const long id;
-        const comm_bus& cbus;
-        Wellness& wlns;
-
-        void operator()(const coll_report& cr)
-        {
         }
 };
 
@@ -113,7 +119,6 @@ void pain_impl(const long id,
 
         ship_reaction_func<decltype(wlns)> srf { id, collt, wlns, cbus };
         projectile_reaction_func<decltype(wlns)> prf { id, collt, wlns, cbus };
-        pickup_reaction_func<decltype(wlns)> pckrf { id, cbus, wlns };
 
         switch (collc) {
         case coll_class::ship:
@@ -125,7 +130,8 @@ void pain_impl(const long id,
                 break;
 
         case coll_class::pickup:
-                collq.for_each_report(pckrf);
+                // Note: pickups have no wellness - let's leave this like it is.
+                //       schedule pickup removal in the pick logic for ship.
                 break;
         }
 }

@@ -71,8 +71,13 @@ std::string to_string(const coll_class& cc)
 struct coll_dmg
 {
         double damage;
-
         coll_dmg(double new_damage) : damage(new_damage) {}
+};
+
+struct coll_pick
+{
+        double health;
+        coll_pick(double new_health) : health(new_health) {}
 };
 
 struct coll_report
@@ -83,6 +88,7 @@ struct coll_report
         coll_team collt;
         coll_class collc;
         coll_dmg colld;
+        coll_pick collp;
         std::vector<point> points;
 };
 
@@ -114,14 +120,17 @@ struct coll_traits
         coll_team cteam;
         coll_class cclass;
         coll_dmg cdmg;
+        coll_pick cpck;
         coll_queue cqueue;
 
         coll_traits(coll_team new_cteam,
                     coll_class new_cclass,
-                    double damage) :
+                    double damage,
+                    double pick_health) :
                 cteam(new_cteam),
                 cclass(new_cclass),
-                cdmg(damage)
+                cdmg(damage),
+                cpck(pick_health)
         {}
 };
 

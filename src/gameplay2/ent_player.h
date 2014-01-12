@@ -82,7 +82,8 @@ struct player
                         shp(radius),
                         ctraits(efwk::coll_team::player,
                                 efwk::coll_class::ship,
-                                damage),
+                                damage,
+                                0),
                         wlns(health)
         {
         }

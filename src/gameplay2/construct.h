@@ -224,7 +224,8 @@ public:
                         0, 0,
                         static_cast<double>(cfg::integer("gfx_screen_w")),
                         static_cast<double>(cfg::integer("gfx_screen_h")),
-                        32
+                        32,
+                        20
                 };
         }
 
@@ -245,7 +246,7 @@ public:
                         -1.0, -1.0,             // c2x, c2y,
                         -1.0, -1.0,             // c3x, c3y,
                         true,                   // is_single_circle
-                        100.0,
+                        10.0,
                         50.0,
                         1,
                         0.5,

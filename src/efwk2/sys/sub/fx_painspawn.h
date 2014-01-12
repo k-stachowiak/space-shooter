@@ -33,10 +33,11 @@
 namespace efwk
 {
 
-template <class Wellness>
+template <class Wellness, class Shape>
 void fx_pain_spawn_impl(const Wellness& wlns,
                         pain_spawner& pspwn,
                         const orientation& ori,
+                        const Shape& shp,
                         const double dt,
                         comm_bus& cbus)
 {
@@ -50,7 +51,7 @@ void fx_pain_spawn_impl(const Wellness& wlns,
         pspwn.smoke_cdown.update(dt);
         if (pspwn.smoke_cdown.trigger()) {
                 double x, y;
-                std::tie(x, y) = ori.interpolate_loc(0);
+                std::tie(x, y) = random_point(shp, ori);
                 cbus.smoke_reqs.push({ x, y });
         }
 }
@@ -58,13 +59,14 @@ void fx_pain_spawn_impl(const Wellness& wlns,
 template <class T>
 using IsPainSpawnable = TmpAll<HasWellness<T>,
                                HasPainSpawner<T>,
-                               HasOrientation<T>>;
+                               HasOrientation<T>,
+                               HasShape<T>>;
 
 template <class Entity>
 typename std::enable_if<IsPainSpawnable<Entity>::value, void>::type
 fx_pain_spawn(Entity& ent, const double dt, comm_bus& cbus)
 {
-        fx_pain_spawn_impl(ent.wlns, ent.pspwn, ent.ori, dt, cbus);
+        fx_pain_spawn_impl(ent.wlns, ent.pspwn, ent.ori, ent.shp, dt, cbus);
 }
 
 template <class Entity>

@@ -39,7 +39,7 @@ struct IsCollection<std::vector<T>&> : std::true_type {};
 // Trait combinators.
 // ------------------
 
-template<class Head, class... Tail>
+template <class Head, class... Tail>
 struct TmpAll
 {
         static bool const value =
@@ -47,13 +47,13 @@ struct TmpAll
                 TmpAll<Tail...>::value;
 };
 
-template<class Head>
+template <class Head>
 struct TmpAll<Head>
 {
         static bool const value = Head::value;
 };
 
-template<class Head, class... Tail>
+template <class Head, class... Tail>
 struct TmpAny
 {
         static bool const value =
@@ -61,12 +61,23 @@ struct TmpAny
                 TmpAny<Tail...>::value;
 };
 
-template<class Head>
+template <class Head>
 struct TmpAny<Head>
 {
         static bool const value = Head::value;
 };
 
+template <class First, class Second>
+struct TmpAnd
+{
+        static bool const value = First::value && Second::value;
+};
+
+template <class First, class Second>
+struct TmpOr
+{
+        static bool const value = First::value || Second::value;
+};
 
 }
 

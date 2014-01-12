@@ -47,7 +47,12 @@ struct enemy
         efwk::life_bounds lbnd;
         efwk::const_vel_dynamics dyn;
         efwk::orientation ori;
-        efwk::shape_circle shp;
+        efwk::shape_bin_proxy<
+                efwk::shape_circle,
+                efwk::shape_compound<
+                        efwk::shape_circle,
+                        efwk::shape_circle,
+                        efwk::shape_circle>> shp;
         efwk::coll_traits ctraits;
         efwk::wellness_regular wlns;
         efwk::death_spawner dspwn;
@@ -57,13 +62,15 @@ struct enemy
               ALLEGRO_BITMAP* const bmp,
               ALLEGRO_BITMAP* const bmp_flash,
               const double velocity,
-              const double x,
-              const double y,
-              const double x_min,
-              const double y_min,
-              const double x_max,
-              const double y_max,
-              const double radius,
+              const double x, const double y,
+              const double x_min, const double y_min,
+              const double x_max, const double y_max,
+              const double radius0,
+              const double radius1, const double radius2, const double radius3,
+              const double x1, const double y1,
+              const double x2, const double y2,
+              const double x3, const double y3,
+              const bool is_single_circle,
               const double damage,
               const double health,
               const double explosions,
@@ -77,7 +84,15 @@ struct enemy
                 lbnd(x_min, y_min, x_max, y_max),
                 dyn(0, velocity),
                 ori(x, y, 3.1415 * 0.5),
-                shp(radius),
+                shp(efwk::shape_circle { radius0 },
+                    efwk::shape_compound<efwk::shape_circle, efwk::shape_circle, efwk::shape_circle> {
+                        std::make_pair(efwk::shape_circle { radius1 },
+                                       efwk::orientation { x1, y1, 0.0 }),
+                        std::make_pair(efwk::shape_circle { radius2 },
+                                       efwk::orientation { x2, y2, 0.0 }),
+                        std::make_pair(efwk::shape_circle { radius3 },
+                                       efwk::orientation { x3, y3, 0.0 }) },
+                    is_single_circle),
                 ctraits(efwk::coll_team::enemy,
                         efwk::coll_class::ship,
                         damage),

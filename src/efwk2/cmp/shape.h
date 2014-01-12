@@ -30,6 +30,7 @@ static const int MAX_SEGS_IN_POLY = 10;
 #include "orientation.h"
 #include "../tmp/sfinae.h"
 #include "../tmp/traits.h"
+#include "../../misc/rand.h"
 
 namespace efwk
 {
@@ -125,7 +126,7 @@ struct cpd_shp_functor
                 const auto& pr = std::get<ShapeIndex>(cpd.impl);
                 const auto& shp = pr.first;
                 const orientation& ori = pr.second;
-                func(shp, ori);
+                func(ShapeIndex, shp, ori);
 
                 cpd_shp_functor<Func, ShapeIndex - 1, Shapes...> ftor;
                 ftor(cpd, func);
@@ -148,12 +149,32 @@ void for_each_shape(const shape_compound<Shapes...>& cpd, Func func)
 
 SFINAE__DECLARE_HAS_MEMBER(HasCompoundShape, shape_compound_base, shp);
 
+// Binary proxy shape.
+// -------------------
+
+struct shape_bin_proxy_base {};
+
+template <class Shape1, class Shape2>
+struct shape_bin_proxy : public shape_bin_proxy_base
+{
+        Shape1 shp1;
+        Shape2 shp2;
+        bool state;
+
+        shape_bin_proxy(Shape1 new_shp1, Shape2 new_shp2, bool new_state) :
+                shp1(new_shp1), shp2(new_shp2), state(new_state)
+        {}
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasBinProxyShape, shape_bin_proxy_base, shp);
+
 template <class T>
 using HasShape = TmpAny<HasSegmentShape<T>,
                         HasPolygonShape<T>,
                         HasSquareShape<T>,
                         HasCircleShape<T>,
-                        HasCompoundShape<T>>;
+                        HasCompoundShape<T>,
+                        HasBinProxyShape<T>>;
 
 // Shape transformations.
 // ======================
@@ -212,7 +233,62 @@ std::vector<efwk::shape_segment> segments(const efwk::shape_square& sqr)
 // Generating a radom point within the shapes.
 // ===========================================
 
-// TODO: copy the implementation.
+inline
+std::pair<double, double> random_point(const shape_circle& cir,
+                                       const orientation& ori)
+{
+        std::uniform_real_distribution<double> dist;
+        double t = 2 * 3.1415 * dist(rnd::engine);
+        double u = dist(rnd::engine) + dist(rnd::engine);
+        double r = (u > 1.0) ? (2.0 - u) : u;
+        double x, y;
+        std::tie(x, y) = ori.interpolate_loc(0);
+        return std::make_pair(x + r * cir.radius * cos(t),
+                              y + r * cir.radius * sin(t));
+}
+
+template <class... Shapes>
+struct cpd_rnd_pt
+{
+        const shape_compound<Shapes...> base_shp;
+        const orientation& base_ori;
+        const int at;
+        std::pair<double, double>& result;
+
+        template <class Shape>
+        void operator()(int index,
+                        const Shape& current_shp,
+                        const orientation& current_ori)
+        {
+                if (at == index) {
+                        orientation composed_ori = compose(current_ori, base_ori);
+                        result = random_point(current_shp, composed_ori);
+                }
+        }
+};
+
+template <class... Shapes>
+std::pair<double, double> random_point(const shape_compound<Shapes...>& cpd,
+                                       const orientation& ori)
+{
+        std::uniform_int_distribution<int> dist(0, sizeof...(Shapes) - 1);
+        int index = dist(rnd::engine);
+
+        std::pair<double, double> result;
+        for_each_shape(cpd, cpd_rnd_pt<Shapes...> { cpd, ori, index, result });
+
+        return result;
+}
+
+template <class Shape1, class Shape2>
+std::pair<double, double> random_point(const shape_bin_proxy<Shape1, Shape2>& shp,
+                                       const orientation& ori)
+{
+        if (shp.state)
+                return random_point(shp.shp1, ori);
+        else
+                return random_point(shp.shp2, ori);
+}
 
 }
 

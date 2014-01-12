@@ -36,7 +36,6 @@
 
 // TODO:
 //
-// - add compound shape
 // - add shape point picking
 // - drop pickups
 // - pick pickups up

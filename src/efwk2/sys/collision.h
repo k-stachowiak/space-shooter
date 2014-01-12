@@ -263,7 +263,8 @@ struct shp_collide_func
         bool& result;
 
         template <class CurrentShape>
-        void operator()(const CurrentShape& current_shp,
+        void operator()(int,
+                        const CurrentShape& current_shp,
                         const orientation& current_ori)
         {
                 orientation composed_ori = compose(current_ori, cpd_ori);
@@ -271,6 +272,30 @@ struct shp_collide_func
                                        other, other_ori,
                                        point_it);
         };
+};
+
+template <class PointIt, class... OtherShapes>
+struct shpcpd_collide_func
+{
+        // In.
+        const orientation cpd_ori;
+        const shape_compound<OtherShapes...> other;
+        const orientation& other_ori;
+
+        // Out.
+        PointIt& point_it;
+        bool& result;
+
+        template <class CurrentShape>
+        void operator()(int,
+                        const CurrentShape& current_shp,
+                        const orientation current_ori)
+        {
+                orientation composed_ori = compose(current_ori, cpd_ori);
+                for_each_shape(other, shp_collide_func<CurrentShape, PointIt> {
+                        other_ori, current_shp, composed_ori, point_it, result
+                });
+        }
 };
 
 // Collision implementations.
@@ -340,6 +365,55 @@ bool collide_impl(const OtherShape& other, const orientation& other_ori,
                   PointIt& point_it)
 {
         return collide_impl(cpd, cpd_ori, other, other_ori, point_it);
+}
+
+template <class... CpdShapes, class... OtherShapes, class PointIt>
+bool collide_impl(const shape_compound<CpdShapes...>& cpd1, const orientation& cpd1_ori,
+                  const shape_compound<OtherShapes...>& cpd2, const orientation& cpd2_ori,
+                  PointIt& point_it)
+{
+        bool result = false;
+        for_each_shape(cpd1, shpcpd_collide_func<PointIt, OtherShapes...> {
+                cpd1_ori, cpd2, cpd2_ori, point_it, result
+        });
+        return result;
+}
+
+// Binary proxy - whatever.
+
+template <class Shape1, class Shape2, class OtherShape, class PointIt>
+bool collide_impl(const shape_bin_proxy<Shape1, Shape2>& bpx, const orientation& bpx_ori,
+                  const OtherShape& other, const orientation other_ori,
+                  PointIt& point_it)
+{
+        return bpx.state
+                ? collide_impl(bpx.shp1, bpx_ori, other, other_ori, point_it)
+                : collide_impl(bpx.shp2, bpx_ori, other, other_ori, point_it);
+}
+
+template <class Shape1, class Shape2, class OtherShape, class PointIt>
+bool collide_impl(const OtherShape& other, const orientation other_ori,
+                  const shape_bin_proxy<Shape1, Shape2>& bpx, const orientation& bpx_ori,
+                  PointIt& point_it)
+{
+        return collide_impl(bpx, bpx_ori, other, other_ori, point_it);
+}
+
+template <class Shape1, class Shape2, class Shape3, class Shape4, class PointIt>
+bool collide_impl(const shape_bin_proxy<Shape1, Shape2>& bpx1, const orientation& bpx1_ori,
+                  const shape_bin_proxy<Shape3, Shape4>& bpx2, const orientation& bpx2_ori,
+                  PointIt& point_it)
+{
+        if (bpx1.state)
+                if (bpx2.state)
+                        return collide_impl(bpx1.shp1, bpx1_ori, bpx2.shp1, bpx2_ori, point_it);
+                else
+                        return collide_impl(bpx1.shp1, bpx1_ori, bpx2.shp2, bpx2_ori, point_it);
+        else
+                if (bpx2.state)
+                        return collide_impl(bpx1.shp2, bpx1_ori, bpx2.shp1, bpx2_ori, point_it);
+                else
+                        return collide_impl(bpx1.shp2, bpx1_ori, bpx2.shp2, bpx2_ori, point_it);
 }
 
 // Dispatch implementation.

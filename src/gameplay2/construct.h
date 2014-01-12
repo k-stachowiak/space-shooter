@@ -207,11 +207,8 @@ public:
                 return { id, ttl, rgb, vx, vy, x, y };
         }
 
-        enemy make_light_fighter(const long id,
-                                 const double x,
-                                 const double y) const
+        enemy make_light_fighter(const long id, const double x, const double y) const
         {
-                logger::instance().trace("Initializing light fighter.");
                 return {
                         id,
                         m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_FIGHTER),
@@ -221,14 +218,27 @@ public:
                         0, 0,
                         static_cast<double>(cfg::integer("gfx_screen_w")),
                         static_cast<double>(cfg::integer("gfx_screen_h")),
-                        40.0,
+                        40.0,                   // radius 0
+                        -1.0, -1.0, -1.0,       // radius 1, 2, 3
+                        -1.0, -1.0,             // c1x, c1y,
+                        -1.0, -1.0,             // c2x, c2y,
+                        -1.0, -1.0,             // c3x, c3y,
+                        true,                   // is_single_circle
                         100.0,
                         50.0,
                         1,
                         0.5,
-                        0.5
+                        0.125
                 };
         }
+
+        /*
+        enemy make_light_bomber(const long id, const double x, const double y) const
+        {
+                return {
+                };
+        }
+        */
 
 };
 

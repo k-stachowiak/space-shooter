@@ -79,7 +79,9 @@ struct shape_displayer
         const efwk::orientation& cpd_ori;
 
         template <class Shape>
-        void operator()(const Shape& current_shp, const efwk::orientation& current_ori)
+        void operator()(int,
+                        const Shape& current_shp,
+                        const efwk::orientation& current_ori)
         {
                 orientation composed_ori = compose(current_ori, cpd_ori);
                 display_shape(composed_ori, current_shp);
@@ -166,6 +168,8 @@ display(const Entity& ent, double weight)
         display_impl(ent.appr, ent.ori, weight);
 }
 
+// TODO: Implement displaying of the bin_proxy shape.
+
 template <class Entity>
 typename std::enable_if<!IsDisplayable<Entity>::value, void>::type
 display(const Entity&, double) {}
@@ -185,6 +189,19 @@ void display_dbg_impl(const Shape& shp,
 
         display_shape(ori, shp);
         display_wellness(ori, wlns, font);
+}
+
+template <class Shape1, class Shape2, class Wellness>
+void display_dbg_impl(const shape_bin_proxy<Shape1, Shape2>& shp,
+                      const orientation& ori,
+                      const Wellness& wlns,
+                      double weight,
+                      ALLEGRO_FONT* font)
+{
+        if (shp.state)
+                display_dbg_impl(shp.shp1, ori, wlns, weight, font);
+        else
+                display_dbg_impl(shp.shp2, ori, wlns, weight, font);
 }
 
 template <class T>

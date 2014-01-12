@@ -35,8 +35,7 @@
 #include "../misc/config.h"
 
 // TODO:
-//
-// - pick pickups up
+// - show status in hud.
 // - upgrades to weapons
 // - shooting enemies
 
@@ -274,7 +273,7 @@ public:
 
                 efwk::draw_func df { debug_mode, weight, m_debug_font };
                 efwk::map(df, m_player, m_projectiles, m_enemies, m_sprites, m_sparks, m_pickups);
-                efwk::draw_hud(m_score_font, m_player.score);
+                efwk::draw_hud(m_score_font, m_player.score, m_player.wlns.get_health());
         }
 
         void key_down(int k) override

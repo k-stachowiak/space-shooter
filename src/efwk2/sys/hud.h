@@ -27,9 +27,14 @@
 namespace efwk
 {
 
-inline void draw_hud(ALLEGRO_FONT const * const font, const int score)
+inline void draw_hud(ALLEGRO_FONT const * const font,
+                     const int score,
+                     const double health)
 {
+        static double screen_h = static_cast<double>(cfg::integer("gfx_screen_h"));
+
         al_draw_textf(font, al_map_rgb_f(1, 1, 1), 10, 10, 0, "Score : %d", score);
+        al_draw_textf(font, al_map_rgb_f(1, 0.1, 0.01), 20, screen_h - 30, 0, "Health : %.2f", health);
 }
 
 }

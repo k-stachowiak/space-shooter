@@ -39,7 +39,7 @@ void fx_flash_impl(const Wellness& wlns,
 
         flsh.update(dt);
 
-        appr.state = flsh.is_flashing();
+        appr.state = flsh.is_flashing() ? bp_state::second : bp_state::first;
 }
 
 template <class T>

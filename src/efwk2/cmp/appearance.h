@@ -207,15 +207,15 @@ struct appearance_bin_proxy : public appearance_bin_proxy_base
 {
         Appr1 appr1;
         Appr2 appr2;
-        bool state;
+        bp_state state;
 
         appearance_bin_proxy(Appr1 new_appr1, Appr2 new_appr2) :
-                appr1(new_appr1), appr2(new_appr2)
+                appr1(new_appr1), appr2(new_appr2), state(bp_state::first)
         {}
 
         void update(double dt)
         {
-                if (state)
+                if (state == bp_state::first)
                         appr1.update(dt);
                 else
                         appr2.update(dt);

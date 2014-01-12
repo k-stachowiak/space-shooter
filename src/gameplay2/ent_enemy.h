@@ -92,7 +92,7 @@ struct enemy
                                        efwk::orientation { x2, y2, 0.0 }),
                         std::make_pair(efwk::shape_circle { radius3 },
                                        efwk::orientation { x3, y3, 0.0 }) },
-                    is_single_circle),
+                    is_single_circle ? efwk::bp_state::first : efwk::bp_state::second),
                 ctraits(efwk::coll_team::enemy,
                         efwk::coll_class::ship,
                         damage),

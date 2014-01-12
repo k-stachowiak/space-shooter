@@ -152,7 +152,7 @@ void display_impl(const appearance_bin_proxy<Appr1, Appr2>& appr,
                   const orientation& ori,
                   double weight)
 {
-        if (!appr.state)
+        if (appr.state == bp_state::first)
                 display_impl(appr.appr1, ori, weight);
         else
                 display_impl(appr.appr2, ori, weight);
@@ -198,7 +198,7 @@ void display_dbg_impl(const shape_bin_proxy<Shape1, Shape2>& shp,
                       double weight,
                       ALLEGRO_FONT* font)
 {
-        if (shp.state)
+        if (shp.state == bp_state::first)
                 display_dbg_impl(shp.shp1, ori, wlns, weight, font);
         else
                 display_dbg_impl(shp.shp2, ori, wlns, weight, font);

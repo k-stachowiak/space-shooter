@@ -386,7 +386,7 @@ bool collide_impl(const shape_bin_proxy<Shape1, Shape2>& bpx, const orientation&
                   const OtherShape& other, const orientation other_ori,
                   PointIt& point_it)
 {
-        return bpx.state
+        return (bpx.state == bp_state::first)
                 ? collide_impl(bpx.shp1, bpx_ori, other, other_ori, point_it)
                 : collide_impl(bpx.shp2, bpx_ori, other, other_ori, point_it);
 }
@@ -404,13 +404,13 @@ bool collide_impl(const shape_bin_proxy<Shape1, Shape2>& bpx1, const orientation
                   const shape_bin_proxy<Shape3, Shape4>& bpx2, const orientation& bpx2_ori,
                   PointIt& point_it)
 {
-        if (bpx1.state)
-                if (bpx2.state)
+        if (bpx1.state == bp_state::first)
+                if (bpx2.state == bp_state::first)
                         return collide_impl(bpx1.shp1, bpx1_ori, bpx2.shp1, bpx2_ori, point_it);
                 else
                         return collide_impl(bpx1.shp1, bpx1_ori, bpx2.shp2, bpx2_ori, point_it);
         else
-                if (bpx2.state)
+                if (bpx2.state == bp_state::first)
                         return collide_impl(bpx1.shp2, bpx1_ori, bpx2.shp1, bpx2_ori, point_it);
                 else
                         return collide_impl(bpx1.shp2, bpx1_ori, bpx2.shp2, bpx2_ori, point_it);

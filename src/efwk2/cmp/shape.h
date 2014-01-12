@@ -159,9 +159,9 @@ struct shape_bin_proxy : public shape_bin_proxy_base
 {
         Shape1 shp1;
         Shape2 shp2;
-        bool state;
+        bp_state state;
 
-        shape_bin_proxy(Shape1 new_shp1, Shape2 new_shp2, bool new_state) :
+        shape_bin_proxy(Shape1 new_shp1, Shape2 new_shp2, bp_state new_state) :
                 shp1(new_shp1), shp2(new_shp2), state(new_state)
         {}
 };
@@ -284,7 +284,7 @@ template <class Shape1, class Shape2>
 std::pair<double, double> random_point(const shape_bin_proxy<Shape1, Shape2>& shp,
                                        const orientation& ori)
 {
-        if (shp.state)
+        if (shp.state == bp_state::first)
                 return random_point(shp.shp1, ori);
         else
                 return random_point(shp.shp2, ori);

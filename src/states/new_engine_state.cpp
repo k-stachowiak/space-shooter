@@ -36,7 +36,6 @@
 
 // TODO:
 //
-// - add shape point picking
 // - drop pickups
 // - pick pickups up
 // - upgrades to weapons

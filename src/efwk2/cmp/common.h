@@ -26,6 +26,8 @@ namespace efwk
 
 enum class cmp_state { disabled, enabled };
 
+enum class bp_state { first, second };
+
 struct point { double x, y; };
 
 struct bounds

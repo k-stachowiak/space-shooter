@@ -74,6 +74,7 @@ struct enemy
               const double damage,
               const double health,
               const int explosions,
+              const double health_dist,
               const double pain_smoke_threshold,
               const double pain_smoke_interval) :
                 id(new_id),
@@ -98,7 +99,7 @@ struct enemy
                         damage,
                         0),
                 wlns(health),
-                dspwn(0, explosions, 0.333),
+                dspwn(0, explosions, health_dist),
                 pspwn(efwk::cmp_state::enabled,
                       pain_smoke_threshold,
                       pain_smoke_interval)

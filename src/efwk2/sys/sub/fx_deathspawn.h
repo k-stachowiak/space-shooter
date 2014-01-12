@@ -30,11 +30,12 @@
 namespace efwk
 {
 
-template <class Wellness>
+template <class Wellness, class Shape>
 void fx_death_spawn_impl(const long id,
                          const Wellness& wlns,
                          const death_spawner& dspwn,
                          const orientation& ori,
+                         const Shape& shp,
                          comm_bus& cbus)
 {
         if (wlns.alive())
@@ -45,7 +46,9 @@ void fx_death_spawn_impl(const long id,
 
         // Spawn explosions.
         for (int i = 0; i < dspwn.num_explosions; ++i) {
-                cbus.expl_reqs.push({ x, y }, 0.5 * i);
+                double rx, ry;
+                std::tie(rx, ry) = random_point(shp, ori);
+                cbus.expl_reqs.push({ rx, ry }, 0.125 * i);
         }
 
         // Spawn sparks.
@@ -87,13 +90,14 @@ void fx_death_spawn_impl(const long id,
 template <class T>
 using IsDeathSpawnable = TmpAll<HasWellness<T>,
                                 HasDeathSpawner<T>,
-                                HasOrientation<T>>;
+                                HasOrientation<T>,
+                                HasShape<T>>;
 
 template <class Entity>
 typename std::enable_if<IsDeathSpawnable<Entity>::value, void>::type
 fx_death_spawn(const Entity& ent, comm_bus& cbus)
 {
-        fx_death_spawn_impl(ent.id, ent.wlns, ent.dspwn, ent.ori, cbus);
+        fx_death_spawn_impl(ent.id, ent.wlns, ent.dspwn, ent.ori, ent.shp, cbus);
 }
 
 template <class Entity>

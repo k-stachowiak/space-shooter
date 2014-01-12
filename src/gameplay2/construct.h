@@ -258,6 +258,7 @@ public:
                         cfg::real("gameplay_lfighter_damage"),
                         cfg::real("gameplay_lfighter_max_health"),
                         cfg::integer("gameplay_lfighter_num_explosions"),
+                        cfg::real("gameplay_lfighter_health_drop_dist"),
                         cfg::real("gameplay_lfighter_pain_smoke_threshold"),
                         cfg::real("gameplay_lfighter_pain_smoke_interval")
                 };
@@ -288,6 +289,7 @@ public:
                         cfg::real("gameplay_lbomber_damage"),
                         cfg::real("gameplay_lbomber_max_health"),
                         cfg::integer("gameplay_lbomber_num_explosions"),
+                        cfg::real("gameplay_lbomber_health_drop_dist"),
                         cfg::real("gameplay_lbomber_pain_smoke_threshold"),
                         cfg::real("gameplay_lbomber_pain_smoke_interval"),
                 };

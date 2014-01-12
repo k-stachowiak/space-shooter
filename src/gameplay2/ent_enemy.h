@@ -73,7 +73,7 @@ struct enemy
               const bool is_single_circle,
               const double damage,
               const double health,
-              const double explosions,
+              const int explosions,
               const double pain_smoke_threshold,
               const double pain_smoke_interval) :
                 id(new_id),
@@ -98,7 +98,7 @@ struct enemy
                         damage,
                         0),
                 wlns(health),
-                dspwn(0, 1, 1.0),
+                dspwn(0, explosions, 0.333),
                 pspwn(efwk::cmp_state::enabled,
                       pain_smoke_threshold,
                       pain_smoke_interval)

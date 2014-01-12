@@ -85,6 +85,7 @@
 	
 	(gameplay_player_vx 500.0)
 	(gameplay_player_vy 400.0)
+        (gameplay_player_vel 450.0)
 	
 	(gameplay_player_gun_interval 0.1)
 	(gameplay_player_rl_interval 0.5)
@@ -113,6 +114,8 @@
 	(gameplay_lfighter_battery_drop_dist 0.1)
 	(gameplay_lfighter_gun_up_drop_dist 0.05)
 	(gameplay_lfighter_ml_up_drop_dist 0.05)
+        (gameplay_lfighter_pain_smoke_threshold 0.5)
+        (gameplay_lfighter_pain_smoke_interval 0.125)
 	
 	(gameplay_hfighter_shape_radius 55.0)
 	(gameplay_hfighter_bullet_interval 1.5)
@@ -145,6 +148,8 @@
 	(gameplay_lbomber_battery_drop_dist 0.333)
 	(gameplay_lbomber_gun_up_drop_dist 0.125)
 	(gameplay_lbomber_ml_up_drop_dist 0.125)
+        (gameplay_lbomber_pain_smoke_threshold 0.5)
+        (gameplay_lbomber_pain_smoke_interval 0.125)
 	
 	(gameplay_hbomber_shape_radius 50.0)
 	(gameplay_hbomber_shape1_xoffset -100.0)
@@ -176,12 +181,16 @@
 	(gameplay_bullet_lin_vel 800.0)
 	(gameplay_bullet_damage_base 5.0)
 	(gameplay_bullet_shape_radius 8.0)
+        (gameplay_bullet_sparks_on_death 3)
 	
-	(gameplay_missile_lin_vel 150.0)
-	(gameplay_missile_lin_acc 200.0)
+	(gameplay_missile_lin_vel 500.0)
+	(gameplay_missile_lin_acc 1000.0)
 	(gameplay_missile_damage_base 50.0)
 	(gameplay_missile_shape_radius 8.0)
 	(gameplay_missile_num_debris 3)
+        (gameplay_missile_smoke_interval 0.05)
+        (gameplay_missile_spark_interval 0.01)
+        (gameplay_missile_sparks_on_death 10)
 	
 	(gameplay_debris_ttl_min 0.5)
 	(gameplay_debris_ttl_max 1.5)

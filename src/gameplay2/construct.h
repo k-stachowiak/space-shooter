@@ -79,16 +79,17 @@ public:
                         id,
                         m_resman.get_bitmap(res::res_id::PLAYER_SHIP),
                         m_resman.get_bitmap(res::res_id::PLAYER_SHIP_FLASH),
-                        400.0,
+                        cfg::real("gameplay_player_vel"),
                         keys,
                         x, y, -3.1415 / 2.0,
                         0, 0,
                         static_cast<double>(cfg::integer("gfx_screen_w")),
                         static_cast<double>(cfg::integer("gfx_screen_h")),
-                        0.1, 1.0,
-                        24.0,
-                        100.0,
-                        100.0
+                        cfg::real("gameplay_player_gun_interval"),
+                        cfg::real("gameplay_player_rl_interval"),
+                        cfg::real("gameplay_player_shape_radius"),
+                        cfg::real("gameplay_player_ship_damage"),
+                        cfg::real("gameplay_player_max_health")
                 };
         }
 
@@ -154,16 +155,20 @@ public:
                         id,
                         score_id,
                         bmp,
-                        800.0, vx, vy,
+                        cfg::real("gameplay_bullet_lin_vel"),
+                        vx, vy,
                         0,
                         x, y, phi,
                         0, 0,
                         static_cast<double>(cfg::integer("gfx_screen_w")),
                         static_cast<double>(cfg::integer("gfx_screen_h")),
-                        5.0, is_enemy, damage,
+                        cfg::real("gameplay_bullet_shape_radius"),
+                        is_enemy,
+                        damage,
                         0.0,
                         0.0,
-                        3, 0
+                        cfg::integer("gameplay_bullet_sparks_on_death"),
+                        0
                 };
         }
 
@@ -184,16 +189,20 @@ public:
                         id,
                         score_id,
                         bmp,
-                        500.0, vx, vy,
-                        1000,
+                        cfg::real("gameplay_missile_lin_vel"),
+                        vx, vy,
+                        cfg::real("gameplay_missile_lin_acc"),
                         x, y, phi,
                         0, 0,
                         static_cast<double>(cfg::integer("gfx_screen_w")),
                         static_cast<double>(cfg::integer("gfx_screen_h")),
-                        5.0, is_enemy, damage,
-                        0.01,
-                        0.05,
-                        10, 1
+                        cfg::real("gameplay_missile_shape_radius"),
+                        is_enemy,
+                        damage,
+                        cfg::real("gameplay_missile_spark_interval"),
+                        cfg::real("gameplay_missile_smoke_interval"),
+                        cfg::integer("gameplay_missile_sparks_on_death"),
+                        1
                 };
         }
 
@@ -224,8 +233,8 @@ public:
                         0, 0,
                         static_cast<double>(cfg::integer("gfx_screen_w")),
                         static_cast<double>(cfg::integer("gfx_screen_h")),
-                        32,
-                        20
+                        cfg::real("gameplay_pickup_shape_radius"),
+                        cfg::real("gameplay_pickup_health_amount")
                 };
         }
 
@@ -240,17 +249,17 @@ public:
                         0, 0,
                         static_cast<double>(cfg::integer("gfx_screen_w")),
                         static_cast<double>(cfg::integer("gfx_screen_h")),
-                        40.0,                   // radius 0
+                        cfg::real("gameplay_lfighter_shape_radius"),
                         -1.0, -1.0, -1.0,       // radius 1, 2, 3
                         -1.0, -1.0,             // c1x, c1y,
                         -1.0, -1.0,             // c2x, c2y,
                         -1.0, -1.0,             // c3x, c3y,
                         true,                   // is_single_circle
-                        10.0,
-                        50.0,
-                        1,
-                        0.5,
-                        0.125
+                        cfg::real("gameplay_lfighter_damage"),
+                        cfg::real("gameplay_lfighter_max_health"),
+                        cfg::integer("gameplay_lfighter_num_explosions"),
+                        cfg::real("gameplay_lfighter_pain_smoke_threshold"),
+                        cfg::real("gameplay_lfighter_pain_smoke_interval")
                 };
         }
 
@@ -276,11 +285,11 @@ public:
                         cfg::real("gameplay_lbomber_shape3_xoffset"),
                         cfg::real("gameplay_lbomber_shape3_yoffset"),
                         false,          // is_single_circle
-                        100.0,
-                        75.0,
-                        5,
-                        0.5,
-                        0.25
+                        cfg::real("gameplay_lbomber_damage"),
+                        cfg::real("gameplay_lbomber_max_health"),
+                        cfg::integer("gameplay_lbomber_num_explosions"),
+                        cfg::real("gameplay_lbomber_pain_smoke_threshold"),
+                        cfg::real("gameplay_lbomber_pain_smoke_interval"),
                 };
         }
 

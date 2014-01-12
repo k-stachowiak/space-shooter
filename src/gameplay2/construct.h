@@ -232,13 +232,35 @@ public:
                 };
         }
 
-        /*
         enemy make_light_bomber(const long id, const double x, const double y) const
         {
                 return {
+                        id,
+                        m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_BOMBER),
+                        m_resman.get_bitmap(res::res_id::ENEMY_LIGHT_BOMBER_FLASH),
+                        75,
+                        x, y,
+                        0, 0,
+                        static_cast<double>(cfg::integer("gfx_screen_w")),
+                        static_cast<double>(cfg::integer("gfx_screen_h")),
+                        -1.0,           // radius 0
+                        cfg::real("gameplay_lbomber_shape_radius"),
+                        cfg::real("gameplay_lbomber_shape_radius"),
+                        cfg::real("gameplay_lbomber_shape_radius"),
+                        cfg::real("gameplay_lbomber_shape1_xoffset"),
+                        cfg::real("gameplay_lbomber_shape1_yoffset"),
+                        cfg::real("gameplay_lbomber_shape2_xoffset"),
+                        cfg::real("gameplay_lbomber_shape2_yoffset"),
+                        cfg::real("gameplay_lbomber_shape3_xoffset"),
+                        cfg::real("gameplay_lbomber_shape3_yoffset"),
+                        false,          // is_single_circle
+                        100.0,
+                        75.0,
+                        5,
+                        0.5,
+                        0.25
                 };
         }
-        */
 
 };
 

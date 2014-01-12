@@ -59,7 +59,8 @@ class new_engine_state: public state
 
         long m_next_id;
 
-        double m_next_enemy_counter;
+        double m_next_lfighter_counter;
+        double m_next_lbomber_counter;
 
         gplay::player m_player;
 
@@ -177,16 +178,24 @@ class new_engine_state: public state
                         m_sprites.push_back(m_econstr.make_smoke_small(m_get_next_id(), srq.x, srq.y));
                 });
 
-                // Spawn enemy.
-                if ((m_next_enemy_counter -= dt) > 0) {
-                        return;
+                // Spawn enemies.
+                // --------------
+
+                if ((m_next_lfighter_counter -= dt) <= 0) {
+                        m_next_lfighter_counter += 3.0;
+                        m_enemies.push_back(
+                                m_econstr.make_light_fighter(
+                                        m_get_next_id(),
+                                        300.0, 10.0));
                 }
 
-                m_next_enemy_counter += 3.0;
-                m_enemies.push_back(
-                        m_econstr.make_light_fighter(
-                                m_get_next_id(),
-                                400.0, 10.0));
+                if ((m_next_lbomber_counter -= dt) <= 0) {
+                        m_next_lbomber_counter += 3.0;
+                        m_enemies.push_back(
+                                m_econstr.make_light_bomber(
+                                        m_get_next_id(),
+                                        500.0, 10.0));
+                }
         }
 
 public:
@@ -202,7 +211,8 @@ public:
                         m_debug_font(m_resman.get_font(res::res_id::TINY_FONT)),
                         m_score_font(m_resman.get_font(res::res_id::FONT)),
                         m_next_id(0),
-                        m_next_enemy_counter(0),
+                        m_next_lfighter_counter(0),
+                        m_next_lbomber_counter(0),
                         m_player(m_econstr.make_player(m_get_next_id(), m_keys, 100.0, 100.0))
         {
                 m_keys[ALLEGRO_KEY_LEFT] = false;

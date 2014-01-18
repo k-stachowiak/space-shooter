@@ -35,8 +35,6 @@
 #include "../misc/config.h"
 
 // TODO:
-// - show status in hud.
-// - upgrades to weapons
 // - shooting enemies
 
 class new_engine_state: public state
@@ -97,13 +95,6 @@ class new_engine_state: public state
                                     m_pickups,
                                     m_enemies,
                                     m_sprites);
-
-                // TODO: move the collision queue clearing to the pre collision update.
-                efwk::collq_clear_func coll_clr;
-                efwk::map(coll_clr, m_player,
-                                    m_projectiles,
-                                    m_pickups,
-                                    m_enemies);
 
                 efwk::collide_func coll;
                 efwk::map2(coll, m_player,

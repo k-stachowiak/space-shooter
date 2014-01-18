@@ -425,6 +425,9 @@ using IsCollidable = TmpAll<HasShape<T>,
                             HasCollisionTraits<T>,
                             HasCollisionQueue<T>>;
 
+// Collision checking operation.
+// -----------------------------
+
 template <class Entity1, class Entity2>
 typename std::enable_if<IsCollidable<Entity1>::value &&
                         IsCollidable<Entity2>::value, void>::type
@@ -456,6 +459,20 @@ template <class Entity1, class Entity2>
 typename std::enable_if<!IsCollidable<Entity1>::value ||
                         !IsCollidable<Entity2>::value, void>::type
 check_collisions(Entity1&, Entity2&) {}
+
+// Collision queue clearing operation.
+// -----------------------------------
+
+template <class Entity>
+typename std::enable_if<IsCollidable<Entity>::value, void>::type
+clear_collision_queue(Entity& ent)
+{
+        ent.cqueue.clear();
+}
+
+template <class Entity>
+typename std::enable_if<!IsCollidable<Entity>::value, void>::type
+clear_collision_queue(Entity& ent) {}
 
 }
 

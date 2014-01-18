@@ -62,15 +62,7 @@ public:
                 bind_life(ent, m_cbus);
                 bind_time(ent, m_dt, m_cbus);
                 display_update(ent, m_dt);
-        }
-};
-
-struct collq_clear_func
-{
-        template <class Entity>
-        void operator()(Entity& ent)
-        {
-                ent.cqueue.clear();
+                clear_collision_queue(ent);
         }
 };
 

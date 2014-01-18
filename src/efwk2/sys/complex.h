@@ -105,7 +105,6 @@ public:
 
 class handle_event_func
 {
-        // TODO: turn this into a scoring system.
         const long m_player_id;
         int& m_player_score;
 

@@ -21,6 +21,8 @@
 #ifndef FX_DEATHSPAWN_H
 #define FX_DEATHSPAWN_H
 
+#include "spawh_common.h"
+
 #include "../../cmp/wellness.h"
 #include "../../cmp/death_spawner.h"
 #include "../../cmp/orientation.h"
@@ -52,21 +54,18 @@ void fx_death_spawn_impl(const long id,
         }
 
         // Spawn sparks.
-        // TODO: generalize the emission of something at a random direction.
         static std::bernoulli_distribution spark_dir_distr(0.5);
         static std::uniform_real_distribution<double> spark_vel_distr(50, 100);
         static std::uniform_real_distribution<double> spark_bri_distr(0.5, 1.0);
 
         for (int i = 0; i < dspwn.num_sparks; ++i) {
-                const double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                const double dir_y = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                const double vel_x = spark_vel_distr(rnd::engine);
-                const double vel_y = spark_vel_distr(rnd::engine);
+                double vel_x, vel_y;
+                std::tie(vel_x, vel_y) = gen_rnd_vel(
+                                spark_dir_distr, spark_dir_distr,
+                                spark_vel_distr, spark_vel_distr);
                 const double bri = spark_bri_distr(rnd::engine);
                 cbus.spark_reqs.push({
-                        x, y,
-                        vel_x * dir_x,
-                        vel_y * dir_y,
+                        x, y, vel_x, vel_y,
                         {{ bri, bri, bri }},
                         0.2
                 });
@@ -79,29 +78,29 @@ void fx_death_spawn_impl(const long id,
 
         std::bernoulli_distribution health_drop_distr(dspwn.health_prob);
         if (health_drop_distr(rnd::engine)) {
-                const double dir_x = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                const double dir_y = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                const double vel_x = pickup_vel_distr(rnd::engine);
-                const double vel_y = pickup_vel_distr(rnd::engine);
-                cbus.health_reqs.push({ id, x, y, vel_x * dir_x, vel_y * dir_y });
+                double vel_x, vel_y;
+                std::tie(vel_x, vel_y) = gen_rnd_vel(
+                                pickup_dir_distr, pickup_dir_distr,
+                                pickup_vel_distr, pickup_vel_distr);
+                cbus.health_reqs.push({ id, x, y, vel_x, vel_y });
         }
 
         std::bernoulli_distribution bullupgr_drop_distr(dspwn.bullupgr_prob);
         if (bullupgr_drop_distr(rnd::engine)) {
-                const double dir_x = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                const double dir_y = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                const double vel_x = pickup_vel_distr(rnd::engine);
-                const double vel_y = pickup_vel_distr(rnd::engine);
-                cbus.bullupgr_reqs.push({ id, x, y, vel_x * dir_x, vel_y * dir_y });
+                double vel_x, vel_y;
+                std::tie(vel_x, vel_y) = gen_rnd_vel(
+                                pickup_dir_distr, pickup_dir_distr,
+                                pickup_vel_distr, pickup_vel_distr);
+                cbus.bullupgr_reqs.push({ id, x, y, vel_x, vel_y });
         }
 
         std::bernoulli_distribution missupgr_drop_distr(dspwn.missupgr_prob);
         if (missupgr_drop_distr(rnd::engine)) {
-                const double dir_x = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                const double dir_y = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
-                const double vel_x = pickup_vel_distr(rnd::engine);
-                const double vel_y = pickup_vel_distr(rnd::engine);
-                cbus.missupgr_reqs.push({ id, x, y, vel_x * dir_x, vel_y * dir_y });
+                double vel_x, vel_y;
+                std::tie(vel_x, vel_y) = gen_rnd_vel(
+                                pickup_dir_distr, pickup_dir_distr,
+                                pickup_vel_distr, pickup_vel_distr);
+                cbus.missupgr_reqs.push({ id, x, y, vel_x, vel_y });
         }
 }
 

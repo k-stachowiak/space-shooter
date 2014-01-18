@@ -46,12 +46,10 @@ void fx_time_spawn_impl(time_spawner_spark& tspwn,
         std::uniform_real_distribution<double> spark_vel_distr { 30, 70 };
         std::uniform_real_distribution<double> spark_bri_distr { 0.25, 1.0 };
 
-        // TODO: Notice that the spark parameters code is repeated in few places,
-        //       consider dealing with this.
-        const double dir_x = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-        const double dir_y = spark_dir_distr(rnd::engine) ? 1.0 : -1.0;
-        const double vel_x = spark_vel_distr(rnd::engine);
-        const double vel_y = spark_vel_distr(rnd::engine);
+        double vel_x, vel_y;
+        std::tie(vel_x, vel_y) = gen_rnd_vel(
+                        spark_dir_distr, spark_dir_distr,
+                        spark_vel_distr, spark_vel_distr);
         const double bri = spark_bri_distr(rnd::engine);
 
         tspwn.cdown.update(dt);
@@ -59,9 +57,7 @@ void fx_time_spawn_impl(time_spawner_spark& tspwn,
                 double x, y;
                 std::tie(x, y) = ori.interpolate_loc(0);
                 cbus.spark_reqs.push({
-                        x, y,
-                        vel_x * dir_x,
-                        vel_y * dir_y,
+                        x, y, vel_x, vel_y,
                         {{ bri, bri, bri }},
                         0.5
                 });

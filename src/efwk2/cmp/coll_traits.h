@@ -28,7 +28,9 @@ namespace efwk
 
 enum class coll_team
 {
-        player, enemy, none
+        player,
+        enemy,
+        none
 };
 
 inline
@@ -49,7 +51,9 @@ std::string to_string(const coll_team& ct)
 
 enum class coll_class
 {
-        ship, projectile, pickup
+        ship,
+        projectile,
+        pickup
 };
 
 inline
@@ -77,60 +81,34 @@ struct coll_dmg
 struct coll_pick
 {
         double health;
-        coll_pick(double new_health) : health(new_health) {}
+        bool bullupgr;
+        bool missupgr;
+        coll_pick(double new_health,
+                  bool new_bullupgr,
+                  bool new_missupgr) :
+                health(new_health),
+                bullupgr(new_bullupgr),
+                missupgr(new_missupgr)
+        {}
 };
 
-struct coll_report
-{
-        long id;
-        long score_id;
-        const char* type_id;
-        coll_team collt;
-        coll_class collc;
-        coll_dmg colld;
-        coll_pick collp;
-        std::vector<point> points;
-};
-
-class coll_queue
-{
-        std::vector<coll_report> m_reports;
-
-public:
-        void push(coll_report report)
-        {
-                m_reports.push_back(std::move(report));
-        }
-
-        template<class Func>
-        void for_each_report(Func func) const
-        {
-                std::for_each(begin(m_reports), end(m_reports), func);
-        }
-
-        void clear()
-        {
-                m_reports.clear();
-        }
-};
-
-// TODO: consider extracting the collision queue as an individual component.
 struct coll_traits
 {
         coll_team cteam;
         coll_class cclass;
         coll_dmg cdmg;
         coll_pick cpck;
-        coll_queue cqueue;
 
-        coll_traits(coll_team new_cteam,
-                    coll_class new_cclass,
-                    double damage,
-                    double pick_health) :
+        coll_traits(const coll_team new_cteam,
+                    const coll_class new_cclass,
+                    const double damage,
+                    const double pick_health,
+                    const bool pick_bullupgr,
+                    const bool pick_missupgr) :
                 cteam(new_cteam),
                 cclass(new_cclass),
                 cdmg(damage),
-                cpck(pick_health)
+                cpck(pick_health, pick_bullupgr, pick_missupgr)
         {}
 };
 

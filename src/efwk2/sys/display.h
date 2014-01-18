@@ -28,7 +28,6 @@
 #include "../cmp/appearance.h"
 #include "../cmp/orientation.h"
 #include "../cmp/shape.h"
-#include "../cmp/coll_traits.h"
 #include "../cmp/wellness.h"
 
 #include "../../misc/logger.h"
@@ -205,7 +204,6 @@ void display_dbg_impl(const shape_bin_proxy<Shape1, Shape2>& shp,
 template <class T>
 using IsDbgDisplayable = TmpAll<HasShape<T>,
                                 HasOrientation<T>,
-                                HasCollisionTraits<T>,
                                 HasWellness<T>>;
 
 template <class Entity>

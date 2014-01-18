@@ -140,8 +140,7 @@ public:
 
         projectile make_bullet(const long id,
                                const long score_id,
-                               const double x,
-                               const double y,
+                               const double x, const double y,
                                const bool is_enemy,
                                const double damage) const
         {
@@ -174,8 +173,7 @@ public:
 
         projectile make_missile(const long id,
                                 const long score_id,
-                                const double x,
-                                const double y,
+                                const double x, const double y,
                                 const bool is_enemy,
                                 const double damage) const
         {
@@ -209,33 +207,57 @@ public:
         spark make_spark(const long id,
                          const double ttl,
                          const std::array<double, 3> rgb,
-                         const double x,
-                         const double y,
-                         const double vx,
-                         const double vy) const
+                         const double x, const double y,
+                         const double vx, const double vy) const
         {
                 return { id, ttl, rgb, vx, vy, x, y };
         }
 
-        pickup make_health_pickup(const long id,
-                                  const long score_id,
-                                  const double x,
-                                  const double y,
-                                  const double vx,
-                                  const double vy) const
+        pickup make_pickup(const long id,
+                           const long score_id,
+                           const double x, const double y,
+                           const double vx, const double vy,
+                           ALLEGRO_BITMAP * const bmp,
+                           const double health,
+                           const bool bullupgr,
+                           const bool missupgr) const
         {
                 return {
-                        id,
-                        score_id,
-                        m_resman.get_bitmap(res::res_id::HEALTH),
-                        vx, vy,
-                        x, y,
-                        0, 0,
+                        id, score_id, bmp, vx, vy, x, y, 0, 0,
                         static_cast<double>(cfg::integer("gfx_screen_w")),
                         static_cast<double>(cfg::integer("gfx_screen_h")),
                         cfg::real("gameplay_pickup_shape_radius"),
-                        cfg::real("gameplay_pickup_health_amount")
+                        health, bullupgr, missupgr
                 };
+        }
+
+        // TODO: globally rename score_id to parent_id
+        pickup make_health_pickup(const long id,
+                                  const long score_id,
+                                  const double x, const double y,
+                                  const double vx, const double vy) const
+        {
+                return make_pickup(id, score_id, x, y, vx, vy,
+                        m_resman.get_bitmap(res::res_id::HEALTH),
+                        cfg::real("gameplay_pickup_health_amount"), false, false);
+        }
+
+        pickup make_bullupgr_pickup(const long id,
+                                    const long score_id,
+                                    const double x, const double y,
+                                    const double vx, const double vy) const
+        {
+                return make_pickup(id, score_id, x, y, vx, vy,
+                        m_resman.get_bitmap(res::res_id::B_UPGRADE), 0, true, false);
+        }
+
+        pickup make_missupgr_pickup(const long id,
+                                    const long score_id,
+                                    const double x, const double y,
+                                    const double vx, const double vy) const
+        {
+                return make_pickup(id, score_id, x, y, vx, vy,
+                        m_resman.get_bitmap(res::res_id::M_UPGRADE), 0, false, true);
         }
 
         enemy make_light_fighter(const long id, const double x, const double y) const
@@ -259,6 +281,8 @@ public:
                         cfg::real("gameplay_lfighter_max_health"),
                         cfg::integer("gameplay_lfighter_num_explosions"),
                         cfg::real("gameplay_lfighter_health_drop_dist"),
+                        cfg::real("gameplay_lfighter_gun_up_drop_dist"),
+                        cfg::real("gameplay_lfighter_ml_up_drop_dist"),
                         cfg::real("gameplay_lfighter_pain_smoke_threshold"),
                         cfg::real("gameplay_lfighter_pain_smoke_interval")
                 };
@@ -290,6 +314,8 @@ public:
                         cfg::real("gameplay_lbomber_max_health"),
                         cfg::integer("gameplay_lbomber_num_explosions"),
                         cfg::real("gameplay_lbomber_health_drop_dist"),
+                        cfg::real("gameplay_lbomber_gun_up_drop_dist"),
+                        cfg::real("gameplay_lbomber_ml_up_drop_dist"),
                         cfg::real("gameplay_lbomber_pain_smoke_threshold"),
                         cfg::real("gameplay_lbomber_pain_smoke_interval"),
                 };

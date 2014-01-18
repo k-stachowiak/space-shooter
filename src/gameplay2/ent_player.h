@@ -28,8 +28,10 @@
 #include "../efwk2/cmp/weaponry.h"
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/cmp/coll_traits.h"
+#include "../efwk2/cmp/coll_queue.h"
 #include "../efwk2/cmp/wellness.h"
 #include "../efwk2/cmp/flash.h"
+#include "../efwk2/cmp/upgrade.h"
 
 namespace gplay 
 {
@@ -50,7 +52,9 @@ struct player
         efwk::player_weapons pweap;
         efwk::shape_circle shp;
         efwk::coll_traits ctraits;
+        efwk::coll_queue cqueue;
         efwk::wellness_regular wlns;
+        efwk::upgrade upgr;
 
         player(long new_id,
                ALLEGRO_BITMAP* const bmp,
@@ -83,10 +87,10 @@ struct player
                         ctraits(efwk::coll_team::player,
                                 efwk::coll_class::ship,
                                 damage,
-                                0),
-                        wlns(health)
-        {
-        }
+                                0, 0, 0),
+                        wlns(health),
+                        upgr(5.999, 5.999)
+        {}
 };
 
 }

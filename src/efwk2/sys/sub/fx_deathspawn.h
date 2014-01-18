@@ -85,6 +85,24 @@ void fx_death_spawn_impl(const long id,
                 const double vel_y = pickup_vel_distr(rnd::engine);
                 cbus.health_reqs.push({ id, x, y, vel_x * dir_x, vel_y * dir_y });
         }
+
+        std::bernoulli_distribution bullupgr_drop_distr(dspwn.bullupgr_prob);
+        if (bullupgr_drop_distr(rnd::engine)) {
+                const double dir_x = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                const double dir_y = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                const double vel_x = pickup_vel_distr(rnd::engine);
+                const double vel_y = pickup_vel_distr(rnd::engine);
+                cbus.bullupgr_reqs.push({ id, x, y, vel_x * dir_x, vel_y * dir_y });
+        }
+
+        std::bernoulli_distribution missupgr_drop_distr(dspwn.missupgr_prob);
+        if (missupgr_drop_distr(rnd::engine)) {
+                const double dir_x = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                const double dir_y = pickup_dir_distr(rnd::engine) ? 1.0 : -1.0;
+                const double vel_x = pickup_vel_distr(rnd::engine);
+                const double vel_y = pickup_vel_distr(rnd::engine);
+                cbus.missupgr_reqs.push({ id, x, y, vel_x * dir_x, vel_y * dir_y });
+        }
 }
 
 template <class T>

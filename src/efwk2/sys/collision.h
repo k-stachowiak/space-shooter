@@ -29,6 +29,7 @@ static const double EPSILON = 0.5;
 #include "../cmp/shape.h"
 #include "../cmp/orientation.h"
 #include "../cmp/coll_traits.h"
+#include "../cmp/coll_queue.h"
 #include "../tmp/traits.h"
 
 namespace efwk
@@ -420,7 +421,9 @@ bool collide_impl(const shape_bin_proxy<Shape1, Shape2>& bpx1, const orientation
 // ========================
 
 template <class T>
-using IsCollidable = TmpAll<HasShape<T>, HasCollisionTraits<T>>;
+using IsCollidable = TmpAll<HasShape<T>,
+                            HasCollisionTraits<T>,
+                            HasCollisionQueue<T>>;
 
 template <class Entity1, class Entity2>
 typename std::enable_if<IsCollidable<Entity1>::value &&
@@ -434,18 +437,18 @@ check_collisions(Entity1& ent1, Entity2& ent2)
 
         // Store the report.
         if (result) {
-                ent1.ctraits.cqueue.push({ ent2.id, ent2.score_id, ent2.type_id,
-                                           ent2.ctraits.cteam,
-                                           ent2.ctraits.cclass,
-                                           ent2.ctraits.cdmg,
-                                           ent2.ctraits.cpck,
-                                           points });
-                ent2.ctraits.cqueue.push({ ent1.id, ent1.score_id, ent1.type_id,
-                                           ent1.ctraits.cteam,
-                                           ent1.ctraits.cclass,
-                                           ent1.ctraits.cdmg,
-                                           ent1.ctraits.cpck,
-                                           points });
+                ent1.cqueue.push({ ent2.id, ent2.score_id, ent2.type_id,
+                                   ent2.ctraits.cteam,
+                                   ent2.ctraits.cclass,
+                                   ent2.ctraits.cdmg,
+                                   ent2.ctraits.cpck,
+                                   points });
+                ent2.cqueue.push({ ent1.id, ent1.score_id, ent1.type_id,
+                                   ent1.ctraits.cteam,
+                                   ent1.ctraits.cclass,
+                                   ent1.ctraits.cdmg,
+                                   ent1.ctraits.cpck,
+                                   points });
         }
 }
 

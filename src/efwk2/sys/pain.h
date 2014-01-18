@@ -43,8 +43,7 @@ struct ship_reaction_func
 
         void operator()(const coll_report& cr)
         {
-                // Pain case.
-                // ---------
+                // Pain.
                 const bool other_hurts =
                         cr.collc == coll_class::ship ||
                         cr.collc == coll_class::projectile;
@@ -59,20 +58,7 @@ struct ship_reaction_func
                 // Pickup case.
                 // ------------
 
-                const bool other_is_pickup =
-                        cr.collc == coll_class::pickup;
-
-                const bool this_can_pick =
-                        collt == coll_team::player;
-
-                if (other_is_pickup && this_can_pick) {
-                        wlns.hurt(-cr.collp.health);
-                        cbus.del_reqs.push(cr.id);
-                }
-
                 // Wellness tracking.
-                // ------------------
-
                 if (!wlns.alive()) {
                         cbus.del_reqs.push(id);
                         cbus.death_events.push_back({ id, cr.score_id });
@@ -141,7 +127,8 @@ void pain_impl(const long id,
 
 template <class T>
 using IsPainable = TmpAll<HasWellness<T>,
-                          HasCollisionTraits<T>>;
+                          HasCollisionTraits<T>,
+                          HasCollisionQueue<T>>;
 
 template <class Entity>
 typename std::enable_if<IsPainable<Entity>::value, void>::type
@@ -150,7 +137,7 @@ pain(Entity& ent, comm_bus& cbus)
         pain_impl(ent.id,
                   ent.ctraits.cclass,
                   ent.ctraits.cteam,
-                  ent.ctraits.cqueue,
+                  ent.cqueue,
                   ent.wlns, cbus);
 }
 

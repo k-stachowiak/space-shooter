@@ -27,8 +27,9 @@
 #include "../efwk2/cmp/orientation.h"
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/cmp/coll_traits.h"
+#include "../efwk2/cmp/coll_queue.h"
 #include "../efwk2/cmp/wellness.h"
-#include "../efwk2/cmp/emitter.h"
+#include "../efwk2/cmp/time_spawner.h"
 #include "../efwk2/cmp/death_spawner.h"
 
 namespace gplay
@@ -45,8 +46,9 @@ struct projectile
         efwk::orientation ori;
         efwk::shape_circle shp;
         efwk::coll_traits ctraits;
+        efwk::coll_queue cqueue;
         efwk::wellness_paper wlns;
-        efwk::emitter_compound emit;
+        efwk::time_spawner_compound tspwn;
         efwk::death_spawner dspwn;
 
         projectile(const long new_id,
@@ -81,8 +83,8 @@ struct projectile
                 ctraits(is_enemy ? efwk::coll_team::enemy : efwk::coll_team::player,
                         efwk::coll_class::projectile,
                         damage,
-                        0),
-                emit((spark_interval > 0)
+                        0, 0, 0),
+                tspwn((spark_interval > 0)
                         ? efwk::cmp_state::enabled
                         : efwk::cmp_state::disabled,
                       spark_interval,
@@ -92,7 +94,7 @@ struct projectile
                       smoke_interval),
                 dspwn(sparks_on_death,
                       expl_on_death,
-                      0.0)
+                      0, 0, 0)
         {
                 // Didn't want to force feed this into the initialization list,
                 // but it can be done for the sake of constness and encapsulation.

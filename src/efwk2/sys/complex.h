@@ -27,6 +27,7 @@
 #include "input.h"
 #include "collision.h"
 #include "pain.h"
+#include "pickup.h"
 #include "hud.h"
 #include "fx.h"
 
@@ -69,7 +70,7 @@ struct collq_clear_func
         template <class Entity>
         void operator()(Entity& ent)
         {
-                ent.ctraits.cqueue.clear();
+                ent.cqueue.clear();
         }
 };
 
@@ -97,6 +98,7 @@ public:
         void operator()(Entity& ent)
         {
                 pain(ent, m_cbus);
+                pick(ent, m_cbus);
                 fx(ent, m_dt, m_cbus);
         }
 };

@@ -21,7 +21,7 @@
 #ifndef FX_H
 #define FX_H
 
-#include "sub/fx_emit.h"
+#include "sub/fx_timespawn.h"
 #include "sub/fx_flash.h"
 #include "sub/fx_deathspawn.h"
 #include "sub/fx_painspawn.h"
@@ -32,7 +32,7 @@ namespace efwk
 template <class Entity>
 void fx(Entity& ent, const double dt, comm_bus& cbus)
 {
-        fx_emit(ent, dt, cbus);
+        fx_time_spawn(ent, dt, cbus);
         fx_flash(ent, dt);
         fx_death_spawn(ent, cbus);
         fx_pain_spawn(ent, dt, cbus);

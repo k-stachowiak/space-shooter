@@ -82,6 +82,8 @@ struct comm_bus
         del_queue<smoke_req> smoke_reqs;
         del_queue<spark_req> spark_reqs;
         del_queue<pickup_req> health_reqs;
+        del_queue<pickup_req> bullupgr_reqs;
+        del_queue<pickup_req> missupgr_reqs;
         del_queue<long> del_reqs;
 
         // Events.

@@ -27,6 +27,7 @@
 #include "../efwk2/cmp/orientation.h"
 #include "../efwk2/cmp/shape.h"
 #include "../efwk2/cmp/coll_traits.h"
+#include "../efwk2/cmp/coll_queue.h"
 #include "../efwk2/cmp/wellness.h"
 #include "../efwk2/cmp/flash.h"
 #include "../efwk2/cmp/death_spawner.h"
@@ -54,6 +55,7 @@ struct enemy
                         efwk::shape_circle,
                         efwk::shape_circle>> shp;
         efwk::coll_traits ctraits;
+        efwk::coll_queue cqueue;
         efwk::wellness_regular wlns;
         efwk::death_spawner dspwn;
         efwk::pain_spawner pspwn;
@@ -74,7 +76,9 @@ struct enemy
               const double damage,
               const double health,
               const int explosions,
-              const double health_dist,
+              const double health_prob,
+              const double bullupgr_prob,
+              const double missupgr_prob,
               const double pain_smoke_threshold,
               const double pain_smoke_interval) :
                 id(new_id),
@@ -97,9 +101,9 @@ struct enemy
                 ctraits(efwk::coll_team::enemy,
                         efwk::coll_class::ship,
                         damage,
-                        0),
+                        0, 0, 0),
                 wlns(health),
-                dspwn(0, explosions, health_dist),
+                dspwn(0, explosions, health_prob, bullupgr_prob, missupgr_prob),
                 pspwn(efwk::cmp_state::enabled,
                       pain_smoke_threshold,
                       pain_smoke_interval)

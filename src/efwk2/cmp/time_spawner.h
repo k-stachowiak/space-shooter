@@ -18,61 +18,59 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef EMITTER_H
-#define EMITTER_H
+#ifndef TIME_SPAWNER_H
+#define TIME_SPAWNER_H
 
 #include "common.h"
 #include "ucmp.h"
 #include "../tmp/sfinae.h"
 #include "../tmp/traits.h"
 
-// TODO: rename emitters into spawners to increase the consistency.
-
 namespace efwk
 {
 
-struct emitter_spark
+struct time_spawner_spark
 {
         cmp_state state;
         cooldown_stat cdown;
-        emitter_spark(cmp_state new_state, double interval) :
-                state(new_state),
-                cdown(interval)
+        time_spawner_spark(cmp_state new_state, double interval) :
+                           state(new_state),
+                           cdown(interval)
         {}
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasEmitterSpark, emitter_spark, emit);
+SFINAE__DECLARE_HAS_MEMBER(HasTimeSpawnerSpark, time_spawner_spark, tspwn);
 
-struct emitter_smoke
+struct time_spawner_smoke
 {
         cmp_state state;
         cooldown_stat cdown;
-        emitter_smoke(cmp_state new_state, double interval) :
-                state(new_state),
-                cdown(interval)
+        time_spawner_smoke(cmp_state new_state, double interval) :
+                          state(new_state),
+                          cdown(interval)
         {}
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasEmitterSmoke, emitter_smoke, emit);
+SFINAE__DECLARE_HAS_MEMBER(HasTimeSpawnerSmoke, time_spawner_smoke, tspwn);
 
-struct emitter_compound
+struct time_spawner_compound
 {
-        emitter_spark spark;
-        emitter_smoke smoke;
+        time_spawner_spark spark;
+        time_spawner_smoke smoke;
 
-        emitter_compound(cmp_state spark_state, double spark_interval,
-                         cmp_state smoke_state, double smoke_interval) :
+        time_spawner_compound(cmp_state spark_state, double spark_interval,
+                              cmp_state smoke_state, double smoke_interval) :
                 spark(spark_state, spark_interval),
                 smoke(smoke_state, smoke_interval)
         {}
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasEmitterCompound, emitter_compound, emit);
+SFINAE__DECLARE_HAS_MEMBER(HasTimeSpawnerCompound, time_spawner_compound, tspwn);
 
 template <class T>
-using HasEmitter = TmpAny<HasEmitterSmoke<T>,
-                          HasEmitterSpark<T>,
-                          HasEmitterCompound<T>>;
+using HasTimeSpawner = TmpAny<HasTimeSpawnerSmoke<T>,
+                              HasTimeSpawnerSpark<T>,
+                              HasTimeSpawnerCompound<T>>;
 
 }
 

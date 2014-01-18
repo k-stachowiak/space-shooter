@@ -21,6 +21,14 @@
 #ifndef ENT_PICKUP_H
 #define ENT_PICKUP_H
 
+#include "../efwk2/cmp/appearance.h"
+#include "../efwk2/cmp/bounds.h"
+#include "../efwk2/cmp/dynamics.h"
+#include "../efwk2/cmp/orientation.h"
+#include "../efwk2/cmp/shape.h"
+#include "../efwk2/cmp/coll_traits.h"
+#include "../efwk2/cmp/coll_queue.h"
+
 namespace gplay
 {
 
@@ -35,20 +43,19 @@ struct pickup
         efwk::orientation ori;
         efwk::shape_circle shp;
         efwk::coll_traits ctraits;
+        efwk::coll_queue cqueue;
 
         pickup(const long new_id,
                const long new_score_id,
                ALLEGRO_BITMAP* const bmp,
-               const double vx,
-               const double vy,
-               const double x,
-               const double y,
-               const double x_min,
-               const double y_min,
-               const double x_max,
-               const double y_max,
+               const double vx, const double vy,
+               const double x, const double y,
+               const double x_min, const double y_min,
+               const double x_max, const double y_max,
                const double radius,
-               const double pick_health) :
+               const double pick_health,
+               const bool pick_bullupgr,
+               const bool pick_missupgr) :
                 id(new_id),
                 score_id(new_score_id),
                 type_id("pickup"),
@@ -60,7 +67,9 @@ struct pickup
                 ctraits(efwk::coll_team::none,
                         efwk::coll_class::pickup,
                         0,
-                        pick_health)
+                        pick_health,
+                        pick_bullupgr,
+                        pick_missupgr)
         {
         }
 };

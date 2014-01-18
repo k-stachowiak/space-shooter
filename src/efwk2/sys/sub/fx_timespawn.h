@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef FX_EMIT_H
-#define FX_EMIT_H
+#ifndef FX_TIMESPAWN_H
+#define FX_TIMESPAWN_H
 
 #include "../../comm.h"
 #include "../../tmp/sfinae.h"
@@ -27,37 +27,19 @@
 
 #include "../../cmp/orientation.h"
 #include "../../cmp/shape.h"
-#include "../../cmp/emitter.h"
+#include "../../cmp/time_spawner.h"
 
 namespace efwk
 {
 
 template <class Shape>
-void fx_emit_impl(emitter_smoke& emit,
-                  const orientation& ori,
-                  const Shape& shp,
-                  const double dt,
-                  comm_bus& cbus)
+void fx_time_spawn_impl(time_spawner_spark& tspwn,
+                        const orientation& ori,
+                        const Shape& shp,
+                        const double dt,
+                        comm_bus& cbus)
 {
-        if (emit.state == cmp_state::disabled)
-                return;
-
-        emit.cdown.update(dt);
-        if (emit.cdown.trigger()) {
-                double x, y;
-                std::tie(x, y) = ori.interpolate_loc(0);
-                cbus.smoke_reqs.push({ x, y });
-        }
-}
-
-template <class Shape>
-void fx_emit_impl(emitter_spark& emit,
-                  const orientation& ori,
-                  const Shape& shp,
-                  const double dt,
-                  comm_bus& cbus)
-{
-        if (emit.state == cmp_state::disabled)
+        if (tspwn.state == cmp_state::disabled)
                 return;
 
         std::bernoulli_distribution spark_dir_distr { 0.5 };
@@ -72,8 +54,8 @@ void fx_emit_impl(emitter_spark& emit,
         const double vel_y = spark_vel_distr(rnd::engine);
         const double bri = spark_bri_distr(rnd::engine);
 
-        emit.cdown.update(dt);
-        if (emit.cdown.trigger()) {
+        tspwn.cdown.update(dt);
+        if (tspwn.cdown.trigger()) {
                 double x, y;
                 std::tie(x, y) = ori.interpolate_loc(0);
                 cbus.spark_reqs.push({
@@ -87,29 +69,47 @@ void fx_emit_impl(emitter_spark& emit,
 }
 
 template <class Shape>
-void fx_emit_impl(emitter_compound& emit,
-                  const orientation& ori,
-                  const Shape& shp,
-                  const double dt,
-                  comm_bus& cbus)
+void fx_time_spawn_impl(time_spawner_smoke& tspwn,
+                       const orientation& ori,
+                       const Shape& shp,
+                       const double dt,
+                       comm_bus& cbus)
 {
-        fx_emit_impl(emit.spark, ori, shp, dt, cbus);
-        fx_emit_impl(emit.smoke, ori, shp, dt, cbus);
+        if (tspwn.state == cmp_state::disabled)
+                return;
+
+        tspwn.cdown.update(dt);
+        if (tspwn.cdown.trigger()) {
+                double x, y;
+                std::tie(x, y) = ori.interpolate_loc(0);
+                cbus.smoke_reqs.push({ x, y });
+        }
+}
+
+template <class Shape>
+void fx_time_spawn_impl(time_spawner_compound& tspwn,
+                        const orientation& ori,
+                        const Shape& shp,
+                        const double dt,
+                        comm_bus& cbus)
+{
+        fx_time_spawn_impl(tspwn.spark, ori, shp, dt, cbus);
+        fx_time_spawn_impl(tspwn.smoke, ori, shp, dt, cbus);
 }
 
 template <class T>
-using IsFxEmitter = TmpAll<HasEmitter<T>, HasOrientation<T>, HasShape<T>>;
+using IsFxSpawner = TmpAll<HasTimeSpawner<T>, HasOrientation<T>, HasShape<T>>;
 
 template <class Entity>
-typename std::enable_if<IsFxEmitter<Entity>::value, void>::type
-fx_emit(Entity& ent, const double dt, comm_bus& cbus)
+typename std::enable_if<IsFxSpawner<Entity>::value, void>::type
+fx_time_spawn(Entity& ent, const double dt, comm_bus& cbus)
 {
-        fx_emit_impl(ent.emit, ent.ori, ent.shp, dt, cbus);
+        fx_time_spawn_impl(ent.tspwn, ent.ori, ent.shp, dt, cbus);
 }
 
 template <class Entity>
-typename std::enable_if<!IsFxEmitter<Entity>::value, void>::type
-fx_emit(Entity& ent, const double dt, comm_bus& cbus) {}
+typename std::enable_if<!IsFxSpawner<Entity>::value, void>::type
+fx_time_spawn(Entity& ent, const double dt, comm_bus& cbus) {}
 
 }
 

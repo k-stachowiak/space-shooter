@@ -187,6 +187,24 @@ class new_engine_state: public state
                                         prq.vx, prq.vy));
                 });
 
+                m_cbus.bullupgr_reqs.visit(dt, [this](efwk::pickup_req& prq) {
+                        m_pickups.push_back(
+                                m_econstr.make_bullupgr_pickup(
+                                        m_get_next_id(),
+                                        prq.score_id,
+                                        prq.x, prq.y,
+                                        prq.vx, prq.vy));
+                });
+
+                m_cbus.missupgr_reqs.visit(dt, [this](efwk::pickup_req& prq) {
+                        m_pickups.push_back(
+                                m_econstr.make_missupgr_pickup(
+                                        m_get_next_id(),
+                                        prq.score_id,
+                                        prq.x, prq.y,
+                                        prq.vx, prq.vy));
+                });
+
                 m_cbus.expl_reqs.visit(dt, [this](efwk::explosion_req& erq) {
                         m_sprites.push_back(m_econstr.make_explosion(m_get_next_id(), erq.x, erq.y));
                 });
@@ -273,7 +291,11 @@ public:
 
                 efwk::draw_func df { debug_mode, weight, m_debug_font };
                 efwk::map(df, m_player, m_projectiles, m_enemies, m_sprites, m_sparks, m_pickups);
-                efwk::draw_hud(m_score_font, m_player.score, m_player.wlns.get_health());
+                efwk::draw_hud(m_score_font,
+                               m_player.score,
+                               m_player.wlns.get_health(),
+                               m_player.upgr.get_gun_level(),
+                               m_player.upgr.get_missile_level());
         }
 
         void key_down(int k) override

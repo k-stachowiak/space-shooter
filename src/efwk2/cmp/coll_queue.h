@@ -18,36 +18,51 @@
 * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-#ifndef DEATH_SPAWNER_H
-#define DEATH_SPAWNER_H
+#ifndef COLL_QUEUE_H
+#define COLL_QUEUE_H
 
 #include "../tmp/sfinae.h"
+#include "coll_traits.h"
 
 namespace efwk
 {
 
-struct death_spawner
+struct coll_report
 {
-        int num_sparks;
-        int num_explosions;
-        double health_prob;
-        double bullupgr_prob;
-        double missupgr_prob;
-
-        death_spawner(int new_num_sparks,
-                      int new_num_explosions,
-                      double new_health_prob,
-                      double new_bullupgr_prob,
-                      double new_missupgr_prob) :
-                num_sparks(new_num_sparks),
-                num_explosions(new_num_explosions),
-                health_prob(new_health_prob),
-                bullupgr_prob(new_bullupgr_prob),
-                missupgr_prob(new_missupgr_prob)
-        {}
+        long id;
+        long score_id;
+        const char* type_id;
+        coll_team collt;
+        coll_class collc;
+        coll_dmg colld;
+        coll_pick collp;
+        std::vector<point> points;
 };
 
-SFINAE__DECLARE_HAS_MEMBER(HasDeathSpawner, death_spawner, dspwn);
+
+class coll_queue
+{
+        std::vector<coll_report> m_reports;
+
+public:
+        void push(coll_report report)
+        {
+                m_reports.push_back(std::move(report));
+        }
+
+        template<class Func>
+        void for_each_report(Func func) const
+        {
+                std::for_each(begin(m_reports), end(m_reports), func);
+        }
+
+        void clear()
+        {
+                m_reports.clear();
+        }
+};
+
+SFINAE__DECLARE_HAS_MEMBER(HasCollisionQueue, coll_queue, cqueue);
 
 }
 

@@ -61,7 +61,7 @@ struct ship_reaction_func
                 // Wellness tracking.
                 if (!wlns.alive()) {
                         cbus.del_reqs.push(id);
-                        cbus.death_events.push_back({ id, cr.score_id });
+                        cbus.death_events.push_back({ id, cr.parent_id });
                 }
         }
 };
@@ -85,7 +85,7 @@ struct projectile_reaction_func
 
                 if (!wlns.alive()) {
                         cbus.del_reqs.push(id);
-                        cbus.death_events.push_back({ id, cr.score_id });
+                        cbus.death_events.push_back({ id, cr.parent_id });
                 }
         }
 };

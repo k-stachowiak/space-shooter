@@ -139,7 +139,7 @@ public:
         }
 
         projectile make_bullet(const long id,
-                               const long score_id,
+                               const long parent_id,
                                const double x, const double y,
                                const bool is_enemy,
                                const double damage) const
@@ -152,7 +152,7 @@ public:
 
                 return {
                         id,
-                        score_id,
+                        parent_id,
                         bmp,
                         cfg::real("gameplay_bullet_lin_vel"),
                         vx, vy,
@@ -172,7 +172,7 @@ public:
         }
 
         projectile make_missile(const long id,
-                                const long score_id,
+                                const long parent_id,
                                 const double x, const double y,
                                 const bool is_enemy,
                                 const double damage) const
@@ -185,7 +185,7 @@ public:
 
                 return {
                         id,
-                        score_id,
+                        parent_id,
                         bmp,
                         cfg::real("gameplay_missile_lin_vel"),
                         vx, vy,
@@ -214,7 +214,7 @@ public:
         }
 
         pickup make_pickup(const long id,
-                           const long score_id,
+                           const long parent_id,
                            const double x, const double y,
                            const double vx, const double vy,
                            ALLEGRO_BITMAP * const bmp,
@@ -223,7 +223,7 @@ public:
                            const bool missupgr) const
         {
                 return {
-                        id, score_id, bmp, vx, vy, x, y, 0, 0,
+                        id, parent_id, bmp, vx, vy, x, y, 0, 0,
                         static_cast<double>(cfg::integer("gfx_screen_w")),
                         static_cast<double>(cfg::integer("gfx_screen_h")),
                         cfg::real("gameplay_pickup_shape_radius"),
@@ -231,32 +231,31 @@ public:
                 };
         }
 
-        // TODO: globally rename score_id to parent_id
         pickup make_health_pickup(const long id,
-                                  const long score_id,
+                                  const long parent_id,
                                   const double x, const double y,
                                   const double vx, const double vy) const
         {
-                return make_pickup(id, score_id, x, y, vx, vy,
+                return make_pickup(id, parent_id, x, y, vx, vy,
                         m_resman.get_bitmap(res::res_id::HEALTH),
                         cfg::real("gameplay_pickup_health_amount"), false, false);
         }
 
         pickup make_bullupgr_pickup(const long id,
-                                    const long score_id,
+                                    const long parent_id,
                                     const double x, const double y,
                                     const double vx, const double vy) const
         {
-                return make_pickup(id, score_id, x, y, vx, vy,
+                return make_pickup(id, parent_id, x, y, vx, vy,
                         m_resman.get_bitmap(res::res_id::B_UPGRADE), 0, true, false);
         }
 
         pickup make_missupgr_pickup(const long id,
-                                    const long score_id,
+                                    const long parent_id,
                                     const double x, const double y,
                                     const double vx, const double vy) const
         {
-                return make_pickup(id, score_id, x, y, vx, vy,
+                return make_pickup(id, parent_id, x, y, vx, vy,
                         m_resman.get_bitmap(res::res_id::M_UPGRADE), 0, false, true);
         }
 

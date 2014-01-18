@@ -118,7 +118,7 @@ public:
 
         void operator()(const death_event& ev)
         {
-                if (ev.score_id == m_player_id) {
+                if (ev.parent_id == m_player_id) {
                         m_player_score += 10;
                 }
         }

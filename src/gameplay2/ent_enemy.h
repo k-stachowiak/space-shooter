@@ -39,7 +39,7 @@ namespace gplay
 struct enemy
 {
         long id;
-        long score_id;
+        long parent_id;
         const char* type_id;
         efwk::flash flsh;
         efwk::appearance_bin_proxy<
@@ -82,7 +82,7 @@ struct enemy
               const double pain_smoke_threshold,
               const double pain_smoke_interval) :
                 id(new_id),
-                score_id(new_id),
+                parent_id(new_id),
                 type_id("enemy"),
                 flsh(0.05),
                 appr(bmp, bmp_flash),

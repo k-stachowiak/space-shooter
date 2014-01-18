@@ -39,7 +39,7 @@ namespace gplay
 struct player
 {
         long id;
-        long score_id;
+        long parent_id;
         const char* type_id;
         int score;
         efwk::flash flsh;
@@ -74,7 +74,7 @@ struct player
                const double damage,
                const double health) :
                         id(new_id),
-                        score_id(new_id),
+                        parent_id(new_id),
                         type_id("player"),
                         score(0),
                         flsh(0.05),

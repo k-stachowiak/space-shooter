@@ -182,7 +182,7 @@ class new_engine_state: public state
                         m_pickups.push_back(
                                 m_econstr.make_health_pickup(
                                         m_get_next_id(),
-                                        prq.score_id,
+                                        prq.parent_id,
                                         prq.x, prq.y,
                                         prq.vx, prq.vy));
                 });
@@ -191,7 +191,7 @@ class new_engine_state: public state
                         m_pickups.push_back(
                                 m_econstr.make_bullupgr_pickup(
                                         m_get_next_id(),
-                                        prq.score_id,
+                                        prq.parent_id,
                                         prq.x, prq.y,
                                         prq.vx, prq.vy));
                 });
@@ -200,7 +200,7 @@ class new_engine_state: public state
                         m_pickups.push_back(
                                 m_econstr.make_missupgr_pickup(
                                         m_get_next_id(),
-                                        prq.score_id,
+                                        prq.parent_id,
                                         prq.x, prq.y,
                                         prq.vx, prq.vy));
                 });

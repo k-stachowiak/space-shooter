@@ -437,13 +437,13 @@ check_collisions(Entity1& ent1, Entity2& ent2)
 
         // Store the report.
         if (result) {
-                ent1.cqueue.push({ ent2.id, ent2.score_id, ent2.type_id,
+                ent1.cqueue.push({ ent2.id, ent2.parent_id, ent2.type_id,
                                    ent2.ctraits.cteam,
                                    ent2.ctraits.cclass,
                                    ent2.ctraits.cdmg,
                                    ent2.ctraits.cpck,
                                    points });
-                ent2.cqueue.push({ ent1.id, ent1.score_id, ent1.type_id,
+                ent2.cqueue.push({ ent1.id, ent1.parent_id, ent1.type_id,
                                    ent1.ctraits.cteam,
                                    ent1.ctraits.cclass,
                                    ent1.ctraits.cdmg,

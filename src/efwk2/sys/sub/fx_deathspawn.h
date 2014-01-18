@@ -21,7 +21,7 @@
 #ifndef FX_DEATHSPAWN_H
 #define FX_DEATHSPAWN_H
 
-#include "spawh_common.h"
+#include "spawn_common.h"
 
 #include "../../cmp/wellness.h"
 #include "../../cmp/death_spawner.h"

@@ -50,7 +50,7 @@ struct spark_req
 
 struct pickup_req
 {
-        long score_id;
+        long parent_id;
         double x, y;
         double vx, vy;
 };
@@ -70,7 +70,7 @@ struct smoke_req
 struct death_event
 {
         long dying_id;
-        long score_id;
+        long parent_id;
 };
 
 struct comm_bus

@@ -38,7 +38,7 @@ namespace gplay
 struct projectile
 {
         long id;
-        long score_id;
+        long parent_id;
         const char* type_id;
         efwk::appearance_static_bmp appr;
         efwk::life_bounds lbnd;
@@ -52,7 +52,7 @@ struct projectile
         efwk::death_spawner dspwn;
 
         projectile(const long new_id,
-                   const long new_score_id,
+                   const long new_parent_id,
                    ALLEGRO_BITMAP* const bmp,
                    const double velocity,
                    const double dx,
@@ -73,7 +73,7 @@ struct projectile
                    const int sparks_on_death,
                    const int expl_on_death) :
                 id(new_id),
-                score_id(new_score_id),
+                parent_id(new_parent_id),
                 type_id("projectile"),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),

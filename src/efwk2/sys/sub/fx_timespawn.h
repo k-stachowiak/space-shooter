@@ -21,6 +21,8 @@
 #ifndef FX_TIMESPAWN_H
 #define FX_TIMESPAWN_H
 
+#include "spawn_common.h"
+
 #include "../../comm.h"
 #include "../../tmp/sfinae.h"
 #include "../../tmp/traits.h"

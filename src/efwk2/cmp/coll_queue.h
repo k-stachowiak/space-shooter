@@ -30,7 +30,7 @@ namespace efwk
 struct coll_report
 {
         long id;
-        long score_id;
+        long parent_id;
         const char* type_id;
         coll_team collt;
         coll_class collc;

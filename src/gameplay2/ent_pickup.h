@@ -35,7 +35,7 @@ namespace gplay
 struct pickup
 {
         long id;
-        long score_id;
+        long parent_id;
         const char* type_id;
         efwk::appearance_static_bmp appr;
         efwk::life_bounds lbnd;
@@ -46,7 +46,7 @@ struct pickup
         efwk::coll_queue cqueue;
 
         pickup(const long new_id,
-               const long new_score_id,
+               const long new_parent_id,
                ALLEGRO_BITMAP* const bmp,
                const double vx, const double vy,
                const double x, const double y,
@@ -57,7 +57,7 @@ struct pickup
                const bool pick_bullupgr,
                const bool pick_missupgr) :
                 id(new_id),
-                score_id(new_score_id),
+                parent_id(new_parent_id),
                 type_id("pickup"),
                 appr(bmp),
                 lbnd(x_min, y_min, x_max, y_max),

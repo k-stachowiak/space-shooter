@@ -63,7 +63,7 @@ namespace bif {
 		CValue Execute(itpr::CScope& scope, itpr::CStack& stack) const override;
 	};
 
-	std::map<std::string, std::unique_ptr<CAstNode>> BuildBifMap();
+	std::vector<std::pair<std::string, std::unique_ptr<CAstNode>>> BuildBifMap();
 
 }
 }

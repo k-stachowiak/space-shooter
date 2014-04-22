@@ -151,9 +151,9 @@ static std::vector<wave> read_waves_from_script(script::scriptman const& sman) {
 
 			// Analyze input.
 			double delay = pattern_value.GetCompound()[0].GetReal();
-			std::string formation = pattern_value.GetCompound()[0].GetString();
-			std::string type = pattern_value.GetCompound()[0].GetString();
-			std::string movement = pattern_value.GetCompound()[0].GetString();
+			std::string formation = pattern_value.GetCompound()[1].GetString();
+			std::string type = pattern_value.GetCompound()[2].GetString();
+			std::string movement = pattern_value.GetCompound()[3].GetString();
 
 			// Parse enemy type.
 			enemy_type et;

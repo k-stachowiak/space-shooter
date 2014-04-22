@@ -24,7 +24,6 @@
 #include "state.h"
 #include "../efwk/game_ent_fac.h"
 #include "../script/scriptman.h"
-#include "../script/parsing.h"
 #include "../misc/random_clock.h"
 #include "../misc/rand.h"
 #include "../efwk/sys/systems.h"
@@ -33,6 +32,7 @@
 
 #include <allegro5/allegro_primitives.h>
 
+/*
 static wave read_wave_from_script(script::dom_node const& wave_desc) {
 
         if(!is_list(wave_desc))
@@ -134,17 +134,86 @@ static wave read_wave_from_script(script::dom_node const& wave_desc) {
 
         return wave(patterns);
 }
+*/
+static std::vector<wave> read_waves_from_script(script::scriptman const& sman) {
 
-static std::vector<wave> read_waves_from_script(script::dom_node const& root) {
+	auto waves = sman.read_wave_tuple_array("waves", "waves");
+	if (waves.empty()) {
+		throw parsing_error("Failed reading enemy waves tuples.");
+	}
 
-        if(!is_list(root))
-                throw parsing_error("Main waves config node isn't a list.");
+	std::vector<wave> result;
 
-        std::vector<wave> waves;
-        for(script::dom_node const& wd : root.list)
-                waves.push_back(read_wave_from_script(wd));
+	for (const auto& pattern_values : waves) {
 
-        return waves;
+		std::vector<std::pair<double, pattern>> patterns;
+		for (const auto& pattern_value : pattern_values) {
+
+			// Analyze input.
+			double delay = pattern_value.GetCompound()[0].GetReal();
+			std::string formation = pattern_value.GetCompound()[0].GetString();
+			std::string type = pattern_value.GetCompound()[0].GetString();
+			std::string movement = pattern_value.GetCompound()[0].GetString();
+
+			// Parse enemy type.
+			enemy_type et;
+			if (type == "light_fighter") {
+				et = enemy_type::light_fighter;
+			}
+			else if (type == "heavy_fighter") {
+				et = enemy_type::heavy_fighter;
+			}
+			else if (type == "light_bomber") {
+				et = enemy_type::light_bomber;
+			}
+			else if (type == "heavy_bomber") {
+				et = enemy_type::heavy_bomber;
+			}
+			else {
+				throw parsing_error("unrecognized enemy type descriptor encountered.");
+			}
+
+			// Parse formation.
+			std::vector<pattern::element> frm;
+			if (formation == "uno") {
+				frm = pattern::el_uno(et);
+			}
+			else if (formation == "pair") {
+				frm = pattern::el_pair(et);
+			}
+			else if (formation == "triangle") {
+				frm = pattern::el_triangle(et);
+			}
+			else if (formation == "quad") {
+				frm = pattern::el_quad(et);
+			}
+			else {
+				throw parsing_error("Unrecognized formation string encountered.");
+			}
+
+			// Parse movement pattern.
+			movement_type mt;
+
+			if (movement == "vertical") {
+				mt = movement_type::vertical;
+			}
+			else if (movement == "horizontal") {
+				mt = movement_type::horizontal;
+			}
+			else if (movement == "diagonal") {
+				mt = movement_type::diagonal;
+			}
+			else if (movement == "zorro") {
+				mt = movement_type::zorro;
+			}
+			else {
+				throw parsing_error("unrecognized movement type descriptor encountered.");
+			}
+
+			patterns.emplace_back(delay, pattern{ frm, mt });
+		}
+	}
+    return result;
 }
 
 class game_state : public state {
@@ -358,8 +427,8 @@ public:
                         std::uniform_real_distribution<double>(
                                 cfg::real("gfx_star_interval_min"),
                                 cfg::real("gfx_star_interval_max")),
-                                std::bind(&entity_factory::create_star, &_ef))
-        , _en_man(read_waves_from_script(_sman.get_dom("waves")))
+                                std::bind(&entity_factory::create_star_drop_id, &_ef))
+        , _en_man(read_waves_from_script(_sman))
         {
                 // Spawn initial stars.
                 std::uniform_real_distribution<double> x_dist(1.0, cfg::integer("gfx_screen_w") - 1);

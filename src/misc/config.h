@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "../script/dom.h"
+#include "../script/scriptman.h"
 
 namespace cfg {
 
@@ -50,7 +50,7 @@ namespace cfg {
         // Note: WTF did I just come up with ?!
 
         struct loader {
-                loader(script::dom_node const& n);
+                loader(const script::scriptman& sman);
         };
 }
 

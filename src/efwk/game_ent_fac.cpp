@@ -251,6 +251,11 @@ uint64_t entity_factory::create_star() {
         return create_star_xy(x, 1.0);
 }
 
+void entity_factory::create_star_drop_id()
+{
+	create_star();
+}
+
 uint64_t entity_factory::create_star_xy(double x, double y) {
 
         // Helpers.

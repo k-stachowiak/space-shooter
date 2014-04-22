@@ -95,6 +95,7 @@ public:
                         uint64_t origin_id);
 
         uint64_t create_star();
+		void create_star_drop_id();
         uint64_t create_star_xy(double x, double y);
         uint64_t create_player_ship(double x, double y);
 

@@ -25,43 +25,79 @@
 #include <set>
 #include <string>
 #include <fstream>
+#include <functional>
 
-#include "tok.h"
-#include "dom.h"
+#include "LIB/API/MoonEngine.h"
+#include "LIB/API/Value.h"
 
 namespace script {
 
         class scriptman {
-                std::map<std::string, dom_node> _doms;
+			moon::CEngine _engine;
+
         public:
-                scriptman(std::set<std::string> files) {
-                        for(auto const& filename : files) {
-
-                                // The binary flag is required on MSW platform, or some
-                                // file stream backtracking will be corrupted.
-                                std::ifstream in(filename.c_str(), std::ifstream::binary);
-
-                                if(!in.is_open())
-                                        throw resource_not_found_error(
-                                                "Couldn't load a configuration file \""
-                                                + filename + "\".");
-
-                                tokenizer tok(in);
-                                dom_node dom = script::build_dom_tree(tok);
-
-                                in.close();
-
-                                _doms[filename] = dom;
-                        }
+            scriptman(std::set<std::string> files) {
+				for (const auto& filename : files) {
+					_engine.LoadUnitFile(filename);
                 }
+            }
 
-                dom_node const& get_dom(std::string const& key) const {
-                        auto it = _doms.find(key);
-                        if(it == end(_doms))
-                                throw resource_not_found_error(
-                                        "Requested script that hasn't been loaded.");
-                        return it->second;
-                }
+			template<class Func>
+			void for_each_integer(const std::string& unit_name, Func f) const {
+				auto value_names = _engine.GetAllValues(unit_name);
+				for (const auto& value_name : value_names) {
+					moon::CValue value = _engine.GetValue(unit_name, value_name);
+					if (IsInteger(value)) {
+						f(value_name, value.GetInteger());
+					}
+				}
+			}
+
+			template<class Func>
+			void for_each_real(const std::string& unit_name, Func f) const {
+				auto value_names = _engine.GetAllValues(unit_name);
+				for (const auto& value_name : value_names) {
+					moon::CValue value = _engine.GetValue(unit_name, value_name);
+					if (IsReal(value)) {
+						f(value_name, value.GetReal());
+					}
+				}
+			}
+
+			std::vector<std::vector<moon::CValue>> read_wave_tuple_array(
+					const std::string& unit_name,
+					const std::string& symbol) const {
+
+				auto waves = _engine.GetValue(unit_name, symbol);
+				if (!IsArray(waves)) {
+					return{};
+				}
+
+				std::vector<std::vector<moon::CValue>> result;
+				for (const auto& wave : waves.GetCompound()) {
+					if (!IsArray(wave)) {
+						return{};
+					}
+
+					std::vector<moon::CValue> patterns;
+					for (const auto& pattern : wave.GetCompound()) {
+
+						if (!IsTuple(pattern, 4) ||
+							!IsReal(pattern.GetCompound()[0]) ||
+							!IsString(pattern.GetCompound()[1]) ||
+							!IsString(pattern.GetCompound()[2]) ||
+							!IsString(pattern.GetCompound()[3])) {
+							return{};
+						}
+
+						patterns.push_back(pattern);
+					}
+
+					result.push_back(patterns);
+				}
+
+				return result;
+			}
         };
 
 } // namespace script

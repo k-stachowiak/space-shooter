@@ -28,7 +28,6 @@
 #include "allegro.h"
 #include "misc/config.h"
 #include "script/scriptman.h"
-#include "script/expect.h"
 #include "resources/resman.h"
 #include "states/state.h"
 #include "misc/logger.h"
@@ -47,7 +46,7 @@ class application {
 public:
         application()
         : _sman({ "config", "waves" })
-        , _cfg_RAII_plug(_sman.get_dom("config"))
+        , _cfg_RAII_plug(_sman)
         , _fps(cfg::real("gfx_fps"))
         , _spf(1.0 / _fps)
         , _allegro(
@@ -110,8 +109,6 @@ public:
 };
 
 int main() {
-
-        script::test_expect();
 
         try {
                 logger::logger::instance().trace("BEGIN program.");

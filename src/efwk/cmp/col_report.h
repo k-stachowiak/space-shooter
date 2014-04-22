@@ -26,8 +26,8 @@
 namespace cmp {
 
     class shape;
-    class collision_profile;
-    class pickup_profile;
+    struct collision_profile;
+    struct pickup_profile;
 
     // Collision report type.
     //

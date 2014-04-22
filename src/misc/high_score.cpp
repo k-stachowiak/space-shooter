@@ -19,6 +19,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <algorithm>
 
@@ -29,7 +30,7 @@ high_score::high_score(std::string filename) : m_filename(filename) {
         std::ifstream in(m_filename.c_str());
         for(unsigned i = 0; i < cfg::real("high_score_entries_count"); ++i) {
                 entry e;
-                char line[128];
+				char line[128] = { 0 };
 
                 in.getline(line, 128, '#');
                 e.name = line;

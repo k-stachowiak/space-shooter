@@ -30,7 +30,7 @@ class pixel : public appearance {
 public:
         pixel(double r, double g, double b) : _r(r), _g(g), _b(b) {}
 
-        void update(double dt) {}
+        void update(double) {}
 
         void draw(double x, double y, double phi) const {
                 al_draw_pixel(x + 0.5, y + 0.5, al_map_rgb_f(_r, _g, _b));

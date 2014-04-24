@@ -467,7 +467,7 @@ public:
             return create_hs_enter_state(_resman, _sman, score);
         }
 
-        void update(double t, double dt) {
+        void update(double, double dt) {
                 
                 // Trigger the clocks.
                 _star_spawn_clk.tick(dt);

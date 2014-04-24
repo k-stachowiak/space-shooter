@@ -62,7 +62,7 @@ public:
                _vy = vy;
         }
 
-        void update(double dt) {}
+        void update(double) {}
         void input(std::map<int, bool>& keys) {}
 };
 
@@ -95,7 +95,7 @@ std::shared_ptr<dynamics> create_const_acc_dynamics(double vx0, double vy0, doub
 class const_ang_vel_dynamics : public dynamics {
 public:
         const_ang_vel_dynamics(double theta) { _theta = theta; }
-        void update(double dt) {}
+        void update(double) {}
         void input(std::map<int, bool>& keys) {}
 };
 
@@ -112,7 +112,7 @@ public:
         , _throttle_y(0.0)
         {}
 
-        void update(double dt) {
+        void update(double) {
                 _vx = _throttle_x * cfg::real("gameplay_player_vx");
                 _vy = _throttle_y * cfg::real("gameplay_player_vy");
         }

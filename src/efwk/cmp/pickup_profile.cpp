@@ -31,7 +31,7 @@ public:
         battery_pickup_profile(double amount) : _amount(amount) {}
 
         bool trigger(wellness& w,
-                        upgrades& up,
+                        upgrades& ,
                         noise_queue& nqueue) {
 
                 double s = w.get_shield();
@@ -57,7 +57,7 @@ class health_pickup_profile : public pickup_profile {
 public:
         health_pickup_profile(double amount) : _amount(amount) {}
         bool trigger(wellness& w,
-                        upgrades& up,
+                        upgrades&,
                         noise_queue& nqueue) {
 
                 double h = w.get_health();

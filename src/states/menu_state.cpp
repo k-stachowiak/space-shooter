@@ -88,14 +88,12 @@ public:
         : _resman(resman)
         , _sman(sman)
         , _done(false)
-        , _entries(std::vector<std::pair<std::string, std::shared_ptr<bool>>> {
-                        { "game", std::shared_ptr<bool>(new bool(false)) },
-                        { "highscore", std::shared_ptr<bool>(new bool(false)) },
-                        { "quit", std::shared_ptr<bool>(new bool(false)) }
-        })
         , _current_entry(0)
         {
-                *(_entries[_current_entry].second) = true;
+			_entries.push_back(std::make_pair("game", std::shared_ptr<bool>(new bool(false))));
+			_entries.push_back(std::make_pair("highscore", std::shared_ptr<bool>(new bool(false))));
+			_entries.push_back(std::make_pair("quit", std::shared_ptr<bool>(new bool(false))));
+            *(_entries[_current_entry].second) = true;
         }
 
         void sigkill() {
@@ -110,10 +108,10 @@ public:
                 return move(_next_state);
         }
 
-        void update(double t, double dt) {
+        void update(double, double) {
         }
 
-        void draw(double weight) {
+        void draw(double) {
                 al_clear_to_color(al_map_rgb_f(0, 0, 0));
 
                 double x = 40.0;
@@ -123,10 +121,10 @@ public:
                         auto color = (_current_entry == i)
                                 ? al_map_rgb_f(1,1,0)
                                 : al_map_rgb_f(0.1, 0.3, 0.5);
-                        al_draw_text(
-                                _resman.get_font(res::res_id::FONT),
-                                color, x, y, 0,
-                                _entries[i].first.c_str());
+
+						ALLEGRO_FONT* ft = _resman.get_font(res::res_id::FONT);
+						const char* str = _entries[i].first.c_str();
+                        al_draw_text(ft, color, x, y, 0, str);
                 }
         }
 

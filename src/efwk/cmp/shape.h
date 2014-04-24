@@ -45,7 +45,7 @@ public:
                 circle const& c, double xb, double yb) const = 0;
 
         virtual std::pair<double, double> get_random_point() const = 0;
-        virtual void debug_draw(double x, double y) const {}
+        virtual void debug_draw(double, double) const {}
         virtual std::string debug_str() const { return {}; }
 };
 

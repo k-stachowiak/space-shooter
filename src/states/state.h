@@ -43,9 +43,9 @@ public:
         virtual void draw(double weight) = 0;
 
         // Optionally implementable.
-        virtual void key_up(int k) {}
-        virtual void key_down(int k) {}
-        virtual void key_typed(int chr) {}
+        virtual void key_up(int) {}
+        virtual void key_down(int) {}
+        virtual void key_typed(int) {}
 };
 
 std::unique_ptr<state> create_menu_state(

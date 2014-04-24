@@ -136,7 +136,7 @@ public:
         , _randomize(randomize)
         {}
 
-        void trigger(double x, double y, double phi,
+        void trigger(double x, double y, double,
                         shape const& shape,
                         double vx, double vy,
                         uint64_t origin_id,
@@ -195,7 +195,7 @@ public:
 
         void trigger(double x, double y, double phi,
                         shape const& shape,
-                        double vx, double vy,
+                        double, double,
                         uint64_t origin_id,
                         noise_queue& nqueue,
                         comm::msg_queue& queue) {

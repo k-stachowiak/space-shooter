@@ -70,7 +70,7 @@ public:
                 return create_hs_display_state(_resman, _sman);
         }
 
-        void update(double t, double dt) {
+        void update(double, double) {
         }
 
         void draw(double weight) {

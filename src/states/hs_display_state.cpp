@@ -116,7 +116,7 @@ public:
         }
 
         // Logic.
-        void update(double t, double dt) {
+        void update(double, double) {
         }
 
         void draw(double weight) {
